@@ -13,7 +13,6 @@
 TForm1 *Form1;
 
 int errorreports = 0;
-bool timer2 = false;
 
 typedef list<String> CustomStringList;
 
@@ -560,7 +559,7 @@ void filterChanged() {
                         for(int i = 1; i < inList; i++) {
                                 TObject *t = ServerSortList->Objects[0];
                                 int j = (int)t;
-                                Form1->StringGrid1->Cells[0][i] = ServerArray[j].index;
+                                Form1->StringGrid1->Cells[0][i] = " " + String(ServerArray[j].index);
                                 Form1->StringGrid1->Cells[1][i] = ServerArray[j].name;
                                 Form1->StringGrid1->Cells[2][i] = String(ServerArray[j].players) + " / " + String(ServerArray[j].maxplayers);
                                 Form1->StringGrid1->Cells[3][i] = ServerArray[j].mode;
@@ -1387,6 +1386,7 @@ void __fastcall TForm1::ClickWatchButton(TObject *Sender)
         int index = a->Tag;
         a->Checked = !(a->Checked);
         ServerArray[index].watch = a->Checked;
+        StringGrid1->Refresh();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CheckBox8Click(TObject *Sender)
@@ -1431,12 +1431,6 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
                         }
                 } catch (...) {}
         }        
-}
-//---------------------------------------------------------------------------
-void __fastcall TForm1::Timer2Timer(TObject *Sender)
-{
-        timer2 = !timer2;
-        StringGrid1->Refresh();
 }
 //---------------------------------------------------------------------------
 

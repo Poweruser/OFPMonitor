@@ -48,7 +48,7 @@ object Form1: TForm1
     RowCount = 20
     Font.Charset = MAC_CHARSET
     Font.Color = clWindowText
-    Font.Height = -12
+    Font.Height = -11
     Font.Name = 'Arial'
     Font.Style = []
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSizing, goRowSelect]
@@ -507,11 +507,5 @@ object Form1: TForm1
     object Watch1: TMenuItem
       Caption = 'Watch'
     end
-  end
-  object Timer2: TTimer
-    Interval = 500
-    OnTimer = Timer2Timer
-    Left = 72
-    Top = 64
   end
 end
