@@ -11,8 +11,7 @@ USEFORM("Unit2.cpp", Form2);
 
 
 bool MyAppAlreadyRunning() {
-        HANDLE hMutex = NULL;
-        hMutex = CreateMutex(NULL,true,"OFPMonitor");
+        HANDLE hMutex = CreateMutex(NULL,true,"OFPMonitor");
         if (GetLastError() == ERROR_ALREADY_EXISTS ) {
                 CloseHandle(hMutex);
                 return true; // Already running
@@ -28,7 +27,7 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	try
         {
                  Application->Initialize();
-                 Application->Title = "OFPMonitor 1.04";
+                 Application->Title = "OFPMonitor 1.042";
                  Application->CreateForm(__classid(TForm1), &Form1);
                  Application->CreateForm(__classid(TForm2), &Form2);
                  Application->Run();

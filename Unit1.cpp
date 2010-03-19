@@ -3,6 +3,7 @@
 #include <list>
 #include <iostream.h>
 #include <mmsystem.h>
+#include <math.h>
 #pragma hdrstop
 #include "Unit1.h"
 #include "Unit2.h"
@@ -229,6 +230,7 @@ class Player {
 };
 
 typedef list<Player> CustomPlayerList;
+const unsigned int queryArrayLength = 10;
 
 class Server {
         public:
@@ -258,7 +260,7 @@ class Server {
                 int equalMod;
                 bool watch;
                 CustomPlayerList playerlist;
-                QueryAnswer queries[5];
+                QueryAnswer queries[queryArrayLength];
                 Server() {
                         this->watch = false;
                         this->index = -1;
@@ -309,9 +311,15 @@ String program_gslist = "gslist.exe";
 String program_gslist_parameter = "-q -n opflashr -o 2";
 Server ServerArray[128];
 int numOfServers = 1;
+int timeoutLimit = 10;
 TStringList *ServerSortList = new TStringList;
 TStringList *PlayerSortList = new TStringList;
 TStringList *PlayerSortList2 = new TStringList;
+
+void updateTimeoutLimit() {
+        timeoutLimit = ceil(10000 / Form1->Timer1->Interval);
+        return;
+}
 
 void sendUdpMessage(int index, String ip, int port, String msg) {
         char buffer[256];
@@ -325,7 +333,7 @@ void sendUdpMessage(int index, String ip, int port, String msg) {
                 ServerArray[index].messageSent = timeGetTime();
         } else {
                 int tmp = ServerArray[index].timeouts;
-                if(tmp < 5) {
+                if(tmp < timeoutLimit) {
                         ServerArray[index].timeouts = tmp + 1;
                 } else {
                         ServerArray[index].clear();
@@ -364,7 +372,7 @@ bool doPlayerFilter(CustomPlayerList l, String s) {
 
 int checkFilters(int j) {
         int out = 0;
-        if(ServerArray[j].name.Length() > 0 && ServerArray[j].timeouts < 3) {
+        if(ServerArray[j].name.Length() > 0 && ServerArray[j].timeouts < timeoutLimit) {
                 out = 1;
                 if(ServerArray[j].players >= Form1->UpDown1->Position) {
                         if(
@@ -641,20 +649,25 @@ class BroadcastRotation {
 BroadcastRotation serverCycle = BroadcastRotation();
 
 String getGameState (int i) {
+        String out = IntToStr(i);
         if(i == 2) {
-                return "Creating";
+                out = "Creating";
         } else if(i == 6) {
-                return "Waiting";
+                out = "Waiting";
         } else if(i == 9) {
-                return "Debriefing";
+                out = "Debriefing";
         } else if(i == 12) {
-                return "Setting up";
+                out = "Setting up";
         } else if(i == 13) {
-                return "Briefing";
+                out = "Briefing";
         } else if(i == 14) {
-                return "Playing";
+                out = "Playing";
         }
-        return IntToStr(i);
+        //DEBUG
+        if(out.Length() < 7){
+                addToErrorReport("Fehler 7", "Unbekannter Spielstatus: " + out);
+        }
+        return out;
 }
 
 CustomStringList getAddress(String address) {
@@ -795,7 +808,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                                         if(a.back() == "hostname") {
                                                                 String hostname = tmp.front();
                                                                 for(int l = 0; l < numOfServers; l++) {
-                                                                        if(hostname == ServerArray[l].name && ip != ServerArray[l].ip) {
+                                                                        if((hostname == ServerArray[l].name && ip != ServerArray[l].ip) || (id == ServerArray[l].queryid)) {
                                                                                 return false;
                                                                         }
                                                                 }
@@ -813,7 +826,6 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                         ServerArray[i].queries[part - 1].part = part;
                                         mergeLists(ServerArray[i].queries[part - 1].content,a);
                         } else {
-                                addToErrorReport("Fehler 4, Alter Query " + String(ServerArray[i].queryid) ,msg);
                                 return false;
                         }
                 }
@@ -825,7 +837,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
         if(final) {
                 bool correct = true;
                 int endingIndex = -1;
-                for(int j = 0; j < 5 && correct; j++) {
+                for(int j = 0; j < queryArrayLength && correct; j++) {
                         correct = (ServerArray[i].queryid == ServerArray[i].queries[j].id);
                         if(ServerArray[i].queries[j].final) {
                                 endingIndex = j;
@@ -838,6 +850,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                 success = true;
                         }
                 } else {
+                        //DEBUG
                         addToErrorReport("Fehler 5, queries passen nicht zusammen",msg);
                         return false;
                 }
@@ -1049,6 +1062,7 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
                 PlayerSortList2->Duplicates = dupAccept;
                 Timer3->Enabled = true;
                 Form2->init();
+                updateTimeoutLimit();
                 if(!Form2->getExe().IsEmpty() && !Form2->getExeFolder().IsEmpty()) {
                         PopupMenu1->Items->Items[0]->Enabled = true;
                 }

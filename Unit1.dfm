@@ -1,10 +1,10 @@
 object Form1: TForm1
-  Left = 343
-  Top = 263
+  Left = 178
+  Top = 128
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   ClientHeight = 486
-  ClientWidth = 661
+  ClientWidth = 660
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -383,7 +383,7 @@ object Form1: TForm1
   object StatusBar1: TStatusBar
     Left = 0
     Top = 462
-    Width = 661
+    Width = 660
     Height = 24
     Panels = <
       item

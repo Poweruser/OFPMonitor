@@ -80,9 +80,6 @@ class Configuration {
                         if(!ml.IsEmpty()) {
                                 out += " \"-mod="+ this->createModLine() +"\"";
                         }
-
-
-
                         return out;
                 }
                 String createListEntry() {
@@ -326,11 +323,12 @@ void TForm2::init() {
         }
         try {
                 int a = StrToInt(interval);
-                programSettings.interval = a;
+                programSettings.setInterval(a);
                 UpDown1->Position = a;
         }catch (...) {
         }
         programSettings.changed = false;
+        return;
 }
 
 
@@ -514,7 +512,7 @@ void __fastcall TForm2::Edit5Change(TObject *Sender)
 
 void __fastcall TForm2::UpDown1Click(TObject *Sender, TUDBtnType Button)
 {
-        programSettings.setInterval(UpDown1->Position);        
+        programSettings.setInterval(UpDown1->Position);
 }
 //---------------------------------------------------------------------------
 
