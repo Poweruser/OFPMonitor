@@ -28,7 +28,7 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	try
         {
                  Application->Initialize();
-                 Application->Title = "OFPMonitor 1.031";
+                 Application->Title = "OFPMonitor 1.04";
                  Application->CreateForm(__classid(TForm1), &Form1);
                  Application->CreateForm(__classid(TForm2), &Form2);
                  Application->Run();
