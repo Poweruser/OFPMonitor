@@ -1,10 +1,10 @@
 object Form1: TForm1
-  Left = 203
-  Top = 122
+  Left = 265
+  Top = 215
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  ClientHeight = 470
-  ClientWidth = 659
+  ClientHeight = 486
+  ClientWidth = 661
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -32,28 +32,31 @@ object Form1: TForm1
     Width = 132
     Height = 24
     Caption = 'Copy address to clipboard'
-    TabOrder = 4
+    TabOrder = 3
     OnClick = Button3Click
   end
   object StringGrid1: TStringGrid
     Left = 3
-    Top = 202
+    Top = 206
     Width = 654
-    Height = 241
+    Height = 251
     ColCount = 7
+    Ctl3D = True
     DefaultColWidth = 101
-    DefaultRowHeight = 16
+    DefaultRowHeight = 18
     FixedCols = 0
-    RowCount = 2
+    RowCount = 20
     Font.Charset = MAC_CHARSET
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -12
     Font.Name = 'Arial'
     Font.Style = []
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSizing, goRowSelect]
+    ParentCtl3D = False
     ParentFont = False
     ScrollBars = ssVertical
     TabOrder = 0
+    OnDrawCell = StringGrid1DrawCell
     OnMouseDown = StringGrid1MouseDown
     OnSelectCell = StringGrid1SelectCell
     ColWidths = (
@@ -71,16 +74,18 @@ object Form1: TForm1
     Width = 132
     Height = 24
     Caption = 'Get new Server list'
-    TabOrder = 1
+    TabOrder = 4
     OnClick = Button2Click
   end
   object GroupBox1: TGroupBox
     Left = 3
-    Top = 77
+    Top = 80
     Width = 366
-    Height = 121
+    Height = 119
     Caption = '  Filters  '
-    TabOrder = 2
+    Color = clBtnFace
+    ParentColor = False
+    TabOrder = 7
     object Label6: TLabel
       Left = 120
       Top = 74
@@ -164,7 +169,7 @@ object Form1: TForm1
       Caption = 'Briefing'
       Checked = True
       State = cbChecked
-      TabOrder = 3
+      TabOrder = 4
       OnClick = CheckBox4Click
     end
     object CheckBox5: TCheckBox
@@ -175,7 +180,7 @@ object Form1: TForm1
       Caption = 'Debriefing'
       Checked = True
       State = cbChecked
-      TabOrder = 4
+      TabOrder = 5
       OnClick = CheckBox5Click
     end
     object Edit1: TEdit
@@ -183,7 +188,7 @@ object Form1: TForm1
       Top = 88
       Width = 110
       Height = 21
-      TabOrder = 5
+      TabOrder = 11
       OnChange = Edit1Change
     end
     object Edit2: TEdit
@@ -191,7 +196,7 @@ object Form1: TForm1
       Top = 88
       Width = 110
       Height = 21
-      TabOrder = 6
+      TabOrder = 10
       OnChange = Edit2Change
     end
     object CheckBox6: TCheckBox
@@ -200,7 +205,7 @@ object Form1: TForm1
       Width = 73
       Height = 17
       Caption = 'With'
-      TabOrder = 7
+      TabOrder = 6
       OnClick = CheckBox6Click
     end
     object CheckBox7: TCheckBox
@@ -211,7 +216,7 @@ object Form1: TForm1
       Caption = 'Without'
       Checked = True
       State = cbChecked
-      TabOrder = 8
+      TabOrder = 7
       OnClick = CheckBox7Click
     end
     object UpDown1: TUpDown
@@ -231,7 +236,7 @@ object Form1: TForm1
       Top = 50
       Width = 41
       Height = 21
-      TabOrder = 10
+      TabOrder = 8
       Text = '1'
       OnChange = Edit3Change
     end
@@ -240,7 +245,7 @@ object Form1: TForm1
       Top = 88
       Width = 110
       Height = 21
-      TabOrder = 11
+      TabOrder = 12
       OnChange = Edit4Change
     end
     object CheckBox8: TCheckBox
@@ -251,7 +256,7 @@ object Form1: TForm1
       Caption = 'Setting up'
       Checked = True
       State = cbChecked
-      TabOrder = 12
+      TabOrder = 3
       OnClick = CheckBox8Click
     end
   end
@@ -259,9 +264,11 @@ object Form1: TForm1
     Left = 3
     Top = 2
     Width = 230
-    Height = 75
+    Height = 74
     Caption = '  Server Info  '
-    TabOrder = 3
+    Color = clBtnFace
+    ParentColor = False
+    TabOrder = 2
     object Label1: TLabel
       Left = 8
       Top = 16
@@ -351,21 +358,21 @@ object Form1: TForm1
     Left = 376
     Top = 6
     Width = 281
-    Height = 190
+    Height = 193
     ColCount = 4
     DefaultColWidth = 50
-    DefaultRowHeight = 16
+    DefaultRowHeight = 18
     FixedCols = 0
     RowCount = 50
     Font.Charset = MAC_CHARSET
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -12
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected, goRowSelect]
     ParentFont = False
     ScrollBars = ssVertical
-    TabOrder = 5
+    TabOrder = 1
     OnMouseDown = StringGrid2MouseDown
     ColWidths = (
       100
@@ -375,8 +382,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 446
-    Width = 659
+    Top = 462
+    Width = 661
     Height = 24
     Panels = <
       item
@@ -401,14 +408,14 @@ object Form1: TForm1
     Width = 132
     Height = 24
     Caption = 'Settings'
-    TabOrder = 7
+    TabOrder = 5
     OnClick = Button1Click
   end
   object Timer1: TTimer
     Enabled = False
     OnTimer = Timer1Timer
-    Left = 208
-    Top = 32
+    Left = 168
+    Top = 56
   end
   object NMUDP1: TNMUDP
     RemotePort = 0
@@ -416,19 +423,19 @@ object Form1: TForm1
     ReportLevel = 5
     OnDataReceived = NMUDP1DataReceived
     OnDataSend = NMUDP1DataSend
-    Left = 208
-    Top = 8
+    Left = 200
+    Top = 56
   end
   object Timer3: TTimer
     Enabled = False
     Interval = 10
     OnTimer = Timer3Timer
-    Left = 208
+    Left = 136
     Top = 56
   end
   object PopupMenu1: TPopupMenu
     OnPopup = PopupMenu1Popup
-    Left = 184
+    Left = 104
     Top = 56
     object Join1: TMenuItem
       Caption = 'Join'
@@ -497,5 +504,14 @@ object Form1: TForm1
         Caption = '9'
       end
     end
+    object Watch1: TMenuItem
+      Caption = 'Watch'
+    end
+  end
+  object Timer2: TTimer
+    Interval = 500
+    OnTimer = Timer2Timer
+    Left = 72
+    Top = 56
   end
 end

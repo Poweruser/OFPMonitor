@@ -9,9 +9,11 @@
 #include <Forms.hpp>
 #include <NMUDP.hpp>
 #include <Grids.hpp>
-#include <ExtCtrls.hpp>
-#include <ComCtrls.hpp>
+//#include <ExtCtrls.hpp>
+//#include <ComCtrls.hpp>
 #include <Menus.hpp>
+#include <ComCtrls.hpp>
+#include <ExtCtrls.hpp>
 //---------------------------------------------------------------------------
 class TForm1 : public TForm
 {
@@ -82,6 +84,8 @@ __published:	// IDE-managed Components
         TMenuItem *N82;
         TMenuItem *N92;
         TLabel *Label5;
+        TMenuItem *Watch1;
+        TTimer *Timer2;
         void __fastcall NMUDP1DataReceived(TComponent *Sender,
           int NumberBytes, AnsiString FromIP, int Port);
         void __fastcall FormCreate(TObject *Sender);
@@ -112,9 +116,13 @@ __published:	// IDE-managed Components
         void __fastcall Button1Click(TObject *Sender);
         void __fastcall PopupMenu1Popup(TObject *Sender);
         void __fastcall ClickMyButton(TObject *Sender);
+        void __fastcall ClickWatchButton(TObject *Sender);
         void __fastcall CheckBox8Click(TObject *Sender);
         void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
           TShiftState Shift);
+        void __fastcall StringGrid1DrawCell(TObject *Sender, int ACol,
+          int ARow, TRect &Rect, TGridDrawState State);
+        void __fastcall Timer2Timer(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         typedef list<String> CustomStringList;

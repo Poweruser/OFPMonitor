@@ -9,9 +9,11 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
+#pragma resource "wavefiles.res"
 TForm1 *Form1;
 
 int errorreports = 0;
+bool timer2 = false;
 
 typedef list<String> CustomStringList;
 
@@ -255,9 +257,11 @@ class Server {
                 int actver;
                 int reqver;
                 int equalMod;
+                bool watch;
                 CustomPlayerList playerlist;
                 QueryAnswer queries[5];
                 Server() {
+                        this->watch = false;
                         this->index = -1;
                         this->ip = "";
                         this->gamespyport = 0;
@@ -267,6 +271,7 @@ class Server {
                 }
                    
                 Server(String &i, int &p, int &ind) {
+                        this->watch = false;
                         this->clear();
                         this->index = ind;
                         this->ip = i;
@@ -362,38 +367,37 @@ int checkFilters(int j) {
         int out = 0;
         if(ServerArray[j].name.Length() > 0 && ServerArray[j].timeouts < 3) {
                 out = 1;
-
-                if(ServerArray[j].players < Form1->UpDown1->Position) {
-                } else if(
-                        (
-                        (ServerArray[j].mode == Form1->CheckBox1->Caption && Form1->CheckBox1->Checked) ||
-                        (ServerArray[j].mode == Form1->CheckBox2->Caption && Form1->CheckBox2->Checked) ||
-                        (ServerArray[j].mode == Form1->CheckBox3->Caption && Form1->CheckBox3->Checked) ||
-                        (ServerArray[j].mode == Form1->CheckBox4->Caption && Form1->CheckBox4->Checked) ||
-                        (ServerArray[j].mode == Form1->CheckBox5->Caption && Form1->CheckBox5->Checked) ||
-                        (ServerArray[j].mode == Form1->CheckBox8->Caption && Form1->CheckBox8->Checked)
-                        ) &&
-                        (
-                        (ServerArray[j].password == 1 && Form1->CheckBox6->Checked) ||
-                        (ServerArray[j].password == 0 && Form1->CheckBox7->Checked)
-                        )
-                ) {
-                        bool missionfilter = true;
-                        if(Form1->Edit1->Text.Trim().Length() > 0) {
-                                missionfilter = doNameFilter(ServerArray[j].mission,Form1->Edit1->Text);
-                        }
-                        if(missionfilter) {
-                                bool namefilter = true;
-                                if(Form1->Edit2->Text.Trim().Length() > 0) {
-                                        namefilter = doNameFilter(ServerArray[j].name,Form1->Edit2->Text);
+                if(ServerArray[j].players >= Form1->UpDown1->Position) {
+                        if(
+                                (
+                                        (ServerArray[j].mode == Form1->CheckBox1->Caption && Form1->CheckBox1->Checked) ||
+                                        (ServerArray[j].mode == Form1->CheckBox2->Caption && Form1->CheckBox2->Checked) ||
+                                        (ServerArray[j].mode == Form1->CheckBox3->Caption && Form1->CheckBox3->Checked) ||
+                                        (ServerArray[j].mode == Form1->CheckBox4->Caption && Form1->CheckBox4->Checked) ||
+                                        (ServerArray[j].mode == Form1->CheckBox5->Caption && Form1->CheckBox5->Checked) ||
+                                        (ServerArray[j].mode == Form1->CheckBox8->Caption && Form1->CheckBox8->Checked)
+                                ) && (
+                                        (ServerArray[j].password == 1 && Form1->CheckBox6->Checked) ||
+                                        (ServerArray[j].password == 0 && Form1->CheckBox7->Checked)
+                                )
+                        ) {
+                                bool missionfilter = true;
+                                if(Form1->Edit1->Text.Trim().Length() > 0) {
+                                        missionfilter = doNameFilter(ServerArray[j].mission,Form1->Edit1->Text);
                                 }
-                                if(namefilter) {
-                                        bool playerfilter = true;
-                                        if(Form1->Edit4->Text.Trim().Length() > 0) {
-                                                playerfilter = doPlayerFilter(ServerArray[j].playerlist, Form1->Edit4->Text); // );
+                                if(missionfilter) {
+                                        bool namefilter = true;
+                                        if(Form1->Edit2->Text.Trim().Length() > 0) {
+                                                namefilter = doNameFilter(ServerArray[j].name,Form1->Edit2->Text);
                                         }
-                                        if(playerfilter) {
-                                                out = 2;
+                                        if(namefilter) {
+                                                bool playerfilter = true;
+                                                if(Form1->Edit4->Text.Trim().Length() > 0) {
+                                                        playerfilter = doPlayerFilter(ServerArray[j].playerlist, Form1->Edit4->Text); // );
+                                                }
+                                                if(playerfilter) {
+                                                        out = 2;
+                                                }
                                         }
                                 }
                         }
@@ -437,7 +441,6 @@ void processPlayerList(int index) {
                 if(index == -1) {
                         index = StrToInt(Form1->StringGrid1->Cells[0][row]);
                 }
-
                 int counter = ServerArray[index].playerlist.size();
                 for (CustomPlayerList::iterator ci = ServerArray[index].playerlist.begin(); ci != ServerArray[index].playerlist.end(); ++ci) {
                         counter--;
@@ -458,6 +461,7 @@ void processPlayerList(int index) {
                                 PlayerSortList->AddObject(ci->team, (TObject*) &(*ci));
                         }
                 }
+                //DEBUG
                 if(counter < 0) {
                         addToErrorReport("Fehler 1","");
                 }
@@ -569,7 +573,7 @@ void filterChanged() {
                         for(int i = inList - 1; i >= 1; i--) {
                                 TObject *t = ServerSortList->Objects[0];
                                 int j = (int)t;
-                                Form1->StringGrid1->Cells[0][i] = ServerArray[j].index;
+                                Form1->StringGrid1->Cells[0][i] = " " + String(ServerArray[j].index);
                                 Form1->StringGrid1->Cells[1][i] = ServerArray[j].name;
                                 Form1->StringGrid1->Cells[2][i] = String(ServerArray[j].players) + " / " + String(ServerArray[j].maxplayers);
                                 Form1->StringGrid1->Cells[3][i] = ServerArray[j].mode;
@@ -729,6 +733,28 @@ void mergeLists(CustomStringList &a, CustomStringList &b) {
                 String tmp = b.front();
                 a.push_back(tmp);
                 b.pop_front();
+        }
+        return;
+}
+
+
+void checkServerStatus(int i, String newStatus) {
+        if(ServerArray[i].watch) {
+                int j = 0;
+                if(newStatus == "Creating") {
+                        j = 1;
+                } else if(newStatus == "Waiting") {
+                        j = 2;
+                } else if(newStatus == "Briefing") {
+                        j = 3;
+                } else if(newStatus == "Playing") {
+                        j = 4;
+                } else if(newStatus == "Debriefing") {
+                        j = 5;
+                }
+                if(j > 0) {
+                        PlaySound(PChar(j), NULL, SND_RESOURCE | SND_ASYNC);
+                }
         }
         return;
 }
@@ -909,7 +935,12 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                         } else if (tmp == "gstate") {
                                                 ++ci;
                                                 counter--;
-                                                ServerArray[i].mode = getGameState(StrToInt(*ci));
+
+                                                String newStatus = getGameState(StrToInt(*ci));
+                                                if(ServerArray[i].mode != newStatus) {
+                                                        ServerArray[i].mode = newStatus;
+                                                        checkServerStatus(i, newStatus);
+                                                }
                                         } else if (tmp == "platform") {
                                                 ++ci;
                                                 counter--;
@@ -1199,7 +1230,7 @@ void __fastcall TForm1::Edit1Change(TObject *Sender)
 void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
-        if(Button == 0 && Y < 16) {
+        if(Button == 0 && Y < StringGrid1->DefaultRowHeight) {
                 if(X < 635) {
                         if(X < 30) {
                                 tableSorter.setId();
@@ -1243,6 +1274,9 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
                                 Label13->Caption = ServerArray[index].actver;
 
                                 CustomStringList t = splitUpMessage(ServerArray[index].mod,";");
+                                PopupMenu1->Items->Items[2]->Checked = ServerArray[index].watch;
+                                PopupMenu1->Items->Items[2]->Tag = index;
+                                PopupMenu1->Items->Items[2]->OnClick = ClickWatchButton;
                                 int i = 0;
                                 for (CustomStringList::iterator ci = t.begin(); ci != t.end(); ++ci) {
                                         TMenuItem *m = PopupMenu1->Items->Items[1]->Items[i];
@@ -1338,42 +1372,73 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
                                 PopupMenu1->Items->Items[0]->Items[i]->Visible = false;
                         }
                 }
-
-
-/*
-                TMenuItem *a = PopupMenu1->Items->Items[;
-                a->Caption = Form2->ListBox1->Items->Strings[i];
-                a->Tag = i;
-                a->OnClick = ClickMyButton;
-                PopupMenu1->Items->Items[0]->Add(a);
-*/
-                //ShowMessage(PopupMenu1->Items->Items[0]->Caption);
-                //PopupMenu1->Items->Items[0]->Add(a);
         }
-
-
-
-       // ShowMessage(PopupMenu1->Items->Items[0]->Caption);
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::ClickMyButton(TObject *Sender)
 {
         TMenuItem *a = (TMenuItem *) Sender;
         ShellExecute(Handle, "open", PChar(Form2->getExe().c_str()), PChar(Form2->getConfStartLine(a->Tag,Label2->Caption,StrToInt(Label4->Caption)).c_str()), PChar(Form2->getExeFolder().c_str()), SW_NORMAL);
 }
+//---------------------------------------------------------------------------
+void __fastcall TForm1::ClickWatchButton(TObject *Sender)
+{
+        TMenuItem *a = (TMenuItem *) Sender;
+        int index = a->Tag;
+        a->Checked = !(a->Checked);
+        ServerArray[index].watch = a->Checked;
+}
+//---------------------------------------------------------------------------
 void __fastcall TForm1::CheckBox8Click(TObject *Sender)
 {
         filterChanged();
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key,
       TShiftState Shift)
 {
         if(Key == VK_ESCAPE) {
                 Form1->Close();
         }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
+      int ARow, TRect &Rect, TGridDrawState State)
+{
+        if(ACol == StringGrid1->ColCount - 1) {
+                try {
+                        int zelle = ARow;
+                        int index = StrToInt((StringGrid1->Cells[0][zelle]).Trim());
+                        if(ServerArray[index].watch) {
+                                TRect a;
+                                a.Top = ((zelle - (StringGrid1->TopRow - 1)) * StringGrid1->DefaultRowHeight) + (zelle - (StringGrid1->TopRow - 1));
+                                a.Bottom = ((zelle + 1 - (StringGrid1->TopRow - 1)) * StringGrid1->DefaultRowHeight) + (zelle - (StringGrid1->TopRow - 1));
+                                a.Left = 1;
+                                a.Right = 634;
+                                StringGrid1->Canvas->Brush->Color = clBlue;
+                                StringGrid1->Canvas->FrameRect(a);
+                                a.Top = a.Top + 1;
+                                a.Bottom = a.Bottom - 1;
+                                a.Left = a.Left + 1;
+                                a.Right = a.Right - 1;
+                                StringGrid1->Canvas->FrameRect(a);
+                                a.Top = a.Top + 1;
+                                a.Bottom = a.Bottom - 1;
+                                a.Left = a.Left + 1;
+                                a.Right = a.Right - 1;
+                                StringGrid1->Canvas->FrameRect(a);
+                        }
+                } catch (...) {}
+        }        
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TForm1::Timer2Timer(TObject *Sender)
+{
+        timer2 = !timer2;
+        StringGrid1->Refresh();
 }
 //---------------------------------------------------------------------------
 
