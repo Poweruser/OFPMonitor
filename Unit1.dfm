@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 220
-  Top = 157
+  Left = 410
+  Top = 241
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   ClientHeight = 483
@@ -332,7 +332,7 @@ object Form1: TForm1
     object Label18: TLabel
       Left = 64
       Top = 45
-      Width = 49
+      Width = 12
       Height = 13
       Caption = '    '
     end

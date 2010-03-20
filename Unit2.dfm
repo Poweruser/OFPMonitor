@@ -4,7 +4,7 @@ object Form2: TForm2
   Width = 441
   Height = 440
   BorderIcons = [biSystemMenu]
-  Caption = 'Form2'
+  Caption = 'Settings'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
