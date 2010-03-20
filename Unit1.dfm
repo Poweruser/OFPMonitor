@@ -1,9 +1,9 @@
 object Form1: TForm1
-  Left = 178
-  Top = 128
+  Left = 220
+  Top = 157
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  ClientHeight = 486
+  ClientHeight = 483
   ClientWidth = 660
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -12,6 +12,7 @@ object Form1: TForm1
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   KeyPreview = True
+  Menu = MainMenu1
   OldCreateOrder = False
   Position = poScreenCenter
   OnClose = FormClose
@@ -25,15 +26,6 @@ object Form1: TForm1
     Width = 3
     Height = 13
     Visible = False
-  end
-  object Button3: TButton
-    Left = 238
-    Top = 7
-    Width = 132
-    Height = 24
-    Caption = 'Copy address to clipboard'
-    TabOrder = 3
-    OnClick = Button3Click
   end
   object StringGrid1: TStringGrid
     Left = 3
@@ -68,24 +60,15 @@ object Form1: TForm1
       183
       41)
   end
-  object Button2: TButton
-    Left = 238
-    Top = 30
-    Width = 132
-    Height = 24
-    Caption = 'Get new Server list'
-    TabOrder = 4
-    OnClick = Button2Click
-  end
   object GroupBox1: TGroupBox
     Left = 3
-    Top = 80
+    Top = 83
     Width = 366
     Height = 119
     Caption = '  Filters  '
     Color = clBtnFace
     ParentColor = False
-    TabOrder = 7
+    TabOrder = 4
     object Label6: TLabel
       Left = 120
       Top = 74
@@ -263,95 +246,112 @@ object Form1: TForm1
   object GroupBox2: TGroupBox
     Left = 3
     Top = 2
-    Width = 230
-    Height = 74
+    Width = 366
+    Height = 80
     Caption = '  Server Info  '
     Color = clBtnFace
     ParentColor = False
     TabOrder = 2
     object Label1: TLabel
       Left = 8
-      Top = 16
+      Top = 29
       Width = 13
       Height = 13
       Caption = 'IP:'
     end
     object Label2: TLabel
       Left = 32
-      Top = 16
+      Top = 29
       Width = 33
       Height = 13
       Caption = '           '
     end
     object Label3: TLabel
-      Left = 8
-      Top = 32
+      Left = 120
+      Top = 29
       Width = 22
       Height = 13
       Caption = 'Port:'
     end
     object Label4: TLabel
-      Left = 64
-      Top = 32
+      Left = 176
+      Top = 29
       Width = 45
       Height = 13
       Caption = '               '
     end
     object Label8: TLabel
       Left = 120
-      Top = 16
+      Top = 45
       Width = 41
       Height = 13
       Caption = 'Platform:'
     end
     object Label9: TLabel
-      Left = 184
-      Top = 16
+      Left = 176
+      Top = 45
       Width = 24
       Height = 13
       Caption = '        '
     end
     object Label10: TLabel
       Left = 120
-      Top = 48
+      Top = 60
       Width = 49
       Height = 13
       Caption = 'Password:'
     end
     object Label11: TLabel
-      Left = 184
-      Top = 48
+      Left = 176
+      Top = 60
       Width = 30
       Height = 13
       Caption = '          '
     end
     object Label12: TLabel
       Left = 8
-      Top = 48
+      Top = 60
       Width = 38
       Height = 13
       Caption = 'Version:'
     end
     object Label13: TLabel
       Left = 64
-      Top = 48
+      Top = 60
       Width = 30
       Height = 13
       Caption = '          '
     end
     object Label17: TLabel
-      Left = 120
-      Top = 32
+      Left = 8
+      Top = 45
       Width = 22
       Height = 13
       Caption = 'Impl:'
     end
     object Label18: TLabel
-      Left = 184
-      Top = 32
-      Width = 12
+      Left = 64
+      Top = 45
+      Width = 49
       Height = 13
       Caption = '    '
+    end
+    object Label21: TLabel
+      Left = 8
+      Top = 14
+      Width = 66
+      Height = 13
+      Caption = '                      '
+    end
+    object Button3: TButton
+      Left = 230
+      Top = 46
+      Width = 134
+      Height = 32
+      Caption = 'Copy address to clipboard'
+      Enabled = False
+      TabOrder = 0
+      OnClick = Button3Click
     end
   end
   object StringGrid2: TStringGrid
@@ -366,7 +366,7 @@ object Form1: TForm1
     RowCount = 50
     Font.Charset = MAC_CHARSET
     Font.Color = clWindowText
-    Font.Height = -12
+    Font.Height = -11
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected, goRowSelect]
@@ -382,7 +382,7 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 462
+    Top = 459
     Width = 660
     Height = 24
     Panels = <
@@ -402,20 +402,11 @@ object Form1: TForm1
       end>
     SimplePanel = False
   end
-  object Button1: TButton
-    Left = 238
-    Top = 53
-    Width = 132
-    Height = 24
-    Caption = 'Settings'
-    TabOrder = 5
-    OnClick = Button1Click
-  end
   object Timer1: TTimer
     Enabled = False
     OnTimer = Timer1Timer
-    Left = 168
-    Top = 64
+    Left = 448
+    Top = 160
   end
   object NMUDP1: TNMUDP
     RemotePort = 0
@@ -423,20 +414,20 @@ object Form1: TForm1
     ReportLevel = 5
     OnDataReceived = NMUDP1DataReceived
     OnDataSend = NMUDP1DataSend
-    Left = 200
-    Top = 64
+    Left = 480
+    Top = 160
   end
   object Timer3: TTimer
     Enabled = False
     Interval = 10
     OnTimer = Timer3Timer
-    Left = 136
-    Top = 64
+    Left = 416
+    Top = 160
   end
   object PopupMenu1: TPopupMenu
     OnPopup = PopupMenu1Popup
-    Left = 104
-    Top = 64
+    Left = 384
+    Top = 160
     object Join1: TMenuItem
       Caption = 'Join'
       Enabled = False
@@ -506,6 +497,22 @@ object Form1: TForm1
     end
     object Watch1: TMenuItem
       Caption = 'Watch'
+    end
+  end
+  object MainMenu1: TMainMenu
+    Left = 512
+    Top = 160
+    object Exit1: TMenuItem
+      Caption = 'Exit'
+      OnClick = Exit1Click
+    end
+    object Settings1: TMenuItem
+      Caption = 'Settings'
+      OnClick = Settings1Click
+    end
+    object GetnewServerlist1: TMenuItem
+      Caption = 'Get new Server list'
+      OnClick = GetnewServerlist1Click
     end
   end
 end

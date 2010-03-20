@@ -310,7 +310,7 @@ String inputfile = "gslist-out.gsl";
 String program_gslist = "gslist.exe";
 String program_gslist_parameter = "-q -n opflashr -o 2";
 Server ServerArray[128];
-int numOfServers = 1;
+int numOfServers = 0;
 int timeoutLimit = 10;
 TStringList *ServerSortList = new TStringList;
 TStringList *PlayerSortList = new TStringList;
@@ -526,6 +526,35 @@ void processPlayerList(int index) {
         return;
 }
 
+void updateServerInfoBox(int index) {
+        if(index >= 0 && index < numOfServers) {
+                Form1->Label2->Caption = ServerArray[index].ip;
+                Form1->Label4->Caption = ServerArray[index].gameport;
+                Form1->Label9->Caption = ServerArray[index].platform;
+                Form1->Label18->Caption = ServerArray[index].impl;
+                Form1->Label21->Caption = ServerArray[index].name;
+                Form1->Button3->Enabled = true;
+                int a = ServerArray[index].password;
+                if(a == 0) {
+                        Form1->Label11->Caption = "No";
+                } else if(a == 1) {
+                        Form1->Label11->Caption = "Yes";
+                }
+                Form1->Label13->Caption = ServerArray[index].actver;
+        } else {
+                Form1->Button3->Enabled = false;
+                Form1->Label2->Caption = "";
+                Form1->Label4->Caption = "";
+                Form1->Label9->Caption = "";
+                Form1->Label18->Caption = "";
+                Form1->Label21->Caption = "";
+                Form1->Label11->Caption = "";
+                Form1->Label13->Caption = "";
+        }
+        return;
+}
+
+
 void filterChanged() {
         int row = Form1->StringGrid1->Selection.BottomRight.Y;
         int selectedIndex;
@@ -562,6 +591,8 @@ void filterChanged() {
         }
         if(inList == 1) {
                 setEmptyStringGrid();
+                setEmptyPlayerList();
+                updateServerInfoBox(-1);
         } else {
                 if(tableSorter.normal) {
                         for(int i = 1; i < inList; i++) {
@@ -591,26 +622,28 @@ void filterChanged() {
                         }
                 }
                 Form1->StringGrid1->RowCount = inList;
-        }
-        Form1->StatusBar1->Panels->Items[1]->Text = "Online: " + String(numOfServers - hasNoName);
-        if(selectedIndex > -1) {
-                for(int k = 1; k < Form1->StringGrid1->RowCount; k++) {
-                                if(Form1->StringGrid1->Cells[0][k] == String(selectedIndex)) {
+                Form1->StatusBar1->Panels->Items[1]->Text = "Online: " + String(numOfServers - hasNoName);
+                if(selectedIndex > -1) {
+                        bool found = false;
+                        for(int k = 1; k < Form1->StringGrid1->RowCount; k++) {
+                                if((Form1->StringGrid1->Cells[0][k]).Trim() == String(selectedIndex).Trim()) {
+                                        found = true;
                                         TGridRect myRect;
                                         myRect.Left = 0;
                                         myRect.Top = k;
                                         myRect.Right = 6;
                                         myRect.Bottom = k;
                                         Form1->StringGrid1->Selection = myRect;
-                                        processPlayerList(selectedIndex);
                                         break;
-                                } else {
-                                        processPlayerList(-1);
                                 }
+                        }
+                        if(found) {
+                                processPlayerList(selectedIndex);
+                                updateServerInfoBox(selectedIndex);
+                        }
                 }
-        } else {
-                processPlayerList(-1);
         }
+
         return;
 }
 
@@ -683,6 +716,11 @@ CustomStringList getAddress(String address) {
 }
 
 void readFile() {
+        if(!FileExists(inputfile)) {
+                Form1->StatusBar1->Panels->Items[0]->Text = "";
+                Form1->StatusBar1->Panels->Items[1]->Text = "";
+                return;
+        }
         TStringList *TempList = new TStringList;
         TempList->Sorted = true;
         TempList->Duplicates = dupIgnore;
@@ -703,7 +741,7 @@ void readFile() {
                         Sleep(200);
                 }
         }
-        numOfServers = TempList->Count;
+        numOfServers = 0;
         for(int i = 0; i < TempList->Count && i < 128; i++) {
                 if(TempList->Strings[i].Length() > 8) {
                         CustomStringList a = getAddress(TempList->Strings[i]);
@@ -711,13 +749,12 @@ void readFile() {
                         int port =  StrToInt(a.back());
                         a.clear();
                         ServerArray[i] = Server(ip, port, i);
+                        numOfServers++;
                 }
         }
         Form1->StatusBar1->Panels->Items[0]->Text = "Listed: " + String(numOfServers);
         Form1->StatusBar1->Panels->Items[1]->Text = "Online: ";
         delete TempList;
-        //DEBUG
-        addToErrorReport("Hinweis 1","Serverliste gelesen: "+ String(numOfServers));
         return;
 }
 
@@ -1017,6 +1054,8 @@ void copyToClipBoard (String msg) {
 
 
 
+
+
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
@@ -1033,6 +1072,11 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
                 StringGrid2->Cells[1][0]="Score";
                 StringGrid2->Cells[2][0]="Deaths";
                 StringGrid2->Cells[3][0]="Team";
+                if(FileExists(program_gslist)) {
+                        GetnewServerlist1->Enabled = true;
+                } else {
+                        GetnewServerlist1->Enabled = false;
+                }
                 if(!FileExists(inputfile)) {
                         if(FileExists(program_gslist)) {
                                 SHELLEXECUTEINFO ShellInfo;
@@ -1109,17 +1153,7 @@ void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
                 try {
                         int index = StrToInt(z);
                         processPlayerList(index);
-                        Label2->Caption = ServerArray[index].ip;
-                        Label4->Caption = ServerArray[index].gameport;
-                        Label9->Caption = ServerArray[index].platform;
-                        Label18->Caption = ServerArray[index].impl;
-                        int a = ServerArray[index].password;
-                        if(a == 0) {
-                                Label11->Caption = "No";
-                        } else if(a == 1) {
-                                Label11->Caption = "Yes";
-                        }
-                        Label13->Caption = ServerArray[index].actver;
+                        updateServerInfoBox(index);
                 } catch (...) {
                 }
         } else {
@@ -1132,41 +1166,6 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
         Application->ProcessMessages();
         Timer3->Enabled = true;
         Timer1->Enabled = false;
-}
-//---------------------------------------------------------------------------
-void __fastcall TForm1::Button2Click(TObject *Sender)
-{
-        Timer3->Enabled = false;
-        Timer1->Enabled = false;
-        setEmptyStringGrid();
-        setEmptyPlayerList();
-        serverCycle.reset();
-        tableSorter.reset();
-        int j = 0;
-        int i = ServerArray[j].index;
-        while(i > -1) {
-                ServerArray[j] = Server();
-                j++;
-                i = ServerArray[j].index;
-        }
-        if(FileExists(program_gslist)) {
-                SHELLEXECUTEINFO ShellInfo;
-                memset(&ShellInfo, 0, sizeof(ShellInfo));
-                ShellInfo.cbSize = sizeof(ShellInfo);
-                ShellInfo.hwnd = Handle;
-                ShellInfo.lpVerb = "open";
-                ShellInfo.lpFile = PChar(program_gslist.c_str());
-                ShellInfo.nShow = SW_HIDE;
-                ShellInfo.lpDirectory = NULL;
-                ShellInfo.lpParameters = PChar(program_gslist_parameter.c_str());
-                ShellInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-                bool res = ShellExecuteEx(&ShellInfo);
-                if (res) {
-                        WaitForSingleObject(ShellInfo.hProcess, INFINITE);
-                }
-        }
-        readFile();
-        Timer1->Enabled = true;
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
@@ -1274,18 +1273,7 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
                                 myRect.Bottom = c + (StringGrid1->TopRow - 1);
                                 Form1->StringGrid1->Selection = myRect;
                                 processPlayerList(index);
-                                Label2->Caption = ServerArray[index].ip;
-                                Label4->Caption = ServerArray[index].gameport;
-                                Label9->Caption = ServerArray[index].platform;
-                                Label18->Caption = ServerArray[index].impl;
-                                int a = ServerArray[index].password;
-                                if(a == 0) {
-                                        Label11->Caption = "No";
-                                } else if(a == 1) {
-                                        Label11->Caption = "Yes";
-                                }
-                                Label13->Caption = ServerArray[index].actver;
-
+                                updateServerInfoBox(index);
                                 CustomStringList t = splitUpMessage(ServerArray[index].mod,";");
                                 PopupMenu1->Items->Items[2]->Checked = ServerArray[index].watch;
                                 PopupMenu1->Items->Items[2]->Tag = index;
@@ -1301,7 +1289,7 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
                                         TMenuItem *m = PopupMenu1->Items->Items[1]->Items[i];
                                         m->Visible = false;
                                 }
-                                PopupMenu1->Popup(Form1->Left + StringGrid1->Left + X + 5,Form1->Top + StringGrid1->Top + Y + StringGrid1->DefaultRowHeight + 7);
+                                PopupMenu1->Popup(Form1->Left + StringGrid1->Left + X + 5,Form1->Top + StringGrid1->Top + Y + StringGrid1->DefaultRowHeight + 25);
                         } catch (...) {}
                 }
         }
@@ -1358,11 +1346,6 @@ void __fastcall TForm1::Edit4Change(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::Button1Click(TObject *Sender)
-{
-        Form2->ShowModal();
-}
-//---------------------------------------------------------------------------
 
 void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
 {
@@ -1447,4 +1430,54 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
         }        
 }
 //---------------------------------------------------------------------------
+
+void __fastcall TForm1::Settings1Click(TObject *Sender)
+{
+        Form2->ShowModal();        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Exit1Click(TObject *Sender)
+{
+        Form1->Close();        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::GetnewServerlist1Click(TObject *Sender)
+{
+        Timer3->Enabled = false;
+        Timer1->Enabled = false;
+        setEmptyStringGrid();
+        setEmptyPlayerList();
+        updateServerInfoBox(-1);
+        serverCycle.reset();
+        tableSorter.reset();
+        int j = 0;
+        int i = ServerArray[j].index;
+        while(i > -1) {
+                ServerArray[j] = Server();
+                j++;
+                i = ServerArray[j].index;
+        }
+        if(FileExists(program_gslist)) {
+                SHELLEXECUTEINFO ShellInfo;
+                memset(&ShellInfo, 0, sizeof(ShellInfo));
+                ShellInfo.cbSize = sizeof(ShellInfo);
+                ShellInfo.hwnd = Handle;
+                ShellInfo.lpVerb = "open";
+                ShellInfo.lpFile = PChar(program_gslist.c_str());
+                ShellInfo.nShow = SW_HIDE;
+                ShellInfo.lpDirectory = NULL;
+                ShellInfo.lpParameters = PChar(program_gslist_parameter.c_str());
+                ShellInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+                bool res = ShellExecuteEx(&ShellInfo);
+                if (res) {
+                        WaitForSingleObject(ShellInfo.hProcess, INFINITE);
+                }
+        }
+        readFile();
+        Timer1->Enabled = true;        
+}
+//---------------------------------------------------------------------------
+
 

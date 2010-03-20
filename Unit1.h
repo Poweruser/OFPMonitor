@@ -18,7 +18,6 @@ class TForm1 : public TForm
 {
 __published:	// IDE-managed Components
         TStringGrid *StringGrid1;
-        TButton *Button2;
         TGroupBox *GroupBox1;
         TGroupBox *GroupBox2;
         TButton *Button3;
@@ -59,7 +58,6 @@ __published:	// IDE-managed Components
         TMenuItem *Join1;
         TLabel *Label17;
         TLabel *Label18;
-        TButton *Button1;
         TCheckBox *CheckBox8;
         TMenuItem *Mods1;
         TMenuItem *N01;
@@ -84,13 +82,17 @@ __published:	// IDE-managed Components
         TMenuItem *N92;
         TLabel *Label5;
         TMenuItem *Watch1;
+        TLabel *Label21;
+        TMainMenu *MainMenu1;
+        TMenuItem *Exit1;
+        TMenuItem *Settings1;
+        TMenuItem *GetnewServerlist1;
         void __fastcall NMUDP1DataReceived(TComponent *Sender,
           int NumberBytes, AnsiString FromIP, int Port);
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
         void __fastcall Timer1Timer(TObject *Sender);
-        void __fastcall Button2Click(TObject *Sender);
         void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
         void __fastcall Button3Click(TObject *Sender);
         void __fastcall CheckBox1Click(TObject *Sender);
@@ -111,7 +113,6 @@ __published:	// IDE-managed Components
         void __fastcall StringGrid2MouseDown(TObject *Sender,
           TMouseButton Button, TShiftState Shift, int X, int Y);
         void __fastcall Edit4Change(TObject *Sender);
-        void __fastcall Button1Click(TObject *Sender);
         void __fastcall PopupMenu1Popup(TObject *Sender);
         void __fastcall ClickMyButton(TObject *Sender);
         void __fastcall ClickWatchButton(TObject *Sender);
@@ -120,6 +121,9 @@ __published:	// IDE-managed Components
           TShiftState Shift);
         void __fastcall StringGrid1DrawCell(TObject *Sender, int ACol,
           int ARow, TRect &Rect, TGridDrawState State);
+        void __fastcall Settings1Click(TObject *Sender);
+        void __fastcall Exit1Click(TObject *Sender);
+        void __fastcall GetnewServerlist1Click(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         typedef list<String> CustomStringList;
