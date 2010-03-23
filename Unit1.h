@@ -12,6 +12,7 @@
 #include <Menus.hpp>
 #include <ComCtrls.hpp>
 #include <ExtCtrls.hpp>
+#include "trayicon.h"
 //---------------------------------------------------------------------------
 
 class TForm1 : public TForm
@@ -87,6 +88,7 @@ __published:	// IDE-managed Components
         TMenuItem *Exit1;
         TMenuItem *Settings1;
         TMenuItem *GetnewServerlist1;
+        TTrayIcon *TrayIcon1;
         void __fastcall NMUDP1DataReceived(TComponent *Sender,
           int NumberBytes, AnsiString FromIP, int Port);
         void __fastcall FormCreate(TObject *Sender);

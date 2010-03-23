@@ -11,9 +11,9 @@
     <DEFFILE value=""/>
     <RESDEPEN value="$(RESFILES) Unit1.dfm Unit2.dfm"/>
     <LIBFILES value=""/>
-    <LIBRARIES value="vclx.lib nmfast.lib rtl.lib vcl.lib"/>
-    <SPARELIBS value="vcl.lib rtl.lib nmfast.lib vclx.lib"/>
-    <PACKAGES value="vcl.bpi rtl.bpi visualclx.bpi nmfast.bpi vclx.bpi"/>
+    <LIBRARIES value="bcbsmp.lib vclx.lib nmfast.lib rtl.lib vcl.lib"/>
+    <SPARELIBS value="vcl.lib rtl.lib nmfast.lib vclx.lib bcbsmp.lib"/>
+    <PACKAGES value="vcl.bpi rtl.bpi visualclx.bpi nmfast.bpi vclx.bpi bcbsmp.bpi"/>
     <PATHCPP value=".;"/>
     <PATHPAS value=".;"/>
     <PATHRC value=".;"/>
@@ -58,8 +58,8 @@
 IncludeVerInfo=1
 AutoIncBuild=0
 MajorVer=1
-MinorVer=0
-Release=5
+MinorVer=1
+Release=0
 Build=0
 Debug=0
 PreRelease=0
@@ -72,7 +72,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=by Poweruser
 FileDescription=OFP Server monitoring tool
-FileVersion=1.0.5.0
+FileVersion=1.1.0.0
 InternalName=OFPMonitor
 LegalCopyright=(c) Poweruser
 LegalTrademarks=
@@ -83,7 +83,6 @@ Comments=
 
 [Excluded Packages]
 e:\progc\borland\cbuilder6\Bin\dclact60.bpl=Borland ActionBar Components
-e:\progc\borland\cbuilder6\Bin\dclbcbsmp60.bpl=Borland Sample Controls Design Time Package
 E:\ProgC\Borland\CBuilder6\Bin\dclnet60.bpl=Borland Internet Components
 e:\progc\borland\cbuilder6\Bin\dclmlwiz60.bpl=Borland Markup Language Wizards
 e:\progc\borland\cbuilder6\Bin\bcb2kaxserver60.bpl=Borland C++Builder COM Server Components Sample Package

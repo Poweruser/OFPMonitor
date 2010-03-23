@@ -1,10 +1,14 @@
 object Form2: TForm2
   Left = 382
   Top = 219
-  Width = 441
-  Height = 440
+  HorzScrollBar.Visible = False
+  VertScrollBar.Visible = False
+  AutoSize = True
   BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
   Caption = 'Settings'
+  ClientHeight = 411
+  ClientWidth = 433
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,6 +17,7 @@ object Form2: TForm2
   Font.Style = []
   KeyPreview = True
   OldCreateOrder = False
+  Position = poScreenCenter
   OnClose = FormClose
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
@@ -20,14 +25,14 @@ object Form2: TForm2
   TextHeight = 13
   object Label3: TLabel
     Left = 0
-    Top = 52
+    Top = 50
     Width = 100
     Height = 13
     Caption = 'List of configurations:'
   end
   object ListBox1: TListBox
     Left = 0
-    Top = 68
+    Top = 66
     Width = 430
     Height = 113
     ItemHeight = 13
@@ -36,7 +41,7 @@ object Form2: TForm2
   end
   object Button2: TButton
     Left = 330
-    Top = 154
+    Top = 152
     Width = 85
     Height = 25
     Caption = 'Remove'
@@ -45,7 +50,7 @@ object Form2: TForm2
   end
   object GroupBox1: TGroupBox
     Left = 0
-    Top = 2
+    Top = 0
     Width = 425
     Height = 48
     Caption = 'OFP Executable'
@@ -70,7 +75,7 @@ object Form2: TForm2
   end
   object GroupBox2: TGroupBox
     Left = 0
-    Top = 188
+    Top = 186
     Width = 433
     Height = 225
     Caption = 'New configuration'
@@ -236,7 +241,7 @@ object Form2: TForm2
   end
   object GroupBox3: TGroupBox
     Left = 264
-    Top = 372
+    Top = 370
     Width = 169
     Height = 41
     Caption = 'Server list'

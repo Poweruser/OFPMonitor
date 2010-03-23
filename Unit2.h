@@ -63,10 +63,11 @@ __published:	// IDE-managed Components
           TShiftState Shift);
 private:	// User declarations
 public:		// User declarations
-        void TForm2::init();
+        TStringList* TForm2::init();
         int TForm2::getConfAmount();
         String TForm2::getConfListEntry(int i);
-        void TForm2::writeSettingToFile();
+        void TForm2::writeSettingToFile(list<String> in);
+        void TForm2::setSettingsChanged();
         String TForm2::getConfStartLine(int i, String ip, int port);
         String TForm2::getExe();
         String TForm2::getExeFolder();

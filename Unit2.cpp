@@ -155,7 +155,7 @@ class Settings {
                         this->changed = true;
                 }
 
-                void writeToFile() {
+                void writeToFile(list<String> &in) {
                         if(this->changed) {
                                 TStringList *file = new TStringList;
                                 file->Add("Exe = " + this->exe);
@@ -170,6 +170,13 @@ class Settings {
                                                 delete entry;
                                         }
                                 }
+                                file->Add("[Servers]");
+                                while(in.size() > 0) {
+                                        String a = in.front();
+                                        file->Add(a);
+                                        in.pop_front();
+                                }
+                                file->Add("[\\Servers]");
                                 file->SaveToFile(this->file);
                                 delete file;
                         }
@@ -177,8 +184,12 @@ class Settings {
 };
 Settings programSettings = Settings();
 
-void TForm2::writeSettingToFile() {
-        programSettings.writeToFile();
+void TForm2::writeSettingToFile(list<String> in) {
+        programSettings.writeToFile(in);
+}
+
+void TForm2::setSettingsChanged() {
+        programSettings.changed = true;
 }
 
 String TForm2::getConfListEntry(int i) {
@@ -251,12 +262,13 @@ String GetRegistryValue(void * root, list<String> a, String key) {
 
 
 
-void TForm2::init() {
+TStringList* TForm2::init() {
 
         String exe = "";
         String interval = "";
         String folder = "";
         String player = "";
+        TStringList *ipList = new TStringList();
         if(FileExists(programSettings.file)) {
                 TStringList *file = new TStringList;
                 file->LoadFromFile(programSettings.file);
@@ -275,7 +287,7 @@ void TForm2::init() {
                                 c.set = true;
                                 i++;
                                 tmp = file->Strings[i].Trim();
-                                while(tmp.SubString(1,7) != "[\\Conf]") {
+                                while(tmp.SubString(1,7) != "[\\Conf]" && i < file->Count - 1) {
                                         if(tmp.SubString(1,6) == "Player") {
                                                 c.player = getValue(tmp);
                                         } else if(tmp.SubString(1,8) == "Password") {
@@ -291,6 +303,16 @@ void TForm2::init() {
                                         tmp = file->Strings[i].Trim();
                                 }
                                 programSettings.pSaddConf(c);
+                        } else if(tmp.SubString(1,9) == "[Servers]") {
+                                i++;
+                                tmp = file->Strings[i].Trim();
+                                while(tmp.SubString(1,7) != "[\\Servers]" && i < file->Count - 1) {
+                                        if(tmp.Length() > 8) {
+                                                ipList->Add(tmp.Trim());
+                                        }
+                                        i++;
+                                        tmp = file->Strings[i].Trim();
+                                }
                         }
                 }
                 delete file;
@@ -328,7 +350,7 @@ void TForm2::init() {
         }catch (...) {
         }
         programSettings.changed = false;
-        return;
+        return ipList;
 }
 
 

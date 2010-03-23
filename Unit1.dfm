@@ -1,9 +1,9 @@
 object Form1: TForm1
-  Left = 410
-  Top = 241
+  Left = 198
+  Top = 108
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  ClientHeight = 483
+  ClientHeight = 482
   ClientWidth = 660
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -340,8 +340,14 @@ object Form1: TForm1
       Left = 8
       Top = 14
       Width = 66
-      Height = 13
+      Height = 14
       Caption = '                      '
+      Font.Charset = MAC_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
     end
     object Button3: TButton
       Left = 230
@@ -382,7 +388,7 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 459
+    Top = 458
     Width = 660
     Height = 24
     Panels = <
@@ -514,5 +520,13 @@ object Form1: TForm1
       Caption = 'Get new Server list'
       OnClick = GetnewServerlist1Click
     end
+  end
+  object TrayIcon1: TTrayIcon
+    Visible = True
+    Hide = True
+    RestoreOn = imMouseDown
+    PopupMenuOn = imNone
+    Left = 544
+    Top = 160
   end
 end

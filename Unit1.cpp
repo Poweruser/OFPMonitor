@@ -5,12 +5,15 @@
 #include <mmsystem.h>
 #include <math.h>
 #pragma hdrstop
+#include ".\gamespy\msquery_header.h"
 #include "Unit1.h"
 #include "Unit2.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
+#pragma link "trayicon"
 #pragma resource "*.dfm"
 #pragma resource "wavefiles.res"
+#pragma resource "XP.res"
 TForm1 *Form1;
 
 int errorreports = 0;
@@ -306,9 +309,6 @@ class Server {
                 }
 };
 
-String inputfile = "gslist-out.gsl";
-String program_gslist = "gslist.exe";
-String program_gslist_parameter = "-q -n opflashr -o 2";
 Server ServerArray[128];
 int numOfServers = 0;
 int timeoutLimit = 10;
@@ -681,7 +681,7 @@ class BroadcastRotation {
 
 BroadcastRotation serverCycle = BroadcastRotation();
 
-String getGameState (int i) {
+String getGameState (int i, String old) {
         String out = IntToStr(i);
         if(i == 2) {
                 out = "Creating";
@@ -698,7 +698,10 @@ String getGameState (int i) {
         }
         //DEBUG
         if(out.Length() < 7){
-                addToErrorReport("Fehler 7", "Unbekannter Spielstatus: " + out);
+                addToErrorReport("Fehler 7", "Unknown game status: Now:" + out + "  Before: " + old);
+        }
+        if(old.Trim().Length() < 7 && old.Trim().Length() > 0) {
+                addToErrorReport("Fehler 8", "Unknown game status: Before:" + old + "  Now: " + out);
         }
         return out;
 }
@@ -715,36 +718,13 @@ CustomStringList getAddress(String address) {
         return a;
 }
 
-void readFile() {
-        if(!FileExists(inputfile)) {
-                Form1->StatusBar1->Panels->Items[0]->Text = "";
-                Form1->StatusBar1->Panels->Items[1]->Text = "";
-                return;
-        }
-        TStringList *TempList = new TStringList;
-        TempList->Sorted = true;
-        TempList->Duplicates = dupIgnore;
-        bool read = false;
-
-        //DEBUG
-        int debug = 0;
-        while (!read) {
-                debug++;
-                if(debug > 50) {
-                        addToErrorReport("Fehler 3","Datei konnte nach 50 Versuchen nicht gelesen werden");
-                        break;
-                }
-                try {
-                       TempList->LoadFromFile(inputfile);
-                       read = true;
-                } catch (...) {
-                        Sleep(200);
-                }
-        }
+void readFile(TStringList *in) {
+        Form1->StatusBar1->Panels->Items[0]->Text = "";
+        Form1->StatusBar1->Panels->Items[1]->Text = "";
         numOfServers = 0;
-        for(int i = 0; i < TempList->Count && i < 128; i++) {
-                if(TempList->Strings[i].Length() > 8) {
-                        CustomStringList a = getAddress(TempList->Strings[i]);
+        for(int i = 0; i < in->Count && i < 128; i++) {
+                if(in->Strings[i].Length() > 8) {
+                        CustomStringList a = getAddress(in->Strings[i]);
                         String ip = a.front();
                         int port =  StrToInt(a.back());
                         a.clear();
@@ -754,7 +734,6 @@ void readFile() {
         }
         Form1->StatusBar1->Panels->Items[0]->Text = "Listed: " + String(numOfServers);
         Form1->StatusBar1->Panels->Items[1]->Text = "Online: ";
-        delete TempList;
         return;
 }
 
@@ -888,7 +867,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                         }
                 } else {
                         //DEBUG
-                        addToErrorReport("Fehler 5, queries passen nicht zusammen",msg);
+                        addToErrorReport("Fehler 5, queries dont match",msg);
                         return false;
                 }
         }
@@ -984,8 +963,8 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                         } else if (tmp == "gstate") {
                                                 ++ci;
                                                 counter--;
-
-                                                String newStatus = getGameState(StrToInt(*ci));
+                                                String oldStatus = ServerArray[i].mode;
+                                                String newStatus = getGameState(StrToInt(*ci), oldStatus);
                                                 if(ServerArray[i].mode != newStatus) {
                                                         ServerArray[i].mode = newStatus;
                                                         checkServerStatus(i, newStatus);
@@ -1052,13 +1031,10 @@ void copyToClipBoard (String msg) {
         return;
 }
 
-
-
-
-
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
+                numOfServers = 0;
                 Form1->Visible = true;
                 Form1->Caption = Application->Title;
                 StringGrid1->Cells[0][0]="ID";
@@ -1072,29 +1048,6 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
                 StringGrid2->Cells[1][0]="Score";
                 StringGrid2->Cells[2][0]="Deaths";
                 StringGrid2->Cells[3][0]="Team";
-                if(FileExists(program_gslist)) {
-                        GetnewServerlist1->Enabled = true;
-                } else {
-                        GetnewServerlist1->Enabled = false;
-                }
-                if(!FileExists(inputfile)) {
-                        if(FileExists(program_gslist)) {
-                                SHELLEXECUTEINFO ShellInfo;
-                                memset(&ShellInfo, 0, sizeof(ShellInfo));
-                                ShellInfo.cbSize = sizeof(ShellInfo);
-                                ShellInfo.hwnd = Handle;
-                                ShellInfo.lpVerb = "open";
-                                ShellInfo.lpFile = PChar(program_gslist.c_str());
-                                ShellInfo.nShow = SW_HIDE;
-                                ShellInfo.lpDirectory = NULL;
-                                ShellInfo.lpParameters = PChar(program_gslist_parameter.c_str());
-                                ShellInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-                                if (ShellExecuteEx(&ShellInfo)) {
-                                        WaitForSingleObject(ShellInfo.hProcess, INFINITE);
-                                }
-                        }
-                }
-                readFile();
                 ServerSortList->Sorted = true;
                 ServerSortList->CaseSensitive = true;
                 ServerSortList->Duplicates = dupAccept;
@@ -1105,7 +1058,8 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
                 PlayerSortList2->CaseSensitive = true;
                 PlayerSortList2->Duplicates = dupAccept;
                 Timer3->Enabled = true;
-                Form2->init();
+                TStringList *TempList = Form2->init();
+                readFile(TempList);
                 updateTimeoutLimit();
                 if(!Form2->getExe().IsEmpty() && !Form2->getExeFolder().IsEmpty()) {
                         PopupMenu1->Items->Items[0]->Enabled = true;
@@ -1175,7 +1129,14 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
         delete ServerSortList;
         delete PlayerSortList;
         delete PlayerSortList2;
-        Form2->writeSettingToFile();
+        CustomStringList servers;
+        for(int i = 0; i < 128; i++) {
+                if(ServerArray[i].index == -1) {
+                        break;
+                }
+                servers.push_back(ServerArray[i].ip + ":" + String(ServerArray[i].gamespyport));
+        }
+        Form2->writeSettingToFile(servers);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Button3Click(TObject *Sender)
@@ -1445,6 +1406,7 @@ void __fastcall TForm1::Exit1Click(TObject *Sender)
 
 void __fastcall TForm1::GetnewServerlist1Click(TObject *Sender)
 {
+        GetnewServerlist1->Enabled = false;
         Timer3->Enabled = false;
         Timer1->Enabled = false;
         setEmptyStringGrid();
@@ -1452,13 +1414,54 @@ void __fastcall TForm1::GetnewServerlist1Click(TObject *Sender)
         updateServerInfoBox(-1);
         serverCycle.reset();
         tableSorter.reset();
+        TStringList *CurrentList = new TStringList;
+        CurrentList->Sorted = true;
+        CurrentList->Duplicates = dupIgnore;
         int j = 0;
+        numOfServers = 0;
         int i = ServerArray[j].index;
         while(i > -1) {
+                if(ServerArray[j].name.Length() > 0) {
+                        CurrentList->Add((ServerArray[j].ip + ":" + String(ServerArray[j].gamespyport)).Trim());
+                }
                 ServerArray[j] = Server();
                 j++;
                 i = ServerArray[j].index;
         }
+
+        scandelay *= 1000;
+        dnsdb(NULL);
+        gslist_step_1(gamestr, filter);
+        peer.sin_addr.s_addr = msip;
+        peer.sin_port        = htons(msport);
+        peer.sin_family      = AF_INET;
+
+        buff = (unsigned char *) malloc(BUFFSZ + 1);
+        if(!buff) std_err();
+        dynsz = BUFFSZ;
+        multigamename = gamestr;
+        multigamenamep = strchr((char *)gamestr, ',');
+        if(multigamenamep) {
+                *multigamenamep = 0;
+        }
+        sd = gslist_step_2(&peer, buff, secure, gamestr, validate, filter, &enctypex_data);
+        ipport = gslist_step_3(sd, validate, &enctypex_data, &len, &buff, &dynsz);
+        itsok = gslist_step_4(secure, buff, &enctypex_data, &ipport, &len);
+        ipbuffer = ipport;
+        int count =0;
+    	while(len >= 6) {
+        	ipc = myinetntoa(ipport->ip);
+        	if(!enctypex_query[0]) {
+                	String s;
+                	s.sprintf("%15s:%d", ipc, ntohs(ipport->port));
+                        CurrentList->Add(s.Trim());
+        	}
+        	ipport++;
+        	len -= 6;
+        	count++;
+    	}
+        /*
+
         if(FileExists(program_gslist)) {
                 SHELLEXECUTEINFO ShellInfo;
                 memset(&ShellInfo, 0, sizeof(ShellInfo));
@@ -1475,9 +1478,14 @@ void __fastcall TForm1::GetnewServerlist1Click(TObject *Sender)
                         WaitForSingleObject(ShellInfo.hProcess, INFINITE);
                 }
         }
-        readFile();
-        Timer1->Enabled = true;        
+        */
+        readFile(CurrentList);
+        delete CurrentList;
+        Form2->setSettingsChanged();
+        Timer1->Enabled = true;
+        GetnewServerlist1->Enabled = true;       
 }
 //---------------------------------------------------------------------------
+
 
 
