@@ -1656,7 +1656,11 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
                                 a.Top = ((zelle - (StringGrid1->TopRow - 1)) * StringGrid1->DefaultRowHeight) + (zelle - (StringGrid1->TopRow - 1));
                                 a.Bottom = ((zelle + 1 - (StringGrid1->TopRow - 1)) * StringGrid1->DefaultRowHeight) + (zelle - (StringGrid1->TopRow - 1));
                                 a.Left = 1;
-                                a.Right = 634;
+                                int tmp = 0;
+                                for(int i = 0; i < StringGrid1->ColCount; i++) {
+                                        tmp += StringGrid1->ColWidths[i] + StringGrid1->GridLineWidth;
+                                }
+                                a.Right = tmp;
                                 StringGrid1->Canvas->Brush->Color = clBlue;
                                 StringGrid1->Canvas->FrameRect(a);
                                 a.Top = a.Top + 1;
@@ -1751,8 +1755,7 @@ void __fastcall TForm1::GetnewServerlist1Click(TObject *Sender)
 
 void __fastcall TForm1::Font1Click(TObject *Sender)
 {
-        FontDialog1->Font->Size = StringGrid1->Font->Size;
-        FontDialog1->Font->Name = StringGrid1->Font->Name;
+        FontDialog1->Font = StringGrid1->Font;
         FontDialog1->Execute();        
 }
 //---------------------------------------------------------------------------
