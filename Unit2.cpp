@@ -109,6 +109,23 @@ class Configuration {
                 }
 };
 
+String checkBool(bool in) {
+        if(in) {
+                return "1";
+        } else {
+                return "0";
+        }
+}
+
+bool checkBool2(String in) {
+        if(in == "1") {
+                return true;
+        } else {
+                return false;
+        }
+}
+
+
 class Settings {
         public:
                 bool changed;
@@ -155,11 +172,13 @@ class Settings {
                         this->changed = true;
                 }
 
-                void writeToFile(list<String> &in) {
+                void writeToFile(list<String> &servers, list<String> &font, list<String> &window) {
                         if(this->changed) {
                                 TStringList *file = new TStringList;
+                                file->Add("[General]");
                                 file->Add("Exe = " + this->exe);
                                 file->Add("Interval = " + String(this->interval));
+                                file->Add("[\\General]");
                                 for(int i = 0; i < confAmount; i++) {
                                         if(this->startupConfs[i].set) {
                                                 TStringList *entry = this->startupConfs[i].createFileEntry();
@@ -170,13 +189,40 @@ class Settings {
                                                 delete entry;
                                         }
                                 }
-                                file->Add("[Servers]");
-                                while(in.size() > 0) {
-                                        String a = in.front();
-                                        file->Add(a);
-                                        in.pop_front();
+                                file->Add("[Filters]");
+                                file->Add("Playing = " + checkBool(Form1->CheckBox1->Checked));
+                                file->Add("Waiting= " + checkBool(Form1->CheckBox2->Checked));
+                                file->Add("Creating = " + checkBool(Form1->CheckBox3->Checked));
+                                file->Add("Settingup = " + checkBool(Form1->CheckBox8->Checked));
+                                file->Add("Briefing = " + checkBool(Form1->CheckBox4->Checked));
+                                file->Add("Debriefing = " + checkBool(Form1->CheckBox5->Checked));
+                                file->Add("WithPW = " + checkBool(Form1->CheckBox6->Checked));
+                                file->Add("WithoutPW = " + checkBool(Form1->CheckBox7->Checked));
+                                file->Add("minPlayers = " + IntToStr(Form1->UpDown1->Position));
+                                file->Add("ServerName = " + Form1->Edit2->Text);
+                                file->Add("MissionName = " + Form1->Edit1->Text);
+                                file->Add("PlayerName = " + Form1->Edit4->Text);
+                                file->Add("[\\Filters]");
+                                String tmp;
+                                while(font.size() > 0) {
+                                        tmp = font.front();
+                                        file->Add(tmp);
+                                        font.pop_front();
                                 }
-                                file->Add("[\\Servers]");
+                                while(window.size() > 0) {
+                                        tmp = window.front();
+                                        file->Add(tmp);
+                                        window.pop_front();
+                                }
+                                if (servers.size() > 0) {
+                                        file->Add("[Servers]");
+                                        while(servers.size() > 0) {
+                                                tmp = servers.front();
+                                                file->Add(tmp);
+                                                servers.pop_front();
+                                        }
+                                        file->Add("[\\Servers]");
+                                }
                                 file->SaveToFile(this->file);
                                 delete file;
                         }
@@ -184,8 +230,8 @@ class Settings {
 };
 Settings programSettings = Settings();
 
-void TForm2::writeSettingToFile(list<String> in) {
-        programSettings.writeToFile(in);
+void TForm2::writeSettingToFile(list<String> servers, list<String> font, list<String> window) {
+        programSettings.writeToFile(servers, font, window);
 }
 
 void TForm2::setSettingsChanged() {
@@ -263,7 +309,6 @@ String GetRegistryValue(void * root, list<String> a, String key) {
 
 
 TStringList* TForm2::init() {
-
         String exe = "";
         String interval = "";
         String folder = "";
@@ -274,14 +319,22 @@ TStringList* TForm2::init() {
                 file->LoadFromFile(programSettings.file);
                 for(int i = 0; i < file->Count; i++) {
                         String tmp = file->Strings[i].Trim();
-                        if(tmp.SubString(1,3) == "Exe") {
-                                String tmp = getValue(tmp);
-                                if(FileExists(tmp)) {
-                                        exe = tmp;
-                                        folder = getFolder(exe);
+                        if(tmp.SubString(1,9) == "[General]") {
+                                i++;
+                                tmp = file->Strings[i].Trim();
+                                while(tmp.SubString(1,10) != "[\\General]" && i < file->Count - 1) {
+                                        if(tmp.SubString(1,3) == "Exe") {
+                                                String tmp = getValue(tmp);
+                                                if(FileExists(tmp)) {
+                                                        exe = tmp;
+                                                        folder = getFolder(exe);
+                                                }
+                                        } else if(tmp.SubString(1,8) == "Interval") {
+                                                interval = getValue(tmp);
+                                        }
+                                        i++;
+                                        tmp = file->Strings[i].Trim();
                                 }
-                        } else if(tmp.SubString(1,8) == "Interval") {
-                                interval = getValue(tmp);
                         } else if(tmp.SubString(1,6) == "[Conf]") {
                                 Configuration c = Configuration();
                                 c.set = true;
@@ -306,13 +359,140 @@ TStringList* TForm2::init() {
                         } else if(tmp.SubString(1,9) == "[Servers]") {
                                 i++;
                                 tmp = file->Strings[i].Trim();
-                                while(tmp.SubString(1,7) != "[\\Servers]" && i < file->Count - 1) {
+                                while(tmp.SubString(1,10) != "[\\Servers]" && i < file->Count - 1) {
                                         if(tmp.Length() > 8) {
                                                 ipList->Add(tmp.Trim());
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
+                        } else if(tmp.SubString(1,9) == "[Filters]") {
+                                i++;
+                                tmp = file->Strings[i].Trim();
+                                while(tmp.SubString(1,10) != "[\\Filters]" && i < file->Count - 1) {
+                                        if(tmp.SubString(1,7) == "Playing") {
+                                                Form1->CheckBox1->Checked = checkBool2(getValue(tmp));
+                                        } else if(tmp.SubString(1,7) == "Waiting") {
+                                                Form1->CheckBox2->Checked = checkBool2(getValue(tmp));
+                                        } else if(tmp.SubString(1,8) == "Creating") {
+                                                Form1->CheckBox3->Checked = checkBool2(getValue(tmp));
+                                        } else if(tmp.SubString(1,9) == "Settingup") {
+                                                Form1->CheckBox8->Checked = checkBool2(getValue(tmp));
+                                        } else if(tmp.SubString(1,8) == "Briefing") {
+                                                Form1->CheckBox4->Checked = checkBool2(getValue(tmp));
+                                        } else if(tmp.SubString(1,10) == "Debriefing") {
+                                                Form1->CheckBox5->Checked = checkBool2(getValue(tmp));
+                                        } else if(tmp.SubString(1,6) == "WithPW") {
+                                                Form1->CheckBox6->Checked = checkBool2(getValue(tmp));
+                                        } else if(tmp.SubString(1,9) == "WithoutPW") {
+                                                Form1->CheckBox7->Checked = checkBool2(getValue(tmp));
+                                        } else if(tmp.SubString(1,10) == "minPlayers") {
+                                                try {
+                                                        int i = StrToInt(getValue(tmp));
+                                                        Form1->UpDown1->Position = i;
+                                                } catch (...) {}
+                                        } else if(tmp.SubString(1,10) == "ServerName") {
+                                                Form1->Edit2->Text = getValue(tmp);
+                                        } else if(tmp.SubString(1,11) == "MissionName") {
+                                                Form1->Edit1->Text = getValue(tmp);
+                                        } else if(tmp.SubString(1,10) == "PlayerName") {
+                                                Form1->Edit4->Text = getValue(tmp);
+                                        }
+                                        i++;
+                                        tmp = file->Strings[i].Trim();
+                                }
+                        } else if(tmp.SubString(1,14) == "[FontSettings]") {
+                                i++;
+                                tmp = file->Strings[i].Trim();
+                                int charset = 0;
+                                String name = "";
+                                int size = 0;
+                                bool bold = false, italic = false;
+                                while(tmp.SubString(1,15) != "[\\FontSettings]" && i < file->Count - 1) {
+                                        if(tmp.SubString(1,4) == "Name") {
+                                                name = getValue(tmp);
+                                        } else if(tmp.SubString(1,7) == "Charset") {
+                                                try {
+                                                        charset = StrToInt(getValue(tmp));
+                                                } catch (...) {}
+                                        } else if(tmp.SubString(1,4) == "Size") {
+                                                try {
+                                                        size = StrToInt(getValue(tmp));
+                                                } catch (...) {};
+                                        } else if(tmp.SubString(1,4) == "Bold") {
+                                                bold = checkBool2(getValue(tmp));
+                                        } else if(tmp.SubString(1,6) == "Italic") {
+                                                italic = checkBool2(getValue(tmp));
+                                        }
+                                        i++;
+                                        tmp = file->Strings[i].Trim();
+                                }
+                                Form1->setFont(name, size, charset,bold,italic);
+                        } else if(tmp.SubString(1,16) == "[WindowSettings]") {
+                                i++;
+                                tmp = file->Strings[i].Trim();
+                                int top = 0;
+                                int left = 0;
+                                int width = 0;
+                                int height = 0;
+                                float   ratioID = 0.0f,
+                                        ratioSN = 0.0f,
+                                        ratioPN = 0.0f,
+                                        ratioST = 0.0f,
+                                        ratioIS = 0.0f,
+                                        ratioMN = 0.0f,
+                                        ratioPI = 0.0f,
+                                        ratioPL = 0.0f,
+                                        ratioSC = 0.0f,
+                                        ratioDE = 0.0f,
+                                        ratioTE = 0.0f;
+                                while(tmp.SubString(1,17) != "[\\WindowSettings]" && i < file->Count - 1) {
+                                        if(tmp.SubString(1,4) == "Left") {
+                                                try {   left = StrToInt(getValue(tmp));  }catch(...) {};
+                                        } else if(tmp.SubString(1,3) == "Top") {
+                                                try {   top = StrToInt(getValue(tmp));  }catch(...) {};
+                                        } else if(tmp.SubString(1,5) == "Width") {
+                                                try {   width = StrToInt(getValue(tmp));  }catch(...) {};
+                                        } else if(tmp.SubString(1,6) == "Height") {
+                                                try {   height = StrToInt(getValue(tmp));  }catch(...) {};
+                                        } else if(tmp.SubString(1,7) == "ratioID") {
+                                                try {   ratioID = atof(getValue(tmp).c_str());  }catch(...) {};
+                                        } else if(tmp.SubString(1,7) == "ratioSN") {
+                                                try {   ratioSN = atof(getValue(tmp).c_str());  }catch(...) {};
+                                        } else if(tmp.SubString(1,7) == "ratioPN") {
+                                                try {   ratioPN = atof(getValue(tmp).c_str());  }catch(...) {};
+                                        } else if(tmp.SubString(1,7) == "ratioST") {
+                                                try {   ratioST = atof(getValue(tmp).c_str());  }catch(...) {};
+                                        } else if(tmp.SubString(1,7) == "ratioIS") {
+                                                try {   ratioIS = atof(getValue(tmp).c_str());  }catch(...) {};
+                                        } else if(tmp.SubString(1,7) == "ratioMN") {
+                                                try {   ratioMN = atof(getValue(tmp).c_str());  }catch(...) {};
+                                        } else if(tmp.SubString(1,7) == "ratioPI") {
+                                                try {   ratioPI = atof(getValue(tmp).c_str());  }catch(...) {};
+                                        } else if(tmp.SubString(1,7) == "ratioPL") {
+                                                try {   ratioPL = atof(getValue(tmp).c_str());  }catch(...) {};
+                                        } else if(tmp.SubString(1,7) == "ratioSC") {
+                                                try {   ratioSC = atof(getValue(tmp).c_str());  }catch(...) {};
+                                        } else if(tmp.SubString(1,7) == "ratioDE") {
+                                                try {   ratioDE = atof(getValue(tmp).c_str());  }catch(...) {};
+                                        } else if(tmp.SubString(1,7) == "ratioTE") {
+                                                try {   ratioTE = atof(getValue(tmp).c_str());  }catch(...) {};
+                                        }
+                                        i++;
+                                        tmp = file->Strings[i].Trim();
+                                }
+                                Form1->setWindowSettings(top,left,height,width,ratioID,
+                                        ratioSN,
+                                        ratioPN,
+                                        ratioST,
+                                        ratioIS,
+                                        ratioMN,
+                                        ratioPI,
+                                        ratioPL,
+                                        ratioSC,
+                                        ratioDE,
+                                        ratioTE);
+
                         }
                 }
                 delete file;

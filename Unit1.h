@@ -13,6 +13,7 @@
 #include <ComCtrls.hpp>
 #include <ExtCtrls.hpp>
 #include "trayicon.h"
+#include <Dialogs.hpp>
 //---------------------------------------------------------------------------
 
 class TForm1 : public TForm
@@ -57,8 +58,6 @@ __published:	// IDE-managed Components
         TLabel *Label16;
         TPopupMenu *PopupMenu1;
         TMenuItem *Join1;
-        TLabel *Label17;
-        TLabel *Label18;
         TCheckBox *CheckBox8;
         TMenuItem *Mods1;
         TMenuItem *N01;
@@ -89,6 +88,8 @@ __published:	// IDE-managed Components
         TMenuItem *Settings1;
         TMenuItem *GetnewServerlist1;
         TTrayIcon *TrayIcon1;
+        TFontDialog *FontDialog1;
+        TMenuItem *Font1;
         void __fastcall NMUDP1DataReceived(TComponent *Sender,
           int NumberBytes, AnsiString FromIP, int Port);
         void __fastcall FormCreate(TObject *Sender);
@@ -126,9 +127,23 @@ __published:	// IDE-managed Components
         void __fastcall Settings1Click(TObject *Sender);
         void __fastcall Exit1Click(TObject *Sender);
         void __fastcall GetnewServerlist1Click(TObject *Sender);
+        void __fastcall Font1Click(TObject *Sender);
+        void __fastcall FontDialog1Apply(TObject *Sender, HWND Wnd);
+        void __fastcall FormResize(TObject *Sender);
+        void __fastcall StringGrid1ColumnMoved(TObject *Sender,
+          int FromIndex, int ToIndex);
+        void __fastcall StringGrid1MouseUp(TObject *Sender,
+          TMouseButton Button, TShiftState Shift, int X, int Y);
+        void __fastcall StringGrid2MouseUp(TObject *Sender,
+          TMouseButton Button, TShiftState Shift, int X, int Y);
 private:	// User declarations
 public:		// User declarations
         typedef list<String> CustomStringList;
+        void TForm1::setFont(String name, int size, int charset,bool bold, bool italic);
+        void TForm1::setWindowSettings(int top,int left, int height, int width, float ratioID,float ratioSN,
+                                float ratioPN,float ratioST,float ratioIS,
+                                float ratioMN,float ratioPI,float ratioPL,
+                                float ratioSC,float ratioDE,float ratioTE);
         CustomStringList TForm1::splitUpMessage(String msg, String split);
         __fastcall TForm1(TComponent* Owner);
 };

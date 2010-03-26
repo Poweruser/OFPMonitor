@@ -20,6 +20,215 @@ int errorreports = 0;
 
 typedef list<String> CustomStringList;
 
+class FontSettings {
+        public:
+                String name;
+                int size;
+                unsigned char charset;
+                TFontStyles style;
+                FontSettings() {}
+                FontSettings (  String name, int size, int charset,
+                                bool bold, bool italic) {
+                        if(!name.IsEmpty()) {
+                                this->name = name;
+                        } else {
+                                this->name = Form1->Font->Name;
+                        }
+                        if(size == 0) {
+                                this->size = Form1->Font->Size;
+                        } else {
+                                this->size = size;
+                        }
+                        if(charset != NULL) {
+                                this->charset = (unsigned char) charset;
+                        } else {
+                                this->charset = Form1->Font->Charset;
+                        }
+                        if(bold) {
+                                this->style = this->style << fsBold;
+                        }
+                        if(italic) {
+                                this->style = this->style << fsItalic;
+                        }
+                        this->update();
+                }
+
+                CustomStringList createFileEntry() {
+                        CustomStringList output;
+                        output.push_back("[FontSettings]");
+                        output.push_back("Charset = " + String(this->charset));
+                        output.push_back("Name = " + this->name);
+                        output.push_back("Size = " + String(this->size));
+                        output.push_back("Bold = " + this->checkBool(this->style.Contains(fsBold)));
+                        output.push_back("Italic = " + this->checkBool(this->style.Contains(fsItalic)));
+                        output.push_back("[\\FontSettings]");
+                        return output;
+                }
+
+                String checkBool(bool in) {
+                        if(in) {
+                                return "1";
+                        } else {
+                                return "0";
+                        }
+                }
+
+                void update() {
+                        Form1->StringGrid1->Font->Charset = this->charset;
+                        Form1->StringGrid1->Font->Name = this->name;
+                        Form1->StringGrid1->Font->Size = this->size;
+                        Form1->StringGrid1->Font->Style = this->style;
+                        Form1->StringGrid1->DefaultRowHeight = this->size * 2.1f;
+                        Form1->StringGrid2->Font->Charset = this->charset;
+                        Form1->StringGrid2->Font->Name = this->name;
+                        Form1->StringGrid2->Font->Size = this->size;
+                        Form1->StringGrid2->Font->Style = this->style;
+                        Form1->StringGrid2->DefaultRowHeight = this->size * 2.1f;
+                        Form1->FontDialog1->Font = Form1->StringGrid1->Font;
+                        return;
+                }
+};
+
+FontSettings fontsettings;
+
+void TForm1::setFont(String name, int size, int charset,
+                        bool bold, bool italic) {
+        fontsettings = FontSettings(name, size, charset, bold, italic);
+}
+
+class WindowSettings {
+        public:
+                bool init;
+                float ratioID;
+                float ratioSN;
+                float ratioPN;
+                float ratioST;
+                float ratioIS;
+                float ratioMN;
+                float ratioPI;
+                float ratioPL;
+                float ratioSC;
+                float ratioDE;
+                float ratioTE;
+                
+                WindowSettings() {
+                        init = false;
+                }
+
+                float checkIfZero(float in, int grid) {
+                        if(in - 0.001f < 0) {
+                                if(grid == 1) {
+                                        return ((((float)Form1->StringGrid1->Width / (float)Form1->StringGrid1->ColCount) -
+                                                        (float)Form1->StringGrid1->GridLineWidth) / (float)Form1->StringGrid1->Width);
+                                } else if(grid == 2) {
+                                        return ((((float)Form1->StringGrid2->Width / (float)Form1->StringGrid2->ColCount) -
+                                                        (float)Form1->StringGrid2->GridLineWidth) / (float)Form1->StringGrid2->Width);
+                                }
+                        } else {
+                                return in;
+                        }
+                }
+
+                WindowSettings( int top, int left, int height, int width, float ratioID, float ratioSN,
+                                float ratioPN, float ratioST, float ratioIS,
+                                float ratioMN, float ratioPI, float ratioPL,
+                                float ratioSC, float ratioDE, float ratioTE) {
+                        Form1->Position = poDesigned; 
+                        Form1->Top = top;
+                        Form1->Left = left;
+                        if(height >= 526) {
+                                Form1->Height = height;
+                        }
+                        if(width >= 666) {
+                                Form1->Width = width;
+                        }
+                        if(top == 0 || left == 0) {
+
+                        }
+                        this->ratioID = checkIfZero(ratioID,1);
+                        this->ratioSN = checkIfZero(ratioSN,1);
+                        this->ratioPN = checkIfZero(ratioPN,1);
+                        this->ratioST = checkIfZero(ratioST,1);
+                        this->ratioIS = checkIfZero(ratioIS,1);
+                        this->ratioMN = checkIfZero(ratioMN,1);
+                        this->ratioPI = checkIfZero(ratioPI,1);
+                        this->ratioPL = checkIfZero(ratioPL,2);
+                        this->ratioSC = checkIfZero(ratioSC,2);
+                        this->ratioDE = checkIfZero(ratioDE,2);
+                        this->ratioTE = checkIfZero(ratioTE,2);
+                        this->refresh();
+                        this->init = true;
+                }
+
+                void refresh() {
+                        Form1->StringGrid1->ColWidths[0] = (float)Form1->StringGrid1->Width * this->ratioID;
+                        Form1->StringGrid1->ColWidths[1] = (float)Form1->StringGrid1->Width * this->ratioSN;
+                        Form1->StringGrid1->ColWidths[2] = (float)Form1->StringGrid1->Width * this->ratioPN;
+                        Form1->StringGrid1->ColWidths[3] = (float)Form1->StringGrid1->Width * this->ratioST;
+                        Form1->StringGrid1->ColWidths[4] = (float)Form1->StringGrid1->Width * this->ratioIS;
+                        Form1->StringGrid1->ColWidths[5] = (float)Form1->StringGrid1->Width * this->ratioMN;
+                        Form1->StringGrid1->ColWidths[6] = (float)Form1->StringGrid1->Width * this->ratioPI;
+                        Form1->StringGrid2->ColWidths[0] = (float)Form1->StringGrid2->Width * this->ratioPL;
+                        Form1->StringGrid2->ColWidths[1] = (float)Form1->StringGrid2->Width * this->ratioSC;
+                        Form1->StringGrid2->ColWidths[2] = (float)Form1->StringGrid2->Width * this->ratioDE;
+                        Form1->StringGrid2->ColWidths[3] = (float)Form1->StringGrid2->Width * this->ratioTE;
+                        return;
+                }
+
+                CustomStringList createFileEntry() {
+                        CustomStringList output;
+                        String tmp;
+                        output.push_back("[WindowSettings]");
+                        output.push_back("Top = " + String(Form1->Top));
+                        output.push_back("Left = " + String(Form1->Left));
+                        output.push_back("Height = " + String(Form1->Height));
+                        output.push_back("Width = " + String(Form1->Width));
+                        output.push_back("ratioID = " + tmp.sprintf("%.03f", ratioID));
+                        output.push_back("ratioSN = " + tmp.sprintf("%.03f", ratioSN));
+                        output.push_back("ratioPN = " + tmp.sprintf("%.03f", ratioPN));
+                        output.push_back("ratioST = " + tmp.sprintf("%.03f", ratioST));
+                        output.push_back("ratioIS = " + tmp.sprintf("%.03f", ratioIS));
+                        output.push_back("ratioMN = " + tmp.sprintf("%.03f", ratioMN));
+                        output.push_back("ratioPI = " + tmp.sprintf("%.03f", ratioPI));
+                        output.push_back("ratioPL = " + tmp.sprintf("%.03f", ratioPL));
+                        output.push_back("ratioSC = " + tmp.sprintf("%.03f", ratioSC));
+                        output.push_back("ratioDE = " + tmp.sprintf("%.03f", ratioDE));
+                        output.push_back("ratioTE = " + tmp.sprintf("%.03f", ratioTE));
+                        output.push_back("[\\WindowSettings]");
+                        return output;
+                }
+
+                void updateGrid1() {
+                        this->ratioID = (float)Form1->StringGrid1->ColWidths[0] / (float)Form1->StringGrid1->Width;
+                        this->ratioSN = (float)Form1->StringGrid1->ColWidths[1] / (float)Form1->StringGrid1->Width;
+                        this->ratioPN = (float)Form1->StringGrid1->ColWidths[2] / (float)Form1->StringGrid1->Width;
+                        this->ratioST = (float)Form1->StringGrid1->ColWidths[3] / (float)Form1->StringGrid1->Width;
+                        this->ratioIS = (float)Form1->StringGrid1->ColWidths[4] / (float)Form1->StringGrid1->Width;
+                        this->ratioMN = (float)Form1->StringGrid1->ColWidths[5] / (float)Form1->StringGrid1->Width;
+                        this->ratioPI = (float)Form1->StringGrid1->ColWidths[6] / (float)Form1->StringGrid1->Width;
+                        return;
+                }
+                void updateGrid2() {
+                        this->ratioPL = (float)Form1->StringGrid2->ColWidths[0] / (float)Form1->StringGrid2->Width;
+                        this->ratioSC = (float)Form1->StringGrid2->ColWidths[1] / (float)Form1->StringGrid2->Width;
+                        this->ratioDE = (float)Form1->StringGrid2->ColWidths[2] / (float)Form1->StringGrid2->Width;
+                        this->ratioTE = (float)Form1->StringGrid2->ColWidths[3] / (float)Form1->StringGrid2->Width;
+                        return;
+                }
+};
+
+WindowSettings windowsettings;
+
+void TForm1::setWindowSettings(int top,int left,int height, int width, float ratioID,float ratioSN,
+                                float ratioPN,float ratioST,float ratioIS,
+                                float ratioMN,float ratioPI,float ratioPL,
+                                float ratioSC,float ratioDE,float ratioTE) {
+        windowsettings = WindowSettings(top,left,height,width,ratioID,ratioSN,
+                                ratioPN,ratioST,ratioIS,
+                                ratioMN,ratioPI,ratioPL,
+                                ratioSC,ratioDE,ratioTE);
+}
+
 class QueryAnswer {
         public:
                 String id;
@@ -240,7 +449,7 @@ class Server {
                 int index;
                 int gamespyport;
                 int gameport;
-                int ping;
+                list<int> ping;
                 DWORD messageSent;
                 int timeouts;
                 String ip;
@@ -262,6 +471,7 @@ class Server {
                 int reqver;
                 int equalMod;
                 bool watch;
+                bool loseATurn;
                 CustomPlayerList playerlist;
                 QueryAnswer queries[queryArrayLength];
                 Server() {
@@ -270,7 +480,7 @@ class Server {
                         this->ip = "";
                         this->gamespyport = 0;
                         this->timeouts = 0;
-                        this->ping = 0;
+                        this->ping.clear();
                         this->clear();
                 }
                    
@@ -280,11 +490,12 @@ class Server {
                         this->index = ind;
                         this->ip = i;
                         this->timeouts = 0;
-                        this->ping = 0;
+                        this->ping.clear();
                         this->gamespyport = p;
                 }
 
                 void clear() {
+                        this->loseATurn = false;
                         this->gameport = 0;
                         this->timeleft = "";
                         this->players = 0;
@@ -400,7 +611,7 @@ int checkFilters(int j) {
                                         if(namefilter) {
                                                 bool playerfilter = true;
                                                 if(Form1->Edit4->Text.Trim().Length() > 0) {
-                                                        playerfilter = doPlayerFilter(ServerArray[j].playerlist, Form1->Edit4->Text); // );
+                                                        playerfilter = doPlayerFilter(ServerArray[j].playerlist, Form1->Edit4->Text);
                                                 }
                                                 if(playerfilter) {
                                                         out = 2;
@@ -531,7 +742,7 @@ void updateServerInfoBox(int index) {
                 Form1->Label2->Caption = ServerArray[index].ip;
                 Form1->Label4->Caption = ServerArray[index].gameport;
                 Form1->Label9->Caption = ServerArray[index].platform;
-                Form1->Label18->Caption = ServerArray[index].impl;
+                //Form1->Label18->Caption = ServerArray[index].impl;
                 Form1->Label21->Caption = ServerArray[index].name;
                 Form1->Button3->Enabled = true;
                 int a = ServerArray[index].password;
@@ -546,7 +757,7 @@ void updateServerInfoBox(int index) {
                 Form1->Label2->Caption = "";
                 Form1->Label4->Caption = "";
                 Form1->Label9->Caption = "";
-                Form1->Label18->Caption = "";
+                //Form1->Label18->Caption = "";
                 Form1->Label21->Caption = "";
                 Form1->Label11->Caption = "";
                 Form1->Label13->Caption = "";
@@ -555,7 +766,25 @@ void updateServerInfoBox(int index) {
 }
 
 
-void filterChanged() {
+int averagePing(list<int> &pings) {
+        int sum = 0;
+        int i = 0;
+        for (list<int>::iterator ci = pings.begin(); ci != pings.end(); ++ci) {
+                sum += *ci;
+                i++;
+        }
+        if(i == 0) {
+                return 0;
+        } else {
+                return (sum / i);
+        }
+}
+
+
+void filterChanged(bool userinput) {
+        if(userinput) {
+                Form2->setSettingsChanged();
+        }
         int row = Form1->StringGrid1->Selection.BottomRight.Y;
         int selectedIndex;
         try {
@@ -582,13 +811,14 @@ void filterChanged() {
                         } else if(tableSorter.mission) {
                                 ServerSortList->AddObject(ServerArray[j].mission, (TObject *) j);
                         } else if(tableSorter.ping) {
-                                ServerSortList->AddObject(addLeadingZeros(ServerArray[j].ping), (TObject *) j);
+                                ServerSortList->AddObject(addLeadingZeros(averagePing(ServerArray[j].ping)), (TObject *) j);
                         }
                         inList++;
                 } else if(abc == 0) {
                         hasNoName++;
                 }
         }
+        bool found = false;
         if(inList == 1) {
                 setEmptyStringGrid();
                 setEmptyPlayerList();
@@ -604,7 +834,7 @@ void filterChanged() {
                                 Form1->StringGrid1->Cells[3][i] = ServerArray[j].mode;
                                 Form1->StringGrid1->Cells[4][i] = ServerArray[j].island;
                                 Form1->StringGrid1->Cells[5][i] = ServerArray[j].mission;
-                                Form1->StringGrid1->Cells[6][i] = String(ServerArray[j].ping);
+                                Form1->StringGrid1->Cells[6][i] = String(averagePing(ServerArray[j].ping));
                                 ServerSortList->Delete(0);
                         }
                 } else {
@@ -617,14 +847,13 @@ void filterChanged() {
                                 Form1->StringGrid1->Cells[3][i] = ServerArray[j].mode;
                                 Form1->StringGrid1->Cells[4][i] = ServerArray[j].island;
                                 Form1->StringGrid1->Cells[5][i] = ServerArray[j].mission;
-                                Form1->StringGrid1->Cells[6][i] = String(ServerArray[j].ping);
+                                Form1->StringGrid1->Cells[6][i] = String(averagePing(ServerArray[j].ping));
                                 ServerSortList->Delete(0);
                         }
                 }
                 Form1->StringGrid1->RowCount = inList;
                 Form1->StatusBar1->Panels->Items[1]->Text = "Online: " + String(numOfServers - hasNoName);
                 if(selectedIndex > -1) {
-                        bool found = false;
                         for(int k = 1; k < Form1->StringGrid1->RowCount; k++) {
                                 if((Form1->StringGrid1->Cells[0][k]).Trim() == String(selectedIndex).Trim()) {
                                         found = true;
@@ -642,6 +871,12 @@ void filterChanged() {
                                 updateServerInfoBox(selectedIndex);
                         }
                 }
+
+        }
+        if(found) {
+                Form1->TrayIcon1->Hint = ServerArray[selectedIndex].name + "     " + ServerArray[selectedIndex].mode + "     " +  String(ServerArray[selectedIndex].players) + " Players";
+        } else {
+                Form1->TrayIcon1->Hint = "OFPMonitor";
         }
 
         return;
@@ -650,6 +885,8 @@ void filterChanged() {
 class BroadcastRotation {
         public:
                 int current;
+                bool receivingFirstTime;
+                bool loseTurnValue;
                 bool IsReady;
                 BroadcastRotation() {
                         this->reset();
@@ -657,22 +894,37 @@ class BroadcastRotation {
                 void reset() {
                         this->current = -1;
                         this->IsReady = true;
+                        this->receivingFirstTime = true;
+                        this->loseTurnValue = false;
                 }
                 int next() {
-                        this->current = this->current + 1;
-                        if(this->current >= numOfServers) {
-                                this->current = -1;
-                                Form1->Timer3->Enabled = false;
-                                Form1->Timer1->Enabled = true;
-                                filterChanged();
-                                processPlayerList(-1);
-                        }
+                        bool temp = false;
+                        do {
+                                if(temp) {
+                                        ServerArray[this->current].loseATurn = false;
+                                }
+                                this->current = this->current + 1;
+                                if(this->current >= numOfServers) {
+                                        this->current = -1;
+                                        this->receivingFirstTime = false;
+                                        Form1->Timer3->Enabled = false;
+                                        Form1->Timer1->Enabled = true;
+                                        filterChanged(false);
+                                        processPlayerList(-1);
+                                        break;
+                                }
+                                temp = true;
+                        } while ( ServerArray[this->current].loseATurn );
                         int out = this->current;
                         return out;
                 }
                 void setReady() {
                         this->IsReady = true;
                         return;
+                }
+                bool loseTurn() {
+                        this->loseTurnValue = !this->loseTurnValue;
+                        return this->loseTurnValue;
                 }
                 bool isReady() {
                         return this->IsReady;
@@ -718,11 +970,11 @@ CustomStringList getAddress(String address) {
         return a;
 }
 
-void readFile(TStringList *in) {
+void readServerList(TStringList *in) {
         Form1->StatusBar1->Panels->Items[0]->Text = "";
         Form1->StatusBar1->Panels->Items[1]->Text = "";
         numOfServers = 0;
-        for(int i = 0; i < in->Count && i < 128; i++) {
+        for(int i = 0; i < in->Count && i < sizeof(ServerArray); i++) {
                 if(in->Strings[i].Length() > 8) {
                         CustomStringList a = getAddress(in->Strings[i]);
                         String ip = a.front();
@@ -1034,36 +1286,41 @@ void copyToClipBoard (String msg) {
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
-                numOfServers = 0;
-                Form1->Visible = true;
-                Form1->Caption = Application->Title;
-                StringGrid1->Cells[0][0]="ID";
-                StringGrid1->Cells[1][0]="Name";
-                StringGrid1->Cells[2][0]="Players";
-                StringGrid1->Cells[3][0]="Status";
-                StringGrid1->Cells[4][0]="Island";
-                StringGrid1->Cells[5][0]="Mission";
-                StringGrid1->Cells[6][0]="Ping";
-                StringGrid2->Cells[0][0]="Name";
-                StringGrid2->Cells[1][0]="Score";
-                StringGrid2->Cells[2][0]="Deaths";
-                StringGrid2->Cells[3][0]="Team";
-                ServerSortList->Sorted = true;
-                ServerSortList->CaseSensitive = true;
-                ServerSortList->Duplicates = dupAccept;
-                PlayerSortList->Sorted = true;
-                PlayerSortList->CaseSensitive = true;
-                PlayerSortList->Duplicates = dupAccept;
-                PlayerSortList2->Sorted = true;
-                PlayerSortList2->CaseSensitive = true;
-                PlayerSortList2->Duplicates = dupAccept;
-                Timer3->Enabled = true;
-                TStringList *TempList = Form2->init();
-                readFile(TempList);
-                updateTimeoutLimit();
-                if(!Form2->getExe().IsEmpty() && !Form2->getExeFolder().IsEmpty()) {
-                        PopupMenu1->Items->Items[0]->Enabled = true;
-                }
+        windowsettings = WindowSettings(0,0,0,0,0.0f, 0.0f,0.0f, 0.0f,
+                                0.0f,0.0f, 0.0f, 0.0f,0.0f, 0.0f, 0.0f);
+        numOfServers = 0;
+        Form1->Caption = Application->Title;
+        StringGrid1->Cells[0][0]="ID";
+        StringGrid1->Cells[1][0]="Name";
+        StringGrid1->Cells[2][0]="Players";
+        StringGrid1->Cells[3][0]="Status";
+        StringGrid1->Cells[4][0]="Island";
+        StringGrid1->Cells[5][0]="Mission";
+        StringGrid1->Cells[6][0]="Ping";
+        StringGrid2->Cells[0][0]="Name";
+        StringGrid2->Cells[1][0]="Score";
+        StringGrid2->Cells[2][0]="Deaths";
+        StringGrid2->Cells[3][0]="Team";
+        ServerSortList->Sorted = true;
+        ServerSortList->CaseSensitive = true;
+        ServerSortList->Duplicates = dupAccept;
+        PlayerSortList->Sorted = true;
+        PlayerSortList->CaseSensitive = true;
+        PlayerSortList->Duplicates = dupAccept;
+        PlayerSortList2->Sorted = true;
+        PlayerSortList2->CaseSensitive = true;
+        PlayerSortList2->Duplicates = dupAccept;
+        Timer3->Enabled = true;
+        TStringList *TempList = Form2->init();
+        readServerList(TempList);
+        updateTimeoutLimit();
+        if(!Form2->getExe().IsEmpty() && !Form2->getExeFolder().IsEmpty()) {
+                PopupMenu1->Items->Items[0]->Enabled = true;
+        }
+        Form1->Visible = true;
+        if(numOfServers == 0) {
+                GetnewServerlist1->Click();
+        }
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
@@ -1074,29 +1331,39 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 void __fastcall TForm1::NMUDP1DataReceived(TComponent *Sender,
       int NumberBytes, AnsiString FromIP, int Port)
 {
-                DWORD i = timeGetTime();
-                char buffer[2048];
-                int len;
-
-                NMUDP1->ReadBuffer(buffer,2048,len);
-                buffer[len]=0;
-                String buf = String(buffer);
-                free(buffer);
-                for(int j = 0; j < numOfServers; j++) {
-                        if(ServerArray[j].index == -1) {
-                                break;
-                        }
-                        if(ServerArray[j].ip == FromIP && ServerArray[j].gamespyport == Port) {
-                                if(readInfoPacket(j, buf, FromIP, Port)) {
-                                        if(ServerArray[j].messageSent > 1) {
-                                                ServerArray[j].ping = i - ServerArray[j].messageSent;
-                                                ServerArray[j].messageSent = 0;
-                                                ServerArray[j].timeouts = 0;
+        DWORD i = timeGetTime();
+        char buffer[2048];
+        int len;
+        NMUDP1->ReadBuffer(buffer,2048,len);
+        buffer[len]=0;
+        String buf = String(buffer);
+        free(buffer);
+        for(int j = 0; j < numOfServers; j++) {
+                if(ServerArray[j].index == -1) {
+                        break;
+                }
+                if(ServerArray[j].ip == FromIP && ServerArray[j].gamespyport == Port) {
+                        if(readInfoPacket(j, buf, FromIP, Port)) {
+                                if(!ServerArray[j].loseATurn && ServerArray[j].players == 0) {
+                                        if(serverCycle.receivingFirstTime) {
+                                                ServerArray[j].loseATurn = serverCycle.loseTurn();
+                                        } else {
+                                                ServerArray[j].loseATurn = true;
                                         }
                                 }
-                                break;
+                                if(ServerArray[j].messageSent > 1) {
+                                        int curr = i - ServerArray[j].messageSent;
+                                        if(ServerArray[j].ping.size() > 4) {
+                                                ServerArray[j].ping.pop_front();
+                                        };
+                                        ServerArray[j].ping.push_back(curr);
+                                        ServerArray[j].messageSent = 0;
+                                        ServerArray[j].timeouts = 0;
+                                }
                         }
+                        break;
                 }
+        }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
@@ -1130,44 +1397,43 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
         delete PlayerSortList;
         delete PlayerSortList2;
         CustomStringList servers;
-        for(int i = 0; i < 128; i++) {
+        for(int i = 0; i < sizeof(ServerArray); i++) {
                 if(ServerArray[i].index == -1) {
                         break;
                 }
                 servers.push_back(ServerArray[i].ip + ":" + String(ServerArray[i].gamespyport));
         }
-        Form2->writeSettingToFile(servers);
+        Form2->writeSettingToFile(servers, fontsettings.createFileEntry(), windowsettings.createFileEntry());
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Button3Click(TObject *Sender)
 {
-        String msg = Label2->Caption + ":" + Label4->Caption;;
-        copyToClipBoard(msg);
+        copyToClipBoard(Label2->Caption + ":" + Label4->Caption);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CheckBox1Click(TObject *Sender)
 {
-        filterChanged();
+        filterChanged(true);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CheckBox2Click(TObject *Sender)
 {
-        filterChanged();
+        filterChanged(true);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CheckBox3Click(TObject *Sender)
 {
-        filterChanged();
+        filterChanged(true);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CheckBox4Click(TObject *Sender)
 {
-        filterChanged();
+        filterChanged(true);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CheckBox5Click(TObject *Sender)
 {
-        filterChanged();
+        filterChanged(true);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::NMUDP1DataSend(TObject *Sender)
@@ -1187,40 +1453,50 @@ void __fastcall TForm1::Timer3Timer(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CheckBox6Click(TObject *Sender)
 {
-        filterChanged();
+        filterChanged(true);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CheckBox7Click(TObject *Sender)
 {
-        filterChanged();
+        filterChanged(true);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Edit1Change(TObject *Sender)
 {
-        filterChanged();
+        filterChanged(true);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
+        int col0, col1, col2, col3, col4, col5, col6;
+        col0 = StringGrid1->ColWidths[0] + StringGrid1->GridLineWidth;
+        col1 = col0 + StringGrid1->ColWidths[1] + StringGrid1->GridLineWidth;
+        col2 = col1 + StringGrid1->ColWidths[2] + StringGrid1->GridLineWidth;
+        col3 = col2 + StringGrid1->ColWidths[3] + StringGrid1->GridLineWidth;
+        col4 = col3 + StringGrid1->ColWidths[4] + StringGrid1->GridLineWidth;
+        col5 = col4 + StringGrid1->ColWidths[5] + StringGrid1->GridLineWidth;
+        col6 = col5 + StringGrid1->ColWidths[6] + StringGrid1->GridLineWidth;
+
         if(Button == 0 && Y < StringGrid1->DefaultRowHeight) {
-                if(X < 635) {
-                        if(X < 30) {
+                if(X < col6) {
+                        if(X < col0) {
                                 tableSorter.setId();
-                        } else if(X < 227) {
+                        } else if(X < col1) {
                                 tableSorter.setName();
-                        } else if(X < 281) {
+                        } else if(X < col2) {
                                 tableSorter.setPlayers();
-                        } else if(X < 350) {
+                        } else if(X < col3) {
                                 tableSorter.setStatus();
-                        } else if(X < 409) {
+                        } else if(X < col4) {
                                 tableSorter.setIsland();
-                        } else if(X < 593) {
+                        } else if(X < col5) {
                                 tableSorter.setMission();
-                        } else if(X < 635) {
+                        } else if(X < col6) {
                                 tableSorter.setPing();
                         }
-                        filterChanged();
+                        filterChanged(false);
+                        Form2->setSettingsChanged();
                 }
         } else if(Button == 1 && Y >= StringGrid1->DefaultRowHeight) {
                 int c = ((Y - StringGrid1->DefaultRowHeight) / (StringGrid1->DefaultRowHeight + 1)) + 1;
@@ -1269,31 +1545,38 @@ void __fastcall TForm1::Edit3Change(TObject *Sender)
         } catch (...) {
                 Edit3->Text = UpDown1->Position;
         }
-        filterChanged();
+        filterChanged(true);
+
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::UpDown1Click(TObject *Sender, TUDBtnType Button)
 {
-        filterChanged();
+        filterChanged(true);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Edit2Change(TObject *Sender)
 {
-        filterChanged();
+        filterChanged(true);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::StringGrid2MouseDown(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
-        if(Button == 0 && Y < 16) {
-                if(X < 254) {
-                        if(X < 101) {
+        int col0, col1, col2, col3, col4, col5, col6;
+        col0 = StringGrid2->ColWidths[0] + StringGrid2->GridLineWidth;
+        col1 = col0 + StringGrid2->ColWidths[1] + StringGrid2->GridLineWidth;
+        col2 = col1 + StringGrid2->ColWidths[2] + StringGrid2->GridLineWidth;
+        col3 = col2 + StringGrid2->ColWidths[3] + StringGrid2->GridLineWidth;
+
+        if(Button == 0 && Y < StringGrid2->DefaultRowHeight) {
+                if(X < col3) {
+                        if(X < col0) {
                                 playerListSorter.setName();
-                        } else if(X < 140) {
+                        } else if(X < col1) {
                                 playerListSorter.setScore();
-                        } else if(X < 184) {
+                        } else if(X < col2) {
                                 playerListSorter.setDeaths();
-                        } else if(X < 260) {
+                        } else if(X < col3) {
                                 playerListSorter.setTeam();
                         }
                         processPlayerList(-1);
@@ -1303,10 +1586,9 @@ void __fastcall TForm1::StringGrid2MouseDown(TObject *Sender,
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Edit4Change(TObject *Sender)
 {
-        filterChanged();        
+        filterChanged(true);
 }
 //---------------------------------------------------------------------------
-
 
 void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
 {
@@ -1345,11 +1627,12 @@ void __fastcall TForm1::ClickWatchButton(TObject *Sender)
         a->Checked = !(a->Checked);
         ServerArray[index].watch = a->Checked;
         StringGrid1->Refresh();
+        checkServerStatus(index, ServerArray[index].mode);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CheckBox8Click(TObject *Sender)
 {
-        filterChanged();
+        filterChanged(true);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key,
@@ -1448,7 +1731,6 @@ void __fastcall TForm1::GetnewServerlist1Click(TObject *Sender)
         ipport = gslist_step_3(sd, validate, &enctypex_data, &len, &buff, &dynsz);
         itsok = gslist_step_4(secure, buff, &enctypex_data, &ipport, &len);
         ipbuffer = ipport;
-        int count =0;
     	while(len >= 6) {
         	ipc = myinetntoa(ipport->ip);
         	if(!enctypex_query[0]) {
@@ -1458,28 +1740,8 @@ void __fastcall TForm1::GetnewServerlist1Click(TObject *Sender)
         	}
         	ipport++;
         	len -= 6;
-        	count++;
     	}
-        /*
-
-        if(FileExists(program_gslist)) {
-                SHELLEXECUTEINFO ShellInfo;
-                memset(&ShellInfo, 0, sizeof(ShellInfo));
-                ShellInfo.cbSize = sizeof(ShellInfo);
-                ShellInfo.hwnd = Handle;
-                ShellInfo.lpVerb = "open";
-                ShellInfo.lpFile = PChar(program_gslist.c_str());
-                ShellInfo.nShow = SW_HIDE;
-                ShellInfo.lpDirectory = NULL;
-                ShellInfo.lpParameters = PChar(program_gslist_parameter.c_str());
-                ShellInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-                bool res = ShellExecuteEx(&ShellInfo);
-                if (res) {
-                        WaitForSingleObject(ShellInfo.hProcess, INFINITE);
-                }
-        }
-        */
-        readFile(CurrentList);
+        readServerList(CurrentList);
         delete CurrentList;
         Form2->setSettingsChanged();
         Timer1->Enabled = true;
@@ -1487,5 +1749,56 @@ void __fastcall TForm1::GetnewServerlist1Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TForm1::Font1Click(TObject *Sender)
+{
+        FontDialog1->Font->Size = StringGrid1->Font->Size;
+        FontDialog1->Font->Name = StringGrid1->Font->Name;
+        FontDialog1->Execute();        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::FontDialog1Apply(TObject *Sender, HWND Wnd)
+{
+        fontsettings.name = FontDialog1->Font->Name;
+        fontsettings.size = FontDialog1->Font->Size;
+        fontsettings.charset = FontDialog1->Font->Charset;
+        fontsettings.style = FontDialog1->Font->Style;
+        fontsettings.update();
+        Form2->setSettingsChanged();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::FormResize(TObject *Sender)
+{
+        StringGrid2->Width = Form1->Width - (StringGrid2->Left + 10);
+        StringGrid1->Width = Form1->Width - (StringGrid1->Left + 10);
+        StringGrid1->Height = Form1->Height - (StringGrid1->Top + StatusBar1->Height + 45);
+        if(windowsettings.init) {
+                windowsettings.refresh();
+        }
+        Form2->setSettingsChanged();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::StringGrid1ColumnMoved(TObject *Sender,
+      int FromIndex, int ToIndex)
+{
+        ShowMessage("test");        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::StringGrid1MouseUp(TObject *Sender,
+      TMouseButton Button, TShiftState Shift, int X, int Y)
+{
+        windowsettings.updateGrid1();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::StringGrid2MouseUp(TObject *Sender,
+      TMouseButton Button, TShiftState Shift, int X, int Y)
+{
+        windowsettings.updateGrid2();
+}
+//---------------------------------------------------------------------------
 
 

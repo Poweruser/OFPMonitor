@@ -1,14 +1,16 @@
 object Form1: TForm1
-  Left = 198
-  Top = 108
-  BorderIcons = [biSystemMenu, biMinimize]
-  BorderStyle = bsSingle
-  ClientHeight = 482
-  ClientWidth = 660
+  Left = 249
+  Top = 168
+  Width = 668
+  Height = 528
+  HorzScrollBar.Visible = False
+  VertScrollBar.Visible = False
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Constraints.MinHeight = 526
+  Constraints.MinWidth = 666
+  Font.Charset = EASTEUROPE_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
+  Font.Height = -13
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   KeyPreview = True
@@ -18,20 +20,21 @@ object Form1: TForm1
   OnClose = FormClose
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
+  OnResize = FormResize
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 16
   object Label15: TLabel
     Left = 384
     Top = 108
-    Width = 3
-    Height = 13
+    Width = 4
+    Height = 16
     Visible = False
   end
   object StringGrid1: TStringGrid
     Left = 3
-    Top = 206
+    Top = 210
     Width = 654
-    Height = 251
+    Height = 239
     ColCount = 7
     Ctl3D = True
     DefaultColWidth = 101
@@ -40,16 +43,18 @@ object Form1: TForm1
     RowCount = 20
     Font.Charset = MAC_CHARSET
     Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Arial'
+    Font.Height = -13
+    Font.Name = 'Tahoma'
     Font.Style = []
-    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSizing, goRowSelect]
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSizing, goColSizing, goRowSelect]
     ParentCtl3D = False
     ParentFont = False
     ScrollBars = ssVertical
     TabOrder = 0
+    OnColumnMoved = StringGrid1ColumnMoved
     OnDrawCell = StringGrid1DrawCell
     OnMouseDown = StringGrid1MouseDown
+    OnMouseUp = StringGrid1MouseUp
     OnSelectCell = StringGrid1SelectCell
     ColWidths = (
       29
@@ -64,57 +69,63 @@ object Form1: TForm1
     Left = 3
     Top = 83
     Width = 366
-    Height = 119
+    Height = 123
     Caption = '  Filters  '
     Color = clBtnFace
+    Font.Charset = EASTEUROPE_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
     ParentColor = False
+    ParentFont = False
     TabOrder = 4
     object Label6: TLabel
       Left = 120
       Top = 74
-      Width = 67
-      Height = 13
+      Width = 85
+      Height = 16
       Caption = 'Mission name:'
     end
     object Label7: TLabel
       Left = 8
       Top = 74
-      Width = 63
-      Height = 13
+      Width = 76
+      Height = 16
       Caption = 'Server name:'
     end
     object Label14: TLabel
       Left = 8
       Top = 53
-      Width = 49
-      Height = 13
+      Width = 61
+      Height = 16
       Caption = 'Password:'
     end
     object Label19: TLabel
       Left = 230
-      Top = 52
-      Width = 59
-      Height = 13
+      Top = 53
+      Width = 77
+      Height = 16
       Caption = 'min. Players:'
     end
     object Label16: TLabel
       Left = 232
-      Top = 72
-      Width = 61
-      Height = 13
+      Top = 74
+      Width = 77
+      Height = 16
       Caption = 'Player name:'
     end
     object Label5: TLabel
       Left = 8
       Top = 16
-      Width = 33
-      Height = 13
+      Width = 42
+      Height = 16
       Caption = 'Status:'
     end
     object CheckBox1: TCheckBox
       Left = 72
       Top = 16
-      Width = 57
+      Width = 81
       Height = 17
       Caption = 'Playing'
       Checked = True
@@ -125,7 +136,7 @@ object Form1: TForm1
     object CheckBox2: TCheckBox
       Left = 154
       Top = 16
-      Width = 57
+      Width = 71
       Height = 17
       Caption = 'Waiting'
       Checked = True
@@ -136,7 +147,7 @@ object Form1: TForm1
     object CheckBox3: TCheckBox
       Left = 228
       Top = 16
-      Width = 65
+      Width = 93
       Height = 17
       Caption = 'Creating'
       Checked = True
@@ -147,7 +158,7 @@ object Form1: TForm1
     object CheckBox4: TCheckBox
       Left = 154
       Top = 32
-      Width = 57
+      Width = 71
       Height = 17
       Caption = 'Briefing'
       Checked = True
@@ -158,7 +169,7 @@ object Form1: TForm1
     object CheckBox5: TCheckBox
       Left = 228
       Top = 32
-      Width = 73
+      Width = 93
       Height = 17
       Caption = 'Debriefing'
       Checked = True
@@ -168,23 +179,23 @@ object Form1: TForm1
     end
     object Edit1: TEdit
       Left = 120
-      Top = 88
+      Top = 92
       Width = 110
-      Height = 21
+      Height = 24
       TabOrder = 11
       OnChange = Edit1Change
     end
     object Edit2: TEdit
       Left = 8
-      Top = 88
+      Top = 92
       Width = 110
-      Height = 21
+      Height = 24
       TabOrder = 10
       OnChange = Edit2Change
     end
     object CheckBox6: TCheckBox
       Left = 72
-      Top = 51
+      Top = 53
       Width = 73
       Height = 17
       Caption = 'With'
@@ -193,7 +204,7 @@ object Form1: TForm1
     end
     object CheckBox7: TCheckBox
       Left = 154
-      Top = 51
+      Top = 53
       Width = 65
       Height = 17
       Caption = 'Without'
@@ -203,10 +214,10 @@ object Form1: TForm1
       OnClick = CheckBox7Click
     end
     object UpDown1: TUpDown
-      Left = 337
-      Top = 50
+      Left = 345
+      Top = 48
       Width = 15
-      Height = 21
+      Height = 24
       Associate = Edit3
       Min = 0
       Position = 1
@@ -215,26 +226,26 @@ object Form1: TForm1
       OnClick = UpDown1Click
     end
     object Edit3: TEdit
-      Left = 296
-      Top = 50
-      Width = 41
-      Height = 21
+      Left = 312
+      Top = 48
+      Width = 33
+      Height = 24
       TabOrder = 8
       Text = '1'
       OnChange = Edit3Change
     end
     object Edit4: TEdit
       Left = 232
-      Top = 88
-      Width = 110
-      Height = 21
+      Top = 92
+      Width = 126
+      Height = 24
       TabOrder = 12
       OnChange = Edit4Change
     end
     object CheckBox8: TCheckBox
       Left = 72
       Top = 32
-      Width = 73
+      Width = 81
       Height = 17
       Caption = 'Setting up'
       Checked = True
@@ -245,117 +256,109 @@ object Form1: TForm1
   end
   object GroupBox2: TGroupBox
     Left = 3
-    Top = 2
+    Top = 0
     Width = 366
-    Height = 80
+    Height = 84
     Caption = '  Server Info  '
     Color = clBtnFace
     ParentColor = False
     TabOrder = 2
     object Label1: TLabel
       Left = 8
-      Top = 29
-      Width = 13
-      Height = 13
+      Top = 32
+      Width = 16
+      Height = 16
       Caption = 'IP:'
     end
     object Label2: TLabel
-      Left = 32
-      Top = 29
-      Width = 33
-      Height = 13
-      Caption = '           '
+      Left = 40
+      Top = 32
+      Width = 64
+      Height = 16
+      Caption = '                '
     end
     object Label3: TLabel
-      Left = 120
-      Top = 29
-      Width = 22
-      Height = 13
+      Left = 144
+      Top = 32
+      Width = 28
+      Height = 16
       Caption = 'Port:'
     end
     object Label4: TLabel
-      Left = 176
-      Top = 29
-      Width = 45
-      Height = 13
-      Caption = '               '
+      Left = 184
+      Top = 32
+      Width = 40
+      Height = 16
+      Caption = '          '
     end
     object Label8: TLabel
-      Left = 120
-      Top = 45
-      Width = 41
-      Height = 13
+      Left = 240
+      Top = 32
+      Width = 52
+      Height = 16
       Caption = 'Platform:'
     end
     object Label9: TLabel
-      Left = 176
-      Top = 45
-      Width = 24
-      Height = 13
-      Caption = '        '
+      Left = 312
+      Top = 32
+      Width = 36
+      Height = 16
+      Caption = '         '
     end
     object Label10: TLabel
-      Left = 120
-      Top = 60
-      Width = 49
-      Height = 13
+      Left = 240
+      Top = 48
+      Width = 61
+      Height = 16
       Caption = 'Password:'
     end
     object Label11: TLabel
-      Left = 176
-      Top = 60
-      Width = 30
-      Height = 13
-      Caption = '          '
+      Left = 312
+      Top = 48
+      Width = 36
+      Height = 16
+      Caption = '         '
     end
     object Label12: TLabel
-      Left = 8
-      Top = 60
-      Width = 38
-      Height = 13
+      Left = 240
+      Top = 64
+      Width = 48
+      Height = 16
       Caption = 'Version:'
     end
     object Label13: TLabel
-      Left = 64
-      Top = 60
-      Width = 30
-      Height = 13
+      Left = 312
+      Top = 64
+      Width = 40
+      Height = 16
       Caption = '          '
-    end
-    object Label17: TLabel
-      Left = 8
-      Top = 45
-      Width = 22
-      Height = 13
-      Caption = 'Impl:'
-    end
-    object Label18: TLabel
-      Left = 64
-      Top = 45
-      Width = 12
-      Height = 13
-      Caption = '    '
     end
     object Label21: TLabel
       Left = 8
-      Top = 14
-      Width = 66
-      Height = 14
+      Top = 16
+      Width = 88
+      Height = 16
       Caption = '                      '
-      Font.Charset = MAC_CHARSET
+      Font.Charset = EASTEUROPE_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -13
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
     end
     object Button3: TButton
-      Left = 230
-      Top = 46
-      Width = 134
-      Height = 32
+      Left = 24
+      Top = 54
+      Width = 185
+      Height = 22
       Caption = 'Copy address to clipboard'
       Enabled = False
+      Font.Charset = EASTEUROPE_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 0
       OnClick = Button3Click
     end
@@ -364,22 +367,23 @@ object Form1: TForm1
     Left = 376
     Top = 6
     Width = 281
-    Height = 193
+    Height = 200
     ColCount = 4
     DefaultColWidth = 50
     DefaultRowHeight = 18
     FixedCols = 0
     RowCount = 50
-    Font.Charset = MAC_CHARSET
+    Font.Charset = SHIFTJIS_CHARSET
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -13
     Font.Name = 'MS Sans Serif'
     Font.Style = []
-    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected, goRowSelect]
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected, goColSizing, goRowSelect]
     ParentFont = False
     ScrollBars = ssVertical
     TabOrder = 1
     OnMouseDown = StringGrid2MouseDown
+    OnMouseUp = StringGrid2MouseUp
     ColWidths = (
       100
       38
@@ -388,9 +392,11 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 458
+    Top = 449
     Width = 660
-    Height = 24
+    Height = 34
+    BorderWidth = 1
+    DragMode = dmAutomatic
     Panels = <
       item
         Text = 'Listed: '
@@ -406,7 +412,10 @@ object Form1: TForm1
       item
         Width = 50
       end>
+    ParentShowHint = False
+    ShowHint = False
     SimplePanel = False
+    SizeGrip = False
   end
   object Timer1: TTimer
     Enabled = False
@@ -506,6 +515,8 @@ object Form1: TForm1
     end
   end
   object MainMenu1: TMainMenu
+    BiDiMode = bdLeftToRight
+    ParentBiDiMode = False
     Left = 512
     Top = 160
     object Exit1: TMenuItem
@@ -515,6 +526,10 @@ object Form1: TForm1
     object Settings1: TMenuItem
       Caption = 'Settings'
       OnClick = Settings1Click
+    end
+    object Font1: TMenuItem
+      Caption = 'Font'
+      OnClick = Font1Click
     end
     object GetnewServerlist1: TMenuItem
       Caption = 'Get new Server list'
@@ -527,6 +542,19 @@ object Form1: TForm1
     RestoreOn = imMouseDown
     PopupMenuOn = imNone
     Left = 544
+    Top = 160
+  end
+  object FontDialog1: TFontDialog
+    Font.Charset = EASTEUROPE_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    MinFontSize = 8
+    MaxFontSize = 20
+    Options = [fdLimitSize, fdApplyButton]
+    OnApply = FontDialog1Apply
+    Left = 576
     Top = 160
   end
 end

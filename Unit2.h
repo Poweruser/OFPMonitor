@@ -66,7 +66,7 @@ public:		// User declarations
         TStringList* TForm2::init();
         int TForm2::getConfAmount();
         String TForm2::getConfListEntry(int i);
-        void TForm2::writeSettingToFile(list<String> in);
+        void TForm2::writeSettingToFile(list<String> servers, list<String> font, list<String> window);
         void TForm2::setSettingsChanged();
         String TForm2::getConfStartLine(int i, String ip, int port);
         String TForm2::getExe();
