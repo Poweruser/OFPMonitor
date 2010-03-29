@@ -16,6 +16,10 @@
 #pragma resource "*.dfm"
 TForm2 *Form2;
 
+#include "guiDBDefs.cpp"
+
+
+
 const int confAmount = 20;
 
 int TForm2::getConfAmount() {
@@ -129,16 +133,21 @@ bool checkBool2(String in) {
 class Settings {
         public:
                 bool changed;
+                String workdir;
                 String exe;
                 String folder;
                 String player;
                 int interval;
                 Configuration startupConfs[confAmount];
                 String file;
+                String languagefile;
 
                 Settings() {
+                        this->workdir = GetCurrentDir();
                         this->interval = 1;
-                        this->file = "OFPMonitor.ini";
+                        this->file = this->workdir + "\\OFPMonitor.ini";
+                       // this->languagefile = "OFPM_English.lang";
+                        this->languagefile = "Default";
                         this->changed = false;
                 }
 
@@ -176,7 +185,8 @@ class Settings {
                         if(this->changed) {
                                 TStringList *file = new TStringList;
                                 file->Add("[General]");
-                                file->Add("Exe = " + this->exe);
+                                file->Add("Exe = " + String(this->exe));
+                                file->Add("LangFile = " + this->languagefile);
                                 file->Add("Interval = " + String(this->interval));
                                 file->Add("[\\General]");
                                 for(int i = 0; i < confAmount; i++) {
@@ -190,14 +200,14 @@ class Settings {
                                         }
                                 }
                                 file->Add("[Filters]");
-                                file->Add("Playing = " + checkBool(Form1->CheckBox1->Checked));
-                                file->Add("Waiting= " + checkBool(Form1->CheckBox2->Checked));
-                                file->Add("Creating = " + checkBool(Form1->CheckBox3->Checked));
-                                file->Add("Settingup = " + checkBool(Form1->CheckBox8->Checked));
-                                file->Add("Briefing = " + checkBool(Form1->CheckBox4->Checked));
-                                file->Add("Debriefing = " + checkBool(Form1->CheckBox5->Checked));
-                                file->Add("WithPW = " + checkBool(Form1->CheckBox6->Checked));
-                                file->Add("WithoutPW = " + checkBool(Form1->CheckBox7->Checked));
+                                file->Add("Playing = " + checkBool(Form1->CHECKBOX_FILTER_PLAYING->Checked));
+                                file->Add("Waiting= " + checkBool(Form1->CHECKBOX_FILTER_WAITING->Checked));
+                                file->Add("Creating = " + checkBool(Form1->CHECKBOX_FILTER_CREATING->Checked));
+                                file->Add("Settingup = " + checkBool(Form1->CHECKBOX_FILTER_SETTINGUP->Checked));
+                                file->Add("Briefing = " + checkBool(Form1->CHECKBOX_FILTER_BRIEFING->Checked));
+                                file->Add("Debriefing = " + checkBool(Form1->CHECKBOX_FILTER_DEBRIEFING->Checked));
+                                file->Add("WithPW = " + checkBool(Form1->CHECKBOX_FILTER_WITHPASSWORD->Checked));
+                                file->Add("WithoutPW = " + checkBool(Form1->CHECKBOX_FILTER_WITHOUTPASSWORD->Checked));
                                 file->Add("minPlayers = " + IntToStr(Form1->UpDown1->Position));
                                 file->Add("ServerName = " + Form1->Edit2->Text);
                                 file->Add("MissionName = " + Form1->Edit1->Text);
@@ -223,6 +233,7 @@ class Settings {
                                         }
                                         file->Add("[\\Servers]");
                                 }
+
                                 file->SaveToFile(this->file);
                                 delete file;
                         }
@@ -276,11 +287,24 @@ String getValue(String in) {
         return out;
 }
 
+list<String> getVarAndValue(String in, String diff) {
+        list<String> out;
+        String tmp = in.Trim();
+        for(int i = 0; i < tmp.Length(); i++) {
+                if(tmp.SubString(i,diff.Length()) == diff) {
+                        out.push_front(tmp.SubString(1, i - 1).Trim());
+                        out.push_back(tmp.SubString(i + diff.Length(), tmp.Length() - (i + diff.Length() -1)).Trim());
+                        break;
+                }
+        }
+        return out;
+}
+
 String getFolder(String in) {
         String out = "";
         for(int i = in.Length() - 1; i >= 0; i--) {
                 if(in.SubString(i,1) == "\\") {
-                        out = in.SubString(0, i + 1).Trim();
+                        out = in.SubString(0, i).Trim();
                         break;
                 }
         }
@@ -313,6 +337,7 @@ TStringList* TForm2::init() {
         String interval = "";
         String folder = "";
         String player = "";
+        String langfile = "";
         TStringList *ipList = new TStringList();
         if(FileExists(programSettings.file)) {
                 TStringList *file = new TStringList;
@@ -331,6 +356,8 @@ TStringList* TForm2::init() {
                                                 }
                                         } else if(tmp.SubString(1,8) == "Interval") {
                                                 interval = getValue(tmp);
+                                        } else if(tmp.SubString(1,8) == "LangFile") {
+                                                langfile = getValue(tmp);
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
@@ -371,21 +398,21 @@ TStringList* TForm2::init() {
                                 tmp = file->Strings[i].Trim();
                                 while(tmp.SubString(1,10) != "[\\Filters]" && i < file->Count - 1) {
                                         if(tmp.SubString(1,7) == "Playing") {
-                                                Form1->CheckBox1->Checked = checkBool2(getValue(tmp));
+                                                Form1->CHECKBOX_FILTER_PLAYING->Checked = checkBool2(getValue(tmp));
                                         } else if(tmp.SubString(1,7) == "Waiting") {
-                                                Form1->CheckBox2->Checked = checkBool2(getValue(tmp));
+                                                Form1->CHECKBOX_FILTER_WAITING->Checked = checkBool2(getValue(tmp));
                                         } else if(tmp.SubString(1,8) == "Creating") {
-                                                Form1->CheckBox3->Checked = checkBool2(getValue(tmp));
+                                                Form1->CHECKBOX_FILTER_CREATING->Checked = checkBool2(getValue(tmp));
                                         } else if(tmp.SubString(1,9) == "Settingup") {
-                                                Form1->CheckBox8->Checked = checkBool2(getValue(tmp));
+                                                Form1->CHECKBOX_FILTER_SETTINGUP->Checked = checkBool2(getValue(tmp));
                                         } else if(tmp.SubString(1,8) == "Briefing") {
-                                                Form1->CheckBox4->Checked = checkBool2(getValue(tmp));
+                                                Form1->CHECKBOX_FILTER_BRIEFING->Checked = checkBool2(getValue(tmp));
                                         } else if(tmp.SubString(1,10) == "Debriefing") {
-                                                Form1->CheckBox5->Checked = checkBool2(getValue(tmp));
+                                                Form1->CHECKBOX_FILTER_DEBRIEFING->Checked = checkBool2(getValue(tmp));
                                         } else if(tmp.SubString(1,6) == "WithPW") {
-                                                Form1->CheckBox6->Checked = checkBool2(getValue(tmp));
+                                                Form1->CHECKBOX_FILTER_WITHPASSWORD->Checked = checkBool2(getValue(tmp));
                                         } else if(tmp.SubString(1,9) == "WithoutPW") {
-                                                Form1->CheckBox7->Checked = checkBool2(getValue(tmp));
+                                                Form1->CHECKBOX_FILTER_WITHOUTPASSWORD->Checked = checkBool2(getValue(tmp));
                                         } else if(tmp.SubString(1,10) == "minPlayers") {
                                                 try {
                                                         int i = StrToInt(getValue(tmp));
@@ -500,7 +527,7 @@ TStringList* TForm2::init() {
         if(folder.IsEmpty()) {
                 list<String> a;
                 a.push_back("SOFTWARE");
-                        a.push_back("Codemasters");
+                a.push_back("Codemasters");
                 a.push_back("Operation Flashpoint");
                 folder = GetRegistryValue(HKEY_LOCAL_MACHINE, a, "Main");
         }
@@ -523,6 +550,12 @@ TStringList* TForm2::init() {
         if(!player.IsEmpty()) {
                 programSettings.player = player;
         }
+        if(!langfile.IsEmpty()) {
+                if(FileExists(GetCurrentDir() + "\\" + langfile)) {
+                        programSettings.languagefile = langfile;
+                      //  ComboBox1->Text = programSettings.languagefile;
+                }
+        }
         try {
                 int a = StrToInt(interval);
                 programSettings.setInterval(a);
@@ -534,41 +567,15 @@ TStringList* TForm2::init() {
 }
 
 
-
-//---------------------------------------------------------------------------
-__fastcall TForm2::TForm2(TComponent* Owner)
-        : TForm(Owner)
-{
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TForm2::Button1Click(TObject *Sender)
-{
-        if(!Edit1->Text.IsEmpty()) {
-                OpenDialog1->InitialDir = getFolder(Edit1->Text);
-        }
-        OpenDialog1->Execute();
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TForm2::FormCreate(TObject *Sender)
-{
-        if(!programSettings.player.IsEmpty()) {
-                Edit2->Text = programSettings.player;
-        }
-        if(!programSettings.exe.IsEmpty()) {
-                Edit1->Text = programSettings.exe;
-        }
-        if(programSettings.folder.IsEmpty()) {
-                Button3->Enabled = false;
-                GroupBox3->Enabled = false;
-        } else {
+void updateModFolderList(String ofpfolder) {
+        if(!ofpfolder.IsEmpty()) {
+                Form2->ListBox2->Clear();
         	TSearchRec daten;
-                if(0 == FindFirst((programSettings.folder +"\\*").c_str(), faDirectory, daten)) {
+                if(0 == FindFirst((ofpfolder +"\\*").c_str(), faDirectory, daten)) {
                         try {
                                 do {
                                         if(daten.Size == 0 && daten.Name != "." && daten.Name != "..") {
-                                                ListBox2->Items->Add(String(daten.Name));
+                                                Form2->ListBox2->Items->Add(String(daten.Name));
                                         }
                                 } while(FindNext(daten) == 0);
                         }__finally
@@ -577,12 +584,155 @@ void __fastcall TForm2::FormCreate(TObject *Sender)
                         }
                 }
         }
+}
+
+void findLanguageFiles() {
+                Form2->ComboBox1->Clear();
+               	TSearchRec daten;
+                if(0 == FindFirst("OFPM*.lang", faAnyFile, daten)) {
+                        try {
+                                do {
+                                        Form2->ComboBox1->Items->Add(daten.Name);
+                                } while(FindNext(daten) == 0);
+                        }__finally
+                        {
+                                FindClose(daten);
+                        }
+                }
+}
+
+String TForm2::getGuiString(String ident) {
+        String out = "";
+        for (list<guiString>::iterator ci = guiStrings.begin(); ci != guiStrings.end(); ++ci) {
+                if((*ci).identifier == ident) {
+                        out = (*ci).value;
+                        break;
+                }
+        }
+        return out;
+}
+
+void updateLanguage(String languagefile) {
+        TStringList *file = new TStringList;
+        String pathAndFile = programSettings.workdir + "\\" + languagefile;
+        if(FileExists(pathAndFile)) {
+                file->LoadFromFile(pathAndFile);
+                String tmp;
+                guiStrings.clear();
+                list<String> val;
+                for(int i = 0; i < file->Count; i++) {
+                        val.clear();
+                        tmp = file->Strings[i].Trim();
+                        if(tmp.SubString(1,6) == "BUTTON") {
+                                val = getVarAndValue(tmp, "=");
+                                for(int j = 0; j < sizeof(guiButton); j++) {
+                                        if(guiButton[j]->Name == val.front()) {
+                                                guiButton[j]->Caption = val.back();
+                                                break;
+                                        }
+                                }
+                        } else if(tmp.SubString(1,5) == "LABEL") {
+                                val = getVarAndValue(tmp, "=");
+                                for(int j = 0; j < sizeof(guiLabel); j++) {
+                                        if(guiLabel[j]->Name == val.front()) {
+                                                guiLabel[j]->Caption = val.back();
+                                                break;
+                                        }
+                                }
+                        } else if(tmp.SubString(1,8) == "CHECKBOX") {
+                                val = getVarAndValue(tmp, "=");
+                                for(int j = 0; j < sizeof(guiCheckBox); j++) {
+                                        if(guiCheckBox[j]->Name == val.front()) {
+                                                guiCheckBox[j]->Caption = val.back();
+                                                break;
+                                        }
+                                }
+                        } else if(tmp.SubString(1,8) == "GROUPBOX") {
+                                val = getVarAndValue(tmp, "=");
+                                for(int j = 0; j < sizeof(guiGroupBox); j++) {
+                                        if(guiGroupBox[j]->Name == val.front()) {
+                                                guiGroupBox[j]->Caption = val.back();
+                                                break;
+                                        }
+                                }
+                        } else if(tmp.SubString(1,8) == "MENUITEM") {
+                                val = getVarAndValue(tmp, "=");
+                                for(int j = 0; j < sizeof(guiMenuItem); j++) {
+                                        if(guiMenuItem[j]->Name == val.front()) {
+                                                guiMenuItem[j]->Caption = val.back();
+                                                break;
+                                        }
+                                }
+                        } else if(tmp.SubString(1,15) == "SETTINGS_WINDOW") {
+                                val = getVarAndValue(tmp, "=");
+                                for(int j = 0; j < sizeof(guiForm); j++) {
+                                        if(guiForm[j]->Hint == val.front()) {
+                                                guiForm[j]->Caption = val.back();
+                                                break;
+                                        }
+                                }
+                        } else if(tmp.SubString(1,6) == "STRING") {
+                                val = getVarAndValue(tmp, "=");
+                                String f = val.front();
+                                String b = val.back();
+                                guiStrings.push_back(guiString(f,b));
+                        }
+                }
+                Form1->StringGrid1->Cells[0][0] = Form2->getGuiString("STRING_ID");
+                Form1->StringGrid1->Cells[1][0] = Form2->getGuiString("STRING_NAME");
+                Form1->StringGrid1->Cells[2][0] = Form2->getGuiString("STRING_PLAYERS");
+                Form1->StringGrid1->Cells[3][0] = Form2->getGuiString("STRING_STATUS");
+                Form1->StringGrid1->Cells[4][0] = Form2->getGuiString("STRING_ISLAND");
+                Form1->StringGrid1->Cells[5][0] = Form2->getGuiString("STRING_MISSION");
+                Form1->StringGrid1->Cells[6][0] = Form2->getGuiString("STRING_PING");
+                Form1->StringGrid2->Cells[0][0] = Form2->getGuiString("STRING_NAME");
+                Form1->StringGrid2->Cells[1][0] = Form2->getGuiString("STRING_SCORE");
+                Form1->StringGrid2->Cells[2][0] = Form2->getGuiString("STRING_DEATHS");
+                Form1->StringGrid2->Cells[3][0] = Form2->getGuiString("STRING_TEAM");
+                
+        }
+        return;
+}
 
 
+
+//---------------------------------------------------------------------------
+__fastcall TForm2::TForm2(TComponent* Owner)
+        : TForm(Owner)
+{
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::BUTTON_OFPEXECUTABLE_BROWSEClick(TObject *Sender)
+{
+        if(!Edit1->Text.IsEmpty()) {
+                OpenDialog1->InitialDir = getFolder(programSettings.exe);
+        }
+        OpenDialog1->Execute();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::FormCreate(TObject *Sender)
+{
+        findLanguageFiles();
+        if(!programSettings.player.IsEmpty()) {
+                Edit2->Text = programSettings.player;
+        }
+        if(!programSettings.exe.IsEmpty()) {
+                Edit1->Text = programSettings.exe;
+        }
+        if(programSettings.folder.IsEmpty()) {
+                BUTTON_NEWCONFIGURATION_ADD->Enabled = false;
+                GROUPBOX_NEWCONFIGURATION->Enabled = false;
+        } else {
+                updateModFolderList(programSettings.folder);
+        }
         UpDown1->Position = programSettings.interval;
         Edit5->Text = String(UpDown1->Position);
         updateConfList();
-
+        #include "guiDB.cpp"
+        ComboBox1->Text = programSettings.languagefile;
+        updateLanguage(programSettings.languagefile);
 
 }
 //---------------------------------------------------------------------------
@@ -591,7 +741,12 @@ void __fastcall TForm2::OpenDialog1CanClose(TObject *Sender,
       bool &CanClose)
 {
         if(CanClose) {
-                Edit1->Text = OpenDialog1->FileName;
+                programSettings.exe = OpenDialog1->FileName;
+                programSettings.folder = getFolder(programSettings.exe);
+                Edit1->Text = programSettings.exe;
+                updateModFolderList(programSettings.folder);
+                Form2->setSettingsChanged();
+                OpenDialog1->InitialDir = "";
         }
 }
 //---------------------------------------------------------------------------
@@ -619,7 +774,7 @@ void __fastcall TForm2::Button6Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::Button8Click(TObject *Sender)
+void __fastcall TForm2::BUTTON_NEWCONFIGURATION_UPClick(TObject *Sender)
 {
         for(int i = 0; i < ListBox3->Count; i++) {
                 if(ListBox3->Selected[i]) {
@@ -632,7 +787,7 @@ void __fastcall TForm2::Button8Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::Button9Click(TObject *Sender)
+void __fastcall TForm2::BUTTON_NEWCONFIGURATION_DOWNClick(TObject *Sender)
 {
         for(int i = 0; i < ListBox3->Count; i++) {
                 if(ListBox3->Selected[i]) {
@@ -645,7 +800,7 @@ void __fastcall TForm2::Button9Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::Button2Click(TObject *Sender)
+void __fastcall TForm2::BUTTON_CONFIGURATION_REMOVEClick(TObject *Sender)
 {
         for(int i = 0; i < ListBox1->Count; i++) {
                 if(ListBox1->Selected[i]) {
@@ -656,20 +811,20 @@ void __fastcall TForm2::Button2Click(TObject *Sender)
                 }
         }
         if(ListBox1->Items->Count < confAmount) {
-                Button3->Enabled = true;
+                BUTTON_NEWCONFIGURATION_ADD->Enabled = true;
         }
         updateConfList();
 }
 //---------------------------------------------------------------------------
 
 
-void __fastcall TForm2::Button3Click(TObject *Sender)
+void __fastcall TForm2::BUTTON_NEWCONFIGURATION_ADDClick(TObject *Sender)
 {
         list<String> a;
         for(int i = 0; i < ListBox3->Count; i++) {
                 a.push_back(ListBox3->Items->Strings[i]);
         }
-        Configuration newC = Configuration(Edit6->Text, Edit2->Text, a, Edit3->Text, Edit4->Text, CheckBox1->Checked, CheckBox2->Checked);
+        Configuration newC = Configuration(Edit6->Text, Edit2->Text, a, Edit3->Text, Edit4->Text, CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked, CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
         String str = Edit6->Text;
         if(!str.IsEmpty()) {
                 str += ":  ";
@@ -689,9 +844,10 @@ void __fastcall TForm2::Button3Click(TObject *Sender)
         }
         programSettings.pSaddConf(newC);
         if(ListBox1->Items->Count >= confAmount) {
-                Button3->Enabled = false;
+                BUTTON_NEWCONFIGURATION_ADD->Enabled = false;
         }
         updateConfList();
+        Form2->setSettingsChanged();
 }
 //---------------------------------------------------------------------------
 
@@ -719,7 +875,7 @@ void __fastcall TForm2::UpDown1Click(TObject *Sender, TUDBtnType Button)
 //---------------------------------------------------------------------------
 
 
-void __fastcall TForm2::Button4Click(TObject *Sender)
+void __fastcall TForm2::BUTTON_NEWCONFIGURATION_CLEARClick(TObject *Sender)
 {
         while(ListBox3->Count > 0) {
                 ListBox2->Items->Add(ListBox3->Items->Strings[0]);
@@ -728,8 +884,8 @@ void __fastcall TForm2::Button4Click(TObject *Sender)
         Edit3->Text = "";
         Edit4->Text = "";
         Edit6->Text = "";
-        CheckBox1->Checked = true;
-        CheckBox2->Checked = true;
+        CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked = true;
+        CHECKBOX_NEWCONFIGURATION_NOMAP->Checked = true;
 }
 //---------------------------------------------------------------------------
 
@@ -746,6 +902,22 @@ void __fastcall TForm2::FormKeyDown(TObject *Sender, WORD &Key,
 {
         if(Key == VK_ESCAPE) {
                 Form2->Close();
+        }
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TForm2::FormShow(TObject *Sender)
+{
+        updateModFolderList(programSettings.folder);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::ComboBox1Change(TObject *Sender)
+{
+        if(FileExists(programSettings.workdir + "\\" + ComboBox1->Text)) {
+                programSettings.languagefile = ComboBox1->Text;
+                updateLanguage(programSettings.languagefile);
         }
 }
 //---------------------------------------------------------------------------

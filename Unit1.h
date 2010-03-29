@@ -20,46 +20,45 @@ class TForm1 : public TForm
 {
 __published:	// IDE-managed Components
         TStringGrid *StringGrid1;
-        TGroupBox *GroupBox1;
-        TGroupBox *GroupBox2;
-        TButton *Button3;
+        TGroupBox *GROUPBOX_FILTERS;
+        TGroupBox *GROUPBOX_SERVERINFO;
+        TButton *BUTTON_SERVERINFO_COPYADDRESS;
         TTimer *Timer1;
         TNMUDP *NMUDP1;
-        TLabel *Label1;
+        TLabel *LABEL_SERVERINFO_IP;
         TLabel *Label2;
-        TLabel *Label3;
+        TLabel *LABEL_SERVERINFO_PORT;
         TLabel *Label4;
-        TCheckBox *CheckBox1;
-        TCheckBox *CheckBox2;
-        TCheckBox *CheckBox3;
-        TCheckBox *CheckBox4;
-        TCheckBox *CheckBox5;
+        TCheckBox *CHECKBOX_FILTER_PLAYING;
+        TCheckBox *CHECKBOX_FILTER_WAITING;
+        TCheckBox *CHECKBOX_FILTER_CREATING;
+        TCheckBox *CHECKBOX_FILTER_BRIEFING;
+        TCheckBox *CHECKBOX_FILTER_DEBRIEFING;
         TEdit *Edit1;
-        TLabel *Label6;
+        TLabel *LABEL_FILTER_MISSIONNAME;
         TEdit *Edit2;
-        TLabel *Label7;
+        TLabel *LABEL_FILTER_SERVERNAME;
         TTimer *Timer3;
-        TLabel *Label8;
+        TLabel *LABEL_SERVERINFO_PLATFORM;
         TLabel *Label9;
-        TLabel *Label10;
+        TLabel *LABEL_SERVERINFO_PASSWORD;
         TLabel *Label11;
-        TLabel *Label12;
+        TLabel *LABEL_SERVERINFO_VERSION;
         TLabel *Label13;
-        TCheckBox *CheckBox6;
-        TCheckBox *CheckBox7;
-        TLabel *Label14;
-        TLabel *Label15;
-        TLabel *Label19;
+        TCheckBox *CHECKBOX_FILTER_WITHPASSWORD;
+        TCheckBox *CHECKBOX_FILTER_WITHOUTPASSWORD;
+        TLabel *LABEL_FILTER_PASSWORD;
+        TLabel *LABEL_FILTER_MINIMUMPLAYERS;
         TUpDown *UpDown1;
         TEdit *Edit3;
         TStringGrid *StringGrid2;
         TStatusBar *StatusBar1;
         TEdit *Edit4;
-        TLabel *Label16;
+        TLabel *LABEL_FILTER_PLAYERNAME;
         TPopupMenu *PopupMenu1;
-        TMenuItem *Join1;
-        TCheckBox *CheckBox8;
-        TMenuItem *Mods1;
+        TMenuItem *MENUITEM_POPUP_JOIN;
+        TCheckBox *CHECKBOX_FILTER_SETTINGUP;
+        TMenuItem *MENUITEM_POPUP_MODS;
         TMenuItem *N01;
         TMenuItem *N11;
         TMenuItem *N21;
@@ -80,16 +79,16 @@ __published:	// IDE-managed Components
         TMenuItem *N72;
         TMenuItem *N82;
         TMenuItem *N92;
-        TLabel *Label5;
-        TMenuItem *Watch1;
+        TLabel *LABEL_FILTER_STATUS;
+        TMenuItem *MENUITEM_POPUP_WATCH;
         TLabel *Label21;
         TMainMenu *MainMenu1;
-        TMenuItem *Exit1;
-        TMenuItem *Settings1;
-        TMenuItem *GetnewServerlist1;
+        TMenuItem *MENUITEM_MAINMENU_EXIT;
+        TMenuItem *MENUITEM_MAINMENU_SETTINGS;
+        TMenuItem *MENUITEM_MAINMENU_GETNEWSERVERLIST;
         TTrayIcon *TrayIcon1;
         TFontDialog *FontDialog1;
-        TMenuItem *Font1;
+        TMenuItem *MENUITEM_MAINMENU_FONT;
         void __fastcall NMUDP1DataReceived(TComponent *Sender,
           int NumberBytes, AnsiString FromIP, int Port);
         void __fastcall FormCreate(TObject *Sender);
@@ -97,16 +96,16 @@ __published:	// IDE-managed Components
           int ARow, bool &CanSelect);
         void __fastcall Timer1Timer(TObject *Sender);
         void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
-        void __fastcall Button3Click(TObject *Sender);
-        void __fastcall CheckBox1Click(TObject *Sender);
-        void __fastcall CheckBox2Click(TObject *Sender);
-        void __fastcall CheckBox3Click(TObject *Sender);
-        void __fastcall CheckBox4Click(TObject *Sender);
-        void __fastcall CheckBox5Click(TObject *Sender);
+        void __fastcall BUTTON_SERVERINFO_COPYADDRESSClick(TObject *Sender);
+        void __fastcall CHECKBOX_FILTER_PLAYINGClick(TObject *Sender);
+        void __fastcall CHECKBOX_FILTER_WAITINGClick(TObject *Sender);
+        void __fastcall CHECKBOX_FILTER_CREATINGClick(TObject *Sender);
+        void __fastcall CHECKBOX_FILTER_BRIEFINGClick(TObject *Sender);
+        void __fastcall CHECKBOX_FILTER_DEBRIEFINGClick(TObject *Sender);
         void __fastcall NMUDP1DataSend(TObject *Sender);
         void __fastcall Timer3Timer(TObject *Sender);
-        void __fastcall CheckBox6Click(TObject *Sender);
-        void __fastcall CheckBox7Click(TObject *Sender);
+        void __fastcall CHECKBOX_FILTER_WITHPASSWORDClick(TObject *Sender);
+        void __fastcall CHECKBOX_FILTER_WITHOUTPASSWORDClick(TObject *Sender);
         void __fastcall Edit1Change(TObject *Sender);
         void __fastcall StringGrid1MouseDown(TObject *Sender,
           TMouseButton Button, TShiftState Shift, int X, int Y);
@@ -119,23 +118,22 @@ __published:	// IDE-managed Components
         void __fastcall PopupMenu1Popup(TObject *Sender);
         void __fastcall ClickMyButton(TObject *Sender);
         void __fastcall ClickWatchButton(TObject *Sender);
-        void __fastcall CheckBox8Click(TObject *Sender);
+        void __fastcall CHECKBOX_FILTER_SETTINGUPClick(TObject *Sender);
         void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
           TShiftState Shift);
         void __fastcall StringGrid1DrawCell(TObject *Sender, int ACol,
           int ARow, TRect &Rect, TGridDrawState State);
-        void __fastcall Settings1Click(TObject *Sender);
-        void __fastcall Exit1Click(TObject *Sender);
-        void __fastcall GetnewServerlist1Click(TObject *Sender);
-        void __fastcall Font1Click(TObject *Sender);
+        void __fastcall MENUITEM_MAINMENU_SETTINGSClick(TObject *Sender);
+        void __fastcall MENUITEM_MAINMENU_EXITClick(TObject *Sender);
+        void __fastcall MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender);
+        void __fastcall MENUITEM_MAINMENU_FONTClick(TObject *Sender);
         void __fastcall FontDialog1Apply(TObject *Sender, HWND Wnd);
         void __fastcall FormResize(TObject *Sender);
-        void __fastcall StringGrid1ColumnMoved(TObject *Sender,
-          int FromIndex, int ToIndex);
         void __fastcall StringGrid1MouseUp(TObject *Sender,
           TMouseButton Button, TShiftState Shift, int X, int Y);
         void __fastcall StringGrid2MouseUp(TObject *Sender,
           TMouseButton Button, TShiftState Shift, int X, int Y);
+        void __fastcall FontDialog1Close(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         typedef list<String> CustomStringList;

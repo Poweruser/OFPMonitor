@@ -16,15 +16,29 @@
 #pragma resource "XP.res"
 TForm1 *Form1;
 
-int errorreports = 0;
-
 typedef list<String> CustomStringList;
+
+class Message {
+        public:
+                String content;
+                String ip;
+                int port;
+                DWORD toa;
+
+                Message(String ip, int port, String content, DWORD toa) {
+                        this->ip = ip;
+                        this->port = port;
+                        this->content = content;
+                        this->toa = toa;
+                }
+};
+
 
 class FontSettings {
         public:
                 String name;
                 int size;
-                unsigned char charset;
+                int charset;
                 TFontStyles style;
                 FontSettings() {}
                 FontSettings (  String name, int size, int charset,
@@ -39,11 +53,7 @@ class FontSettings {
                         } else {
                                 this->size = size;
                         }
-                        if(charset != NULL) {
-                                this->charset = (unsigned char) charset;
-                        } else {
-                                this->charset = Form1->Font->Charset;
-                        }
+                        this->charset = charset;
                         if(bold) {
                                 this->style = this->style << fsBold;
                         }
@@ -84,17 +94,13 @@ class FontSettings {
                         Form1->StringGrid2->Font->Size = this->size;
                         Form1->StringGrid2->Font->Style = this->style;
                         Form1->StringGrid2->DefaultRowHeight = this->size * 2.1f;
+                        Form1->Label21->Font->Charset = this->charset;
                         Form1->FontDialog1->Font = Form1->StringGrid1->Font;
                         return;
                 }
 };
 
-FontSettings fontsettings;
 
-void TForm1::setFont(String name, int size, int charset,
-                        bool bold, bool italic) {
-        fontsettings = FontSettings(name, size, charset, bold, italic);
-}
 
 class WindowSettings {
         public:
@@ -217,18 +223,6 @@ class WindowSettings {
                 }
 };
 
-WindowSettings windowsettings;
-
-void TForm1::setWindowSettings(int top,int left,int height, int width, float ratioID,float ratioSN,
-                                float ratioPN,float ratioST,float ratioIS,
-                                float ratioMN,float ratioPI,float ratioPL,
-                                float ratioSC,float ratioDE,float ratioTE) {
-        windowsettings = WindowSettings(top,left,height,width,ratioID,ratioSN,
-                                ratioPN,ratioST,ratioIS,
-                                ratioMN,ratioPI,ratioPL,
-                                ratioSC,ratioDE,ratioTE);
-}
-
 class QueryAnswer {
         public:
                 String id;
@@ -341,7 +335,7 @@ class Sorter {
                 }
 };
 
-Sorter tableSorter = Sorter();
+
 
 class Sorter2 {
         public:
@@ -396,29 +390,6 @@ class Sorter2 {
                         }
                 }
 };
-
-Sorter2 playerListSorter = Sorter2();
-
-void addToErrorReport(String err, String msg) {
-        if(err.SubString(1,6)== "Fehler") {
-                errorreports++;
-                Form1->StatusBar1->Panels->Items[2]->Text = "Errors: " + String(errorreports);
-        }
-        TStringList *error = new TStringList;
-        if(FileExists("errorreport.txt")) {
-                error->LoadFromFile("errorreport.txt");
-        }
-        if(error->Count > 500) {
-                error->Delete(error->Count - 1);
-                error->Delete(error->Count - 1);
-                error->Delete(error->Count - 1);
-        }
-        error->Insert(0,msg);
-        error->Insert(0,err);
-        error->Insert(0,"============================");
-        error->SaveToFile("errorreport.txt");
-        return;
-}
 
 class Player {
         public:
@@ -483,7 +454,7 @@ class Server {
                         this->ping.clear();
                         this->clear();
                 }
-                   
+
                 Server(String &i, int &p, int &ind) {
                         this->watch = false;
                         this->clear();
@@ -520,12 +491,61 @@ class Server {
                 }
 };
 
-Server ServerArray[128];
+
+Server ServerArray[1024];
 int numOfServers = 0;
+
+
+Sorter tableSorter = Sorter();
+Sorter2 playerListSorter = Sorter2();
+WindowSettings windowsettings;
+FontSettings fontsettings;
 int timeoutLimit = 10;
 TStringList *ServerSortList = new TStringList;
 TStringList *PlayerSortList = new TStringList;
 TStringList *PlayerSortList2 = new TStringList;
+
+
+int errorreports = 0;
+
+
+
+
+void addToErrorReport(String err, String msg) {
+        if(err.SubString(1,6)== "Fehler") {
+                errorreports++;
+                Form1->StatusBar1->Panels->Items[2]->Text = Form2->getGuiString("STRING_ERRORS") + " " + String(errorreports);
+        }
+        TStringList *error = new TStringList;
+        if(FileExists("errorreport.txt")) {
+                error->LoadFromFile("errorreport.txt");
+        }
+        if(error->Count > 500) {
+                error->Delete(error->Count - 1);
+                error->Delete(error->Count - 1);
+                error->Delete(error->Count - 1);
+        }
+        error->Insert(0,msg);
+        error->Insert(0,err);
+        error->Insert(0,"============================");
+        error->SaveToFile("errorreport.txt");
+        return;
+}
+
+void TForm1::setWindowSettings(int top,int left,int height, int width, float ratioID,float ratioSN,
+                                float ratioPN,float ratioST,float ratioIS,
+                                float ratioMN,float ratioPI,float ratioPL,
+                                float ratioSC,float ratioDE,float ratioTE) {
+        windowsettings = WindowSettings(top,left,height,width,ratioID,ratioSN,
+                                ratioPN,ratioST,ratioIS,
+                                ratioMN,ratioPI,ratioPL,
+                                ratioSC,ratioDE,ratioTE);
+}
+
+void TForm1::setFont(String name, int size, int charset,
+                        bool bold, bool italic) {
+        fontsettings = FontSettings(name, size, charset, bold, italic);
+}
 
 void updateTimeoutLimit() {
         timeoutLimit = ceil(10000 / Form1->Timer1->Interval);
@@ -578,9 +598,6 @@ bool doPlayerFilter(CustomPlayerList l, String s) {
         return out;
 }
 
-
-
-
 int checkFilters(int j) {
         int out = 0;
         if(ServerArray[j].name.Length() > 0 && ServerArray[j].timeouts < timeoutLimit) {
@@ -588,15 +605,15 @@ int checkFilters(int j) {
                 if(ServerArray[j].players >= Form1->UpDown1->Position) {
                         if(
                                 (
-                                        (ServerArray[j].mode == Form1->CheckBox1->Caption && Form1->CheckBox1->Checked) ||
-                                        (ServerArray[j].mode == Form1->CheckBox2->Caption && Form1->CheckBox2->Checked) ||
-                                        (ServerArray[j].mode == Form1->CheckBox3->Caption && Form1->CheckBox3->Checked) ||
-                                        (ServerArray[j].mode == Form1->CheckBox4->Caption && Form1->CheckBox4->Checked) ||
-                                        (ServerArray[j].mode == Form1->CheckBox5->Caption && Form1->CheckBox5->Checked) ||
-                                        (ServerArray[j].mode == Form1->CheckBox8->Caption && Form1->CheckBox8->Checked)
+                                        (ServerArray[j].mode == Form1->CHECKBOX_FILTER_PLAYING->Caption && Form1->CHECKBOX_FILTER_PLAYING->Checked) ||
+                                        (ServerArray[j].mode == Form1->CHECKBOX_FILTER_WAITING->Caption && Form1->CHECKBOX_FILTER_WAITING->Checked) ||
+                                        (ServerArray[j].mode == Form1->CHECKBOX_FILTER_CREATING->Caption && Form1->CHECKBOX_FILTER_CREATING->Checked) ||
+                                        (ServerArray[j].mode == Form1->CHECKBOX_FILTER_BRIEFING->Caption && Form1->CHECKBOX_FILTER_BRIEFING->Checked) ||
+                                        (ServerArray[j].mode == Form1->CHECKBOX_FILTER_DEBRIEFING->Caption && Form1->CHECKBOX_FILTER_DEBRIEFING->Checked) ||
+                                        (ServerArray[j].mode == Form1->CHECKBOX_FILTER_SETTINGUP->Caption && Form1->CHECKBOX_FILTER_SETTINGUP->Checked)
                                 ) && (
-                                        (ServerArray[j].password == 1 && Form1->CheckBox6->Checked) ||
-                                        (ServerArray[j].password == 0 && Form1->CheckBox7->Checked)
+                                        (ServerArray[j].password == 1 && Form1->CHECKBOX_FILTER_WITHPASSWORD->Checked) ||
+                                        (ServerArray[j].password == 0 && Form1->CHECKBOX_FILTER_WITHOUTPASSWORD->Checked)
                                 )
                         ) {
                                 bool missionfilter = true;
@@ -623,8 +640,6 @@ int checkFilters(int j) {
         }
         return out;
 }
-
-
 
 void setEmptyStringGrid() {
         Form1->StringGrid1->RowCount = 2;
@@ -744,16 +759,16 @@ void updateServerInfoBox(int index) {
                 Form1->Label9->Caption = ServerArray[index].platform;
                 //Form1->Label18->Caption = ServerArray[index].impl;
                 Form1->Label21->Caption = ServerArray[index].name;
-                Form1->Button3->Enabled = true;
+                Form1->BUTTON_SERVERINFO_COPYADDRESS->Enabled = true;
                 int a = ServerArray[index].password;
                 if(a == 0) {
-                        Form1->Label11->Caption = "No";
+                        Form1->Label11->Caption = Form2->getGuiString("STRING_NO");
                 } else if(a == 1) {
-                        Form1->Label11->Caption = "Yes";
+                        Form1->Label11->Caption = Form2->getGuiString("STRING_YES");
                 }
                 Form1->Label13->Caption = ServerArray[index].actver;
         } else {
-                Form1->Button3->Enabled = false;
+                Form1->BUTTON_SERVERINFO_COPYADDRESS->Enabled = false;
                 Form1->Label2->Caption = "";
                 Form1->Label4->Caption = "";
                 Form1->Label9->Caption = "";
@@ -780,8 +795,12 @@ int averagePing(list<int> &pings) {
         }
 }
 
-
+bool filterChanging = false;
 void filterChanged(bool userinput) {
+        if(filterChanging) {
+                return;
+        }
+        filterChanging = true;
         if(userinput) {
                 Form2->setSettingsChanged();
         }
@@ -819,6 +838,7 @@ void filterChanged(bool userinput) {
                 }
         }
         bool found = false;
+
         if(inList == 1) {
                 setEmptyStringGrid();
                 setEmptyPlayerList();
@@ -852,7 +872,8 @@ void filterChanged(bool userinput) {
                         }
                 }
                 Form1->StringGrid1->RowCount = inList;
-                Form1->StatusBar1->Panels->Items[1]->Text = "Online: " + String(numOfServers - hasNoName);
+                Form1->StatusBar1->Panels->Items[0]->Text = Form2->getGuiString("STRING_LISTED") + " " + String(numOfServers);
+                Form1->StatusBar1->Panels->Items[1]->Text = Form2->getGuiString("STRING_ONLINE") + " " + String(numOfServers - hasNoName);
                 if(selectedIndex > -1) {
                         for(int k = 1; k < Form1->StringGrid1->RowCount; k++) {
                                 if((Form1->StringGrid1->Cells[0][k]).Trim() == String(selectedIndex).Trim()) {
@@ -878,7 +899,7 @@ void filterChanged(bool userinput) {
         } else {
                 Form1->TrayIcon1->Hint = "OFPMonitor";
         }
-
+        filterChanging = false;
         return;
 }
 
@@ -936,30 +957,25 @@ BroadcastRotation serverCycle = BroadcastRotation();
 String getGameState (int i, String old) {
         String out = IntToStr(i);
         if(i == 2) {
-                out = "Creating";
+                out = Form1->CHECKBOX_FILTER_CREATING->Caption;
         } else if(i == 6) {
-                out = "Waiting";
+                out = Form1->CHECKBOX_FILTER_WAITING->Caption;
         } else if(i == 9) {
-                out = "Debriefing";
+                out = Form1->CHECKBOX_FILTER_DEBRIEFING->Caption;
         } else if(i == 12) {
-                out = "Setting up";
+                out = Form1->CHECKBOX_FILTER_SETTINGUP->Caption;
         } else if(i == 13) {
-                out = "Briefing";
+                out = Form1->CHECKBOX_FILTER_BRIEFING->Caption;
         } else if(i == 14) {
-                out = "Playing";
-        }
-        //DEBUG
-        if(out.Length() < 7){
-                addToErrorReport("Fehler 7", "Unknown game status: Now:" + out + "  Before: " + old);
-        }
-        if(old.Trim().Length() < 7 && old.Trim().Length() > 0) {
-                addToErrorReport("Fehler 8", "Unknown game status: Before:" + old + "  Now: " + out);
+                out = Form1->CHECKBOX_FILTER_PLAYING->Caption;
+        } else {
+                addToErrorReport("Fehler 13, status",out);
         }
         return out;
 }
 
 CustomStringList getAddress(String address) {
-        list<String> a;
+        CustomStringList a;
         for(int i = 0; i < address.Length(); i++) {
                 if(address.SubString(i,1) == ":") {
                         a.push_back(address.SubString(0,i - 1));
@@ -984,15 +1000,13 @@ void readServerList(TStringList *in) {
                         numOfServers++;
                 }
         }
-        Form1->StatusBar1->Panels->Items[0]->Text = "Listed: " + String(numOfServers);
-        Form1->StatusBar1->Panels->Items[1]->Text = "Online: ";
         return;
 }
 
 
 
 CustomStringList TForm1::splitUpMessage(String msg, String split) {
-        list<String> a;
+        CustomStringList a;
         int start = 1;
         if(split == "\\") {
                 start = 2;
@@ -1021,15 +1035,15 @@ void mergeLists(CustomStringList &a, CustomStringList &b) {
 void checkServerStatus(int i, String newStatus) {
         if(ServerArray[i].watch) {
                 int j = 0;
-                if(newStatus == "Creating") {
+                if(newStatus == Form1->CHECKBOX_FILTER_CREATING->Caption) {
                         j = 1;
-                } else if(newStatus == "Waiting") {
+                } else if(newStatus == Form1->CHECKBOX_FILTER_WAITING->Caption) {
                         j = 2;
-                } else if(newStatus == "Briefing") {
+                } else if(newStatus == Form1->CHECKBOX_FILTER_BRIEFING->Caption) {
                         j = 3;
-                } else if(newStatus == "Playing") {
+                } else if(newStatus == Form1->CHECKBOX_FILTER_PLAYING->Caption) {
                         j = 4;
-                } else if(newStatus == "Debriefing") {
+                } else if(newStatus == Form1->CHECKBOX_FILTER_DEBRIEFING->Caption) {
                         j = 5;
                 }
                 if(j > 0) {
@@ -1268,6 +1282,62 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
         return out;
 }
 
+class MessageReader {
+        public:
+                bool working;
+                list<Message> messageList;
+
+                MessageReader() {
+                        this->working = false;
+                }
+
+                void newMessage(Message m) {
+                        this->messageList.push_back(m);
+                }
+
+
+
+                void checkForNewMessages() {
+                        if(this->working) {
+                                return;
+                        }
+                        this->working = true;
+                        while(this->messageList.size() > 0) {
+                                Message m = this->messageList.front();
+                                for(int j = 0; j < numOfServers; j++) {
+                                        if(ServerArray[j].index == -1) {
+                                                break;
+                                        }
+                                        if(ServerArray[j].ip == m.ip && ServerArray[j].gamespyport == m.port) {
+                                                if(readInfoPacket(j, m.content, m.ip, m.port)) {
+                                                        if(!ServerArray[j].loseATurn && ServerArray[j].players == 0) {
+                                                                if(serverCycle.receivingFirstTime) {
+                                                                        ServerArray[j].loseATurn = serverCycle.loseTurn();
+                                                                } else {
+                                                                        ServerArray[j].loseATurn = true;
+                                                                }
+                                                        }
+                                                        if(ServerArray[j].messageSent > 1) {
+                                                                int curr = m.toa - ServerArray[j].messageSent;
+                                                                if(ServerArray[j].ping.size() > 4) {
+                                                                        ServerArray[j].ping.pop_front();
+                                                                };
+                                                                ServerArray[j].ping.push_back(curr);
+                                                                ServerArray[j].messageSent = 0;
+                                                                ServerArray[j].timeouts = 0;
+                                                        }
+                                                }
+                                                break;
+                                        }
+                                }
+                                this->messageList.pop_front();
+                        }
+                        this->working = false;
+                }
+};
+
+MessageReader messageReader = MessageReader();
+
 void copyToClipBoard (String msg) {
 	if (OpenClipboard(NULL) != 0) {
 		EmptyClipboard();
@@ -1290,17 +1360,17 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
                                 0.0f,0.0f, 0.0f, 0.0f,0.0f, 0.0f, 0.0f);
         numOfServers = 0;
         Form1->Caption = Application->Title;
-        StringGrid1->Cells[0][0]="ID";
-        StringGrid1->Cells[1][0]="Name";
-        StringGrid1->Cells[2][0]="Players";
-        StringGrid1->Cells[3][0]="Status";
-        StringGrid1->Cells[4][0]="Island";
-        StringGrid1->Cells[5][0]="Mission";
-        StringGrid1->Cells[6][0]="Ping";
-        StringGrid2->Cells[0][0]="Name";
-        StringGrid2->Cells[1][0]="Score";
-        StringGrid2->Cells[2][0]="Deaths";
-        StringGrid2->Cells[3][0]="Team";
+        StringGrid1->Cells[0][0] = "ID";
+        StringGrid1->Cells[1][0] = "Name";
+        StringGrid1->Cells[2][0] = "Players";
+        StringGrid1->Cells[3][0] = "Status";
+        StringGrid1->Cells[4][0] = "Island";
+        StringGrid1->Cells[5][0] = "Mission";
+        StringGrid1->Cells[6][0] = "Ping";
+        StringGrid2->Cells[0][0] = "Name";
+        StringGrid2->Cells[1][0] = "Score";
+        StringGrid2->Cells[2][0] = "Deaths";
+        StringGrid2->Cells[3][0] = "Team";
         ServerSortList->Sorted = true;
         ServerSortList->CaseSensitive = true;
         ServerSortList->Duplicates = dupAccept;
@@ -1319,7 +1389,7 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         }
         Form1->Visible = true;
         if(numOfServers == 0) {
-                GetnewServerlist1->Click();
+                MENUITEM_MAINMENU_GETNEWSERVERLIST->Click();
         }
 }
 //---------------------------------------------------------------------------
@@ -1338,32 +1408,7 @@ void __fastcall TForm1::NMUDP1DataReceived(TComponent *Sender,
         buffer[len]=0;
         String buf = String(buffer);
         free(buffer);
-        for(int j = 0; j < numOfServers; j++) {
-                if(ServerArray[j].index == -1) {
-                        break;
-                }
-                if(ServerArray[j].ip == FromIP && ServerArray[j].gamespyport == Port) {
-                        if(readInfoPacket(j, buf, FromIP, Port)) {
-                                if(!ServerArray[j].loseATurn && ServerArray[j].players == 0) {
-                                        if(serverCycle.receivingFirstTime) {
-                                                ServerArray[j].loseATurn = serverCycle.loseTurn();
-                                        } else {
-                                                ServerArray[j].loseATurn = true;
-                                        }
-                                }
-                                if(ServerArray[j].messageSent > 1) {
-                                        int curr = i - ServerArray[j].messageSent;
-                                        if(ServerArray[j].ping.size() > 4) {
-                                                ServerArray[j].ping.pop_front();
-                                        };
-                                        ServerArray[j].ping.push_back(curr);
-                                        ServerArray[j].messageSent = 0;
-                                        ServerArray[j].timeouts = 0;
-                                }
-                        }
-                        break;
-                }
-        }
+        messageReader.newMessage(Message(FromIP,Port,buf,i));
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
@@ -1406,32 +1451,32 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
         Form2->writeSettingToFile(servers, fontsettings.createFileEntry(), windowsettings.createFileEntry());
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::Button3Click(TObject *Sender)
+void __fastcall TForm1::BUTTON_SERVERINFO_COPYADDRESSClick(TObject *Sender)
 {
         copyToClipBoard(Label2->Caption + ":" + Label4->Caption);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CheckBox1Click(TObject *Sender)
+void __fastcall TForm1::CHECKBOX_FILTER_PLAYINGClick(TObject *Sender)
 {
         filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CheckBox2Click(TObject *Sender)
+void __fastcall TForm1::CHECKBOX_FILTER_WAITINGClick(TObject *Sender)
 {
         filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CheckBox3Click(TObject *Sender)
+void __fastcall TForm1::CHECKBOX_FILTER_CREATINGClick(TObject *Sender)
 {
         filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CheckBox4Click(TObject *Sender)
+void __fastcall TForm1::CHECKBOX_FILTER_BRIEFINGClick(TObject *Sender)
 {
         filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CheckBox5Click(TObject *Sender)
+void __fastcall TForm1::CHECKBOX_FILTER_DEBRIEFINGClick(TObject *Sender)
 {
         filterChanged(true);
 }
@@ -1443,6 +1488,7 @@ void __fastcall TForm1::NMUDP1DataSend(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Timer3Timer(TObject *Sender)
 {
+        messageReader.checkForNewMessages();
         if(serverCycle.isReady()) {
                 int a = serverCycle.next();
                 if(a >= 0) {
@@ -1451,12 +1497,12 @@ void __fastcall TForm1::Timer3Timer(TObject *Sender)
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CheckBox6Click(TObject *Sender)
+void __fastcall TForm1::CHECKBOX_FILTER_WITHPASSWORDClick(TObject *Sender)
 {
         filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CheckBox7Click(TObject *Sender)
+void __fastcall TForm1::CHECKBOX_FILTER_WITHOUTPASSWORDClick(TObject *Sender)
 {
         filterChanged(true);
 }
@@ -1630,7 +1676,7 @@ void __fastcall TForm1::ClickWatchButton(TObject *Sender)
         checkServerStatus(index, ServerArray[index].mode);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CheckBox8Click(TObject *Sender)
+void __fastcall TForm1::CHECKBOX_FILTER_SETTINGUPClick(TObject *Sender)
 {
         filterChanged(true);
 }
@@ -1679,21 +1725,21 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::Settings1Click(TObject *Sender)
+void __fastcall TForm1::MENUITEM_MAINMENU_SETTINGSClick(TObject *Sender)
 {
         Form2->ShowModal();        
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::Exit1Click(TObject *Sender)
+void __fastcall TForm1::MENUITEM_MAINMENU_EXITClick(TObject *Sender)
 {
         Form1->Close();        
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::GetnewServerlist1Click(TObject *Sender)
+void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
 {
-        GetnewServerlist1->Enabled = false;
+        MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = false;
         Timer3->Enabled = false;
         Timer1->Enabled = false;
         setEmptyStringGrid();
@@ -1749,11 +1795,11 @@ void __fastcall TForm1::GetnewServerlist1Click(TObject *Sender)
         delete CurrentList;
         Form2->setSettingsChanged();
         Timer1->Enabled = true;
-        GetnewServerlist1->Enabled = true;       
+        MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = true;       
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::Font1Click(TObject *Sender)
+void __fastcall TForm1::MENUITEM_MAINMENU_FONTClick(TObject *Sender)
 {
         FontDialog1->Font = StringGrid1->Font;
         FontDialog1->Execute();        
@@ -1783,13 +1829,6 @@ void __fastcall TForm1::FormResize(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::StringGrid1ColumnMoved(TObject *Sender,
-      int FromIndex, int ToIndex)
-{
-        ShowMessage("test");        
-}
-//---------------------------------------------------------------------------
-
 void __fastcall TForm1::StringGrid1MouseUp(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
@@ -1804,4 +1843,9 @@ void __fastcall TForm1::StringGrid2MouseUp(TObject *Sender,
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TForm1::FontDialog1Close(TObject *Sender)
+{
+        StringGrid1->Font = FontDialog1->Font;        
+}
+//---------------------------------------------------------------------------
 
