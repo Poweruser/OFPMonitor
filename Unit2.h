@@ -67,7 +67,6 @@ __published:	// IDE-managed Components
         void __fastcall ComboBox1Change(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
-        TStringList* TForm2::init();
         int TForm2::getConfAmount();
         String TForm2::getConfListEntry(int i);
         void TForm2::writeSettingToFile(list<String> servers, list<String> font, list<String> window);

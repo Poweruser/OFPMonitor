@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 625
-  Top = 317
-  Width = 669
+  Left = 297
+  Top = 177
+  Width = 668
   Height = 547
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
@@ -388,7 +388,7 @@ object Form1: TForm1
   object StatusBar1: TStatusBar
     Left = 0
     Top = 467
-    Width = 661
+    Width = 660
     Height = 34
     BorderWidth = 1
     DragMode = dmAutomatic

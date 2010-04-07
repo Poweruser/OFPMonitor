@@ -18,12 +18,44 @@ TForm1 *Form1;
 
 typedef list<String> CustomStringList;
 
+class Address {
+        public:
+                String ip;
+                int port;
+                Address() {
+                        this->ip = "";
+                        this->port = 0;
+                }
+
+                Address(String ip, int port) {
+                        this->ip = ip;
+                        this->port = port;
+                }
+};
+
+/**
+   Each incoming answer of a server query will be first stored in a
+   Message-Object, which holds all important information about it
+   (IP, Port, Content, Time of arrival) and will be later procressed
+   by the MessageReader
+ */   
+
 class Message {
         public:
                 String content;
                 String ip;
                 int port;
                 DWORD toa;
+
+                /**
+                   Constructor
+
+                   @ip  the ip the message came from
+                   @port  the port it came from
+                   @content  the message data
+                   @toa  time the message arrived at
+                         (is used to measure the ping)
+                */
 
                 Message(String ip, int port, String content, DWORD toa) {
                         this->ip = ip;
@@ -33,6 +65,9 @@ class Message {
                 }
 };
 
+/**
+   Stores the current Font configuration
+ */
 
 class FontSettings {
         public:
@@ -41,6 +76,17 @@ class FontSettings {
                 int charset;
                 TFontStyles style;
                 FontSettings() {}
+
+                /**
+                   Constructor
+
+                   @name  name of the font
+                   @size  font size
+                   @charset  the charset being used
+                   @bold  bold option
+                   @italic  italic option
+                */
+
                 FontSettings (  String name, int size, int charset,
                                 bool bold, bool italic) {
                         if(!name.IsEmpty()) {
@@ -63,6 +109,11 @@ class FontSettings {
                         this->update();
                 }
 
+                /**
+                   Creates the section about the font settings that will be
+                   written to the configuration file of the program
+                */
+
                 CustomStringList createFileEntry() {
                         CustomStringList output;
                         output.push_back("[FontSettings]");
@@ -75,6 +126,15 @@ class FontSettings {
                         return output;
                 }
 
+                /**
+                   Converts bool to its binary representation
+
+                   @in   true: option is set
+                         false: option is not set
+                   @return  1 for true
+                            0 for false
+                */
+
                 String checkBool(bool in) {
                         if(in) {
                                 return "1";
@@ -82,6 +142,10 @@ class FontSettings {
                                 return "0";
                         }
                 }
+
+                /**
+                   Applies the font settings to the GUI
+                */
 
                 void update() {
                         Form1->StringGrid1->Font->Charset = this->charset;
@@ -101,6 +165,10 @@ class FontSettings {
 };
 
 
+/**
+   Stores the current column width ratios of the Server and Player tables
+*/
+
 
 class WindowSettings {
         public:
@@ -116,10 +184,25 @@ class WindowSettings {
                 float ratioSC;
                 float ratioDE;
                 float ratioTE;
-                
+
+                /**
+                   Constructor
+                 */
+
                 WindowSettings() {
                         init = false;
                 }
+
+                /**
+                   If no stored information has been read before
+                   (e.g. no config file), a default ratio will be returned:
+                   'table width' / '# of columns'
+
+                   @in  the ratio value to check
+                   @grid  the stringgrid the column is part of
+                          1: Server table
+                          2: Player table
+                */
 
                 float checkIfZero(float in, int grid) {
                         if(in - 0.001f < 0) {
@@ -135,6 +218,27 @@ class WindowSettings {
                         }
                 }
 
+                /**
+                   Constructor
+                   Input are the values read from the config file
+
+                   @top  Top position of the window
+                   @left  Left position of the window
+                   @height  Height of the window
+                   @width  Width of the window
+                   @ratioID  ratio of the ID column
+                   @ratioSN  ratio of the Server name column
+                   @ratioPN  ratio of the Player number column
+                   @ratioST  ratio of the Status column
+                   @ratioIS  ratio of the Island column
+                   @ratioMN  ratio of the Mission column
+                   @ratioPI  ratio of the Ping column
+                   @ratioPL  ratio of the Player name column
+                   @ratioSC  ratio of the Score column
+                   @ratioDE  ratio of the Deaths column
+                   @ratioTE  ratio of the Team column
+                 */
+                 
                 WindowSettings( int top, int left, int height, int width, float ratioID, float ratioSN,
                                 float ratioPN, float ratioST, float ratioIS,
                                 float ratioMN, float ratioPI, float ratioPL,
@@ -147,9 +251,6 @@ class WindowSettings {
                         }
                         if(width >= 666) {
                                 Form1->Width = width;
-                        }
-                        if(top == 0 || left == 0) {
-
                         }
                         this->ratioID = checkIfZero(ratioID,1);
                         this->ratioSN = checkIfZero(ratioSN,1);
@@ -166,6 +267,10 @@ class WindowSettings {
                         this->init = true;
                 }
 
+                /**
+                   Applies the current ratio values to the Stringtable columns
+                 */
+
                 void refresh() {
                         Form1->StringGrid1->ColWidths[0] = (float)Form1->StringGrid1->Width * this->ratioID;
                         Form1->StringGrid1->ColWidths[1] = (float)Form1->StringGrid1->Width * this->ratioSN;
@@ -180,6 +285,11 @@ class WindowSettings {
                         Form1->StringGrid2->ColWidths[3] = (float)Form1->StringGrid2->Width * this->ratioTE;
                         return;
                 }
+
+                /**
+                   Creates the section about the window settings that will be
+                   written to the configuration file of the program
+                */
 
                 CustomStringList createFileEntry() {
                         CustomStringList output;
@@ -204,6 +314,11 @@ class WindowSettings {
                         return output;
                 }
 
+                /**
+                   Calculates the current ratio values of the Stringgrid columns
+                   This method is called after the user has changed a column width
+                 */
+
                 void updateGrid1() {
                         this->ratioID = (float)Form1->StringGrid1->ColWidths[0] / (float)Form1->StringGrid1->Width;
                         this->ratioSN = (float)Form1->StringGrid1->ColWidths[1] / (float)Form1->StringGrid1->Width;
@@ -214,6 +329,12 @@ class WindowSettings {
                         this->ratioPI = (float)Form1->StringGrid1->ColWidths[6] / (float)Form1->StringGrid1->Width;
                         return;
                 }
+
+                /**
+                   Calculates the current ratio values of the Stringgrid columns
+                   This method is called after the user has changed a column width
+                 */
+
                 void updateGrid2() {
                         this->ratioPL = (float)Form1->StringGrid2->ColWidths[0] / (float)Form1->StringGrid2->Width;
                         this->ratioSC = (float)Form1->StringGrid2->ColWidths[1] / (float)Form1->StringGrid2->Width;
@@ -223,6 +344,11 @@ class WindowSettings {
                 }
 };
 
+/**
+   After a query answer has been validated, its query details are read
+   and stored in this object
+*/
+
 class QueryAnswer {
         public:
                 String id;
@@ -230,9 +356,17 @@ class QueryAnswer {
                 bool final;
                 CustomStringList content;
 
+                /**
+                   Constructor
+                 */
+
                 QueryAnswer () {
                         this->clear();
                 }
+
+                /**
+                   Clears all object attributes
+                 */
 
                 void clear() {
                         this->id = "";
@@ -242,6 +376,9 @@ class QueryAnswer {
                 }
 };
 
+/**
+   This object keeps track of how the Server table is currently sorted
+ */
 
 class Sorter {
         public:
@@ -254,17 +391,31 @@ class Sorter {
                 bool mission;
                 bool ping;
 
+                /**
+                   Constructor
+                 */
+
                 Sorter() {
                         disableAll();
                         setPlayers();
                         normal = false;
                 }
 
+                /**
+                   resets the attributes to default
+                 */
+
                 void reset() {
                         disableAll();
                         setPlayers();
                         normal = false;
                 }
+
+                /**
+                   Sets all attributes false
+                   'false' means that the table is not sorted after this column
+                   'true' means that it is sorted after this column
+                 */
 
                 void disableAll() {
                         id = false;
@@ -277,6 +428,10 @@ class Sorter {
                         normal = true;
                 }
 
+                /**
+                   The table will be sorted after IDs
+                 */
+
                 void setId() {
                         if(id) {
                                 normal = !normal;
@@ -285,6 +440,11 @@ class Sorter {
                                 id = true;
                         }
                 }
+
+                /**
+                   The table will be sorted alphabetically after Server names
+                 */
+
                 void setName() {
                         if(name) {
                                 normal = !normal;
@@ -293,6 +453,11 @@ class Sorter {
                                 name = true;
                         }
                 }
+
+                /**
+                   The table will be sorted after the number of players
+                 */
+
                 void setPlayers() {
                         if(players) {
                                 normal = !normal;
@@ -301,6 +466,11 @@ class Sorter {
                                 players = true;
                         }
                 }
+
+                /**
+                   The table will be sorted alphabetically after the server status
+                 */
+
                 void setStatus() {
                         if(status) {
                                 normal = !normal;
@@ -309,6 +479,11 @@ class Sorter {
                                 status = true;
                         }
                 }
+
+                /**
+                   The table will be sorted alphabetically after island names
+                 */
+
                 void setIsland() {
                         if(island) {
                                 normal = !normal;
@@ -317,6 +492,11 @@ class Sorter {
                                 island = true;
                         }
                 }
+
+                /**
+                   The table will be sorted alphabetically after mission names
+                 */
+
                 void setMission() {
                         if(mission) {
                                 normal = !normal;
@@ -325,6 +505,11 @@ class Sorter {
                                 mission = true;
                         }
                 }
+
+                /**
+                   The table will be sorted after pings
+                 */
+
                 void setPing() {
                         if(ping) {
                                 normal = !normal;
@@ -335,7 +520,9 @@ class Sorter {
                 }
 };
 
-
+/**
+   This object keeps track of how the Player table is currently sorted
+ */
 
 class Sorter2 {
         public:
@@ -350,6 +537,12 @@ class Sorter2 {
                         setName();
                 }
 
+                /**
+                   Sets all attributes false
+                   'false' means that the table is not sorted after this column
+                   'true' means that it is sorted after this column
+                 */
+
                 void disableAll() {
                         normal = true;
                         name = false;
@@ -357,6 +550,11 @@ class Sorter2 {
                         deaths = false;
                         team = false;
                 }
+
+                /**
+                   The table will be sorted alphabetically after Player names
+                 */
+
                 void setName() {
                         if(name) {
                                 normal = !normal;
@@ -365,6 +563,11 @@ class Sorter2 {
                                 name = true;
                         }
                 }
+
+                /**
+                   The table will be sorted after scores
+                 */
+
                 void setScore() {
                         if(score) {
                                 normal = !normal;
@@ -373,6 +576,11 @@ class Sorter2 {
                                 score = true;
                         }
                 }
+
+                /**
+                   The table will be sorted after deaths
+                 */
+
                 void setDeaths() {
                         if(deaths) {
                                 normal = !normal;
@@ -381,6 +589,11 @@ class Sorter2 {
                                 deaths = true;
                         }
                 }
+
+                /**
+                   The table will be sorted alphabetically after Team names
+                 */
+
                 void setTeam() {
                         if(team) {
                                 normal = !normal;
@@ -398,12 +611,26 @@ class Player {
                 int deaths;
                 int score;
 
+                /**
+                   Default Constructor of a blank Player object
+                 */
+
                 Player() {
                         this->deaths = 0;
                         this->score = 0;
                         this->team = "";
                         this->name = "";
                 }
+
+                /**
+                   Constructor
+
+                   @n  player name
+                   @t  team name
+                   @s  score
+                   @d  deaths
+
+                 */
                 Player(String &n, String &t, int &s, int &d) {
                         this->name = n;
                         this->team = t;
@@ -414,6 +641,62 @@ class Player {
 
 typedef list<Player> CustomPlayerList;
 const unsigned int queryArrayLength = 10;
+int errorreports = 0;
+
+/**
+   Add an entry to the error report file
+
+   @err  Type of error
+   @msg  Additional debug output
+ */
+
+void addToErrorReport(String err, String msg) {
+        if(err.SubString(1,6)== "Fehler" || err == "Exception InvalidInteger") {
+                errorreports++;
+                Form1->StatusBar1->Panels->Items[2]->Text = Form2->getGuiString("STRING_ERRORS") + " " + String(errorreports);
+        }
+        TStringList *error = new TStringList;
+        if(FileExists("errorreport.txt")) {
+                error->LoadFromFile("errorreport.txt");
+        }
+        if(error->Count > 500) {
+                error->Delete(error->Count - 1);
+                error->Delete(error->Count - 1);
+                error->Delete(error->Count - 1);
+        }
+        error->Insert(0,msg);
+        error->Insert(0,err);
+        error->Insert(0,"============================");
+        error->SaveToFile("errorreport.txt");
+        return;
+}
+
+
+String getGameState (int i, String old) {
+        String out = IntToStr(i);
+        if(i == 2) {
+                out = Form1->CHECKBOX_FILTER_CREATING->Caption;
+        } else if(i == 6) {
+                out = Form1->CHECKBOX_FILTER_WAITING->Caption;
+        } else if(i == 9) {
+                out = Form1->CHECKBOX_FILTER_DEBRIEFING->Caption;
+        } else if(i == 12) {
+                out = Form1->CHECKBOX_FILTER_SETTINGUP->Caption;
+        } else if(i == 13) {
+                out = Form1->CHECKBOX_FILTER_BRIEFING->Caption;
+        } else if(i == 14) {
+                out = Form1->CHECKBOX_FILTER_PLAYING->Caption;
+        } else {
+                addToErrorReport("Fehler 13, status","current: " + out + "  old: " + old);
+        }
+        return out;
+}
+
+
+/**
+   Representation of one server
+
+ */
 
 class Server {
         public:
@@ -445,6 +728,11 @@ class Server {
                 bool loseATurn;
                 CustomPlayerList playerlist;
                 QueryAnswer queries[queryArrayLength];
+
+                /**
+                   Default Constructor of a blank server
+                 */
+
                 Server() {
                         this->watch = false;
                         this->index = -1;
@@ -454,6 +742,14 @@ class Server {
                         this->ping.clear();
                         this->clear();
                 }
+
+                /**
+                   Constructor
+
+                   @i  the server's ip
+                   @p  the server's gamespy port
+                   @ind  the server's index in the ServerArray
+                 */
 
                 Server(String &i, int &p, int &ind) {
                         this->watch = false;
@@ -465,6 +761,11 @@ class Server {
                         this->gamespyport = p;
                 }
 
+                /**
+                   Clears all attributes, used to make servers invalid.
+                   e.g. when they go offline
+                 */
+
                 void clear() {
                         this->loseATurn = false;
                         this->gameport = 0;
@@ -473,7 +774,7 @@ class Server {
                         this->maxplayers = 0;
                         this->mission = "";
                         this->name = "";
-                        this->mode = "";
+                        this->mode = "Creating";
                         this->impl = "";
                         this->param1 = "";
                         this->param2 = "";
@@ -487,14 +788,12 @@ class Server {
                         this->messageSent = 0;
                         this->queryid = 0;
                         this->playerlist.clear();
-
                 }
 };
 
 
 Server ServerArray[1024];
 int numOfServers = 0;
-
 
 Sorter tableSorter = Sorter();
 Sorter2 playerListSorter = Sorter2();
@@ -504,33 +803,6 @@ int timeoutLimit = 10;
 TStringList *ServerSortList = new TStringList;
 TStringList *PlayerSortList = new TStringList;
 TStringList *PlayerSortList2 = new TStringList;
-
-
-int errorreports = 0;
-
-
-
-
-void addToErrorReport(String err, String msg) {
-        if(err.SubString(1,6)== "Fehler") {
-                errorreports++;
-                Form1->StatusBar1->Panels->Items[2]->Text = Form2->getGuiString("STRING_ERRORS") + " " + String(errorreports);
-        }
-        TStringList *error = new TStringList;
-        if(FileExists("errorreport.txt")) {
-                error->LoadFromFile("errorreport.txt");
-        }
-        if(error->Count > 500) {
-                error->Delete(error->Count - 1);
-                error->Delete(error->Count - 1);
-                error->Delete(error->Count - 1);
-        }
-        error->Insert(0,msg);
-        error->Insert(0,err);
-        error->Insert(0,"============================");
-        error->SaveToFile("errorreport.txt");
-        return;
-}
 
 void TForm1::setWindowSettings(int top,int left,int height, int width, float ratioID,float ratioSN,
                                 float ratioPN,float ratioST,float ratioIS,
@@ -542,6 +814,7 @@ void TForm1::setWindowSettings(int top,int left,int height, int width, float rat
                                 ratioSC,ratioDE,ratioTE);
 }
 
+
 void TForm1::setFont(String name, int size, int charset,
                         bool bold, bool italic) {
         fontsettings = FontSettings(name, size, charset, bold, italic);
@@ -551,6 +824,11 @@ void updateTimeoutLimit() {
         timeoutLimit = ceil(10000 / Form1->Timer1->Interval);
         return;
 }
+
+/**
+   Wrapping method around the Udp socket to send messages easier.
+   The time of sending is stored in the corresponding server object
+ */
 
 void sendUdpMessage(int index, String ip, int port, String msg) {
         char buffer[256];
@@ -573,6 +851,13 @@ void sendUdpMessage(int index, String ip, int port, String msg) {
         return;
 }
 
+/**
+   Checks if  c  contains  d
+   @c  the String to check
+   @d  the String to look for
+   @return  'true' is c does contain d, otherwise 'false'
+ */
+
 bool doNameFilter(String c, String d) {
         bool out = false;
         String a = c.LowerCase();
@@ -586,6 +871,12 @@ bool doNameFilter(String c, String d) {
         return out;
 }
 
+/**
+    Checks if a name of the Players in list  l  contains the String s
+    @return  result of the check. 'true' if at least
+             one player name contains s, otherwise 'false'
+ */
+
 bool doPlayerFilter(CustomPlayerList l, String s) {
         bool out = false;
         for (CustomPlayerList::iterator ci = l.begin(); ci != l.end(); ++ci) {
@@ -598,11 +889,24 @@ bool doPlayerFilter(CustomPlayerList l, String s) {
         return out;
 }
 
+/**
+   Performs the checking of filter options that are available to the user
+   Status checkboxes, password checkboxes, server, mission and player names
+
+   @j  index of the server to check
+   @return  number coded result of the check
+            0 means: Server is offline/not set
+            1 means: Server is online but does not pass the filter check
+            2 means: Server is online and passes the filter check
+
+ */
+
 int checkFilters(int j) {
         int out = 0;
         if(ServerArray[j].name.Length() > 0 && ServerArray[j].timeouts < timeoutLimit) {
                 out = 1;
                 if(ServerArray[j].players >= Form1->UpDown1->Position) {
+                          
                         if(
                                 (
                                         (ServerArray[j].mode == Form1->CHECKBOX_FILTER_PLAYING->Caption && Form1->CHECKBOX_FILTER_PLAYING->Checked) ||
@@ -641,6 +945,10 @@ int checkFilters(int j) {
         return out;
 }
 
+/**
+   Empties the Server table
+ */
+
 void setEmptyStringGrid() {
         Form1->StringGrid1->RowCount = 2;
         for(int i = 0; i < Form1->StringGrid1->ColCount; i++) {
@@ -648,6 +956,13 @@ void setEmptyStringGrid() {
         }
         return;
 }
+
+/**
+   Converts an integer to a String and adds "0"s to the front until the
+   String is four characters long. Used to sort numbers alphabetically
+   @i  number to convert
+   @return  the number with leading zeros as a String
+ */
 
 String addLeadingZeros(int i) {
         String a = String(i);
@@ -657,21 +972,33 @@ String addLeadingZeros(int i) {
         return a;
 }
 
+/**
+   Empties the Player table
+ */
+
 void setEmptyPlayerList() {
         Form1->StringGrid2->RowCount = 2;
-        Form1->StringGrid2->Cells[0][1] = "";
-        Form1->StringGrid2->Cells[1][1] = "";
-        Form1->StringGrid2->Cells[2][1] = "";
-        Form1->StringGrid2->Cells[3][1] = "";
+        for(int i = 0; i < Form1->StringGrid2->ColCount; i++) {
+                Form1->StringGrid2->Cells[i][1] = "";
+        }
         return;
 }
+
+/**
+   Performs the update of the Player table. Reads the index of the currently
+   selected row in the server table, gets the player list and sorts it
+   with the help of a TStringList
+
+   @index  index (positive number) of the server , negativ number if the index
+           couldnt be found   
+ */
 
 void processPlayerList(int index) {
         PlayerSortList->Clear();
         PlayerSortList2->Clear();
         int row = Form1->StringGrid1->Selection.BottomRight.Y;
         try {
-                if(index == -1) {
+                if(index < 0) {
                         index = StrToInt(Form1->StringGrid1->Cells[0][row]);
                 }
                 int counter = ServerArray[index].playerlist.size();
@@ -694,23 +1021,12 @@ void processPlayerList(int index) {
                                 PlayerSortList->AddObject(ci->team, (TObject*) &(*ci));
                         }
                 }
-                //DEBUG
-                if(counter < 0) {
-                        addToErrorReport("Fehler 1","");
-                }
-        } catch (...) {}
+        } catch (...) { }
         if(PlayerSortList->Count == 0) {
                 setEmptyPlayerList();
         } else {
                 int z = PlayerSortList->Count;
                 int x = PlayerSortList2->Count;
-
-                //DEBUG
-                if(x > 50 || z > 50) {
-                        addToErrorReport("Fehler 2","Fehler in processPlayerList(int index).\nindex: " + String(index) + "  " + ServerArray[index].name +"\nListe1: " + String(z) + "  Liste2: " + String(x));
-                        return;
-                }
-
 
                 Form1->StringGrid2->RowCount = z + x + 1;
                 if(playerListSorter.normal) {
@@ -752,6 +1068,12 @@ void processPlayerList(int index) {
         return;
 }
 
+/**
+   Updates the Server Info part of the GUI
+
+   @index  the index of the server
+ */
+
 void updateServerInfoBox(int index) {
         if(index >= 0 && index < numOfServers) {
                 Form1->Label2->Caption = ServerArray[index].ip;
@@ -780,6 +1102,12 @@ void updateServerInfoBox(int index) {
         return;
 }
 
+/**
+   Calculates the average over a number of recorded pings
+
+   @pings  list containing the pings
+   @return  the average over all listed pings
+ */
 
 int averagePing(list<int> &pings) {
         int sum = 0;
@@ -796,6 +1124,14 @@ int averagePing(list<int> &pings) {
 }
 
 bool filterChanging = false;
+
+/**
+   Performs the update of the GUI
+
+   @userinput  'true' if the update was triggered
+               by the user (e.g. changing filter rules)
+
+ */
 void filterChanged(bool userinput) {
         if(filterChanging) {
                 return;
@@ -838,7 +1174,8 @@ void filterChanged(bool userinput) {
                 }
         }
         bool found = false;
-
+        Form1->StatusBar1->Panels->Items[0]->Text = Form2->getGuiString("STRING_LISTED") + " " + String(numOfServers);
+        Form1->StatusBar1->Panels->Items[1]->Text = Form2->getGuiString("STRING_ONLINE") + " " + String(numOfServers - hasNoName);
         if(inList == 1) {
                 setEmptyStringGrid();
                 setEmptyPlayerList();
@@ -872,8 +1209,7 @@ void filterChanged(bool userinput) {
                         }
                 }
                 Form1->StringGrid1->RowCount = inList;
-                Form1->StatusBar1->Panels->Items[0]->Text = Form2->getGuiString("STRING_LISTED") + " " + String(numOfServers);
-                Form1->StatusBar1->Panels->Items[1]->Text = Form2->getGuiString("STRING_ONLINE") + " " + String(numOfServers - hasNoName);
+
                 if(selectedIndex > -1) {
                         for(int k = 1; k < Form1->StringGrid1->RowCount; k++) {
                                 if((Form1->StringGrid1->Cells[0][k]).Trim() == String(selectedIndex).Trim()) {
@@ -903,6 +1239,12 @@ void filterChanged(bool userinput) {
         return;
 }
 
+/**
+   This class makes sure that the query of only one server is sent at a time, by
+   providing the index of one server and only increasing it, when the query
+   of the server before has been successfully sent.
+ */
+
 class BroadcastRotation {
         public:
                 int current;
@@ -912,12 +1254,18 @@ class BroadcastRotation {
                 BroadcastRotation() {
                         this->reset();
                 }
+
+                /**
+                   Resets the object to its start values
+                */
+
                 void reset() {
                         this->current = -1;
                         this->IsReady = true;
                         this->receivingFirstTime = true;
                         this->loseTurnValue = false;
                 }
+
                 int next() {
                         bool temp = false;
                         do {
@@ -939,6 +1287,13 @@ class BroadcastRotation {
                         int out = this->current;
                         return out;
                 }
+
+                /**
+                   Marks this object as Ready, meaning that the current
+                   server query has been successfully procressed
+
+                */
+
                 void setReady() {
                         this->IsReady = true;
                         return;
@@ -954,51 +1309,47 @@ class BroadcastRotation {
 
 BroadcastRotation serverCycle = BroadcastRotation();
 
-String getGameState (int i, String old) {
-        String out = IntToStr(i);
-        if(i == 2) {
-                out = Form1->CHECKBOX_FILTER_CREATING->Caption;
-        } else if(i == 6) {
-                out = Form1->CHECKBOX_FILTER_WAITING->Caption;
-        } else if(i == 9) {
-                out = Form1->CHECKBOX_FILTER_DEBRIEFING->Caption;
-        } else if(i == 12) {
-                out = Form1->CHECKBOX_FILTER_SETTINGUP->Caption;
-        } else if(i == 13) {
-                out = Form1->CHECKBOX_FILTER_BRIEFING->Caption;
-        } else if(i == 14) {
-                out = Form1->CHECKBOX_FILTER_PLAYING->Caption;
-        } else {
-                addToErrorReport("Fehler 13, status",out);
-        }
-        return out;
-}
 
-CustomStringList getAddress(String address) {
-        CustomStringList a;
+
+Address getAddress(String address) {
         for(int i = 0; i < address.Length(); i++) {
                 if(address.SubString(i,1) == ":") {
-                        a.push_back(address.SubString(0,i - 1));
-                        a.push_back(address.SubString(i + 1, address.Length() - i));
-                        break;
+                        try {
+                                String ip = address.SubString(0,i - 1);
+                                int port = StrToInt(address.SubString(i + 1, address.Length() - i));
+                                return Address(ip, port);
+                        } catch (...) {
+                                break;
+                        }
                 }
         }
-        return a;
+        return Address();
 }
 
-void readServerList(TStringList *in) {
+void TForm1::readServerList(CustomStringList &in) {
         Form1->StatusBar1->Panels->Items[0]->Text = "";
         Form1->StatusBar1->Panels->Items[1]->Text = "";
         numOfServers = 0;
-        for(int i = 0; i < in->Count && i < sizeof(ServerArray); i++) {
-                if(in->Strings[i].Length() > 8) {
-                        CustomStringList a = getAddress(in->Strings[i]);
-                        String ip = a.front();
-                        int port =  StrToInt(a.back());
-                        a.clear();
-                        ServerArray[i] = Server(ip, port, i);
-                        numOfServers++;
+        while (in.size() > 0) {
+                String tmp = in.front();
+                if(tmp.Length() > 8) {
+                        Address a = getAddress(tmp);
+                        if(!a.ip.IsEmpty()) {
+                                ServerArray[numOfServers] = Server(a.ip, a.port, numOfServers);
+                                numOfServers++;
+                        }
                 }
+                in.pop_front();
+        }
+        for(int i = numOfServers; i < sizeof(ServerArray); i++) {
+                if(ServerArray[i].index == -1) {
+                        break;
+                } else {
+                        ServerArray[i] = Server();
+                }
+        }
+        if(numOfServers == 0) {
+                MENUITEM_MAINMENU_GETNEWSERVERLIST->Click();
         }
         return;
 }
@@ -1069,8 +1420,15 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
         if(querystring == "queryid" && a.size()%2 == 0) {
                 CustomStringList b = Form1->splitUpMessage(idstring,".");
                 if(b.size() == 2) {
-                        int id = StrToInt(b.front());
-                        int part = StrToInt(b.back());
+                        int id = 0;
+                        int part = 1;
+                        try {
+                                id = StrToInt(b.front());
+                                part = StrToInt(b.back());
+                        } catch (...) {
+                                addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)     id = " + b.front() + "   part = " + b.back() + "    Received: " + msg);
+                                return false;
+                        }
                         CustomStringList tmp;
                         tmp.push_front(a.back());
                         a.pop_back();
@@ -1169,7 +1527,11 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                         } else if (tmp == "hostport") {
                                                 ++ci;
                                                 counter--;
-                                                ServerArray[i].gameport = StrToInt(*ci);
+                                                try {
+                                                        ServerArray[i].gameport = StrToInt(*ci);
+                                                } catch (...) {
+                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)     hostport = " + String(*ci) + "     Received: " + msg);
+                                                }
                                         } else if (tmp == "mapname") {
                                                 ++ci;
                                                 counter--;
@@ -1181,19 +1543,28 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                         } else if (tmp == "numplayers") {
                                                 ++ci;
                                                 counter--;
-                                                ServerArray[i].players = StrToInt(*ci);
-                                                if(once && ServerArray[i].players == 0) {
-                                                        while(!ServerArray[i].playerlist.empty()) {
-                                                                Player *t = &(ServerArray[i].playerlist.front());
-                                                                delete t;
-                                                                ServerArray[i].playerlist.pop_front();
+                                                try {
+                                                        ServerArray[i].players = StrToInt(*ci);
+                                                        if(once && ServerArray[i].players == 0) {
+                                                                while(!ServerArray[i].playerlist.empty()) {
+                                                                        Player *t = &(ServerArray[i].playerlist.front());
+                                                                        delete t;
+                                                                        ServerArray[i].playerlist.pop_front();
+                                                                }
+                                                                once = false;
                                                         }
-                                                        once = false;
+                                                } catch (...) {
+                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)    numplayers = " + String(*ci) + "    Received: " + msg);
                                                 }
                                         } else if (tmp == "maxplayers") {
                                                 ++ci;
                                                 counter--;
-                                                ServerArray[i].maxplayers = StrToInt(*ci) - 2;
+                                                try {
+                                                        ServerArray[i].maxplayers = StrToInt(*ci) - 2;
+                                                } catch (...) {
+                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)     maxplayers = " + String(*ci) + "    Received: " + msg);
+                                                }
+
                                         } else if (tmp == "timeleft") {
                                                 ++ci;
                                                 counter--;
@@ -1209,11 +1580,19 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                         } else if (tmp == "actver") {
                                                 ++ci;
                                                 counter--;
-                                                ServerArray[i].actver = StrToInt(*ci);
+                                                try {
+                                                        ServerArray[i].actver = StrToInt(*ci);
+                                                } catch (...) {
+                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)     actver = " + String(*ci) + "     Received: " + msg);
+                                                }
                                         } else if (tmp == "reqver") {
                                                 ++ci;
                                                 counter--;
-                                                ServerArray[i].reqver = StrToInt(*ci);
+                                                try {
+                                                        ServerArray[i].reqver = StrToInt(*ci);
+                                                } catch (...) {
+                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)      reqver = " + String(*ci) + "      Received: " + msg);
+                                                }
                                         } else if (tmp == "mod") {
                                                 ++ci;
                                                 counter--;
@@ -1221,19 +1600,31 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                         } else if (tmp == "equalMod") {
                                                 ++ci;
                                                 counter--;
-                                                ServerArray[i].equalMod = StrToInt(*ci);
+                                                try {
+                                                        ServerArray[i].equalMod = StrToInt(*ci);
+                                                } catch (...) {
+                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)      equalMod = " + String(*ci) + "      Received: " + msg);
+                                                }
                                         } else if (tmp == "password") {
                                                 ++ci;
                                                 counter--;
-                                                ServerArray[i].password = StrToInt(*ci);
+                                                try {
+                                                        ServerArray[i].password = StrToInt(*ci);
+                                                } catch (...) {
+                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)      password = " + String(*ci) + "      Received: " + msg);
+                                                }
                                         } else if (tmp == "gstate") {
                                                 ++ci;
                                                 counter--;
                                                 String oldStatus = ServerArray[i].mode;
-                                                String newStatus = getGameState(StrToInt(*ci), oldStatus);
-                                                if(ServerArray[i].mode != newStatus) {
+                                                try {
+                                                        String newStatus = getGameState(StrToInt(*ci), oldStatus);
+                                                        if(ServerArray[i].mode != newStatus) {
+                                                                checkServerStatus(i, newStatus);
+                                                        }
                                                         ServerArray[i].mode = newStatus;
-                                                        checkServerStatus(i, newStatus);
+                                                } catch (...) {
+                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)      gstate = " + String(*ci) + "      Received: " + msg);
                                                 }
                                         } else if (tmp == "platform") {
                                                 ++ci;
@@ -1261,6 +1652,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                                 try {
                                                         ServerArray[i].playerlist.back().score = StrToInt(*ci);
                                                 } catch (...) {
+                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)      score = " + String(*ci) + "      Received: " + msg);
                                                         ServerArray[i].playerlist.back().score = 0;
                                                 }
                                         } else if(tmp.SubString(1,7) == "deaths_") {
@@ -1269,14 +1661,11 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                                 try {
                                                         ServerArray[i].playerlist.back().deaths = StrToInt(*ci);
                                                 } catch (...) {
+                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)      deaths = " + String(*ci) + "      Received: " + msg);
                                                         ServerArray[i].playerlist.back().score = 0;
                                                 }
                                         }
                                 }
-                        }
-                        //DEBUG
-                        if(counter < 0) {
-                                addToErrorReport("Fehler 6",msg);
                         }
                 }
         return out;
@@ -1294,8 +1683,6 @@ class MessageReader {
                 void newMessage(Message m) {
                         this->messageList.push_back(m);
                 }
-
-
 
                 void checkForNewMessages() {
                         if(this->working) {
@@ -1380,17 +1767,9 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         PlayerSortList2->Sorted = true;
         PlayerSortList2->CaseSensitive = true;
         PlayerSortList2->Duplicates = dupAccept;
-        Timer3->Enabled = true;
-        TStringList *TempList = Form2->init();
-        readServerList(TempList);
         updateTimeoutLimit();
-        if(!Form2->getExe().IsEmpty() && !Form2->getExeFolder().IsEmpty()) {
-                PopupMenu1->Items->Items[0]->Enabled = true;
-        }
+        Timer3->Enabled = true;
         Form1->Visible = true;
-        if(numOfServers == 0) {
-                MENUITEM_MAINMENU_GETNEWSERVERLIST->Click();
-        }
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
@@ -1401,14 +1780,19 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 void __fastcall TForm1::NMUDP1DataReceived(TComponent *Sender,
       int NumberBytes, AnsiString FromIP, int Port)
 {
-        DWORD i = timeGetTime();
-        char buffer[2048];
+        const int bytes = 2048;
         int len;
-        NMUDP1->ReadBuffer(buffer,2048,len);
-        buffer[len]=0;
-        String buf = String(buffer);
-        free(buffer);
-        messageReader.newMessage(Message(FromIP,Port,buf,i));
+        if(NumberBytes < bytes) {
+                DWORD i = timeGetTime();
+                char buffer[bytes];
+                NMUDP1->ReadBuffer(buffer,bytes,len);
+                buffer[len] = 0;
+                String buf = String(buffer);
+                free(buffer);
+                messageReader.newMessage(Message(FromIP,Port,buf,i));
+        } else {
+                addToErrorReport("Fehler 3","Receiving buffer too small. Current: 2048. Received: " + String(NumberBytes) + " Bytes");
+        }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
@@ -1420,8 +1804,7 @@ void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
                         int index = StrToInt(z);
                         processPlayerList(index);
                         updateServerInfoBox(index);
-                } catch (...) {
-                }
+                } catch (...) { }
         } else {
                 setEmptyPlayerList();
         }
@@ -1492,7 +1875,11 @@ void __fastcall TForm1::Timer3Timer(TObject *Sender)
         if(serverCycle.isReady()) {
                 int a = serverCycle.next();
                 if(a >= 0) {
-                        sendUdpMessage(a, ServerArray[a].ip,ServerArray[a].gamespyport,"\\info\\rules\\players\\");
+                        if(ServerArray[a].players > 0 || ServerArray[a].name.IsEmpty()) {
+                                sendUdpMessage(a, ServerArray[a].ip,ServerArray[a].gamespyport,"\\info\\rules\\players\\");
+                        } else {
+                                sendUdpMessage(a, ServerArray[a].ip,ServerArray[a].gamespyport,"\\info\\rules\\");
+                        }
                 }
         }
 }
@@ -1663,7 +2050,12 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
 void __fastcall TForm1::ClickMyButton(TObject *Sender)
 {
         TMenuItem *a = (TMenuItem *) Sender;
-        ShellExecute(Handle, "open", PChar(Form2->getExe().c_str()), PChar(Form2->getConfStartLine(a->Tag,Label2->Caption,StrToInt(Label4->Caption)).c_str()), PChar(Form2->getExeFolder().c_str()), SW_NORMAL);
+        try {
+                int port = StrToInt(Label4->Caption);
+                ShellExecute(Handle, "open", PChar(Form2->getExe().c_str()), PChar(Form2->getConfStartLine(a->Tag,Label2->Caption, port).c_str()), PChar(Form2->getExeFolder().c_str()), SW_NORMAL);
+        } catch (...) {
+                addToErrorReport("Exception InvalidInteger","ClickMyButton      port = " + Label4->Caption);
+        }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::ClickWatchButton(TObject *Sender)
@@ -1693,9 +2085,10 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key,
 void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
       int ARow, TRect &Rect, TGridDrawState State)
 {
-        if(ACol == StringGrid1->ColCount - 1) {
+        if(ACol == StringGrid1->ColCount - 1 && ARow > 0 && !(StringGrid1->Cells[0][ARow]).Trim().IsEmpty()) {
+                int zelle = ARow;
                 try {
-                        int zelle = ARow;
+
                         int index = StrToInt((StringGrid1->Cells[0][zelle]).Trim());
                         if(ServerArray[index].watch) {
                                 TRect a;
@@ -1791,7 +2184,14 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
         	ipport++;
         	len -= 6;
     	}
-        readServerList(CurrentList);
+        CustomStringList addresses;
+        while(CurrentList->Count > 0) {
+                addresses.push_back(CurrentList->Strings[0]);
+                CurrentList->Delete(0);
+        }
+        if(addresses.size() > 0) {
+                readServerList(addresses);
+        }
         delete CurrentList;
         Form2->setSettingsChanged();
         Timer1->Enabled = true;
@@ -1848,4 +2248,6 @@ void __fastcall TForm1::FontDialog1Close(TObject *Sender)
         StringGrid1->Font = FontDialog1->Font;        
 }
 //---------------------------------------------------------------------------
+
+
 

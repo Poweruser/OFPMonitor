@@ -137,6 +137,7 @@ __published:	// IDE-managed Components
 private:	// User declarations
 public:		// User declarations
         typedef list<String> CustomStringList;
+        void TForm1::readServerList(CustomStringList &in);
         void TForm1::setFont(String name, int size, int charset,bool bold, bool italic);
         void TForm1::setWindowSettings(int top,int left, int height, int width, float ratioID,float ratioSN,
                                 float ratioPN,float ratioST,float ratioIS,

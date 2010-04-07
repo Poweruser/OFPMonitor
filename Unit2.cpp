@@ -146,7 +146,6 @@ class Settings {
                         this->workdir = GetCurrentDir();
                         this->interval = 1;
                         this->file = this->workdir + "\\OFPMonitor.ini";
-                       // this->languagefile = "OFPM_English.lang";
                         this->languagefile = "Default";
                         this->changed = false;
                 }
@@ -278,7 +277,7 @@ void updateConfList() {
 String getValue(String in) {
         String out = "";
         String tmp = in.Trim();
-        for(int i = 0; i < tmp.Length(); i++) {
+        for(int i = 1; i < tmp.Length(); i++) {
                 if(tmp.SubString(i,1) == "=") {
                         out = tmp.SubString(i + 1, tmp.Length() - i).Trim();
                         break;
@@ -330,15 +329,32 @@ String GetRegistryValue(void * root, list<String> a, String key) {
         return S;
 }
 
+void updateModFolderList(String ofpfolder) {
+        if(!ofpfolder.IsEmpty()) {
+                Form2->ListBox2->Clear();
+        	TSearchRec daten;
+                if(0 == FindFirst((ofpfolder +"\\*").c_str(), faDirectory, daten)) {
+                        try {
+                                do {
+                                        if(daten.Size == 0 && daten.Name != "." && daten.Name != "..") {
+                                                Form2->ListBox2->Items->Add(String(daten.Name));
+                                        }
+                                } while(FindNext(daten) == 0);
+                        }__finally
+                        {
+                                FindClose(daten);
+                        }
+                }
+        }
+}
 
-
-TStringList* TForm2::init() {
+void readConfigFile() {
         String exe = "";
         String interval = "";
         String folder = "";
         String player = "";
         String langfile = "";
-        TStringList *ipList = new TStringList();
+        list<String> ipList;
         if(FileExists(programSettings.file)) {
                 TStringList *file = new TStringList;
                 file->LoadFromFile(programSettings.file);
@@ -348,114 +364,114 @@ TStringList* TForm2::init() {
                                 i++;
                                 tmp = file->Strings[i].Trim();
                                 while(tmp.SubString(1,10) != "[\\General]" && i < file->Count - 1) {
-                                        if(tmp.SubString(1,3) == "Exe") {
-                                                String tmp = getValue(tmp);
-                                                if(FileExists(tmp)) {
-                                                        exe = tmp;
+                                        if((tmp.SubString(1,3) == "Exe")) {
+                                                String val = getValue(tmp);
+                                                if(FileExists(val)) {
+                                                        exe = val;
                                                         folder = getFolder(exe);
                                                 }
-                                        } else if(tmp.SubString(1,8) == "Interval") {
+                                        } else if((tmp.SubString(1,8) == "Interval")) {
                                                 interval = getValue(tmp);
-                                        } else if(tmp.SubString(1,8) == "LangFile") {
+                                        } else if((tmp.SubString(1,8) == "LangFile")) {
                                                 langfile = getValue(tmp);
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
-                        } else if(tmp.SubString(1,6) == "[Conf]") {
+                        } else if((tmp.SubString(1,6) == "[Conf]")) {
                                 Configuration c = Configuration();
                                 c.set = true;
                                 i++;
                                 tmp = file->Strings[i].Trim();
-                                while(tmp.SubString(1,7) != "[\\Conf]" && i < file->Count - 1) {
-                                        if(tmp.SubString(1,6) == "Player") {
+                                while((tmp.SubString(1,7) != "[\\Conf]") && i < file->Count - 1) {
+                                        if((tmp.SubString(1,6) == "Player")) {
                                                 c.player = getValue(tmp);
-                                        } else if(tmp.SubString(1,8) == "Password") {
+                                        } else if((tmp.SubString(1,8) == "Password")) {
                                                 c.password = getValue(tmp);
-                                        } else if(tmp.SubString(1,4) == "Mods") {
+                                        } else if((tmp.SubString(1,4) == "Mods")) {
                                                 c.mods = Form1->splitUpMessage(getValue(tmp), ";");
-                                        } else if(tmp.SubString(1,10) == "Parameters") {
+                                        } else if((tmp.SubString(1,10) == "Parameters")) {
                                                 c.addParameters = getValue(tmp);
-                                        } else if(tmp.SubString(1,5) == "Label") {
+                                        } else if((tmp.SubString(1,5) == "Label")) {
                                                 c.label = getValue(tmp);
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
                                 programSettings.pSaddConf(c);
-                        } else if(tmp.SubString(1,9) == "[Servers]") {
+                        } else if((tmp.SubString(1,9) == "[Servers]")) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
-                                while(tmp.SubString(1,10) != "[\\Servers]" && i < file->Count - 1) {
+                                while((tmp.SubString(1,10) != "[\\Servers]") && i < file->Count - 1) {
                                         if(tmp.Length() > 8) {
-                                                ipList->Add(tmp.Trim());
+                                                ipList.push_back(tmp.Trim());
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
-                        } else if(tmp.SubString(1,9) == "[Filters]") {
+                        } else if((tmp.SubString(1,9) == "[Filters]")) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
-                                while(tmp.SubString(1,10) != "[\\Filters]" && i < file->Count - 1) {
-                                        if(tmp.SubString(1,7) == "Playing") {
+                                while((tmp.SubString(1,10) != "[\\Filters]") && i < file->Count - 1) {
+                                        if((tmp.SubString(1,7) == "Playing")) {
                                                 Form1->CHECKBOX_FILTER_PLAYING->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.SubString(1,7) == "Waiting") {
+                                        } else if((tmp.SubString(1,7) == "Waiting")) {
                                                 Form1->CHECKBOX_FILTER_WAITING->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.SubString(1,8) == "Creating") {
+                                        } else if((tmp.SubString(1,8) == "Creating")) {
                                                 Form1->CHECKBOX_FILTER_CREATING->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.SubString(1,9) == "Settingup") {
+                                        } else if((tmp.SubString(1,9) == "Settingup")) {
                                                 Form1->CHECKBOX_FILTER_SETTINGUP->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.SubString(1,8) == "Briefing") {
+                                        } else if((tmp.SubString(1,8) == "Briefing")) {
                                                 Form1->CHECKBOX_FILTER_BRIEFING->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.SubString(1,10) == "Debriefing") {
+                                        } else if((tmp.SubString(1,10) == "Debriefing")) {
                                                 Form1->CHECKBOX_FILTER_DEBRIEFING->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.SubString(1,6) == "WithPW") {
+                                        } else if((tmp.SubString(1,6) == "WithPW")) {
                                                 Form1->CHECKBOX_FILTER_WITHPASSWORD->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.SubString(1,9) == "WithoutPW") {
+                                        } else if((tmp.SubString(1,9) == "WithoutPW")) {
                                                 Form1->CHECKBOX_FILTER_WITHOUTPASSWORD->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.SubString(1,10) == "minPlayers") {
+                                        } else if((tmp.SubString(1,10) == "minPlayers")) {
                                                 try {
                                                         int i = StrToInt(getValue(tmp));
                                                         Form1->UpDown1->Position = i;
                                                 } catch (...) {}
-                                        } else if(tmp.SubString(1,10) == "ServerName") {
+                                        } else if((tmp.SubString(1,10) == "ServerName")) {
                                                 Form1->Edit2->Text = getValue(tmp);
-                                        } else if(tmp.SubString(1,11) == "MissionName") {
+                                        } else if((tmp.SubString(1,11) == "MissionName")) {
                                                 Form1->Edit1->Text = getValue(tmp);
-                                        } else if(tmp.SubString(1,10) == "PlayerName") {
+                                        } else if((tmp.SubString(1,10) == "PlayerName")) {
                                                 Form1->Edit4->Text = getValue(tmp);
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
-                        } else if(tmp.SubString(1,14) == "[FontSettings]") {
+                        } else if((tmp.SubString(1,14) == "[FontSettings]")) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
                                 int charset = 0;
                                 String name = "";
                                 int size = 0;
                                 bool bold = false, italic = false;
-                                while(tmp.SubString(1,15) != "[\\FontSettings]" && i < file->Count - 1) {
-                                        if(tmp.SubString(1,4) == "Name") {
+                                while((tmp.SubString(1,15) != "[\\FontSettings]") && i < file->Count - 1) {
+                                        if((tmp.SubString(1,4) == "Name")) {
                                                 name = getValue(tmp);
-                                        } else if(tmp.SubString(1,7) == "Charset") {
+                                        } else if((tmp.SubString(1,7) == "Charset")) {
                                                 try {
                                                         charset = StrToInt(getValue(tmp));
                                                 } catch (...) {}
-                                        } else if(tmp.SubString(1,4) == "Size") {
+                                        } else if((tmp.SubString(1,4) == "Size")) {
                                                 try {
                                                         size = StrToInt(getValue(tmp));
                                                 } catch (...) {};
-                                        } else if(tmp.SubString(1,4) == "Bold") {
+                                        } else if((tmp.SubString(1,4) == "Bold")) {
                                                 bold = checkBool2(getValue(tmp));
-                                        } else if(tmp.SubString(1,6) == "Italic") {
+                                        } else if((tmp.SubString(1,6) == "Italic")) {
                                                 italic = checkBool2(getValue(tmp));
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
                                 Form1->setFont(name, size, charset,bold,italic);
-                        } else if(tmp.SubString(1,16) == "[WindowSettings]") {
+                        } else if((tmp.SubString(1,16) == "[WindowSettings]")) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
                                 int top = 0;
@@ -473,24 +489,24 @@ TStringList* TForm2::init() {
                                         ratioSC = 0.0f,
                                         ratioDE = 0.0f,
                                         ratioTE = 0.0f;
-                                while(tmp.SubString(1,17) != "[\\WindowSettings]" && i < file->Count - 1) {
-                                        if(tmp.SubString(1,4) == "Left") {
+                                while((tmp.SubString(1,17) != "[\\WindowSettings]") && i < file->Count - 1) {
+                                        if((tmp.SubString(1,4) == "Left")) {
                                                 try {   left = StrToInt(getValue(tmp));  }catch(...) {};
-                                        } else if(tmp.SubString(1,3) == "Top") {
+                                        } else if((tmp.SubString(1,3) == "Top")) {
                                                 try {   top = StrToInt(getValue(tmp));  }catch(...) {};
-                                        } else if(tmp.SubString(1,5) == "Width") {
+                                        } else if((tmp.SubString(1,5) == "Width")) {
                                                 try {   width = StrToInt(getValue(tmp));  }catch(...) {};
-                                        } else if(tmp.SubString(1,6) == "Height") {
+                                        } else if((tmp.SubString(1,6) == "Height")) {
                                                 try {   height = StrToInt(getValue(tmp));  }catch(...) {};
-                                        } else if(tmp.SubString(1,7) == "ratioID") {
+                                        } else if((tmp.SubString(1,7) == "ratioID")) {
                                                 try {   ratioID = atof(getValue(tmp).c_str());  }catch(...) {};
-                                        } else if(tmp.SubString(1,7) == "ratioSN") {
+                                        } else if((tmp.SubString(1,7) == "ratioSN")) {
                                                 try {   ratioSN = atof(getValue(tmp).c_str());  }catch(...) {};
-                                        } else if(tmp.SubString(1,7) == "ratioPN") {
+                                        } else if((tmp.SubString(1,7) == "ratioPN")) {
                                                 try {   ratioPN = atof(getValue(tmp).c_str());  }catch(...) {};
-                                        } else if(tmp.SubString(1,7) == "ratioST") {
+                                        } else if((tmp.SubString(1,7) == "ratioST")) {
                                                 try {   ratioST = atof(getValue(tmp).c_str());  }catch(...) {};
-                                        } else if(tmp.SubString(1,7) == "ratioIS") {
+                                        } else if((tmp.SubString(1,7) == "ratioIS")) {
                                                 try {   ratioIS = atof(getValue(tmp).c_str());  }catch(...) {};
                                         } else if(tmp.SubString(1,7) == "ratioMN") {
                                                 try {   ratioMN = atof(getValue(tmp).c_str());  }catch(...) {};
@@ -508,6 +524,7 @@ TStringList* TForm2::init() {
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
+
                                 Form1->setWindowSettings(top,left,height,width,ratioID,
                                         ratioSN,
                                         ratioPN,
@@ -543,47 +560,39 @@ TStringList* TForm2::init() {
         player = GetRegistryValue(HKEY_CURRENT_USER, b, "Player Name");
         if(!exe.IsEmpty()) {
                 programSettings.exe = exe;
+                Form2->Edit1->Text = programSettings.exe;
         }
         if(!folder.IsEmpty()) {
                 programSettings.folder = folder;
+                updateModFolderList(programSettings.folder);
+        } else {
+                Form2->BUTTON_NEWCONFIGURATION_ADD->Enabled = false;
+                Form2->GROUPBOX_NEWCONFIGURATION->Enabled = false;
+        }
+        if(!Form2->getExe().IsEmpty() && !Form2->getExeFolder().IsEmpty()) {
+                Form1->MENUITEM_POPUP_JOIN->Enabled = true;
         }
         if(!player.IsEmpty()) {
                 programSettings.player = player;
+                Form2->Edit2->Text = programSettings.player;
         }
         if(!langfile.IsEmpty()) {
                 if(FileExists(GetCurrentDir() + "\\" + langfile)) {
                         programSettings.languagefile = langfile;
-                      //  ComboBox1->Text = programSettings.languagefile;
+
                 }
         }
         try {
                 int a = StrToInt(interval);
                 programSettings.setInterval(a);
-                UpDown1->Position = a;
+                Form2->UpDown1->Position = a;
         }catch (...) {
+                programSettings.setInterval(2);
+                Form2->UpDown1->Position = 2;
         }
+        Form2->Edit5->Text = String(Form2->UpDown1->Position);
         programSettings.changed = false;
-        return ipList;
-}
-
-
-void updateModFolderList(String ofpfolder) {
-        if(!ofpfolder.IsEmpty()) {
-                Form2->ListBox2->Clear();
-        	TSearchRec daten;
-                if(0 == FindFirst((ofpfolder +"\\*").c_str(), faDirectory, daten)) {
-                        try {
-                                do {
-                                        if(daten.Size == 0 && daten.Name != "." && daten.Name != "..") {
-                                                Form2->ListBox2->Items->Add(String(daten.Name));
-                                        }
-                                } while(FindNext(daten) == 0);
-                        }__finally
-                        {
-                                FindClose(daten);
-                        }
-                }
-        }
+        Form1->readServerList(ipList);
 }
 
 void findLanguageFiles() {
@@ -714,24 +723,11 @@ void __fastcall TForm2::BUTTON_OFPEXECUTABLE_BROWSEClick(TObject *Sender)
 
 void __fastcall TForm2::FormCreate(TObject *Sender)
 {
+        readConfigFile();
         findLanguageFiles();
-        if(!programSettings.player.IsEmpty()) {
-                Edit2->Text = programSettings.player;
-        }
-        if(!programSettings.exe.IsEmpty()) {
-                Edit1->Text = programSettings.exe;
-        }
-        if(programSettings.folder.IsEmpty()) {
-                BUTTON_NEWCONFIGURATION_ADD->Enabled = false;
-                GROUPBOX_NEWCONFIGURATION->Enabled = false;
-        } else {
-                updateModFolderList(programSettings.folder);
-        }
-        UpDown1->Position = programSettings.interval;
-        Edit5->Text = String(UpDown1->Position);
         updateConfList();
         #include "guiDB.cpp"
-        ComboBox1->Text = programSettings.languagefile;
+        Form2->ComboBox1->Text = programSettings.languagefile;
         updateLanguage(programSettings.languagefile);
 
 }
@@ -892,7 +888,7 @@ void __fastcall TForm2::BUTTON_NEWCONFIGURATION_CLEARClick(TObject *Sender)
 void __fastcall TForm2::FormClose(TObject *Sender, TCloseAction &Action)
 {
         if(!Form2->getExe().IsEmpty() && !Form2->getExeFolder().IsEmpty()) {
-                Form1->PopupMenu1->Items->Items[0]->Enabled = true;
+                Form1->MENUITEM_POPUP_JOIN->Enabled = true;
         }
 }
 //---------------------------------------------------------------------------
@@ -905,14 +901,11 @@ void __fastcall TForm2::FormKeyDown(TObject *Sender, WORD &Key,
         }
 }
 //---------------------------------------------------------------------------
-
-
 void __fastcall TForm2::FormShow(TObject *Sender)
 {
         updateModFolderList(programSettings.folder);
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm2::ComboBox1Change(TObject *Sender)
 {
         if(FileExists(programSettings.workdir + "\\" + ComboBox1->Text)) {
