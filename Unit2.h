@@ -69,8 +69,9 @@ private:	// User declarations
 public:		// User declarations
         int TForm2::getConfAmount();
         String TForm2::getConfListEntry(int i);
-        void TForm2::writeSettingToFile(list<String> servers, list<String> font, list<String> window);
+        void TForm2::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window);
         void TForm2::setSettingsChanged();
+        TStringList* TForm2::getWatchedList();
         String TForm2::getConfStartLine(int i, String ip, int port);
         String TForm2::getExe();
         String TForm2::getExeFolder();

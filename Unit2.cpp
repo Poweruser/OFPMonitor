@@ -18,8 +18,6 @@ TForm2 *Form2;
 
 #include "guiDBDefs.cpp"
 
-
-
 const int confAmount = 20;
 
 int TForm2::getConfAmount() {
@@ -141,8 +139,12 @@ class Settings {
                 Configuration startupConfs[confAmount];
                 String file;
                 String languagefile;
+                TStringList *watched;
 
                 Settings() {
+                        this->watched = new TStringList;
+                        this->watched->Sorted = true;
+                        this->watched->Duplicates = dupIgnore;
                         this->workdir = GetCurrentDir();
                         this->interval = 1;
                         this->file = this->workdir + "\\OFPMonitor.ini";
@@ -180,7 +182,7 @@ class Settings {
                         this->changed = true;
                 }
 
-                void writeToFile(list<String> &servers, list<String> &font, list<String> &window) {
+                void writeToFile(list<String> &servers, list<String> &watchedServers, list<String> &font, list<String> &window) {
                         if(this->changed) {
                                 TStringList *file = new TStringList;
                                 file->Add("[General]");
@@ -225,6 +227,15 @@ class Settings {
                                 }
                                 if (servers.size() > 0) {
                                         file->Add("[Servers]");
+                                        if(watchedServers.size() > 0) {
+                                                file->Add("[Watch]");
+                                                while(watchedServers.size() > 0) {
+                                                        tmp = watchedServers.front();
+                                                        file->Add(tmp);
+                                                        watchedServers.pop_front();
+                                                }
+                                                file->Add("[\\Watch]");
+                                        }
                                         while(servers.size() > 0) {
                                                 tmp = servers.front();
                                                 file->Add(tmp);
@@ -232,7 +243,6 @@ class Settings {
                                         }
                                         file->Add("[\\Servers]");
                                 }
-
                                 file->SaveToFile(this->file);
                                 delete file;
                         }
@@ -240,8 +250,8 @@ class Settings {
 };
 Settings programSettings = Settings();
 
-void TForm2::writeSettingToFile(list<String> servers, list<String> font, list<String> window) {
-        programSettings.writeToFile(servers, font, window);
+void TForm2::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window) {
+        programSettings.writeToFile(servers, watchedServers, font, window);
 }
 
 void TForm2::setSettingsChanged() {
@@ -254,6 +264,10 @@ String TForm2::getConfListEntry(int i) {
 
 String TForm2::getConfStartLine(int i, String ip, int port) {
         return programSettings.startupConfs[i].createStartLine(ip, port);
+}
+
+TStringList* TForm2::getWatchedList() {
+        return programSettings.watched;
 }
 
 String TForm2::getExe() {
@@ -403,11 +417,25 @@ void readConfigFile() {
                                 i++;
                                 tmp = file->Strings[i].Trim();
                                 while((tmp.SubString(1,10) != "[\\Servers]") && i < file->Count - 1) {
-                                        if(tmp.Length() > 8) {
+                                        if(tmp.SubString(1,7) == "[Watch]") {
+                                                i++;
+                                                tmp = file->Strings[i].Trim();
+                                                programSettings.watched->Clear();
+                                                while(tmp.SubString(1,8) != "[\\Watch]" && i < file->Count -1 ) {
+                                                        if(tmp.Length() > 8) {
+                                                                programSettings.watched->Add(tmp.Trim());
+                                                                ipList.push_back(tmp.Trim());
+                                                        }
+                                                        i++;
+                                                        tmp = file->Strings[i].Trim();
+                                                }
+                                                i++;
+                                                tmp = file->Strings[i].Trim();
+                                        } else if(tmp.Length() > 8) {
                                                 ipList.push_back(tmp.Trim());
+                                                i++;
+                                                tmp = file->Strings[i].Trim();
                                         }
-                                        i++;
-                                        tmp = file->Strings[i].Trim();
                                 }
                         } else if((tmp.SubString(1,9) == "[Filters]")) {
                                 i++;

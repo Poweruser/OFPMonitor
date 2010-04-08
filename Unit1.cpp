@@ -814,7 +814,6 @@ void TForm1::setWindowSettings(int top,int left,int height, int width, float rat
                                 ratioSC,ratioDE,ratioTE);
 }
 
-
 void TForm1::setFont(String name, int size, int charset,
                         bool bold, bool italic) {
         fontsettings = FontSettings(name, size, charset, bold, italic);
@@ -1309,8 +1308,6 @@ class BroadcastRotation {
 
 BroadcastRotation serverCycle = BroadcastRotation();
 
-
-
 Address getAddress(String address) {
         for(int i = 0; i < address.Length(); i++) {
                 if(address.SubString(i,1) == ":") {
@@ -1326,20 +1323,22 @@ Address getAddress(String address) {
         return Address();
 }
 
-void TForm1::readServerList(CustomStringList &in) {
+void TForm1::readServerList(CustomStringList &servers) {
         Form1->StatusBar1->Panels->Items[0]->Text = "";
         Form1->StatusBar1->Panels->Items[1]->Text = "";
+        TStringList *watched = Form2->getWatchedList();
         numOfServers = 0;
-        while (in.size() > 0) {
-                String tmp = in.front();
+        while (servers.size() > 0) {
+                String tmp = servers.front();
                 if(tmp.Length() > 8) {
                         Address a = getAddress(tmp);
                         if(!a.ip.IsEmpty()) {
                                 ServerArray[numOfServers] = Server(a.ip, a.port, numOfServers);
+                                ServerArray[numOfServers].watch = (watched->IndexOf(a.ip+ ":" + String(a.port)) > -1);
                                 numOfServers++;
                         }
                 }
-                in.pop_front();
+                servers.pop_front();
         }
         for(int i = numOfServers; i < sizeof(ServerArray); i++) {
                 if(ServerArray[i].index == -1) {
@@ -1825,13 +1824,19 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
         delete PlayerSortList;
         delete PlayerSortList2;
         CustomStringList servers;
+        CustomStringList watched;
         for(int i = 0; i < sizeof(ServerArray); i++) {
                 if(ServerArray[i].index == -1) {
                         break;
                 }
-                servers.push_back(ServerArray[i].ip + ":" + String(ServerArray[i].gamespyport));
+                String tmp = ServerArray[i].ip + ":" + String(ServerArray[i].gamespyport);
+                if(ServerArray[i].watch) {
+                        watched.push_back(tmp);
+                } else {
+                        servers.push_back(tmp);
+                }
         }
-        Form2->writeSettingToFile(servers, fontsettings.createFileEntry(), windowsettings.createFileEntry());
+        Form2->writeSettingToFile(servers, watched, fontsettings.createFileEntry(), windowsettings.createFileEntry());
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::BUTTON_SERVERINFO_COPYADDRESSClick(TObject *Sender)
@@ -2064,8 +2069,18 @@ void __fastcall TForm1::ClickWatchButton(TObject *Sender)
         int index = a->Tag;
         a->Checked = !(a->Checked);
         ServerArray[index].watch = a->Checked;
+        TStringList *watched = Form2->getWatchedList();
+        if(ServerArray[index].watch) {
+                watched->Add(ServerArray[index].ip + ":" + String(ServerArray[index].gamespyport));
+        } else {
+                int i = watched->IndexOf(ServerArray[index].ip + ":" + String(ServerArray[index].gamespyport));
+                if(i > -1) {
+                        watched->Delete(i);
+                }
+        }
         StringGrid1->Refresh();
         checkServerStatus(index, ServerArray[index].mode);
+        Form2->setSettingsChanged();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CHECKBOX_FILTER_SETTINGUPClick(TObject *Sender)
@@ -2248,6 +2263,7 @@ void __fastcall TForm1::FontDialog1Close(TObject *Sender)
         StringGrid1->Font = FontDialog1->Font;        
 }
 //---------------------------------------------------------------------------
+
 
 
 
