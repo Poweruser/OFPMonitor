@@ -20,6 +20,9 @@ TForm2 *Form2;
 
 const int confAmount = 20;
 
+template<typename T, int size>
+int GetArrLength(T(&)[size]){return size;}
+
 int TForm2::getConfAmount() {
         return confAmount;
 }
@@ -649,6 +652,8 @@ String TForm2::getGuiString(String ident) {
         return out;
 }
 
+
+
 void updateLanguage(String languagefile) {
         TStringList *file = new TStringList;
         String pathAndFile = programSettings.workdir + "\\" + languagefile;
@@ -662,7 +667,7 @@ void updateLanguage(String languagefile) {
                         tmp = file->Strings[i].Trim();
                         if(tmp.SubString(1,6) == "BUTTON") {
                                 val = getVarAndValue(tmp, "=");
-                                for(int j = 0; j < sizeof(guiButton); j++) {
+                                for(int j = 0; j < GetArrLength(guiButton); j++) {
                                         if(guiButton[j]->Name == val.front()) {
                                                 guiButton[j]->Caption = val.back();
                                                 break;
@@ -670,7 +675,7 @@ void updateLanguage(String languagefile) {
                                 }
                         } else if(tmp.SubString(1,5) == "LABEL") {
                                 val = getVarAndValue(tmp, "=");
-                                for(int j = 0; j < sizeof(guiLabel); j++) {
+                                for(int j = 0; j < GetArrLength(guiLabel); j++) {
                                         if(guiLabel[j]->Name == val.front()) {
                                                 guiLabel[j]->Caption = val.back();
                                                 break;
@@ -678,7 +683,7 @@ void updateLanguage(String languagefile) {
                                 }
                         } else if(tmp.SubString(1,8) == "CHECKBOX") {
                                 val = getVarAndValue(tmp, "=");
-                                for(int j = 0; j < sizeof(guiCheckBox); j++) {
+                                for(int j = 0; j < GetArrLength(guiCheckBox); j++) {
                                         if(guiCheckBox[j]->Name == val.front()) {
                                                 guiCheckBox[j]->Caption = val.back();
                                                 break;
@@ -686,7 +691,7 @@ void updateLanguage(String languagefile) {
                                 }
                         } else if(tmp.SubString(1,8) == "GROUPBOX") {
                                 val = getVarAndValue(tmp, "=");
-                                for(int j = 0; j < sizeof(guiGroupBox); j++) {
+                                for(int j = 0; j < GetArrLength(guiGroupBox); j++) {
                                         if(guiGroupBox[j]->Name == val.front()) {
                                                 guiGroupBox[j]->Caption = val.back();
                                                 break;
@@ -694,7 +699,7 @@ void updateLanguage(String languagefile) {
                                 }
                         } else if(tmp.SubString(1,8) == "MENUITEM") {
                                 val = getVarAndValue(tmp, "=");
-                                for(int j = 0; j < sizeof(guiMenuItem); j++) {
+                                for(int j = 0; j < GetArrLength(guiMenuItem); j++) {
                                         if(guiMenuItem[j]->Name == val.front()) {
                                                 guiMenuItem[j]->Caption = val.back();
                                                 break;
@@ -702,7 +707,7 @@ void updateLanguage(String languagefile) {
                                 }
                         } else if(tmp.SubString(1,15) == "SETTINGS_WINDOW") {
                                 val = getVarAndValue(tmp, "=");
-                                for(int j = 0; j < sizeof(guiForm); j++) {
+                                for(int j = 0; j < GetArrLength(guiForm); j++) {
                                         if(guiForm[j]->Hint == val.front()) {
                                                 guiForm[j]->Caption = val.back();
                                                 break;

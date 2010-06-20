@@ -89,6 +89,18 @@ __published:	// IDE-managed Components
         TTrayIcon *TrayIcon1;
         TFontDialog *FontDialog1;
         TMenuItem *MENUITEM_MAINMENU_FONT;
+        TMenuItem *MENUITEM_POPUP_AUTOJOIN;
+        TMenuItem *N03;
+        TMenuItem *N13;
+        TMenuItem *N23;
+        TMenuItem *N33;
+        TMenuItem *N43;
+        TMenuItem *N53;
+        TMenuItem *N63;
+        TMenuItem *N73;
+        TMenuItem *N83;
+        TMenuItem *N93;
+        TMenuItem *MENUITEM_POPUP_AUTOJOINB;
         void __fastcall NMUDP1DataReceived(TComponent *Sender,
           int NumberBytes, AnsiString FromIP, int Port);
         void __fastcall FormCreate(TObject *Sender);
@@ -116,7 +128,8 @@ __published:	// IDE-managed Components
           TMouseButton Button, TShiftState Shift, int X, int Y);
         void __fastcall Edit4Change(TObject *Sender);
         void __fastcall PopupMenu1Popup(TObject *Sender);
-        void __fastcall ClickMyButton(TObject *Sender);
+        void __fastcall ClickJoinButton(TObject *Sender);
+        void __fastcall ClickAutoJoinConfButton(TObject *Sender);
         void __fastcall ClickWatchButton(TObject *Sender);
         void __fastcall CHECKBOX_FILTER_SETTINGUPClick(TObject *Sender);
         void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
@@ -127,13 +140,15 @@ __published:	// IDE-managed Components
         void __fastcall MENUITEM_MAINMENU_EXITClick(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_FONTClick(TObject *Sender);
-        void __fastcall FontDialog1Apply(TObject *Sender, HWND Wnd);
         void __fastcall FormResize(TObject *Sender);
         void __fastcall StringGrid1MouseUp(TObject *Sender,
           TMouseButton Button, TShiftState Shift, int X, int Y);
         void __fastcall StringGrid2MouseUp(TObject *Sender,
           TMouseButton Button, TShiftState Shift, int X, int Y);
-        void __fastcall FontDialog1Close(TObject *Sender);
+        void __fastcall FontDialog1Apply(TObject *Sender, HWND Wnd);
+        void __fastcall MENUITEM_POPUP_AUTOJOINBClick(TObject *Sender);
+        void __fastcall StringGrid1ContextPopup(TObject *Sender,
+          TPoint &MousePos, bool &Handled);
 private:	// User declarations
 public:		// User declarations
         typedef list<String> CustomStringList;

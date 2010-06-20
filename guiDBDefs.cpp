@@ -3,7 +3,7 @@ TCheckBox *guiCheckBox[10];
 TLabel *guiLabel[18];
 TGroupBox *guiGroupBox[6];
 TForm *guiForm[1];
-TMenuItem *guiMenuItem[4];
+TMenuItem *guiMenuItem[9];
 TStatusPanel *guiStatusPanel[10];
 
 class guiString {

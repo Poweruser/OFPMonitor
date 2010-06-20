@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
 #include <list>
-#include <iostream.h>
+#include <iostream.h>                                                  
 #include <mmsystem.h>
 #include <math.h>
 #pragma hdrstop
@@ -16,7 +16,17 @@
 #pragma resource "XP.res"
 TForm1 *Form1;
 
+#define SERVERSTATE_CREATING 2
+#define SERVERSTATE_WAITING 6
+#define SERVERSTATE_DEBRIEFING 9
+#define SERVERSTATE_SETTINGUP 12
+#define SERVERSTATE_BRIEFING 13
+#define SERVERSTATE_PLAYING 14
+
 typedef list<String> CustomStringList;
+
+template<typename T, int size>
+int GetArrLength(T(&)[size]){return size;}
 
 class Address {
         public:
@@ -158,8 +168,7 @@ class FontSettings {
                         Form1->StringGrid2->Font->Size = this->size;
                         Form1->StringGrid2->Font->Style = this->style;
                         Form1->StringGrid2->DefaultRowHeight = this->size * 2.1f;
-                        Form1->Label21->Font->Charset = this->charset;
-                        Form1->FontDialog1->Font = Form1->StringGrid1->Font;
+                        Form1->Font->Charset = this->charset;
                         return;
                 }
 };
@@ -672,22 +681,20 @@ void addToErrorReport(String err, String msg) {
 }
 
 
-String getGameState (int i, String old) {
+String getGameState (int i) {
         String out = IntToStr(i);
-        if(i == 2) {
+        if(i == SERVERSTATE_CREATING) {
                 out = Form1->CHECKBOX_FILTER_CREATING->Caption;
-        } else if(i == 6) {
+        } else if(i == SERVERSTATE_WAITING) {
                 out = Form1->CHECKBOX_FILTER_WAITING->Caption;
-        } else if(i == 9) {
+        } else if(i == SERVERSTATE_DEBRIEFING) {
                 out = Form1->CHECKBOX_FILTER_DEBRIEFING->Caption;
-        } else if(i == 12) {
+        } else if(i == SERVERSTATE_SETTINGUP) {
                 out = Form1->CHECKBOX_FILTER_SETTINGUP->Caption;
-        } else if(i == 13) {
+        } else if(i == SERVERSTATE_BRIEFING) {
                 out = Form1->CHECKBOX_FILTER_BRIEFING->Caption;
-        } else if(i == 14) {
+        } else if(i == SERVERSTATE_PLAYING) {
                 out = Form1->CHECKBOX_FILTER_PLAYING->Caption;
-        } else {
-                addToErrorReport("Fehler 13, status","current: " + out + "  old: " + old);
         }
         return out;
 }
@@ -708,11 +715,12 @@ class Server {
                 int timeouts;
                 String ip;
                 String timeleft;
+                long gametime;
                 int players;
                 int maxplayers;
                 String mission;
                 String name;
-                String mode;
+                int gamestate;
                 String island;
                 String platform;
                 String param1;
@@ -725,6 +733,8 @@ class Server {
                 int reqver;
                 int equalMod;
                 bool watch;
+                bool autojoin;
+                String autojoinConf;
                 bool loseATurn;
                 CustomPlayerList playerlist;
                 QueryAnswer queries[queryArrayLength];
@@ -768,13 +778,16 @@ class Server {
 
                 void clear() {
                         this->loseATurn = false;
+                        this->autojoin = false;
+                        this->autojoinConf = "";
                         this->gameport = 0;
                         this->timeleft = "";
+                        this->gametime = 0;
                         this->players = 0;
                         this->maxplayers = 0;
                         this->mission = "";
                         this->name = "";
-                        this->mode = "Creating";
+                        this->gamestate = 0;
                         this->impl = "";
                         this->param1 = "";
                         this->param2 = "";
@@ -792,7 +805,7 @@ class Server {
 };
 
 
-Server ServerArray[1024];
+Server ServerArray[256];
 int numOfServers = 0;
 
 Sorter tableSorter = Sorter();
@@ -902,18 +915,20 @@ bool doPlayerFilter(CustomPlayerList l, String s) {
 
 int checkFilters(int j) {
         int out = 0;
-        if(ServerArray[j].name.Length() > 0 && ServerArray[j].timeouts < timeoutLimit) {
+        if(ServerArray[j].autojoin) {
+                out = 3;
+        } else if(ServerArray[j].name.Length() > 0 && ServerArray[j].timeouts < timeoutLimit) {
                 out = 1;
                 if(ServerArray[j].players >= Form1->UpDown1->Position) {
                           
                         if(
                                 (
-                                        (ServerArray[j].mode == Form1->CHECKBOX_FILTER_PLAYING->Caption && Form1->CHECKBOX_FILTER_PLAYING->Checked) ||
-                                        (ServerArray[j].mode == Form1->CHECKBOX_FILTER_WAITING->Caption && Form1->CHECKBOX_FILTER_WAITING->Checked) ||
-                                        (ServerArray[j].mode == Form1->CHECKBOX_FILTER_CREATING->Caption && Form1->CHECKBOX_FILTER_CREATING->Checked) ||
-                                        (ServerArray[j].mode == Form1->CHECKBOX_FILTER_BRIEFING->Caption && Form1->CHECKBOX_FILTER_BRIEFING->Checked) ||
-                                        (ServerArray[j].mode == Form1->CHECKBOX_FILTER_DEBRIEFING->Caption && Form1->CHECKBOX_FILTER_DEBRIEFING->Checked) ||
-                                        (ServerArray[j].mode == Form1->CHECKBOX_FILTER_SETTINGUP->Caption && Form1->CHECKBOX_FILTER_SETTINGUP->Checked)
+                                        (ServerArray[j].gamestate == SERVERSTATE_PLAYING && Form1->CHECKBOX_FILTER_PLAYING->Checked) ||
+                                        (ServerArray[j].gamestate == SERVERSTATE_WAITING && Form1->CHECKBOX_FILTER_WAITING->Checked) ||
+                                        (ServerArray[j].gamestate == SERVERSTATE_CREATING && Form1->CHECKBOX_FILTER_CREATING->Checked) ||
+                                        (ServerArray[j].gamestate == SERVERSTATE_BRIEFING && Form1->CHECKBOX_FILTER_BRIEFING->Checked) ||
+                                        (ServerArray[j].gamestate == SERVERSTATE_DEBRIEFING && Form1->CHECKBOX_FILTER_DEBRIEFING->Checked) ||
+                                        (ServerArray[j].gamestate == SERVERSTATE_SETTINGUP && Form1->CHECKBOX_FILTER_SETTINGUP->Checked)
                                 ) && (
                                         (ServerArray[j].password == 1 && Form1->CHECKBOX_FILTER_WITHPASSWORD->Checked) ||
                                         (ServerArray[j].password == 0 && Form1->CHECKBOX_FILTER_WITHOUTPASSWORD->Checked)
@@ -1122,6 +1137,26 @@ int averagePing(list<int> &pings) {
         }
 }
 
+
+
+String calcElapsedTime(long a, long b) {
+        String out = "";
+        long diff = b - a;
+        int sec = diff % 60;
+        diff = diff - sec;
+        int min = (diff % 3600) / 60;
+        diff = diff - (60 * min);
+        int hour = diff / 3600;
+        out = IntToStr(hour) + ":";
+        if(min < 10) { out += "0"; }
+        out += IntToStr(min) + ":";
+        if(sec < 10) { out += "0"; }
+        out += IntToStr(sec);
+        return out;
+}
+
+
+
 bool filterChanging = false;
 
 /**
@@ -1149,6 +1184,7 @@ void filterChanged(bool userinput) {
         ServerSortList->Clear();
         int inList = 1;
         int hasNoName = 0;
+        int autojoin = -1;
         for (int j = 0; j < numOfServers; j++) {
                 int abc = checkFilters(j);
                 if(abc == 2) {
@@ -1159,7 +1195,7 @@ void filterChanged(bool userinput) {
                         } else if(tableSorter.players) {
                                 ServerSortList->AddObject(addLeadingZeros(ServerArray[j].players),(TObject *) j);
                         } else if(tableSorter.status) {
-                                ServerSortList->AddObject(ServerArray[j].mode, (TObject *) j);
+                                ServerSortList->AddObject(ServerArray[j].gamestate, (TObject *) j);
                         } else if(tableSorter.island) {
                                 ServerSortList->AddObject(ServerArray[j].island, (TObject *) j);
                         } else if(tableSorter.mission) {
@@ -1168,6 +1204,9 @@ void filterChanged(bool userinput) {
                                 ServerSortList->AddObject(addLeadingZeros(averagePing(ServerArray[j].ping)), (TObject *) j);
                         }
                         inList++;
+                } else if(abc == 3) {
+                        inList++;
+                        autojoin = j;
                 } else if(abc == 0) {
                         hasNoName++;
                 }
@@ -1180,31 +1219,39 @@ void filterChanged(bool userinput) {
                 setEmptyPlayerList();
                 updateServerInfoBox(-1);
         } else {
-                if(tableSorter.normal) {
-                        for(int i = 1; i < inList; i++) {
+                for(int i = 1; i < inList; i++) {
+                        int k = i;
+                        int j = 0;
+                        if(autojoin < 0) {
                                 TObject *t = ServerSortList->Objects[0];
-                                int j = (int)t;
-                                Form1->StringGrid1->Cells[0][i] = " " + String(ServerArray[j].index);
-                                Form1->StringGrid1->Cells[1][i] = ServerArray[j].name;
-                                Form1->StringGrid1->Cells[2][i] = String(ServerArray[j].players) + " / " + String(ServerArray[j].maxplayers);
-                                Form1->StringGrid1->Cells[3][i] = ServerArray[j].mode;
-                                Form1->StringGrid1->Cells[4][i] = ServerArray[j].island;
-                                Form1->StringGrid1->Cells[5][i] = ServerArray[j].mission;
-                                Form1->StringGrid1->Cells[6][i] = String(averagePing(ServerArray[j].ping));
-                                ServerSortList->Delete(0);
+                                j = (int)t;
+                                if(!tableSorter.normal) {
+                                        if(autojoin < -1) {
+                                                k = abs(inList - i + 1);
+                                        } else {
+                                                k = abs(inList - i);
+                                        }
+                                }
+                        } else {
+                                j = autojoin;
                         }
-                } else {
-                        for(int i = inList - 1; i >= 1; i--) {
-                                TObject *t = ServerSortList->Objects[0];
-                                int j = (int)t;
-                                Form1->StringGrid1->Cells[0][i] = " " + String(ServerArray[j].index);
-                                Form1->StringGrid1->Cells[1][i] = ServerArray[j].name;
-                                Form1->StringGrid1->Cells[2][i] = String(ServerArray[j].players) + " / " + String(ServerArray[j].maxplayers);
-                                Form1->StringGrid1->Cells[3][i] = ServerArray[j].mode;
-                                Form1->StringGrid1->Cells[4][i] = ServerArray[j].island;
-                                Form1->StringGrid1->Cells[5][i] = ServerArray[j].mission;
-                                Form1->StringGrid1->Cells[6][i] = String(averagePing(ServerArray[j].ping));
+                        Form1->StringGrid1->Cells[0][k] = " " + String(ServerArray[j].index);
+                        Form1->StringGrid1->Cells[1][k] = ServerArray[j].name;
+                        Form1->StringGrid1->Cells[2][k] = String(ServerArray[j].players) + " / " + String(ServerArray[j].maxplayers);
+                        String gs = getGameState(ServerArray[j].gamestate);
+
+                        if(ServerArray[j].gametime > 0) {
+                                gs += " " + calcElapsedTime(ServerArray[j].gametime, time(0));
+                        }
+
+                        Form1->StringGrid1->Cells[3][k] = gs;
+                        Form1->StringGrid1->Cells[4][k] = ServerArray[j].island;
+                        Form1->StringGrid1->Cells[5][k] = ServerArray[j].mission;
+                        Form1->StringGrid1->Cells[6][k] = String(averagePing(ServerArray[j].ping));
+                        if(autojoin < 0) {
                                 ServerSortList->Delete(0);
+                        } else {
+                                autojoin = -2;
                         }
                 }
                 Form1->StringGrid1->RowCount = inList;
@@ -1230,7 +1277,7 @@ void filterChanged(bool userinput) {
 
         }
         if(found) {
-                Form1->TrayIcon1->Hint = ServerArray[selectedIndex].name + "     " + ServerArray[selectedIndex].mode + "     " +  String(ServerArray[selectedIndex].players) + " Players";
+                Form1->TrayIcon1->Hint = ServerArray[selectedIndex].name + "     " + getGameState(ServerArray[selectedIndex].gamestate) + "     " +  String(ServerArray[selectedIndex].players) + " Players";
         } else {
                 Form1->TrayIcon1->Hint = "OFPMonitor";
         }
@@ -1340,7 +1387,7 @@ void TForm1::readServerList(CustomStringList &servers) {
                 }
                 servers.pop_front();
         }
-        for(int i = numOfServers; i < sizeof(ServerArray); i++) {
+        for(int i = numOfServers; i < GetArrLength(ServerArray); i++) {
                 if(ServerArray[i].index == -1) {
                         break;
                 } else {
@@ -1382,18 +1429,18 @@ void mergeLists(CustomStringList &a, CustomStringList &b) {
 }
 
 
-void checkServerStatus(int i, String newStatus) {
+void playAudioServerStatus(int i, int newStatus) {
         if(ServerArray[i].watch) {
                 int j = 0;
-                if(newStatus == Form1->CHECKBOX_FILTER_CREATING->Caption) {
+                if(newStatus == SERVERSTATE_CREATING) {
                         j = 1;
-                } else if(newStatus == Form1->CHECKBOX_FILTER_WAITING->Caption) {
+                } else if(newStatus == SERVERSTATE_WAITING) {
                         j = 2;
-                } else if(newStatus == Form1->CHECKBOX_FILTER_BRIEFING->Caption) {
+                } else if(newStatus == SERVERSTATE_BRIEFING) {
                         j = 3;
-                } else if(newStatus == Form1->CHECKBOX_FILTER_PLAYING->Caption) {
+                } else if(newStatus == SERVERSTATE_PLAYING) {
                         j = 4;
-                } else if(newStatus == Form1->CHECKBOX_FILTER_DEBRIEFING->Caption) {
+                } else if(newStatus == SERVERSTATE_DEBRIEFING) {
                         j = 5;
                 }
                 if(j > 0) {
@@ -1403,7 +1450,20 @@ void checkServerStatus(int i, String newStatus) {
         return;
 }
 
+void disableAutoJoin() {
+        for(int i = 0; i < GetArrLength(ServerArray); i++) {
+                if(ServerArray[i].index < 0) {
+                        break;
+                }
+                ServerArray[i].autojoin = false;
+                ServerArray[i].autojoinConf = "";
+        }
+        return;
+}
 
+void startTheGame(String configuration) {
+        ShellExecute(NULL, "open", PChar(Form2->getExe().c_str()), PChar(configuration.c_str()), PChar(Form2->getExeFolder().c_str()), SW_NORMAL);
+}
 
 bool readInfoPacket(int &i, String &msg, String ip, int &port) {
         bool out = false;
@@ -1425,7 +1485,6 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                 id = StrToInt(b.front());
                                 part = StrToInt(b.back());
                         } catch (...) {
-                                addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)     id = " + b.front() + "   part = " + b.back() + "    Received: " + msg);
                                 return false;
                         }
                         CustomStringList tmp;
@@ -1489,8 +1548,6 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                 success = true;
                         }
                 } else {
-                        //DEBUG
-                        addToErrorReport("Fehler 5, queries dont match",msg);
                         return false;
                 }
         }
@@ -1528,9 +1585,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                                 counter--;
                                                 try {
                                                         ServerArray[i].gameport = StrToInt(*ci);
-                                                } catch (...) {
-                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)     hostport = " + String(*ci) + "     Received: " + msg);
-                                                }
+                                                } catch (...) {}
                                         } else if (tmp == "mapname") {
                                                 ++ci;
                                                 counter--;
@@ -1552,18 +1607,13 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                                                 }
                                                                 once = false;
                                                         }
-                                                } catch (...) {
-                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)    numplayers = " + String(*ci) + "    Received: " + msg);
-                                                }
+                                                } catch (...) {}
                                         } else if (tmp == "maxplayers") {
                                                 ++ci;
                                                 counter--;
                                                 try {
                                                         ServerArray[i].maxplayers = StrToInt(*ci) - 2;
-                                                } catch (...) {
-                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)     maxplayers = " + String(*ci) + "    Received: " + msg);
-                                                }
-
+                                                } catch (...) {}
                                         } else if (tmp == "timeleft") {
                                                 ++ci;
                                                 counter--;
@@ -1581,17 +1631,13 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                                 counter--;
                                                 try {
                                                         ServerArray[i].actver = StrToInt(*ci);
-                                                } catch (...) {
-                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)     actver = " + String(*ci) + "     Received: " + msg);
-                                                }
+                                                } catch (...) {}
                                         } else if (tmp == "reqver") {
                                                 ++ci;
                                                 counter--;
                                                 try {
                                                         ServerArray[i].reqver = StrToInt(*ci);
-                                                } catch (...) {
-                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)      reqver = " + String(*ci) + "      Received: " + msg);
-                                                }
+                                                } catch (...) {}
                                         } else if (tmp == "mod") {
                                                 ++ci;
                                                 counter--;
@@ -1601,30 +1647,36 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                                 counter--;
                                                 try {
                                                         ServerArray[i].equalMod = StrToInt(*ci);
-                                                } catch (...) {
-                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)      equalMod = " + String(*ci) + "      Received: " + msg);
-                                                }
+                                                } catch (...) {}
                                         } else if (tmp == "password") {
                                                 ++ci;
                                                 counter--;
                                                 try {
                                                         ServerArray[i].password = StrToInt(*ci);
-                                                } catch (...) {
-                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)      password = " + String(*ci) + "      Received: " + msg);
-                                                }
+                                                } catch (...) {}
                                         } else if (tmp == "gstate") {
                                                 ++ci;
                                                 counter--;
-                                                String oldStatus = ServerArray[i].mode;
+                                                int oldStatus = ServerArray[i].gamestate;
                                                 try {
-                                                        String newStatus = getGameState(StrToInt(*ci), oldStatus);
-                                                        if(ServerArray[i].mode != newStatus) {
-                                                                checkServerStatus(i, newStatus);
+                                                        int newStatus = StrToInt(*ci);
+                                                        if(ServerArray[i].gamestate != newStatus) {
+                                                                playAudioServerStatus(i, newStatus);
+                                                                if(oldStatus == SERVERSTATE_BRIEFING && newStatus == SERVERSTATE_PLAYING) {
+                                                                        ServerArray[i].gametime = time(0);
+                                                                } else {
+                                                                        ServerArray[i].gametime = 0;
+                                                                }
+                                                                if(oldStatus == SERVERSTATE_PLAYING &&
+                                                                   newStatus != SERVERSTATE_PLAYING &&
+                                                                   ServerArray[i].autojoin) {
+                                                                        ServerArray[i].autojoin = false;
+                                                                        startTheGame(ServerArray[i].autojoinConf);
+                                                                        disableAutoJoin();
+                                                                }
                                                         }
-                                                        ServerArray[i].mode = newStatus;
-                                                } catch (...) {
-                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)      gstate = " + String(*ci) + "      Received: " + msg);
-                                                }
+                                                        ServerArray[i].gamestate = newStatus;
+                                                } catch (...) {}
                                         } else if (tmp == "platform") {
                                                 ++ci;
                                                 counter--;
@@ -1651,7 +1703,6 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                                 try {
                                                         ServerArray[i].playerlist.back().score = StrToInt(*ci);
                                                 } catch (...) {
-                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)      score = " + String(*ci) + "      Received: " + msg);
                                                         ServerArray[i].playerlist.back().score = 0;
                                                 }
                                         } else if(tmp.SubString(1,7) == "deaths_") {
@@ -1660,7 +1711,6 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                                 try {
                                                         ServerArray[i].playerlist.back().deaths = StrToInt(*ci);
                                                 } catch (...) {
-                                                        addToErrorReport("Exception InvalidInteger","readInfoPacket(int &i, String &msg, String ip, int &port)      deaths = " + String(*ci) + "      Received: " + msg);
                                                         ServerArray[i].playerlist.back().score = 0;
                                                 }
                                         }
@@ -1739,6 +1789,7 @@ void copyToClipBoard (String msg) {
         return;
 }
 
+
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
@@ -1790,7 +1841,7 @@ void __fastcall TForm1::NMUDP1DataReceived(TComponent *Sender,
                 free(buffer);
                 messageReader.newMessage(Message(FromIP,Port,buf,i));
         } else {
-                addToErrorReport("Fehler 3","Receiving buffer too small. Current: 2048. Received: " + String(NumberBytes) + " Bytes");
+                addToErrorReport("Fehler 1","Receiving buffer too small. Current: 2048. Received: " + String(NumberBytes) + " Bytes");
         }
 }
 //---------------------------------------------------------------------------
@@ -1825,7 +1876,7 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
         delete PlayerSortList2;
         CustomStringList servers;
         CustomStringList watched;
-        for(int i = 0; i < sizeof(ServerArray); i++) {
+        for(int i = 0; i < GetArrLength(ServerArray); i++) {
                 if(ServerArray[i].index == -1) {
                         break;
                 }
@@ -1907,16 +1958,16 @@ void __fastcall TForm1::Edit1Change(TObject *Sender)
 void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
-        int col0, col1, col2, col3, col4, col5, col6;
-        col0 = StringGrid1->ColWidths[0] + StringGrid1->GridLineWidth;
-        col1 = col0 + StringGrid1->ColWidths[1] + StringGrid1->GridLineWidth;
-        col2 = col1 + StringGrid1->ColWidths[2] + StringGrid1->GridLineWidth;
-        col3 = col2 + StringGrid1->ColWidths[3] + StringGrid1->GridLineWidth;
-        col4 = col3 + StringGrid1->ColWidths[4] + StringGrid1->GridLineWidth;
-        col5 = col4 + StringGrid1->ColWidths[5] + StringGrid1->GridLineWidth;
-        col6 = col5 + StringGrid1->ColWidths[6] + StringGrid1->GridLineWidth;
-
         if(Button == 0 && Y < StringGrid1->DefaultRowHeight) {
+                int col0, col1, col2, col3, col4, col5, col6;
+                col0 = StringGrid1->ColWidths[0] + StringGrid1->GridLineWidth;
+                col1 = col0 + StringGrid1->ColWidths[1] + StringGrid1->GridLineWidth;
+                col2 = col1 + StringGrid1->ColWidths[2] + StringGrid1->GridLineWidth;
+                col3 = col2 + StringGrid1->ColWidths[3] + StringGrid1->GridLineWidth;
+                col4 = col3 + StringGrid1->ColWidths[4] + StringGrid1->GridLineWidth;
+                col5 = col4 + StringGrid1->ColWidths[5] + StringGrid1->GridLineWidth;
+                col6 = col5 + StringGrid1->ColWidths[6] + StringGrid1->GridLineWidth;
+
                 if(X < col6) {
                         if(X < col0) {
                                 tableSorter.setId();
@@ -1950,25 +2001,33 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
                                 processPlayerList(index);
                                 updateServerInfoBox(index);
                                 CustomStringList t = splitUpMessage(ServerArray[index].mod,";");
-                                PopupMenu1->Items->Items[2]->Checked = ServerArray[index].watch;
-                                PopupMenu1->Items->Items[2]->Tag = index;
-                                PopupMenu1->Items->Items[2]->OnClick = ClickWatchButton;
+
+                                PopupMenu1->Items->Items[0]->Tag = index;
+                                PopupMenu1->Items->Items[1]->Tag = index;
+                                PopupMenu1->Items->Items[1]->Visible = (ServerArray[index].gamestate == SERVERSTATE_PLAYING) && !ServerArray[index].autojoin;
+                                PopupMenu1->Items->Items[2]->Visible = ServerArray[index].autojoin;
+                                PopupMenu1->Items->Items[2]->Checked = ServerArray[index].autojoin;
+                                PopupMenu1->Items->Items[2]->Tag = index;                                                    
+                                PopupMenu1->Items->Items[3]->Tag = index;
+                                PopupMenu1->Items->Items[4]->Tag = index;
+                                PopupMenu1->Items->Items[4]->OnClick = ClickWatchButton;
+                                PopupMenu1->Items->Items[4]->Checked = ServerArray[index].watch;
                                 int i = 0;
                                 for (CustomStringList::iterator ci = t.begin(); ci != t.end(); ++ci) {
-                                        TMenuItem *m = PopupMenu1->Items->Items[1]->Items[i];
+                                        TMenuItem *m = PopupMenu1->Items->Items[3]->Items[i];
                                         m->Caption = *ci;
                                         m->Visible = true;
                                         i++;
                                 }
-                                for(; i < PopupMenu1->Items->Items[1]->Count; i++) {
-                                        TMenuItem *m = PopupMenu1->Items->Items[1]->Items[i];
+                                for(; i < PopupMenu1->Items->Items[3]->Count; i++) {
+                                        TMenuItem *m = PopupMenu1->Items->Items[3]->Items[i];
                                         m->Visible = false;
                                 }
                                 PopupMenu1->Popup(Form1->Left + StringGrid1->Left + X + 5,Form1->Top + StringGrid1->Top + Y + StringGrid1->DefaultRowHeight + 25);
                         } catch (...) {}
                 }
         }
-
+        StringGrid1->Refresh();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Edit3Change(TObject *Sender)
@@ -2033,34 +2092,57 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
         for(int i = 0; i < Form2->getConfAmount() || i < PopupMenu1->Items->Items[0]->Count; i++) {
                 String s = Form2->getConfListEntry(i);
                 if(!s.IsEmpty()) {
-                        TMenuItem *a;
+                        TMenuItem *join;
+                        TMenuItem *autojoin;
                         if(i < PopupMenu1->Items->Items[0]->Count) {
-                                a = PopupMenu1->Items->Items[0]->Items[i];
+                                join = PopupMenu1->Items->Items[0]->Items[i];
                         } else {
-                                a = new TMenuItem(this);
-                                PopupMenu1->Items->Items[0]->Add(a);
+                                join = new TMenuItem(this);
+                                PopupMenu1->Items->Items[0]->Add(join);
                         }
-                        a->Tag = i;
-                        a->Caption = s;
-                        a->Visible = true;
-                        a->OnClick = ClickMyButton;
+                        if(i < PopupMenu1->Items->Items[1]->Count) {
+                                autojoin = PopupMenu1->Items->Items[1]->Items[i];
+                        } else {
+                                autojoin = new TMenuItem(this);
+                                PopupMenu1->Items->Items[1]->Add(autojoin);
+                        }
+                        join->Tag = i;
+                        join->Caption = s;
+                        join->Visible = true;
+                        join->OnClick = ClickJoinButton;
+
+                        autojoin->Tag = i;
+                        autojoin->Caption = s;
+                        autojoin->Visible = true;
+                        autojoin->OnClick = ClickAutoJoinConfButton;
                 } else {
                         if(i < PopupMenu1->Items->Items[0]->Count) {
                                 PopupMenu1->Items->Items[0]->Items[i]->Visible = false;
+                                PopupMenu1->Items->Items[1]->Items[i]->Visible = false;
                         }
                 }
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::ClickMyButton(TObject *Sender)
+void __fastcall TForm1::ClickJoinButton(TObject *Sender)
 {
+        disableAutoJoin();
         TMenuItem *a = (TMenuItem *) Sender;
-        try {
-                int port = StrToInt(Label4->Caption);
-                ShellExecute(Handle, "open", PChar(Form2->getExe().c_str()), PChar(Form2->getConfStartLine(a->Tag,Label2->Caption, port).c_str()), PChar(Form2->getExeFolder().c_str()), SW_NORMAL);
-        } catch (...) {
-                addToErrorReport("Exception InvalidInteger","ClickMyButton      port = " + Label4->Caption);
-        }
+        int index = a->Parent->Tag;
+        int port = ServerArray[index].gameport;
+        String ip = ServerArray[index].ip;
+        startTheGame(Form2->getConfStartLine(a->Tag,ip, port));
+}
+//---------------------------------------------------------------------------
+  void __fastcall TForm1::ClickAutoJoinConfButton(TObject *Sender)
+{
+        disableAutoJoin();
+        TMenuItem *a = (TMenuItem *) Sender;
+        int index = a->Parent->Tag;
+        ServerArray[index].autojoin = true;
+        ServerArray[index].autojoinConf = Form2->getConfStartLine(a->Tag, ServerArray[index].ip, ServerArray[index].gameport);
+        StringGrid1->Refresh();
+        filterChanged(false);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::ClickWatchButton(TObject *Sender)
@@ -2079,7 +2161,7 @@ void __fastcall TForm1::ClickWatchButton(TObject *Sender)
                 }
         }
         StringGrid1->Refresh();
-        checkServerStatus(index, ServerArray[index].mode);
+        playAudioServerStatus(index, ServerArray[index].gamestate);
         Form2->setSettingsChanged();
 }
 //---------------------------------------------------------------------------
@@ -2100,12 +2182,12 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key,
 void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
       int ARow, TRect &Rect, TGridDrawState State)
 {
-        if(ACol == StringGrid1->ColCount - 1 && ARow > 0 && !(StringGrid1->Cells[0][ARow]).Trim().IsEmpty()) {
+        if(ARow > 0 && !(StringGrid1->Cells[0][ARow]).Trim().IsEmpty()) {
                 int zelle = ARow;
                 try {
 
                         int index = StrToInt((StringGrid1->Cells[0][zelle]).Trim());
-                        if(ServerArray[index].watch) {
+                        if(ServerArray[index].watch || ServerArray[index].autojoin) {
                                 TRect a;
                                 a.Top = ((zelle - (StringGrid1->TopRow - 1)) * StringGrid1->DefaultRowHeight) + (zelle - (StringGrid1->TopRow - 1));
                                 a.Bottom = ((zelle + 1 - (StringGrid1->TopRow - 1)) * StringGrid1->DefaultRowHeight) + (zelle - (StringGrid1->TopRow - 1));
@@ -2116,6 +2198,9 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
                                 }
                                 a.Right = tmp;
                                 StringGrid1->Canvas->Brush->Color = clBlue;
+                                if(ServerArray[index].autojoin) {
+                                        StringGrid1->Canvas->Brush->Color = clRed;
+                                }
                                 StringGrid1->Canvas->FrameRect(a);
                                 a.Top = a.Top + 1;
                                 a.Bottom = a.Bottom - 1;
@@ -2129,7 +2214,7 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
                                 StringGrid1->Canvas->FrameRect(a);
                         }
                 } catch (...) {}
-        }        
+        }
 }
 //---------------------------------------------------------------------------
 
@@ -2221,16 +2306,6 @@ void __fastcall TForm1::MENUITEM_MAINMENU_FONTClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::FontDialog1Apply(TObject *Sender, HWND Wnd)
-{
-        fontsettings.name = FontDialog1->Font->Name;
-        fontsettings.size = FontDialog1->Font->Size;
-        fontsettings.charset = FontDialog1->Font->Charset;
-        fontsettings.style = FontDialog1->Font->Style;
-        fontsettings.update();
-        Form2->setSettingsChanged();
-}
-//---------------------------------------------------------------------------
 
 void __fastcall TForm1::FormResize(TObject *Sender)
 {
@@ -2257,13 +2332,29 @@ void __fastcall TForm1::StringGrid2MouseUp(TObject *Sender,
         windowsettings.updateGrid2();
 }
 //---------------------------------------------------------------------------
-
-void __fastcall TForm1::FontDialog1Close(TObject *Sender)
+void __fastcall TForm1::FontDialog1Apply(TObject *Sender, HWND Wnd)
 {
-        StringGrid1->Font = FontDialog1->Font;        
+        fontsettings.name = FontDialog1->Font->Name;
+        fontsettings.size = FontDialog1->Font->Size;
+        fontsettings.charset = FontDialog1->Font->Charset;
+        fontsettings.style = FontDialog1->Font->Style;
+        fontsettings.update();
+        Form2->setSettingsChanged();
 }
 //---------------------------------------------------------------------------
-
-
-
+void __fastcall TForm1::MENUITEM_POPUP_AUTOJOINBClick(TObject *Sender)
+{
+        disableAutoJoin();
+        StringGrid1->Refresh();
+        filterChanged(false);
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::StringGrid1ContextPopup(TObject *Sender,
+      TPoint &MousePos, bool &Handled)
+{
+        int X= StringGrid1->ColWidths[0] + StringGrid1->ColWidths[1];
+        int Y= (StringGrid1->DefaultRowHeight + 1) * (StringGrid1->Selection.Top - StringGrid1->TopRow + 1) + (StringGrid1->DefaultRowHeight/2);
+        Form1->StringGrid1MouseDown(Sender, 1, TShiftState(), X, Y);
+}
+//---------------------------------------------------------------------------
 

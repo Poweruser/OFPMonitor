@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 297
-  Top = 177
+  Left = 277
+  Top = 254
   Width = 668
   Height = 547
   HorzScrollBar.Visible = False
@@ -34,7 +34,7 @@ object Form1: TForm1
     DefaultRowHeight = 18
     FixedCols = 0
     RowCount = 20
-    Font.Charset = MAC_CHARSET
+    Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -13
     Font.Name = 'Tahoma'
@@ -44,6 +44,7 @@ object Form1: TForm1
     ParentFont = False
     ScrollBars = ssVertical
     TabOrder = 0
+    OnContextPopup = StringGrid1ContextPopup
     OnDrawCell = StringGrid1DrawCell
     OnMouseDown = StringGrid1MouseDown
     OnMouseUp = StringGrid1MouseUp
@@ -64,13 +65,7 @@ object Form1: TForm1
     Height = 142
     Caption = '  Filters  '
     Color = clBtnFace
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
     ParentColor = False
-    ParentFont = False
     TabOrder = 3
     object LABEL_FILTER_MISSIONNAME: TLabel
       Left = 245
@@ -117,18 +112,18 @@ object Form1: TForm1
     object CHECKBOX_FILTER_PLAYING: TCheckBox
       Left = 12
       Top = 96
-      Width = 117
+      Width = 133
       Height = 17
       Caption = 'Playing'
       Checked = True
       State = cbChecked
-      TabOrder = 0
+      TabOrder = 4
       OnClick = CHECKBOX_FILTER_PLAYINGClick
     end
     object CHECKBOX_FILTER_WAITING: TCheckBox
       Left = 12
       Top = 48
-      Width = 117
+      Width = 133
       Height = 17
       Caption = 'Waiting'
       Checked = True
@@ -139,29 +134,29 @@ object Form1: TForm1
     object CHECKBOX_FILTER_CREATING: TCheckBox
       Left = 12
       Top = 32
-      Width = 117
+      Width = 133
       Height = 17
       Caption = 'Creating'
       Checked = True
       State = cbChecked
-      TabOrder = 2
+      TabOrder = 0
       OnClick = CHECKBOX_FILTER_CREATINGClick
     end
     object CHECKBOX_FILTER_BRIEFING: TCheckBox
       Left = 12
       Top = 80
-      Width = 117
+      Width = 133
       Height = 17
       Caption = 'Briefing'
       Checked = True
       State = cbChecked
-      TabOrder = 4
+      TabOrder = 3
       OnClick = CHECKBOX_FILTER_BRIEFINGClick
     end
     object CHECKBOX_FILTER_DEBRIEFING: TCheckBox
       Left = 12
       Top = 112
-      Width = 141
+      Width = 133
       Height = 17
       Caption = 'Debriefing'
       Checked = True
@@ -237,12 +232,12 @@ object Form1: TForm1
     object CHECKBOX_FILTER_SETTINGUP: TCheckBox
       Left = 12
       Top = 64
-      Width = 117
+      Width = 133
       Height = 17
       Caption = 'Setting up'
       Checked = True
       State = cbChecked
-      TabOrder = 3
+      TabOrder = 2
       OnClick = CHECKBOX_FILTER_SETTINGUPClick
     end
   end
@@ -279,26 +274,32 @@ object Form1: TForm1
     object Label4: TLabel
       Left = 184
       Top = 32
-      Width = 30
+      Width = 24
       Height = 16
-      Caption = '          '
+      Caption = '        '
     end
     object LABEL_SERVERINFO_PLATFORM: TLabel
-      Left = 240
+      Left = 224
       Top = 32
       Width = 52
       Height = 16
       Caption = 'Platform:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
     end
     object Label9: TLabel
       Left = 312
       Top = 32
-      Width = 27
+      Width = 21
       Height = 16
-      Caption = '         '
+      Caption = '       '
     end
     object LABEL_SERVERINFO_PASSWORD: TLabel
-      Left = 240
+      Left = 224
       Top = 48
       Width = 63
       Height = 16
@@ -315,7 +316,7 @@ object Form1: TForm1
       ShowHint = False
     end
     object LABEL_SERVERINFO_VERSION: TLabel
-      Left = 240
+      Left = 224
       Top = 64
       Width = 49
       Height = 16
@@ -348,12 +349,6 @@ object Form1: TForm1
       Height = 22
       Caption = 'Copy address to clipboard'
       Enabled = False
-      Font.Charset = EASTEUROPE_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentFont = False
       TabOrder = 0
       OnClick = BUTTON_SERVERINFO_COPYADDRESSClick
     end
@@ -368,7 +363,7 @@ object Form1: TForm1
     DefaultRowHeight = 18
     FixedCols = 0
     RowCount = 50
-    Font.Charset = MAC_CHARSET
+    Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
@@ -392,14 +387,19 @@ object Form1: TForm1
     Height = 34
     BorderWidth = 1
     DragMode = dmAutomatic
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
     Panels = <
       item
         Text = 'Listed: '
-        Width = 90
+        Width = 100
       end
       item
         Text = 'Online: '
-        Width = 90
+        Width = 100
       end
       item
         Width = 90
@@ -411,6 +411,7 @@ object Form1: TForm1
     ShowHint = False
     SimplePanel = False
     SizeGrip = False
+    UseSystemFont = False
   end
   object Timer1: TTimer
     Enabled = False
@@ -471,6 +472,43 @@ object Form1: TForm1
       object N92: TMenuItem
         Caption = '9'
       end
+    end
+    object MENUITEM_POPUP_AUTOJOIN: TMenuItem
+      Caption = 'Auto-Join'
+      object N03: TMenuItem
+        Caption = '0'
+      end
+      object N13: TMenuItem
+        Caption = '1'
+      end
+      object N23: TMenuItem
+        Caption = '2'
+      end
+      object N33: TMenuItem
+        Caption = '3'
+      end
+      object N43: TMenuItem
+        Caption = '4'
+      end
+      object N53: TMenuItem
+        Caption = '5'
+      end
+      object N63: TMenuItem
+        Caption = '6'
+      end
+      object N73: TMenuItem
+        Caption = '7'
+      end
+      object N83: TMenuItem
+        Caption = '8'
+      end
+      object N93: TMenuItem
+        Caption = '9'
+      end
+    end
+    object MENUITEM_POPUP_AUTOJOINB: TMenuItem
+      Caption = 'Auto-Join2'
+      OnClick = MENUITEM_POPUP_AUTOJOINBClick
     end
     object MENUITEM_POPUP_MODS: TMenuItem
       Caption = 'Mods'
@@ -540,15 +578,14 @@ object Form1: TForm1
     Top = 160
   end
   object FontDialog1: TFontDialog
-    OnClose = FontDialog1Close
-    Font.Charset = EASTEUROPE_CHARSET
+    Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     MinFontSize = 8
     MaxFontSize = 20
-    Options = [fdLimitSize, fdApplyButton]
+    Options = [fdForceFontExist, fdLimitSize, fdApplyButton]
     OnApply = FontDialog1Apply
     Left = 576
     Top = 160

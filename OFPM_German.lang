@@ -48,6 +48,8 @@ MENUITEM_MAINMENU_SETTINGS = |Einstellungen|
 MENUITEM_MAINMENU_FONT = |Schriftart|
 MENUITEM_MAINMENU_GETNEWSERVERLIST = |Neue Serverliste anfordern|
 MENUITEM_POPUP_JOIN = Beitreten
+MENUITEM_POPUP_AUTOJOIN = Beitreten wenn das Spiel endet
+MENUITEM_POPUP_AUTOJOINB = Beitreten wenn das Spiel endet
 MENUITEM_POPUP_MODS = Mods
 MENUITEM_POPUP_WATCH = Beobachten
 

@@ -1,6 +1,6 @@
 object Form2: TForm2
-  Left = 599
-  Top = 143
+  Left = 467
+  Top = 155
   Hint = 'SETTINGS_WINDOW'
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
@@ -242,7 +242,7 @@ object Form2: TForm2
   object GROUPBOX_SERVERLIST: TGroupBox
     Left = 0
     Top = 50
-    Width = 169
+    Width = 201
     Height = 45
     Caption = 'Server list '
     TabOrder = 1
@@ -254,7 +254,7 @@ object Form2: TForm2
       Caption = 'Update-Interval (sec):'
     end
     object Edit5: TEdit
-      Left = 112
+      Left = 144
       Top = 15
       Width = 33
       Height = 21
@@ -263,13 +263,13 @@ object Form2: TForm2
       OnChange = Edit5Change
     end
     object UpDown1: TUpDown
-      Left = 145
+      Left = 177
       Top = 15
       Width = 15
       Height = 21
       Associate = Edit5
       Min = 1
-      Max = 600
+      Max = 60
       Position = 2
       TabOrder = 1
       Wrap = False
@@ -277,16 +277,16 @@ object Form2: TForm2
     end
   end
   object GROUPBOX_LANGUAGE: TGroupBox
-    Left = 176
+    Left = 208
     Top = 50
-    Width = 257
+    Width = 225
     Height = 45
     Caption = 'Language '
     TabOrder = 2
     object ComboBox1: TComboBox
       Left = 8
       Top = 16
-      Width = 240
+      Width = 201
       Height = 21
       ImeMode = imDisable
       ItemHeight = 13
