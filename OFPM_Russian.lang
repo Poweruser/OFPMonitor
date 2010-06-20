@@ -48,8 +48,6 @@ MENUITEM_MAINMENU_SETTINGS = |Опции|
 MENUITEM_MAINMENU_FONT = |Шрифт|
 MENUITEM_MAINMENU_GETNEWSERVERLIST = |Обновить список серверов|
 MENUITEM_POPUP_JOIN = Присоединиться
-MENUITEM_POPUP_AUTOJOIN = Присоединиться после игры
-MENUITEM_POPUP_AUTOJOINB = Присоединиться после игры
 MENUITEM_POPUP_MODS = Моды
 MENUITEM_POPUP_WATCH = Следить
 

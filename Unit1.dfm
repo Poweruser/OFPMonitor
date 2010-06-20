@@ -284,12 +284,6 @@ object Form1: TForm1
       Width = 52
       Height = 16
       Caption = 'Platform:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = 'MS Sans Serif'
-      Font.Style = []
-      ParentFont = False
     end
     object Label9: TLabel
       Left = 312
