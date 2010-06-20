@@ -475,6 +475,7 @@ object Form1: TForm1
     end
     object MENUITEM_POPUP_AUTOJOIN: TMenuItem
       Caption = 'Auto-Join'
+      Enabled = False
       object N03: TMenuItem
         Caption = '0'
       end
@@ -508,6 +509,7 @@ object Form1: TForm1
     end
     object MENUITEM_POPUP_AUTOJOINB: TMenuItem
       Caption = 'Auto-Join2'
+      Enabled = False
       OnClick = MENUITEM_POPUP_AUTOJOINBClick
     end
     object MENUITEM_POPUP_MODS: TMenuItem

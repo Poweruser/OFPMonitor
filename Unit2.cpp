@@ -602,6 +602,8 @@ void readConfigFile() {
         }
         if(!Form2->getExe().IsEmpty() && !Form2->getExeFolder().IsEmpty()) {
                 Form1->MENUITEM_POPUP_JOIN->Enabled = true;
+                Form1->MENUITEM_POPUP_AUTOJOIN->Enabled = true;
+                Form1->MENUITEM_POPUP_AUTOJOINB->Enabled = true;
         }
         if(!player.IsEmpty()) {
                 programSettings.player = player;
@@ -610,7 +612,6 @@ void readConfigFile() {
         if(!langfile.IsEmpty()) {
                 if(FileExists(GetCurrentDir() + "\\" + langfile)) {
                         programSettings.languagefile = langfile;
-
                 }
         }
         try {
@@ -731,7 +732,6 @@ void updateLanguage(String languagefile) {
                 Form1->StringGrid2->Cells[1][0] = Form2->getGuiString("STRING_SCORE");
                 Form1->StringGrid2->Cells[2][0] = Form2->getGuiString("STRING_DEATHS");
                 Form1->StringGrid2->Cells[3][0] = Form2->getGuiString("STRING_TEAM");
-                
         }
         return;
 }
