@@ -48,6 +48,8 @@ MENUITEM_MAINMENU_SETTINGS = |Intstellingen|
 MENUITEM_MAINMENU_FONT = |Lettertype|
 MENUITEM_MAINMENU_GETNEWSERVERLIST = |Vernieuw serverlijst|
 MENUITEM_POPUP_JOIN = Meespelen
+MENUITEM_POPUP_AUTOJOIN = Meespelen toen het spel eindigt
+MENUITEM_POPUP_AUTOJOINB = Meespelen toen het spel eindigt
 MENUITEM_POPUP_MODS = Mods
 MENUITEM_POPUP_WATCH = Volg
 
