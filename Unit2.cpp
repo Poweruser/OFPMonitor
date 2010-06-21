@@ -20,12 +20,24 @@ TForm2 *Form2;
 
 const int confAmount = 20;
 
+/**
+   Macro to retrieve the length of an array
+ */
+
 template<typename T, int size>
 int GetArrLength(T(&)[size]){return size;}
+
+/**
+   Returns the number of game configurations the user has set
+ */
 
 int TForm2::getConfAmount() {
         return confAmount;
 }
+
+/**
+   Represents an game configuration, which the user can use to join an server
+ */
 
 class Configuration {
         public:
@@ -114,6 +126,10 @@ class Configuration {
                 }
 };
 
+/**
+   Converts an bool to its binary representation
+ */
+
 String checkBool(bool in) {
         if(in) {
                 return "1";
@@ -121,6 +137,10 @@ String checkBool(bool in) {
                 return "0";
         }
 }
+
+/**
+   Converts the binary representation of true and false (1 and 0) to a bool
+ */
 
 bool checkBool2(String in) {
         if(in == "1") {
@@ -130,6 +150,9 @@ bool checkBool2(String in) {
         }
 }
 
+/**
+   Stores the general program settings
+ */
 
 class Settings {
         public:
@@ -273,13 +296,25 @@ TStringList* TForm2::getWatchedList() {
         return programSettings.watched;
 }
 
+/**
+   Returns the currently set game exe file
+ */
+
 String TForm2::getExe() {
         return programSettings.exe;
 }
 
+/**
+   Returns the game folder
+ */
+
 String TForm2::getExeFolder() {
         return programSettings.folder;
 }
+
+/**
+   Refreshes the list box for the configurations in the settings window
+ */
 
 void updateConfList() {
         Form2->ListBox1->Clear();
@@ -290,6 +325,10 @@ void updateConfList() {
         }
         return;
 }
+
+/**
+   Returns the value of a String with the format "XYZ = VALUE"
+ */
 
 String getValue(String in) {
         String out = "";
@@ -302,6 +341,10 @@ String getValue(String in) {
         }
         return out;
 }
+
+/**
+   Splits a String with 'diff' as seperator and returns the two parts in a list
+ */
 
 list<String> getVarAndValue(String in, String diff) {
         list<String> out;
@@ -316,6 +359,10 @@ list<String> getVarAndValue(String in, String diff) {
         return out;
 }
 
+/**
+   Returns the folder of the game exe file
+ */
+
 String getFolder(String in) {
         String out = "";
         for(int i = in.Length() - 1; i >= 0; i--) {
@@ -327,6 +374,10 @@ String getFolder(String in) {
         return out;
 }
 
+/**
+   Reads a String from the OS registry. 'a' holds a list of keys to visit in order,
+   'key' is the object which content is to read inside the last key
+ */
 
 String GetRegistryValue(void * root, list<String> a, String key) {
         String S = "";
@@ -346,6 +397,11 @@ String GetRegistryValue(void * root, list<String> a, String key) {
         return S;
 }
 
+/**
+   Reads all folders within the game folder and displays them in the
+   modfolder list box in the settings window
+ */
+
 void updateModFolderList(String ofpfolder) {
         if(!ofpfolder.IsEmpty()) {
                 Form2->ListBox2->Clear();
@@ -364,6 +420,10 @@ void updateModFolderList(String ofpfolder) {
                 }
         }
 }
+
+/**
+   Reads the programs config file
+ */
 
 void readConfigFile() {
         String exe = "";
@@ -627,6 +687,10 @@ void readConfigFile() {
         Form1->readServerList(ipList);
 }
 
+/**
+   Searches for languages files
+ */
+
 void findLanguageFiles() {
                 Form2->ComboBox1->Clear();
                	TSearchRec daten;
@@ -642,6 +706,10 @@ void findLanguageFiles() {
                 }
 }
 
+/**
+   Returns a String of the current set language for an identifier 
+ */
+
 String TForm2::getGuiString(String ident) {
         String out = "";
         for (list<guiString>::iterator ci = guiStrings.begin(); ci != guiStrings.end(); ++ci) {
@@ -653,7 +721,9 @@ String TForm2::getGuiString(String ident) {
         return out;
 }
 
-
+/**
+   Applys a language file to the Gui
+ */
 
 void updateLanguage(String languagefile) {
         TStringList *file = new TStringList;

@@ -25,8 +25,17 @@ TForm1 *Form1;
 
 typedef list<String> CustomStringList;
 
+/**
+   Macro to retrieve the length of an array
+ */
+
 template<typename T, int size>
 int GetArrLength(T(&)[size]){return size;}
+
+
+/**
+   Represents and internet address with IP and port
+ */
 
 class Address {
         public:
@@ -613,6 +622,10 @@ class Sorter2 {
                 }
 };
 
+/**
+   Object which holds all data of one player on a server
+ */
+
 class Player {
         public:
                 String name;
@@ -680,6 +693,17 @@ void addToErrorReport(String err, String msg) {
         return;
 }
 
+/**
+   Returns the localized string of the server state
+   2: Creating
+   6: Waiting
+   7: ??????? (is ignored by OFPMonitor, happens sometimes before BRIEFING,
+      sometimes between DEBRIEFING and WAITING/CREATING; 'Loading Files' maybe?
+   9: Debriefing
+   12: Setting up
+   13: Briefing
+   14: Playing
+ */
 
 String getGameState (int i) {
         String out = IntToStr(i);
@@ -817,6 +841,11 @@ TStringList *ServerSortList = new TStringList;
 TStringList *PlayerSortList = new TStringList;
 TStringList *PlayerSortList2 = new TStringList;
 
+/**
+   Gives Unit2, which loades the config file, access to the object
+   storing the window settings of Form1
+ */
+
 void TForm1::setWindowSettings(int top,int left,int height, int width, float ratioID,float ratioSN,
                                 float ratioPN,float ratioST,float ratioIS,
                                 float ratioMN,float ratioPI,float ratioPL,
@@ -827,10 +856,21 @@ void TForm1::setWindowSettings(int top,int left,int height, int width, float rat
                                 ratioSC,ratioDE,ratioTE);
 }
 
+/**
+   Gives Unit2, which loades the config file, access to the object
+   storing the font settings
+ */
+
+
 void TForm1::setFont(String name, int size, int charset,
                         bool bold, bool italic) {
         fontsettings = FontSettings(name, size, charset, bold, italic);
 }
+
+/**
+   Updates the Timer in Form1 when the config file is read, and/or the user sets
+   a new timeout value in the settings window
+ */
 
 void updateTimeoutLimit() {
         timeoutLimit = ceil(10000 / Form1->Timer1->Interval);
@@ -910,6 +950,7 @@ bool doPlayerFilter(CustomPlayerList l, String s) {
             0 means: Server is offline/not set
             1 means: Server is online but does not pass the filter check
             2 means: Server is online and passes the filter check
+            3 means: Server is marked for autojoin when game ends
 
  */
 
@@ -1137,7 +1178,11 @@ int averagePing(list<int> &pings) {
         }
 }
 
+/**
+   Returns the time differents between two timestamps (in seconds)
+   Return format h:mm:ss
 
+ */
 
 String calcElapsedTime(long a, long b) {
         String out = "";
@@ -1312,6 +1357,11 @@ class BroadcastRotation {
                         this->loseTurnValue = false;
                 }
 
+                /**
+                   Decides which server is the next one to query
+                   @return  index of the server in the ServerArray
+                 */
+
                 int next() {
                         bool temp = false;
                         do {
@@ -1344,16 +1394,33 @@ class BroadcastRotation {
                         this->IsReady = true;
                         return;
                 }
+
+                /**
+                   Used to distribute the "loseATurn" flags evenly among empty
+                   servers, when querying them the first time. Results in lower
+                   peaks of bandwidth usage
+                 */
+
                 bool loseTurn() {
                         this->loseTurnValue = !this->loseTurnValue;
                         return this->loseTurnValue;
                 }
+
+                /**
+                   Returns the current state of the object 
+                 */
+
                 bool isReady() {
                         return this->IsReady;
                 }
 };
 
 BroadcastRotation serverCycle = BroadcastRotation();
+
+/**
+   Reads an internet address "IP:Port" in string format
+   and returns an Address object
+ */
 
 Address getAddress(String address) {
         for(int i = 0; i < address.Length(); i++) {
@@ -1369,6 +1436,10 @@ Address getAddress(String address) {
         }
         return Address();
 }
+
+/**
+   Reads an list of server internet addresses and sets up the ServerArray
+ */
 
 void TForm1::readServerList(CustomStringList &servers) {
         Form1->StatusBar1->Panels->Items[0]->Text = "";
@@ -1400,7 +1471,9 @@ void TForm1::readServerList(CustomStringList &servers) {
         return;
 }
 
-
+/**
+   Converts an String into a list of Strings by using 'split' as seperator
+ */
 
 CustomStringList TForm1::splitUpMessage(String msg, String split) {
         CustomStringList a;
@@ -1419,6 +1492,10 @@ CustomStringList TForm1::splitUpMessage(String msg, String split) {
         return a;
 }
 
+/**
+   Removes all elements of list b and adds them in order to the end of list a
+ */
+
 void mergeLists(CustomStringList &a, CustomStringList &b) {
         while(b.size() > 0) {
                 String tmp = b.front();
@@ -1428,6 +1505,9 @@ void mergeLists(CustomStringList &a, CustomStringList &b) {
         return;
 }
 
+/**
+   Plays an wavefile for the the new status of a server, if it's marked for watch
+ */
 
 void playAudioServerStatus(int i, int newStatus) {
         if(ServerArray[i].watch) {
@@ -1450,6 +1530,11 @@ void playAudioServerStatus(int i, int newStatus) {
         return;
 }
 
+/**
+   Disables autojoin for all servers. Used before setting up a server for autojoin,
+   to make sure that it's active for one server only.
+ */
+
 void disableAutoJoin() {
         for(int i = 0; i < GetArrLength(ServerArray); i++) {
                 if(ServerArray[i].index < 0) {
@@ -1461,9 +1546,17 @@ void disableAutoJoin() {
         return;
 }
 
+/**
+   Launches OFP with the passed start up configuration
+ */
+
 void startTheGame(String configuration) {
         ShellExecute(NULL, "open", PChar(Form2->getExe().c_str()), PChar(configuration.c_str()), PChar(Form2->getExeFolder().c_str()), SW_NORMAL);
 }
+
+/**
+   Checks a received query answer for validity and processes it then
+ */
 
 bool readInfoPacket(int &i, String &msg, String ip, int &port) {
         bool out = false;
@@ -1720,6 +1813,12 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
         return out;
 }
 
+/**
+   This MessageReader makes sure that new incoming messages are procressed
+   after each other (serial) and not at the same time (parallel). This resolves
+   some concurrent access issues on the storing data structes.
+ */
+
 class MessageReader {
         public:
                 bool working;
@@ -1773,6 +1872,10 @@ class MessageReader {
 };
 
 MessageReader messageReader = MessageReader();
+
+/**
+   Copys a String to the clipboard of the OS
+ */
 
 void copyToClipBoard (String msg) {
 	if (OpenClipboard(NULL) != 0) {

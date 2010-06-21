@@ -6,6 +6,11 @@ TForm *guiForm[1];
 TMenuItem *guiMenuItem[9];
 TStatusPanel *guiStatusPanel[10];
 
+/**
+   Object that stores and identifier and the 
+   corresponding String of a language
+ */
+
 class guiString {
 	public:
 		String identifier;
