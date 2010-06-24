@@ -11,7 +11,7 @@
  <!ELEMENT email (#PCDATA)>
  <!ELEMENT icq (#PCDATA)>
  <!ELEMENT remark (#PCDATA)>]>
-<squad nick="♂">
+<squad nick="¯¯">
  <name></name>
  <email></email>
  <web></web>
