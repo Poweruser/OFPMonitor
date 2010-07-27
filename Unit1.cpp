@@ -178,6 +178,7 @@ class FontSettings {
                         Form1->StringGrid2->Font->Style = this->style;
                         Form1->StringGrid2->DefaultRowHeight = this->size * 2.1f;
                         Form1->Font->Charset = this->charset;
+                        Form2->Font->Charset = this->charset;
                         return;
                 }
 };
@@ -255,20 +256,31 @@ class WindowSettings {
                    @ratioSC  ratio of the Score column
                    @ratioDE  ratio of the Deaths column
                    @ratioTE  ratio of the Team column
+                   @devider  Height of the upper gui part
                  */
                  
                 WindowSettings( int top, int left, int height, int width, float ratioID, float ratioSN,
                                 float ratioPN, float ratioST, float ratioIS,
                                 float ratioMN, float ratioPI, float ratioPL,
-                                float ratioSC, float ratioDE, float ratioTE) {
+                                float ratioSC, float ratioDE, float ratioTE,
+                                int devider) {
                         Form1->Position = poDesigned; 
                         Form1->Top = top;
                         Form1->Left = left;
-                        if(height >= 526) {
+
+                        if(height >= Form1->Constraints->MinHeight) {
                                 Form1->Height = height;
                         }
-                        if(width >= 666) {
+                        if(width >= Form1->Constraints->MinWidth) {
                                 Form1->Width = width;
+                        }
+                        if(devider < Form1->Panel1->Constraints->MinHeight ||
+                           devider > Form1->ClientHeight - (    Form1->StringGrid1->Constraints->MinHeight +
+                                                                Form1->StatusBar1->Height +
+                                                                Form1->Splitter1->Height)) {
+                                Form1->Panel1->Height = Form1->Panel1->Constraints->MinHeight;
+                        } else {
+                                Form1->Panel1->Height = devider;
                         }
                         this->ratioID = checkIfZero(ratioID,1);
                         this->ratioSN = checkIfZero(ratioSN,1);
@@ -328,6 +340,7 @@ class WindowSettings {
                         output.push_back("ratioSC = " + tmp.sprintf("%.03f", ratioSC));
                         output.push_back("ratioDE = " + tmp.sprintf("%.03f", ratioDE));
                         output.push_back("ratioTE = " + tmp.sprintf("%.03f", ratioTE));
+                        output.push_back("devider = " + String(Form1->Panel1->Height));
                         output.push_back("[\\WindowSettings]");
                         return output;
                 }
@@ -849,11 +862,13 @@ TStringList *PlayerSortList2 = new TStringList;
 void TForm1::setWindowSettings(int top,int left,int height, int width, float ratioID,float ratioSN,
                                 float ratioPN,float ratioST,float ratioIS,
                                 float ratioMN,float ratioPI,float ratioPL,
-                                float ratioSC,float ratioDE,float ratioTE) {
+                                float ratioSC,float ratioDE,float ratioTE,
+                                int devider) {
         windowsettings = WindowSettings(top,left,height,width,ratioID,ratioSN,
                                 ratioPN,ratioST,ratioIS,
                                 ratioMN,ratioPI,ratioPL,
-                                ratioSC,ratioDE,ratioTE);
+                                ratioSC,ratioDE,ratioTE,
+                                devider);
 }
 
 /**
@@ -1569,6 +1584,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
         String querystring = a.back();
         bool final = false;
         a.pop_back();
+
         if(querystring == "queryid" && a.size()%2 == 0) {
                 CustomStringList b = Form1->splitUpMessage(idstring,".");
                 if(b.size() == 2) {
@@ -1623,18 +1639,24 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
         } else {
                 return false;
         }
+
         CustomStringList answer;
         bool success = false;
         if(final) {
                 bool correct = true;
                 int endingIndex = -1;
                 for(int j = 0; j < queryArrayLength && correct; j++) {
-                        correct = (ServerArray[i].queryid == ServerArray[i].queries[j].id);
+                        try {
+                                correct = (ServerArray[i].queryid == StrToInt(ServerArray[i].queries[j].id));
+                        } catch (...) {
+                                correct = false;
+                        }
                         if(ServerArray[i].queries[j].final) {
                                 endingIndex = j;
                                 break;
                         }
                 }
+
                 if(correct && endingIndex > -1) {
                         for(int j = 0; j <= endingIndex; j++) {
                                 mergeLists(answer,ServerArray[i].queries[j].content);
@@ -1644,6 +1666,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                         return false;
                 }
         }
+
         bool players = false;
                 if(ServerArray[i].ip == ip && ServerArray[i].gamespyport == port && success) {
                         bool once = true;
@@ -1810,6 +1833,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                 }
                         }
                 }
+
         return out;
 }
 
@@ -1897,7 +1921,7 @@ void copyToClipBoard (String msg) {
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
         windowsettings = WindowSettings(0,0,0,0,0.0f, 0.0f,0.0f, 0.0f,
-                                0.0f,0.0f, 0.0f, 0.0f,0.0f, 0.0f, 0.0f);
+                                0.0f,0.0f, 0.0f, 0.0f,0.0f, 0.0f, 0.0f, 0);
         numOfServers = 0;
         Form1->Caption = Application->Title;
         StringGrid1->Cells[0][0] = "ID";
@@ -2412,9 +2436,10 @@ void __fastcall TForm1::MENUITEM_MAINMENU_FONTClick(TObject *Sender)
 
 void __fastcall TForm1::FormResize(TObject *Sender)
 {
-        StringGrid2->Width = Form1->Width - (StringGrid2->Left + 10);
-        StringGrid1->Width = Form1->Width - (StringGrid1->Left + 10);
-        StringGrid1->Height = Form1->Height - (StringGrid1->Top + StatusBar1->Height + 45);
+        StringGrid2->Width = Form1->ClientWidth - (GROUPBOX_SERVERINFO->Width + 5);
+        StringGrid1->Width = Form1->ClientWidth;
+        Panel1->Height = Form1->ClientHeight - (StatusBar1->Height + StringGrid1->Height + 10);
+//        StringGrid1->Height = 88; //Form1->ClientHeight - (Splitter1->Top + Splitter1->Height + StatusBar1->Height);
         if(windowsettings.init) {
                 windowsettings.refresh();
         }
@@ -2426,6 +2451,9 @@ void __fastcall TForm1::StringGrid1MouseUp(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
         windowsettings.updateGrid1();
+        if(Button == 0 && Y < StringGrid1->DefaultRowHeight) {
+                Form2->setSettingsChanged();
+        }
 }
 //---------------------------------------------------------------------------
 
@@ -2433,6 +2461,9 @@ void __fastcall TForm1::StringGrid2MouseUp(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
         windowsettings.updateGrid2();
+        if(Button == 0 && Y < StringGrid2->DefaultRowHeight) {
+                Form2->setSettingsChanged();
+        }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FontDialog1Apply(TObject *Sender, HWND Wnd)
@@ -2460,4 +2491,19 @@ void __fastcall TForm1::StringGrid1ContextPopup(TObject *Sender,
         Form1->StringGrid1MouseDown(Sender, 1, TShiftState(), X, Y);
 }
 //---------------------------------------------------------------------------
+
+
+
+void __fastcall TForm1::Splitter1Moved(TObject *Sender)
+{
+        Application->ProcessMessages();
+        Form2->setSettingsChanged();
+        Form1->Refresh();
+}
+//---------------------------------------------------------------------------
+
+
+
+
+
 

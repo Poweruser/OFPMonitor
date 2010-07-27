@@ -101,6 +101,8 @@ __published:	// IDE-managed Components
         TMenuItem *N83;
         TMenuItem *N93;
         TMenuItem *MENUITEM_POPUP_AUTOJOINB;
+        TSplitter *Splitter1;
+        TPanel *Panel1;
         void __fastcall NMUDP1DataReceived(TComponent *Sender,
           int NumberBytes, AnsiString FromIP, int Port);
         void __fastcall FormCreate(TObject *Sender);
@@ -149,6 +151,7 @@ __published:	// IDE-managed Components
         void __fastcall MENUITEM_POPUP_AUTOJOINBClick(TObject *Sender);
         void __fastcall StringGrid1ContextPopup(TObject *Sender,
           TPoint &MousePos, bool &Handled);
+        void __fastcall Splitter1Moved(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         typedef list<String> CustomStringList;
@@ -157,7 +160,8 @@ public:		// User declarations
         void TForm1::setWindowSettings(int top,int left, int height, int width, float ratioID,float ratioSN,
                                 float ratioPN,float ratioST,float ratioIS,
                                 float ratioMN,float ratioPI,float ratioPL,
-                                float ratioSC,float ratioDE,float ratioTE);
+                                float ratioSC,float ratioDE,float ratioTE,
+                                int devider);
         CustomStringList TForm1::splitUpMessage(String msg, String split);
         __fastcall TForm1(TComponent* Owner);
 };

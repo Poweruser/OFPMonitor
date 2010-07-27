@@ -492,13 +492,11 @@ void readConfigFile() {
                                                         i++;
                                                         tmp = file->Strings[i].Trim();
                                                 }
-                                                i++;
-                                                tmp = file->Strings[i].Trim();
                                         } else if(tmp.Length() > 8) {
                                                 ipList.push_back(tmp.Trim());
-                                                i++;
-                                                tmp = file->Strings[i].Trim();
                                         }
+                                        i++;
+                                        tmp = file->Strings[i].Trim();
                                 }
                         } else if((tmp.SubString(1,9) == "[Filters]")) {
                                 i++;
@@ -565,10 +563,11 @@ void readConfigFile() {
                         } else if((tmp.SubString(1,16) == "[WindowSettings]")) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
-                                int top = 0;
-                                int left = 0;
-                                int width = 0;
-                                int height = 0;
+                                int     top = 0,
+                                        left = 0,
+                                        width = 0,
+                                        height = 0,
+                                        devider = 0;
                                 float   ratioID = 0.0f,
                                         ratioSN = 0.0f,
                                         ratioPN = 0.0f,
@@ -580,6 +579,7 @@ void readConfigFile() {
                                         ratioSC = 0.0f,
                                         ratioDE = 0.0f,
                                         ratioTE = 0.0f;
+                                        
                                 while((tmp.SubString(1,17) != "[\\WindowSettings]") && i < file->Count - 1) {
                                         if((tmp.SubString(1,4) == "Left")) {
                                                 try {   left = StrToInt(getValue(tmp));  }catch(...) {};
@@ -611,10 +611,13 @@ void readConfigFile() {
                                                 try {   ratioDE = atof(getValue(tmp).c_str());  }catch(...) {};
                                         } else if(tmp.SubString(1,7) == "ratioTE") {
                                                 try {   ratioTE = atof(getValue(tmp).c_str());  }catch(...) {};
+                                        } else if(tmp.SubString(1,7) == "devider") {
+                                                try {   devider = atof(getValue(tmp).c_str());  }catch(...) {};
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
+
 
                                 Form1->setWindowSettings(top,left,height,width,ratioID,
                                         ratioSN,
@@ -626,7 +629,8 @@ void readConfigFile() {
                                         ratioPL,
                                         ratioSC,
                                         ratioDE,
-                                        ratioTE);
+                                        ratioTE,
+                                        devider);
 
                         }
                 }
@@ -728,6 +732,11 @@ String TForm2::getGuiString(String ident) {
 void updateLanguage(String languagefile) {
         TStringList *file = new TStringList;
         String pathAndFile = programSettings.workdir + "\\" + languagefile;
+        guiStrings.push_back(guiString("STRING_YES","Yes"));
+        guiStrings.push_back(guiString("STRING_NO","No"));
+        guiStrings.push_back(guiString("STRING_ONLINE","Online:"));
+        guiStrings.push_back(guiString("STRING_LISTED","Listed:"));
+        guiStrings.push_back(guiString("STRING_ERRORS","Errors:"));
         if(FileExists(pathAndFile)) {
                 file->LoadFromFile(pathAndFile);
                 String tmp;

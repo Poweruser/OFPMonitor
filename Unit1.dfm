@@ -1,12 +1,12 @@
 object Form1: TForm1
-  Left = 277
-  Top = 254
-  Width = 668
-  Height = 547
+  Left = 273
+  Top = 135
+  Width = 889
+  Height = 559
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Color = clBtnFace
-  Constraints.MinHeight = 547
+  Constraints.MinHeight = 500
   Constraints.MinWidth = 666
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -23,12 +23,29 @@ object Form1: TForm1
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 16
+  object Splitter1: TSplitter
+    Left = 0
+    Top = 231
+    Width = 881
+    Height = 6
+    Cursor = crVSplit
+    Align = alTop
+    AutoSnap = False
+    Color = clBlack
+    MinSize = 88
+    ParentColor = False
+    ResizeStyle = rsLine
+    OnMoved = Splitter1Moved
+  end
   object StringGrid1: TStringGrid
-    Left = 3
-    Top = 226
-    Width = 654
-    Height = 239
+    Left = 0
+    Top = 237
+    Width = 881
+    Height = 242
+    Align = alClient
+    BiDiMode = bdRightToLeft
     ColCount = 7
+    Constraints.MinHeight = 88
     Ctl3D = True
     DefaultColWidth = 101
     DefaultRowHeight = 18
@@ -40,6 +57,7 @@ object Form1: TForm1
     Font.Name = 'Tahoma'
     Font.Style = []
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSizing, goColSizing, goRowSelect]
+    ParentBiDiMode = False
     ParentCtl3D = False
     ParentFont = False
     ScrollBars = ssVertical
@@ -58,327 +76,340 @@ object Form1: TForm1
       183
       41)
   end
-  object GROUPBOX_FILTERS: TGroupBox
-    Left = 3
-    Top = 83
-    Width = 366
-    Height = 142
-    Caption = '  Filters  '
-    Color = clBtnFace
-    ParentColor = False
-    TabOrder = 3
-    object LABEL_FILTER_MISSIONNAME: TLabel
-      Left = 245
-      Top = 52
-      Width = 86
-      Height = 16
-      Caption = 'Mission name:'
-    end
-    object LABEL_FILTER_SERVERNAME: TLabel
-      Left = 245
-      Top = 12
-      Width = 80
-      Height = 16
-      Caption = 'Server name:'
-    end
-    object LABEL_FILTER_PASSWORD: TLabel
-      Left = 152
-      Top = 14
-      Width = 63
-      Height = 16
-      Caption = 'Password:'
-    end
-    object LABEL_FILTER_MINIMUMPLAYERS: TLabel
-      Left = 152
-      Top = 72
-      Width = 76
-      Height = 16
-      Caption = 'min. Players:'
-    end
-    object LABEL_FILTER_PLAYERNAME: TLabel
-      Left = 245
-      Top = 92
-      Width = 79
-      Height = 16
-      Caption = 'Player name:'
-    end
-    object LABEL_FILTER_STATUS: TLabel
-      Left = 12
-      Top = 14
-      Width = 40
-      Height = 16
-      Caption = 'Status:'
-    end
-    object CHECKBOX_FILTER_PLAYING: TCheckBox
-      Left = 12
-      Top = 96
-      Width = 133
-      Height = 17
-      Caption = 'Playing'
-      Checked = True
-      State = cbChecked
-      TabOrder = 4
-      OnClick = CHECKBOX_FILTER_PLAYINGClick
-    end
-    object CHECKBOX_FILTER_WAITING: TCheckBox
-      Left = 12
-      Top = 48
-      Width = 133
-      Height = 17
-      Caption = 'Waiting'
-      Checked = True
-      State = cbChecked
-      TabOrder = 1
-      OnClick = CHECKBOX_FILTER_WAITINGClick
-    end
-    object CHECKBOX_FILTER_CREATING: TCheckBox
-      Left = 12
-      Top = 32
-      Width = 133
-      Height = 17
-      Caption = 'Creating'
-      Checked = True
-      State = cbChecked
-      TabOrder = 0
-      OnClick = CHECKBOX_FILTER_CREATINGClick
-    end
-    object CHECKBOX_FILTER_BRIEFING: TCheckBox
-      Left = 12
-      Top = 80
-      Width = 133
-      Height = 17
-      Caption = 'Briefing'
-      Checked = True
-      State = cbChecked
-      TabOrder = 3
-      OnClick = CHECKBOX_FILTER_BRIEFINGClick
-    end
-    object CHECKBOX_FILTER_DEBRIEFING: TCheckBox
-      Left = 12
-      Top = 112
-      Width = 133
-      Height = 17
-      Caption = 'Debriefing'
-      Checked = True
-      State = cbChecked
-      TabOrder = 5
-      OnClick = CHECKBOX_FILTER_DEBRIEFINGClick
-    end
-    object Edit1: TEdit
-      Left = 245
-      Top = 68
-      Width = 116
-      Height = 24
-      TabOrder = 11
-      OnChange = Edit1Change
-    end
-    object Edit2: TEdit
-      Left = 245
-      Top = 28
-      Width = 116
-      Height = 24
-      TabOrder = 10
-      OnChange = Edit2Change
-    end
-    object CHECKBOX_FILTER_WITHPASSWORD: TCheckBox
-      Left = 152
-      Top = 32
-      Width = 73
-      Height = 17
-      Caption = 'With'
-      TabOrder = 6
-      OnClick = CHECKBOX_FILTER_WITHPASSWORDClick
-    end
-    object CHECKBOX_FILTER_WITHOUTPASSWORD: TCheckBox
-      Left = 152
-      Top = 48
-      Width = 65
-      Height = 17
-      Caption = 'Without'
-      Checked = True
-      State = cbChecked
-      TabOrder = 7
-      OnClick = CHECKBOX_FILTER_WITHOUTPASSWORDClick
-    end
-    object UpDown1: TUpDown
-      Left = 209
-      Top = 94
-      Width = 15
-      Height = 24
-      Associate = Edit3
-      Min = 0
-      Position = 1
-      TabOrder = 9
-      Wrap = False
-      OnClick = UpDown1Click
-    end
-    object Edit3: TEdit
-      Left = 152
-      Top = 94
-      Width = 57
-      Height = 24
-      TabOrder = 8
-      Text = '1'
-      OnChange = Edit3Change
-    end
-    object Edit4: TEdit
-      Left = 245
-      Top = 108
-      Width = 116
-      Height = 24
-      TabOrder = 12
-      OnChange = Edit4Change
-    end
-    object CHECKBOX_FILTER_SETTINGUP: TCheckBox
-      Left = 12
-      Top = 64
-      Width = 133
-      Height = 17
-      Caption = 'Setting up'
-      Checked = True
-      State = cbChecked
-      TabOrder = 2
-      OnClick = CHECKBOX_FILTER_SETTINGUPClick
-    end
-  end
-  object GROUPBOX_SERVERINFO: TGroupBox
-    Left = 3
+  object Panel1: TPanel
+    Left = 0
     Top = 0
-    Width = 366
-    Height = 84
-    Caption = '  Server Info  '
-    Color = clBtnFace
-    ParentColor = False
+    Width = 881
+    Height = 231
+    Align = alTop
+    BevelOuter = bvNone
+    Constraints.MinHeight = 231
     TabOrder = 2
-    object LABEL_SERVERINFO_IP: TLabel
-      Left = 8
-      Top = 32
-      Width = 15
-      Height = 16
-      Caption = 'IP:'
-    end
-    object Label2: TLabel
-      Left = 40
-      Top = 32
-      Width = 48
-      Height = 16
-      Caption = '                '
-    end
-    object LABEL_SERVERINFO_PORT: TLabel
-      Left = 144
-      Top = 32
-      Width = 27
-      Height = 16
-      Caption = 'Port:'
-    end
-    object Label4: TLabel
-      Left = 184
-      Top = 32
-      Width = 24
-      Height = 16
-      Caption = '        '
-    end
-    object LABEL_SERVERINFO_PLATFORM: TLabel
-      Left = 224
-      Top = 32
-      Width = 52
-      Height = 16
-      Caption = 'Platform:'
-    end
-    object Label9: TLabel
-      Left = 312
-      Top = 32
-      Width = 21
-      Height = 16
-      Caption = '       '
-    end
-    object LABEL_SERVERINFO_PASSWORD: TLabel
-      Left = 224
-      Top = 48
-      Width = 63
-      Height = 16
-      Caption = 'Password:'
-    end
-    object Label11: TLabel
-      Left = 312
-      Top = 48
-      Width = 27
-      Height = 16
-      Hint = 'Ja'
-      Caption = '         '
-      ParentShowHint = False
-      ShowHint = False
-    end
-    object LABEL_SERVERINFO_VERSION: TLabel
-      Left = 224
-      Top = 64
-      Width = 49
-      Height = 16
-      Caption = 'Version:'
-    end
-    object Label13: TLabel
-      Left = 312
-      Top = 64
-      Width = 30
-      Height = 16
-      Caption = '          '
-    end
-    object Label21: TLabel
-      Left = 8
-      Top = 16
-      Width = 66
-      Height = 16
-      Caption = '                      '
+    object StringGrid2: TStringGrid
+      Left = 401
+      Top = 0
+      Width = 480
+      Height = 231
+      Align = alRight
+      ColCount = 4
+      DefaultColWidth = 50
+      DefaultRowHeight = 18
+      FixedCols = 0
+      RowCount = 50
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'MS Sans Serif'
       Font.Style = []
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected, goColSizing, goRowSelect]
       ParentFont = False
-    end
-    object BUTTON_SERVERINFO_COPYADDRESS: TButton
-      Left = 24
-      Top = 54
-      Width = 185
-      Height = 22
-      Caption = 'Copy address to clipboard'
-      Enabled = False
+      ScrollBars = ssVertical
       TabOrder = 0
-      OnClick = BUTTON_SERVERINFO_COPYADDRESSClick
+      OnMouseDown = StringGrid2MouseDown
+      OnMouseUp = StringGrid2MouseUp
+      ColWidths = (
+        100
+        38
+        43
+        75)
     end
-  end
-  object StringGrid2: TStringGrid
-    Left = 376
-    Top = 6
-    Width = 281
-    Height = 219
-    ColCount = 4
-    DefaultColWidth = 50
-    DefaultRowHeight = 18
-    FixedCols = 0
-    RowCount = 50
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goDrawFocusSelected, goColSizing, goRowSelect]
-    ParentFont = False
-    ScrollBars = ssVertical
-    TabOrder = 1
-    OnMouseDown = StringGrid2MouseDown
-    OnMouseUp = StringGrid2MouseUp
-    ColWidths = (
-      100
-      38
-      43
-      75)
+    object GROUPBOX_FILTERS: TGroupBox
+      Left = 1
+      Top = 85
+      Width = 368
+      Height = 142
+      Align = alCustom
+      Caption = '  Filters  '
+      Color = clBtnFace
+      ParentColor = False
+      TabOrder = 1
+      object LABEL_FILTER_MISSIONNAME: TLabel
+        Left = 245
+        Top = 52
+        Width = 86
+        Height = 16
+        Caption = 'Mission name:'
+      end
+      object LABEL_FILTER_SERVERNAME: TLabel
+        Left = 245
+        Top = 12
+        Width = 80
+        Height = 16
+        Caption = 'Server name:'
+      end
+      object LABEL_FILTER_PASSWORD: TLabel
+        Left = 152
+        Top = 14
+        Width = 63
+        Height = 16
+        Caption = 'Password:'
+      end
+      object LABEL_FILTER_MINIMUMPLAYERS: TLabel
+        Left = 152
+        Top = 72
+        Width = 76
+        Height = 16
+        Caption = 'min. Players:'
+      end
+      object LABEL_FILTER_PLAYERNAME: TLabel
+        Left = 245
+        Top = 92
+        Width = 79
+        Height = 16
+        Caption = 'Player name:'
+      end
+      object LABEL_FILTER_STATUS: TLabel
+        Left = 12
+        Top = 14
+        Width = 40
+        Height = 16
+        Caption = 'Status:'
+      end
+      object CHECKBOX_FILTER_PLAYING: TCheckBox
+        Left = 12
+        Top = 96
+        Width = 133
+        Height = 17
+        Caption = 'Playing'
+        Checked = True
+        State = cbChecked
+        TabOrder = 4
+        OnClick = CHECKBOX_FILTER_PLAYINGClick
+      end
+      object CHECKBOX_FILTER_WAITING: TCheckBox
+        Left = 12
+        Top = 48
+        Width = 133
+        Height = 17
+        Caption = 'Waiting'
+        Checked = True
+        State = cbChecked
+        TabOrder = 1
+        OnClick = CHECKBOX_FILTER_WAITINGClick
+      end
+      object CHECKBOX_FILTER_CREATING: TCheckBox
+        Left = 12
+        Top = 32
+        Width = 133
+        Height = 17
+        Caption = 'Creating'
+        Checked = True
+        State = cbChecked
+        TabOrder = 0
+        OnClick = CHECKBOX_FILTER_CREATINGClick
+      end
+      object CHECKBOX_FILTER_BRIEFING: TCheckBox
+        Left = 12
+        Top = 80
+        Width = 133
+        Height = 17
+        Caption = 'Briefing'
+        Checked = True
+        State = cbChecked
+        TabOrder = 3
+        OnClick = CHECKBOX_FILTER_BRIEFINGClick
+      end
+      object CHECKBOX_FILTER_DEBRIEFING: TCheckBox
+        Left = 12
+        Top = 112
+        Width = 133
+        Height = 17
+        Caption = 'Debriefing'
+        Checked = True
+        State = cbChecked
+        TabOrder = 5
+        OnClick = CHECKBOX_FILTER_DEBRIEFINGClick
+      end
+      object Edit1: TEdit
+        Left = 245
+        Top = 68
+        Width = 116
+        Height = 24
+        TabOrder = 11
+        OnChange = Edit1Change
+      end
+      object Edit2: TEdit
+        Left = 245
+        Top = 28
+        Width = 116
+        Height = 24
+        TabOrder = 10
+        OnChange = Edit2Change
+      end
+      object CHECKBOX_FILTER_WITHPASSWORD: TCheckBox
+        Left = 152
+        Top = 32
+        Width = 73
+        Height = 17
+        Caption = 'With'
+        TabOrder = 6
+        OnClick = CHECKBOX_FILTER_WITHPASSWORDClick
+      end
+      object CHECKBOX_FILTER_WITHOUTPASSWORD: TCheckBox
+        Left = 152
+        Top = 48
+        Width = 65
+        Height = 17
+        Caption = 'Without'
+        Checked = True
+        State = cbChecked
+        TabOrder = 7
+        OnClick = CHECKBOX_FILTER_WITHOUTPASSWORDClick
+      end
+      object UpDown1: TUpDown
+        Left = 209
+        Top = 94
+        Width = 15
+        Height = 24
+        Associate = Edit3
+        Min = 0
+        Position = 1
+        TabOrder = 9
+        Wrap = False
+        OnClick = UpDown1Click
+      end
+      object Edit3: TEdit
+        Left = 152
+        Top = 94
+        Width = 57
+        Height = 24
+        TabOrder = 8
+        Text = '1'
+        OnChange = Edit3Change
+      end
+      object Edit4: TEdit
+        Left = 245
+        Top = 108
+        Width = 116
+        Height = 24
+        TabOrder = 12
+        OnChange = Edit4Change
+      end
+      object CHECKBOX_FILTER_SETTINGUP: TCheckBox
+        Left = 12
+        Top = 64
+        Width = 133
+        Height = 17
+        Caption = 'Setting up'
+        Checked = True
+        State = cbChecked
+        TabOrder = 2
+        OnClick = CHECKBOX_FILTER_SETTINGUPClick
+      end
+    end
+    object GROUPBOX_SERVERINFO: TGroupBox
+      Left = 3
+      Top = 0
+      Width = 366
+      Height = 84
+      Caption = '  Server Info  '
+      Color = clBtnFace
+      ParentColor = False
+      TabOrder = 2
+      object LABEL_SERVERINFO_IP: TLabel
+        Left = 8
+        Top = 32
+        Width = 15
+        Height = 16
+        Caption = 'IP:'
+      end
+      object Label2: TLabel
+        Left = 40
+        Top = 32
+        Width = 48
+        Height = 16
+        Caption = '                '
+      end
+      object LABEL_SERVERINFO_PORT: TLabel
+        Left = 144
+        Top = 32
+        Width = 27
+        Height = 16
+        Caption = 'Port:'
+      end
+      object Label4: TLabel
+        Left = 184
+        Top = 32
+        Width = 24
+        Height = 16
+        Caption = '        '
+      end
+      object LABEL_SERVERINFO_PLATFORM: TLabel
+        Left = 224
+        Top = 32
+        Width = 52
+        Height = 16
+        Caption = 'Platform:'
+      end
+      object Label9: TLabel
+        Left = 312
+        Top = 32
+        Width = 21
+        Height = 16
+        Caption = '       '
+      end
+      object LABEL_SERVERINFO_PASSWORD: TLabel
+        Left = 224
+        Top = 48
+        Width = 63
+        Height = 16
+        Caption = 'Password:'
+      end
+      object Label11: TLabel
+        Left = 312
+        Top = 48
+        Width = 27
+        Height = 16
+        Hint = 'Ja'
+        Caption = '         '
+        ParentShowHint = False
+        ShowHint = False
+      end
+      object LABEL_SERVERINFO_VERSION: TLabel
+        Left = 224
+        Top = 64
+        Width = 49
+        Height = 16
+        Caption = 'Version:'
+      end
+      object Label13: TLabel
+        Left = 312
+        Top = 64
+        Width = 30
+        Height = 16
+        Caption = '          '
+      end
+      object Label21: TLabel
+        Left = 8
+        Top = 16
+        Width = 66
+        Height = 16
+        Caption = '                      '
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = []
+        ParentFont = False
+      end
+      object BUTTON_SERVERINFO_COPYADDRESS: TButton
+        Left = 24
+        Top = 54
+        Width = 185
+        Height = 22
+        Caption = 'Copy address to clipboard'
+        Enabled = False
+        TabOrder = 0
+        OnClick = BUTTON_SERVERINFO_COPYADDRESSClick
+      end
+    end
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 467
-    Width = 660
+    Top = 479
+    Width = 881
     Height = 34
+    Anchors = []
     BorderWidth = 1
     DragMode = dmAutomatic
     Font.Charset = DEFAULT_CHARSET
@@ -386,6 +417,7 @@ object Form1: TForm1
     Font.Height = -13
     Font.Name = 'MS Sans Serif'
     Font.Style = []
+    Constraints.MinHeight = 34
     Panels = <
       item
         Text = 'Listed: '
@@ -401,10 +433,10 @@ object Form1: TForm1
       item
         Width = 50
       end>
+    ParentColor = True
     ParentShowHint = False
     ShowHint = False
     SimplePanel = False
-    SizeGrip = False
     UseSystemFont = False
   end
   object Timer1: TTimer
