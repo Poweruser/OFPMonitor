@@ -2439,7 +2439,6 @@ void __fastcall TForm1::FormResize(TObject *Sender)
         StringGrid2->Width = Form1->ClientWidth - (GROUPBOX_SERVERINFO->Width + 5);
         StringGrid1->Width = Form1->ClientWidth;
         Panel1->Height = Form1->ClientHeight - (StatusBar1->Height + StringGrid1->Height + 10);
-//        StringGrid1->Height = 88; //Form1->ClientHeight - (Splitter1->Top + Splitter1->Height + StatusBar1->Height);
         if(windowsettings.init) {
                 windowsettings.refresh();
         }
