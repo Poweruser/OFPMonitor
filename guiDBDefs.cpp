@@ -1,4 +1,4 @@
-TButton *guiButton[7];
+TButton *guiButton[10];
 TCheckBox *guiCheckBox[10];
 TLabel *guiLabel[18];
 TGroupBox *guiGroupBox[6];

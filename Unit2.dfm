@@ -1,13 +1,13 @@
 object Form2: TForm2
-  Left = 467
-  Top = 155
+  Left = 548
+  Top = 197
   Hint = 'SETTINGS_WINDOW'
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 468
+  ClientHeight = 466
   ClientWidth = 433
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -25,50 +25,48 @@ object Form2: TForm2
   PixelsPerInch = 96
   TextHeight = 13
   object LABEL_CONFIGURATIONS_LISTOFCONFIGURATIONS: TLabel
-    Left = 0
-    Top = 98
+    Left = 2
+    Top = 100
     Width = 100
     Height = 13
     Caption = 'List of configurations:'
   end
   object ListBox1: TListBox
     Left = 0
-    Top = 114
-    Width = 430
-    Height = 111
+    Top = 120
+    Width = 432
+    Height = 113
     ItemHeight = 13
     TabOrder = 3
-  end
-  object BUTTON_CONFIGURATION_REMOVE: TButton
-    Left = 330
-    Top = 200
-    Width = 85
-    Height = 25
-    Caption = 'Remove'
-    TabOrder = 4
-    OnClick = BUTTON_CONFIGURATION_REMOVEClick
+    OnClick = ListBox1Click
   end
   object GROUPBOX_OFPEXECUTABLE: TGroupBox
     Left = 0
     Top = 0
-    Width = 433
+    Width = 431
     Height = 48
     Caption = 'OFP Executable '
     TabOrder = 0
     object Edit1: TEdit
       Left = 8
       Top = 18
-      Width = 313
+      Width = 310
       Height = 21
       ReadOnly = True
       TabOrder = 0
     end
     object BUTTON_OFPEXECUTABLE_BROWSE: TButton
-      Left = 328
+      Left = 324
       Top = 12
-      Width = 97
+      Width = 102
       Height = 29
       Caption = 'Browse'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 1
       OnClick = BUTTON_OFPEXECUTABLE_BROWSEClick
     end
@@ -79,7 +77,7 @@ object Form2: TForm2
     Width = 433
     Height = 231
     Caption = 'New configuration'
-    TabOrder = 5
+    TabOrder = 6
     object LABEL_NEWCONFIGURATION_PLAYERNAME: TLabel
       Left = 264
       Top = 90
@@ -115,6 +113,17 @@ object Form2: TForm2
       Height = 13
       Caption = 'Label:'
     end
+    object BUTTON_EDITCONFIGURATION_OK: TButton
+      Left = 264
+      Top = 16
+      Width = 83
+      Height = 31
+      Caption = 'OK'
+      Enabled = False
+      TabOrder = 14
+      Visible = False
+      OnClick = BUTTON_EDITCONFIGURATION_OKClick
+    end
     object Edit3: TEdit
       Left = 265
       Top = 146
@@ -127,7 +136,6 @@ object Form2: TForm2
       Top = 106
       Width = 160
       Height = 21
-      Hint = 'Leave blank to use the current OFP setting'
       ParentShowHint = False
       ShowHint = True
       TabOrder = 7
@@ -229,6 +237,17 @@ object Form2: TForm2
       Height = 21
       TabOrder = 6
     end
+    object BUTTON_EDITCONFIGURATION_CANCEL: TButton
+      Left = 346
+      Top = 16
+      Width = 83
+      Height = 31
+      Caption = 'Cancel'
+      Enabled = False
+      TabOrder = 15
+      Visible = False
+      OnClick = BUTTON_EDITCONFIGURATION_CANCELClick
+    end
     object BUTTON_NEWCONFIGURATION_CLEAR: TButton
       Left = 346
       Top = 16
@@ -279,21 +298,40 @@ object Form2: TForm2
   object GROUPBOX_LANGUAGE: TGroupBox
     Left = 208
     Top = 50
-    Width = 225
+    Width = 223
     Height = 45
     Caption = 'Language '
     TabOrder = 2
     object ComboBox1: TComboBox
       Left = 8
       Top = 16
-      Width = 201
+      Width = 208
       Height = 21
+      AutoDropDown = True
       ImeMode = imDisable
       ItemHeight = 13
       TabOrder = 0
-      Text = 'ComboBox1'
       OnChange = ComboBox1Change
     end
+  end
+  object BUTTON_EDITCONFIGURATION_EDIT: TButton
+    Left = 246
+    Top = 96
+    Width = 93
+    Height = 25
+    Caption = 'Edit'
+    Enabled = False
+    TabOrder = 4
+    OnClick = BUTTON_EDITCONFIGURATION_EDITClick
+  end
+  object BUTTON_CONFIGURATION_REMOVE: TButton
+    Left = 338
+    Top = 96
+    Width = 93
+    Height = 25
+    Caption = 'Remove'
+    TabOrder = 5
+    OnClick = BUTTON_CONFIGURATION_REMOVEClick
   end
   object OpenDialog1: TOpenDialog
     Filter = 

@@ -1758,7 +1758,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                                 ++ci;
                                                 counter--;
                                                 ServerArray[i].mod = *ci;
-                                        } else if (tmp == "equalMod") {
+                                        } else if (tmp == "equalModRequired") {
                                                 ++ci;
                                                 counter--;
                                                 try {
@@ -1880,7 +1880,7 @@ class MessageReader {
                                                                 int curr = m.toa - ServerArray[j].messageSent;
                                                                 if(ServerArray[j].ping.size() > 4) {
                                                                         ServerArray[j].ping.pop_front();
-                                                                };
+                                                                }
                                                                 ServerArray[j].ping.push_back(curr);
                                                                 ServerArray[j].messageSent = 0;
                                                                 ServerArray[j].timeouts = 0;
@@ -1946,7 +1946,6 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         PlayerSortList2->Duplicates = dupAccept;
         updateTimeoutLimit();
         Timer3->Enabled = true;
-        Form1->Visible = true;
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
@@ -2015,6 +2014,7 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
                 }
         }
         Form2->writeSettingToFile(servers, watched, fontsettings.createFileEntry(), windowsettings.createFileEntry());
+        
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::BUTTON_SERVERINFO_COPYADDRESSClick(TObject *Sender)
@@ -2085,7 +2085,7 @@ void __fastcall TForm1::Edit1Change(TObject *Sender)
 void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
-        if(Button == 0 && Y < StringGrid1->DefaultRowHeight) {
+        if(Button == mbLeft && Y < StringGrid1->DefaultRowHeight) {
                 int col0, col1, col2, col3, col4, col5, col6;
                 col0 = StringGrid1->ColWidths[0] + StringGrid1->GridLineWidth;
                 col1 = col0 + StringGrid1->ColWidths[1] + StringGrid1->GridLineWidth;
@@ -2114,7 +2114,7 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
                         filterChanged(false);
                         Form2->setSettingsChanged();
                 }
-        } else if(Button == 1 && Y >= StringGrid1->DefaultRowHeight) {
+        } else if(Button == mbRight && Y >= StringGrid1->DefaultRowHeight) {
                 int c = ((Y - StringGrid1->DefaultRowHeight) / (StringGrid1->DefaultRowHeight + 1)) + 1;
                 if(StringGrid1->RowCount > c) {
                         try {
@@ -2134,7 +2134,7 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
                                 PopupMenu1->Items->Items[1]->Visible = (ServerArray[index].gamestate == SERVERSTATE_PLAYING) && !ServerArray[index].autojoin;
                                 PopupMenu1->Items->Items[2]->Visible = ServerArray[index].autojoin;
                                 PopupMenu1->Items->Items[2]->Checked = ServerArray[index].autojoin;
-                                PopupMenu1->Items->Items[2]->Tag = index;                                                    
+                                PopupMenu1->Items->Items[2]->Tag = index;
                                 PopupMenu1->Items->Items[3]->Tag = index;
                                 PopupMenu1->Items->Items[4]->Tag = index;
                                 PopupMenu1->Items->Items[4]->OnClick = ClickWatchButton;
@@ -2150,6 +2150,7 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
                                         TMenuItem *m = PopupMenu1->Items->Items[3]->Items[i];
                                         m->Visible = false;
                                 }
+                                PopupMenu1->Tag = index;
                                 PopupMenu1->Popup(Form1->Left + StringGrid1->Left + X + 5,Form1->Top + StringGrid1->Top + Y + StringGrid1->DefaultRowHeight + 25);
                         } catch (...) {}
                 }
@@ -2216,6 +2217,8 @@ void __fastcall TForm1::Edit4Change(TObject *Sender)
 
 void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
 {
+        int index = PopupMenu1->Tag;
+        boolean isOFPR = Form2->isOFPResistance();
         for(int i = 0; i < Form2->getConfAmount() || i < PopupMenu1->Items->Items[0]->Count; i++) {
                 String s = Form2->getConfListEntry(i);
                 if(!s.IsEmpty()) {
@@ -2242,6 +2245,22 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
                         autojoin->Caption = s;
                         autojoin->Visible = true;
                         autojoin->OnClick = ClickAutoJoinConfButton;
+
+
+                        String modline = Form2->getConfModLine(i);
+                        if(isOFPR) {
+                                if(modline.Length() > 0) {
+                                        modline = ";" + modline;
+                                }
+                                modline = "RES" + modline;
+                        }
+                        if(ServerArray[index].equalMod == 1 && modline != ServerArray[index].mod) {
+                                join->Enabled = false;
+                                autojoin->Enabled = false;
+                        } else {
+                                join->Enabled = true;
+                                autojoin->Enabled = true;
+                        }
                 } else {
                         if(i < PopupMenu1->Items->Items[0]->Count) {
                                 PopupMenu1->Items->Items[0]->Items[i]->Visible = false;
@@ -2258,7 +2277,25 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
         int index = a->Parent->Tag;
         int port = ServerArray[index].gameport;
         String ip = ServerArray[index].ip;
-        startTheGame(Form2->getConfStartLine(a->Tag,ip, port));
+        String playername = Form2->getConfPlayerName(a->Tag);
+
+        bool found = false;
+        for (CustomPlayerList::iterator ci = ServerArray[index].playerlist.begin(); ci != ServerArray[index].playerlist.end(); ++ci) {
+                Player p = *ci;
+                if(p.name == playername) {
+                        found = true;
+                        break;
+                }
+        }
+
+        int zz = 6;
+        if(found) {
+                zz = MessageBoxA(NULL, Form2->getGuiString("STRING_PLAYER_ALREADY_ON_SERVER").c_str(),
+                                    "", MB_YESNO | MB_ICONQUESTION);
+        }
+        if(zz == 6) {
+              startTheGame(Form2->getConfStartLine(a->Tag,ip, port));
+        }
 }
 //---------------------------------------------------------------------------
   void __fastcall TForm1::ClickAutoJoinConfButton(TObject *Sender)
@@ -2309,36 +2346,20 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key,
 void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
       int ARow, TRect &Rect, TGridDrawState State)
 {
-        if(ARow > 0 && !(StringGrid1->Cells[0][ARow]).Trim().IsEmpty()) {
+        if(ACol > 0 && ARow > 0 && !(StringGrid1->Cells[0][ARow]).Trim().IsEmpty()) {
                 int zelle = ARow;
                 try {
-
                         int index = StrToInt((StringGrid1->Cells[0][zelle]).Trim());
                         if(ServerArray[index].watch || ServerArray[index].autojoin) {
-                                TRect a;
-                                a.Top = ((zelle - (StringGrid1->TopRow - 1)) * StringGrid1->DefaultRowHeight) + (zelle - (StringGrid1->TopRow - 1));
-                                a.Bottom = ((zelle + 1 - (StringGrid1->TopRow - 1)) * StringGrid1->DefaultRowHeight) + (zelle - (StringGrid1->TopRow - 1));
-                                a.Left = 1;
-                                int tmp = 0;
-                                for(int i = 0; i < StringGrid1->ColCount; i++) {
-                                        tmp += StringGrid1->ColWidths[i] + StringGrid1->GridLineWidth;
-                                }
-                                a.Right = tmp;
                                 StringGrid1->Canvas->Brush->Color = clBlue;
+                                StringGrid1->Canvas->Font->Color = clWhite;
                                 if(ServerArray[index].autojoin) {
                                         StringGrid1->Canvas->Brush->Color = clRed;
                                 }
-                                StringGrid1->Canvas->FrameRect(a);
-                                a.Top = a.Top + 1;
-                                a.Bottom = a.Bottom - 1;
-                                a.Left = a.Left + 1;
-                                a.Right = a.Right - 1;
-                                StringGrid1->Canvas->FrameRect(a);
-                                a.Top = a.Top + 1;
-                                a.Bottom = a.Bottom - 1;
-                                a.Left = a.Left + 1;
-                                a.Right = a.Right - 1;
-                                StringGrid1->Canvas->FrameRect(a);
+                                StringGrid1->Canvas->FillRect(Rect);
+                                Rect.Left = Rect.Left + 2;
+                                DrawText(StringGrid1->Canvas->Handle, StringGrid1->Cells[ACol][ARow].c_str(), 
+                                                -1, &Rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
                         }
                 } catch (...) {}
         }
@@ -2421,8 +2442,9 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
         }
         delete CurrentList;
         Form2->setSettingsChanged();
+        Timer3->Enabled = true;
         Timer1->Enabled = true;
-        MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = true;       
+        MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = true;
 }
 //---------------------------------------------------------------------------
 
@@ -2438,7 +2460,7 @@ void __fastcall TForm1::FormResize(TObject *Sender)
 {
         StringGrid2->Width = Form1->ClientWidth - (GROUPBOX_SERVERINFO->Width + 5);
         StringGrid1->Width = Form1->ClientWidth;
-        Panel1->Height = Form1->ClientHeight - (StatusBar1->Height + StringGrid1->Height + 10);
+        Panel1->Height = Form1->ClientHeight - (StatusBar1->Height + StringGrid1->Height + Splitter1->Height);
         if(windowsettings.init) {
                 windowsettings.refresh();
         }
@@ -2450,7 +2472,7 @@ void __fastcall TForm1::StringGrid1MouseUp(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
         windowsettings.updateGrid1();
-        if(Button == 0 && Y < StringGrid1->DefaultRowHeight) {
+        if(Button == mbLeft && Y < StringGrid1->DefaultRowHeight) {
                 Form2->setSettingsChanged();
         }
 }
@@ -2460,7 +2482,7 @@ void __fastcall TForm1::StringGrid2MouseUp(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
         windowsettings.updateGrid2();
-        if(Button == 0 && Y < StringGrid2->DefaultRowHeight) {
+        if(Button == mbLeft && Y < StringGrid2->DefaultRowHeight) {
                 Form2->setSettingsChanged();
         }
 }
@@ -2485,13 +2507,11 @@ void __fastcall TForm1::MENUITEM_POPUP_AUTOJOINBClick(TObject *Sender)
 void __fastcall TForm1::StringGrid1ContextPopup(TObject *Sender,
       TPoint &MousePos, bool &Handled)
 {
-        int X= StringGrid1->ColWidths[0] + StringGrid1->ColWidths[1];
-        int Y= (StringGrid1->DefaultRowHeight + 1) * (StringGrid1->Selection.Top - StringGrid1->TopRow + 1) + (StringGrid1->DefaultRowHeight/2);
-        Form1->StringGrid1MouseDown(Sender, 1, TShiftState(), X, Y);
+        int X = StringGrid1->ColWidths[0] + StringGrid1->ColWidths[1];
+        int Y = (StringGrid1->DefaultRowHeight + 1) * (StringGrid1->Selection.Top - StringGrid1->TopRow + 1) + (StringGrid1->DefaultRowHeight/2);
+        Form1->StringGrid1MouseDown(Sender, mbRight, TShiftState(), X, Y);
 }
 //---------------------------------------------------------------------------
-
-
 
 void __fastcall TForm1::Splitter1Moved(TObject *Sender)
 {

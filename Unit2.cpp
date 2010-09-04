@@ -18,7 +18,7 @@ TForm2 *Form2;
 
 #include "guiDBDefs.cpp"
 
-const int confAmount = 20;
+const int confAmount = 50;
 
 /**
    Macro to retrieve the length of an array
@@ -46,7 +46,7 @@ class Configuration {
                 String player;
                 list<String> mods;
                 String password;
-                String addParameters;
+                list<String> addParameters;
 
                 Configuration(String l, String p, list<String> &m, String pw, String aP, bool ns, bool nm) {
                         this->set = true;
@@ -54,12 +54,12 @@ class Configuration {
 			this->player = p;
                         this->mods = m;
                         this->password = pw;
-                        this->addParameters = aP;
+                        this->addParameters = Form1->splitUpMessage(aP," ");
                         if(nm) {
-                                this->addParameters += " -nomap";
+                                this->addParameters.push_back("-nomap");
                         }
                         if(ns) {
-                                this->addParameters += " -nosplash";
+                                this->addParameters.push_back("-nosplash");
                         }
                 }
 
@@ -72,7 +72,7 @@ class Configuration {
                         if(!this->label.IsEmpty()) {
                                 output->Add("Label = " + this->label);
                         }
-                        if(!this->player.IsEmpty()) {
+                        if(!this->player.Trim().IsEmpty()) {
                                 output->Add("Player = " + this->player);
                         }
                         if(!this->password.IsEmpty()) {
@@ -81,18 +81,20 @@ class Configuration {
                         if(this->mods.size() > 0) {
                                 output->Add("Mods = " + this->createModLine());
                         }
-                        if(!this->addParameters.IsEmpty()) {
-                                output->Add("Parameters = " + this->addParameters);
+                        if(this->addParameters.size() > 0) {
+                                output->Add("Parameters = " + this->createParameterLine());
                         }
                         output->Add("[\\Conf]");
                         return output;
                 }
                 String createStartLine(String ip, int port) {
                         String out = "" ;
-                        out += " " + this->addParameters;
+                        out += " " + this->createParameterLine();
                         out += " -connect=" + ip;
                         out += " -port=" + String(port);
-                        out += " \"-name=" + this->player + "\"";
+                        if(!this->player.Trim().IsEmpty()) {
+                                out += " \"-name=" + this->player + "\"";
+                        }
                         String ml = this->createModLine();
                         if(!ml.IsEmpty()) {
                                 out += " \"-mod="+ this->createModLine() +"\"";
@@ -106,12 +108,14 @@ class Configuration {
                                         out += this->label + "  ";
                                 }
                                 out += this->player + "  ";
+                                if(this->password.Length() > 0) {
+                                        out += "pw:" + this->password + "  ";
+                                }
                                 out += this->createModLine();
                         }
                         return out;
                 }
 
-        private:
                 String createModLine () {
                         String modline = "";
                         unsigned int i = 0;
@@ -123,6 +127,19 @@ class Configuration {
                                 }
                         }
                         return modline;
+                }
+
+                String createParameterLine() {
+                        String paraline = "";
+                        unsigned int i = 0;
+                        for (list<String>::iterator ci = this->addParameters.begin(); ci != this->addParameters.end(); ++ci) {
+                                i++;
+                                paraline += *ci;
+                                if(i < this->mods.size()) {
+                                        paraline += " ";
+                                }
+                        }
+                        return paraline;
                 }
 };
 
@@ -186,8 +203,6 @@ class Settings {
                         this->startupConfs[i].set = false;
                         for(int j = i + 1; j < confAmount; j++) {
                                 this->startupConfs[j - 1] = (this->startupConfs[j]);
-
-
                         }
                         this->startupConfs[confAmount - 1].set = false;
                         this->changed = true;
@@ -284,12 +299,20 @@ void TForm2::setSettingsChanged() {
         programSettings.changed = true;
 }
 
+boolean TForm2::isOFPResistance() {
+        return ((programSettings.folder + "FLASHPOINTRESISTANCE.EXE") == programSettings.exe);
+}
+
 String TForm2::getConfListEntry(int i) {
         return programSettings.startupConfs[i].createListEntry();
 }
 
 String TForm2::getConfStartLine(int i, String ip, int port) {
         return programSettings.startupConfs[i].createStartLine(ip, port);
+}
+
+String TForm2::getConfModLine(int i) {
+        return programSettings.startupConfs[i].createModLine();
 }
 
 TStringList* TForm2::getWatchedList() {
@@ -468,7 +491,7 @@ void readConfigFile() {
                                         } else if((tmp.SubString(1,4) == "Mods")) {
                                                 c.mods = Form1->splitUpMessage(getValue(tmp), ";");
                                         } else if((tmp.SubString(1,10) == "Parameters")) {
-                                                c.addParameters = getValue(tmp);
+                                                c.addParameters = Form1->splitUpMessage(getValue(tmp), " ");
                                         } else if((tmp.SubString(1,5) == "Label")) {
                                                 c.label = getValue(tmp);
                                         }
@@ -550,7 +573,7 @@ void readConfigFile() {
                                         } else if((tmp.SubString(1,4) == "Size")) {
                                                 try {
                                                         size = StrToInt(getValue(tmp));
-                                                } catch (...) {};
+                                                } catch (...) {}
                                         } else if((tmp.SubString(1,4) == "Bold")) {
                                                 bold = checkBool2(getValue(tmp));
                                         } else if((tmp.SubString(1,6) == "Italic")) {
@@ -582,37 +605,37 @@ void readConfigFile() {
                                         
                                 while((tmp.SubString(1,17) != "[\\WindowSettings]") && i < file->Count - 1) {
                                         if((tmp.SubString(1,4) == "Left")) {
-                                                try {   left = StrToInt(getValue(tmp));  }catch(...) {};
+                                                try {   left = StrToInt(getValue(tmp));  }catch(...) {}
                                         } else if((tmp.SubString(1,3) == "Top")) {
-                                                try {   top = StrToInt(getValue(tmp));  }catch(...) {};
+                                                try {   top = StrToInt(getValue(tmp));  }catch(...) {}
                                         } else if((tmp.SubString(1,5) == "Width")) {
-                                                try {   width = StrToInt(getValue(tmp));  }catch(...) {};
+                                                try {   width = StrToInt(getValue(tmp));  }catch(...) {}
                                         } else if((tmp.SubString(1,6) == "Height")) {
-                                                try {   height = StrToInt(getValue(tmp));  }catch(...) {};
+                                                try {   height = StrToInt(getValue(tmp));  }catch(...) {}
                                         } else if((tmp.SubString(1,7) == "ratioID")) {
-                                                try {   ratioID = atof(getValue(tmp).c_str());  }catch(...) {};
+                                                try {   ratioID = atof(getValue(tmp).c_str());  }catch(...) {}
                                         } else if((tmp.SubString(1,7) == "ratioSN")) {
-                                                try {   ratioSN = atof(getValue(tmp).c_str());  }catch(...) {};
+                                                try {   ratioSN = atof(getValue(tmp).c_str());  }catch(...) {}
                                         } else if((tmp.SubString(1,7) == "ratioPN")) {
-                                                try {   ratioPN = atof(getValue(tmp).c_str());  }catch(...) {};
+                                                try {   ratioPN = atof(getValue(tmp).c_str());  }catch(...) {}
                                         } else if((tmp.SubString(1,7) == "ratioST")) {
-                                                try {   ratioST = atof(getValue(tmp).c_str());  }catch(...) {};
+                                                try {   ratioST = atof(getValue(tmp).c_str());  }catch(...) {}
                                         } else if((tmp.SubString(1,7) == "ratioIS")) {
-                                                try {   ratioIS = atof(getValue(tmp).c_str());  }catch(...) {};
+                                                try {   ratioIS = atof(getValue(tmp).c_str());  }catch(...) {}
                                         } else if(tmp.SubString(1,7) == "ratioMN") {
-                                                try {   ratioMN = atof(getValue(tmp).c_str());  }catch(...) {};
+                                                try {   ratioMN = atof(getValue(tmp).c_str());  }catch(...) {}
                                         } else if(tmp.SubString(1,7) == "ratioPI") {
-                                                try {   ratioPI = atof(getValue(tmp).c_str());  }catch(...) {};
+                                                try {   ratioPI = atof(getValue(tmp).c_str());  }catch(...) {}
                                         } else if(tmp.SubString(1,7) == "ratioPL") {
-                                                try {   ratioPL = atof(getValue(tmp).c_str());  }catch(...) {};
+                                                try {   ratioPL = atof(getValue(tmp).c_str());  }catch(...) {}
                                         } else if(tmp.SubString(1,7) == "ratioSC") {
-                                                try {   ratioSC = atof(getValue(tmp).c_str());  }catch(...) {};
+                                                try {   ratioSC = atof(getValue(tmp).c_str());  }catch(...) {}
                                         } else if(tmp.SubString(1,7) == "ratioDE") {
-                                                try {   ratioDE = atof(getValue(tmp).c_str());  }catch(...) {};
+                                                try {   ratioDE = atof(getValue(tmp).c_str());  }catch(...) {}
                                         } else if(tmp.SubString(1,7) == "ratioTE") {
-                                                try {   ratioTE = atof(getValue(tmp).c_str());  }catch(...) {};
+                                                try {   ratioTE = atof(getValue(tmp).c_str());  }catch(...) {}
                                         } else if(tmp.SubString(1,7) == "devider") {
-                                                try {   devider = atof(getValue(tmp).c_str());  }catch(...) {};
+                                                try {   devider = atof(getValue(tmp).c_str());  }catch(...) {}
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
@@ -688,6 +711,7 @@ void readConfigFile() {
         }
         Form2->Edit5->Text = String(Form2->UpDown1->Position);
         programSettings.changed = false;
+        Form1->Visible = true;
         Form1->readServerList(ipList);
 }
 
@@ -814,8 +838,50 @@ void updateLanguage(String languagefile) {
         }
         return;
 }
+     /*
+String extractString(String a, String b) {
+        String out = a;
+        for(int i = 1; i <= a.Length() - b.Length() + 1; i++) {
+                if(a.SubString(i, b.Length()) == b) {
+                        out  = a.SubString(1, i - 1);
+                        out += a.SubString(i + b.Length(), a.Length() - (b.Length() + i - 1));
+                        break;
+                }
+        }
+        return out;
+}
+       */
+void checkConfListState() {
+        Form2->BUTTON_EDITCONFIGURATION_EDIT->Enabled = false;
+        Form2->BUTTON_CONFIGURATION_REMOVE->Enabled = false;
+        for(int i = 0; i < Form2->ListBox1->Count; i++) {
+                if(Form2->ListBox1->Selected[i]) {
+                        Form2->BUTTON_EDITCONFIGURATION_EDIT->Enabled = true;
+                        Form2->BUTTON_CONFIGURATION_REMOVE->Enabled = true;
+                        break;
+                }
+        }
+        return;
+}
 
+void exitEditMode() {
+        Form2->ListBox1->Enabled = true;
+        Form2->BUTTON_EDITCONFIGURATION_OK->Enabled = false;
+        Form2->BUTTON_EDITCONFIGURATION_CANCEL->Enabled = false;
+        Form2->BUTTON_EDITCONFIGURATION_OK->Visible = false;
+        Form2->BUTTON_EDITCONFIGURATION_CANCEL->Visible = false;
+        Form2->BUTTON_NEWCONFIGURATION_ADD->Visible = true;
+        Form2->BUTTON_NEWCONFIGURATION_ADD->Enabled = true;
+        Form2->BUTTON_NEWCONFIGURATION_CLEAR->Visible = true;
+        Form2->BUTTON_NEWCONFIGURATION_CLEAR->Enabled = true;
+        Form2->BUTTON_NEWCONFIGURATION_CLEAR->Click();
+        checkConfListState();
+        return;
+}
 
+String TForm2::getConfPlayerName(int i) {
+        return programSettings.startupConfs[i].player;
+}
 
 //---------------------------------------------------------------------------
 __fastcall TForm2::TForm2(TComponent* Owner)
@@ -922,40 +988,25 @@ void __fastcall TForm2::BUTTON_CONFIGURATION_REMOVEClick(TObject *Sender)
                 BUTTON_NEWCONFIGURATION_ADD->Enabled = true;
         }
         updateConfList();
+        checkConfListState();
 }
 //---------------------------------------------------------------------------
 
 
 void __fastcall TForm2::BUTTON_NEWCONFIGURATION_ADDClick(TObject *Sender)
 {
-        list<String> a;
-        for(int i = 0; i < ListBox3->Count; i++) {
-                a.push_back(ListBox3->Items->Strings[i]);
-        }
-        Configuration newC = Configuration(Edit6->Text, Edit2->Text, a, Edit3->Text, Edit4->Text, CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked, CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
-        String str = Edit6->Text;
-        if(!str.IsEmpty()) {
-                str += ":  ";
-        }
-        str += Edit2->Text + "  ";
-        if(!Edit3->Text.IsEmpty()) {
-                str += "pw: " + Edit3->Text + "  ";
-        }
-        unsigned int j = 0;
-        for (list<String>::iterator ci = a.begin(); ci != a.end(); ++ci) {
-                j++;
-                String mod = *ci;
-                str += String(*ci);
-                if(j < a.size()) {
-                        str += ";";
+                list<String> a;
+                for(int i = 0; i < ListBox3->Count; i++) {
+                        a.push_back(ListBox3->Items->Strings[i]);
                 }
-        }
-        programSettings.pSaddConf(newC);
-        if(ListBox1->Items->Count >= confAmount) {
-                BUTTON_NEWCONFIGURATION_ADD->Enabled = false;
-        }
-        updateConfList();
-        Form2->setSettingsChanged();
+                Configuration newC = Configuration(Edit6->Text, Edit2->Text, a, Edit3->Text, Edit4->Text, CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked, CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
+                programSettings.pSaddConf(newC);
+                if(ListBox1->Items->Count >= confAmount) {
+                        BUTTON_NEWCONFIGURATION_ADD->Enabled = false;
+                }
+                updateConfList();
+                Form2->setSettingsChanged();
+                checkConfListState();
 }
 //---------------------------------------------------------------------------
 
@@ -1016,6 +1067,7 @@ void __fastcall TForm2::FormKeyDown(TObject *Sender, WORD &Key,
 void __fastcall TForm2::FormShow(TObject *Sender)
 {
         updateModFolderList(programSettings.folder);
+        exitEditMode();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm2::ComboBox1Change(TObject *Sender)
@@ -1024,6 +1076,109 @@ void __fastcall TForm2::ComboBox1Change(TObject *Sender)
                 programSettings.languagefile = ComboBox1->Text;
                 updateLanguage(programSettings.languagefile);
         }
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm2::BUTTON_EDITCONFIGURATION_EDITClick(TObject *Sender)
+{
+        BUTTON_NEWCONFIGURATION_CLEAR->Click();
+        ListBox1->Enabled = false;
+        BUTTON_NEWCONFIGURATION_ADD->Visible = false;
+        BUTTON_NEWCONFIGURATION_ADD->Enabled = false;
+        BUTTON_NEWCONFIGURATION_CLEAR->Visible = false;
+        BUTTON_NEWCONFIGURATION_CLEAR->Enabled = false;
+        BUTTON_EDITCONFIGURATION_OK->Visible = true;
+        BUTTON_EDITCONFIGURATION_OK->Enabled = true;
+        BUTTON_EDITCONFIGURATION_CANCEL->Visible = true;
+        BUTTON_EDITCONFIGURATION_CANCEL->Enabled = true;
+        BUTTON_EDITCONFIGURATION_EDIT->Enabled = false;
+        BUTTON_CONFIGURATION_REMOVE->Enabled = false;
+
+        for(int i = 0; i < ListBox1->Count; i++) {
+                if(ListBox1->Selected[i]) {
+                        TObject *t = ListBox1->Items->Objects[i];
+                        int j = (int) t;
+                        Configuration edit = programSettings.startupConfs[j];
+                        Edit6->Text = edit.label;
+                        Edit2->Text = edit.player;
+                        Edit3->Text = edit.password;
+                        for (list<String>::iterator ci = edit.mods.begin(); ci != edit.mods.end(); ++ci) {
+                                ListBox3->Items->Add(*ci);
+                                for(int k = 0; k < ListBox2->Count; k++) {
+                                        if(*ci == ListBox2->Items->Strings[k]) {
+                                                ListBox2->Items->Delete(k);
+                                                break;
+                                        }
+                                }
+                        }
+                        CHECKBOX_NEWCONFIGURATION_NOMAP->Checked = false;
+                        CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked = false;
+                        String line = "";
+                        for (list<String>::iterator di = edit.addParameters.begin(); di != edit.addParameters.end(); ++di) {
+                                String tmp = *di;
+                                String nomap = "-nomap";
+                                String nosplash = "-nosplash";
+                                if((nomap == tmp) || nosplash == tmp) {
+                                        if(nomap == tmp) {
+                                                CHECKBOX_NEWCONFIGURATION_NOMAP->Checked = true;
+                                        }
+                                        if(nosplash == tmp) {
+                                                CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked = true;
+                                        }
+                                } else {
+                                        if(line.Length() > 0) {
+                                                line += " ";
+                                        }
+                                        line += tmp;
+                                }
+
+                        }
+                        Edit4->Text = line;
+                        break;
+                }
+        }
+
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm2::BUTTON_EDITCONFIGURATION_OKClick(TObject *Sender)
+{
+        list<String> a;
+        for(int i = 0; i < ListBox3->Count; i++) {
+                a.push_back(ListBox3->Items->Strings[i]);
+        }
+        for(int i = 0; i < ListBox1->Count; i++) {
+                if(ListBox1->Selected[i]) {
+                        TObject *t = ListBox1->Items->Objects[i];
+                        int j = (int) t;
+                        programSettings.startupConfs[j].label = Edit6->Text;
+                        programSettings.startupConfs[j].player = Edit2->Text;
+                        programSettings.startupConfs[j].mods = a;
+                        programSettings.startupConfs[j].password = Edit3->Text;
+                        programSettings.startupConfs[j].addParameters = Form1->splitUpMessage(Edit4->Text," ");
+                        if(CHECKBOX_NEWCONFIGURATION_NOMAP->Checked) {
+                                programSettings.startupConfs[j].addParameters.push_back("-nomap");
+                        }
+                        if(CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked) {
+                                programSettings.startupConfs[j].addParameters.push_back("-nosplash");
+                        }
+                        break;
+                }
+        }
+        updateConfList();
+        Form2->setSettingsChanged();
+        exitEditMode();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::ListBox1Click(TObject *Sender)
+{
+        checkConfListState();              
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::BUTTON_EDITCONFIGURATION_CANCELClick(
+      TObject *Sender)
+{
+        exitEditMode();
 }
 //---------------------------------------------------------------------------
 

@@ -1,8 +1,8 @@
 object Form1: TForm1
   Left = 273
   Top = 135
-  Width = 889
-  Height = 559
+  Width = 893
+  Height = 596
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Color = clBtnFace
@@ -26,12 +26,12 @@ object Form1: TForm1
   object Splitter1: TSplitter
     Left = 0
     Top = 231
-    Width = 881
-    Height = 6
+    Width = 885
+    Height = 4
     Cursor = crVSplit
     Align = alTop
     AutoSnap = False
-    Color = clBlack
+    Color = clBackground
     MinSize = 88
     ParentColor = False
     ResizeStyle = rsLine
@@ -39,9 +39,9 @@ object Form1: TForm1
   end
   object StringGrid1: TStringGrid
     Left = 0
-    Top = 237
-    Width = 881
-    Height = 242
+    Top = 235
+    Width = 885
+    Height = 281
     Align = alClient
     BiDiMode = bdRightToLeft
     ColCount = 7
@@ -79,14 +79,14 @@ object Form1: TForm1
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 881
+    Width = 885
     Height = 231
     Align = alTop
     BevelOuter = bvNone
     Constraints.MinHeight = 231
     TabOrder = 2
     object StringGrid2: TStringGrid
-      Left = 401
+      Left = 405
       Top = 0
       Width = 480
       Height = 231
@@ -117,11 +117,9 @@ object Form1: TForm1
       Left = 1
       Top = 85
       Width = 368
-      Height = 142
+      Height = 146
       Align = alCustom
       Caption = '  Filters  '
-      Color = clBtnFace
-      ParentColor = False
       TabOrder = 1
       object LABEL_FILTER_MISSIONNAME: TLabel
         Left = 245
@@ -263,7 +261,7 @@ object Form1: TForm1
         Height = 24
         Associate = Edit3
         Min = 0
-        Position = 1
+        Position = 0
         TabOrder = 9
         Wrap = False
         OnClick = UpDown1Click
@@ -274,7 +272,7 @@ object Form1: TForm1
         Width = 57
         Height = 24
         TabOrder = 8
-        Text = '1'
+        Text = '0'
         OnChange = Edit3Change
       end
       object Edit4: TEdit
@@ -406,8 +404,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 479
-    Width = 881
+    Top = 516
+    Width = 885
     Height = 34
     Anchors = []
     BorderWidth = 1
@@ -594,6 +592,7 @@ object Form1: TForm1
     end
     object MENUITEM_MAINMENU_GETNEWSERVERLIST: TMenuItem
       Caption = 'Get new Server list'
+      ShortCut = 116
       OnClick = MENUITEM_MAINMENU_GETNEWSERVERLISTClick
     end
   end

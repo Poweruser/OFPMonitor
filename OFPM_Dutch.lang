@@ -43,10 +43,10 @@ GROUPBOX_NEWCONFIGURATION = Nieuwe configuratie
 
 SETTINGS_WINDOW = Instellingen
 
-MENUITEM_MAINMENU_EXIT = |Afsluiten|
-MENUITEM_MAINMENU_SETTINGS = |Intstellingen|
-MENUITEM_MAINMENU_FONT = |Lettertype|
-MENUITEM_MAINMENU_GETNEWSERVERLIST = |Vernieuw serverlijst|
+MENUITEM_MAINMENU_EXIT = Afsluiten
+MENUITEM_MAINMENU_SETTINGS = Intstellingen
+MENUITEM_MAINMENU_FONT = Lettertype
+MENUITEM_MAINMENU_GETNEWSERVERLIST = Vernieuw serverlijst
 MENUITEM_POPUP_JOIN = Meespelen
 MENUITEM_POPUP_AUTOJOIN = Meespelen toen het spel eindigt
 MENUITEM_POPUP_AUTOJOINB = Meespelen toen het spel eindigt
@@ -70,3 +70,8 @@ STRING_TEAM = Team
 STRING_ONLINE = Online:
 STRING_LISTED = Listed:
 STRING_ERRORS = Fouten:
+
+STRING_PLAYER_ALREADY_ON_SERVER = Er is al een speler met de zelfde naam op de server.Wil je nog steeds dat ofp begint?
+BUTTON_EDITCONFIGURATION_EDIT = Bewerken
+BUTTON_EDITCONFIGURATION_OK = Toepassen
+BUTTON_EDITCONFIGURATION_CANCEL = Annuleren

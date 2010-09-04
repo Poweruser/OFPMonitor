@@ -47,6 +47,9 @@ __published:	// IDE-managed Components
         TButton *BUTTON_NEWCONFIGURATION_CLEAR;
         TGroupBox *GROUPBOX_LANGUAGE;
         TComboBox *ComboBox1;
+        TButton *BUTTON_EDITCONFIGURATION_EDIT;
+        TButton *BUTTON_EDITCONFIGURATION_OK;
+        TButton *BUTTON_EDITCONFIGURATION_CANCEL;
         void __fastcall BUTTON_OFPEXECUTABLE_BROWSEClick(TObject *Sender);
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialog1CanClose(TObject *Sender,
@@ -65,10 +68,18 @@ __published:	// IDE-managed Components
           TShiftState Shift);
         void __fastcall FormShow(TObject *Sender);
         void __fastcall ComboBox1Change(TObject *Sender);
+        void __fastcall BUTTON_EDITCONFIGURATION_EDITClick(TObject *Sender);
+        void __fastcall BUTTON_EDITCONFIGURATION_OKClick(TObject *Sender);
+        void __fastcall ListBox1Click(TObject *Sender);
+        void __fastcall BUTTON_EDITCONFIGURATION_CANCELClick(
+          TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         int TForm2::getConfAmount();
         String TForm2::getConfListEntry(int i);
+        String TForm2::getConfModLine(int i);
+        String TForm2::getConfPlayerName(int i);
+        boolean TForm2::isOFPResistance();
         void TForm2::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window);
         void TForm2::setSettingsChanged();
         TStringList* TForm2::getWatchedList();

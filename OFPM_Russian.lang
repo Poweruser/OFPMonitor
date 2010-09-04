@@ -43,10 +43,10 @@ GROUPBOX_NEWCONFIGURATION = Новая конфигурация
 
 SETTINGS_WINDOW = Опции
 
-MENUITEM_MAINMENU_EXIT = |Выход|
-MENUITEM_MAINMENU_SETTINGS = |Опции|
-MENUITEM_MAINMENU_FONT = |Шрифт|
-MENUITEM_MAINMENU_GETNEWSERVERLIST = |Обновить список серверов|
+MENUITEM_MAINMENU_EXIT = Выход
+MENUITEM_MAINMENU_SETTINGS = Опции
+MENUITEM_MAINMENU_FONT = Шрифт
+MENUITEM_MAINMENU_GETNEWSERVERLIST = Обновить список серверов
 MENUITEM_POPUP_JOIN = Присоединиться
 MENUITEM_POPUP_AUTOJOIN = Присоединиться после игры
 MENUITEM_POPUP_AUTOJOINB = Присоединиться после игры
@@ -70,3 +70,8 @@ STRING_TEAM = Команда
 STRING_ONLINE = В сети:
 STRING_LISTED = Перечень:
 STRING_ERRORS = Ошибки:
+
+STRING_PLAYER_ALREADY_ON_SERVER = На сервере уже есть игрок с таким именем. Вы всё равно хотите войти на сервер?
+BUTTON_EDITCONFIGURATION_EDIT = Редактировать
+BUTTON_EDITCONFIGURATION_OK = Применить
+BUTTON_EDITCONFIGURATION_CANCEL = Прервать
