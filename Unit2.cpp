@@ -18,6 +18,7 @@ TForm2 *Form2;
 
 #include "guiDBDefs.cpp"
 
+
 const int confAmount = 50;
 
 /**
@@ -43,15 +44,13 @@ class Configuration {
         public:
 		bool set;
                 String label;
-                String player;
                 list<String> mods;
                 String password;
                 list<String> addParameters;
 
-                Configuration(String l, String p, list<String> &m, String pw, String aP, bool ns, bool nm) {
+                Configuration(String l, list<String> &m, String pw, String aP, bool ns, bool nm) {
                         this->set = true;
                         this->label = l;
-			this->player = p;
                         this->mods = m;
                         this->password = pw;
                         this->addParameters = Form1->splitUpMessage(aP," ");
@@ -72,9 +71,6 @@ class Configuration {
                         if(!this->label.IsEmpty()) {
                                 output->Add("Label = " + this->label);
                         }
-                        if(!this->player.Trim().IsEmpty()) {
-                                output->Add("Player = " + this->player);
-                        }
                         if(!this->password.IsEmpty()) {
                                 output->Add("Password = " + this->password);
                         }
@@ -87,15 +83,15 @@ class Configuration {
                         output->Add("[\\Conf]");
                         return output;
                 }
-                String createStartLine(String ip, int port) {
+                String createStartLine(String ip, int port, String player) {
                         String out = "" ;
                         out += " " + this->createParameterLine();
                         out += " -connect=" + ip;
                         out += " -port=" + String(port);
-                        if(!this->player.Trim().IsEmpty()) {
-                                out += " \"-name=" + this->player + "\"";
-                        }
                         String ml = this->createModLine();
+                        if(!player.IsEmpty()) {
+                                out += " \"-name=" + player + "\"";
+                        }
                         if(!ml.IsEmpty()) {
                                 out += " \"-mod="+ this->createModLine() +"\"";
                         }
@@ -107,7 +103,6 @@ class Configuration {
                                 if(!this->label.Trim().IsEmpty()) {
                                         out += this->label + "  ";
                                 }
-                                out += this->player + "  ";
                                 if(this->password.Length() > 0) {
                                         out += "pw:" + this->password + "  ";
                                 }
@@ -131,11 +126,11 @@ class Configuration {
 
                 String createParameterLine() {
                         String paraline = "";
-                        unsigned int i = 0;
-                        for (list<String>::iterator ci = this->addParameters.begin(); ci != this->addParameters.end(); ++ci) {
-                                i++;
-                                paraline += *ci;
-                                if(i < this->mods.size()) {
+                        unsigned int j = 0;
+                        for (list<String>::iterator cj = this->addParameters.begin(); cj != this->addParameters.end(); ++cj) {
+                                j++;
+                                paraline += *cj;
+                                if(j < this->addParameters.size()) {
                                         paraline += " ";
                                 }
                         }
@@ -160,11 +155,7 @@ String checkBool(bool in) {
  */
 
 bool checkBool2(String in) {
-        if(in == "1") {
-                return true;
-        } else {
-                return false;
-        }
+        return (in == "1");
 }
 
 /**
@@ -199,7 +190,6 @@ class Settings {
                         return this->startupConfs[i];
                 }
                 void pSdeleteConf(int i) {
-                        int u = i;
                         this->startupConfs[i].set = false;
                         for(int j = i + 1; j < confAmount; j++) {
                                 this->startupConfs[j - 1] = (this->startupConfs[j]);
@@ -228,6 +218,7 @@ class Settings {
                                 TStringList *file = new TStringList;
                                 file->Add("[General]");
                                 file->Add("Exe = " + String(this->exe));
+                                file->Add("LastPlayer = " + this->player);
                                 file->Add("LangFile = " + this->languagefile);
                                 file->Add("Interval = " + String(this->interval));
                                 file->Add("[\\General]");
@@ -308,7 +299,7 @@ String TForm2::getConfListEntry(int i) {
 }
 
 String TForm2::getConfStartLine(int i, String ip, int port) {
-        return programSettings.startupConfs[i].createStartLine(ip, port);
+        return programSettings.startupConfs[i].createStartLine(ip, port, programSettings.player);
 }
 
 String TForm2::getConfModLine(int i) {
@@ -445,10 +436,197 @@ void updateModFolderList(String ofpfolder) {
 }
 
 /**
+   Returns a String of the current set language for an identifier 
+ */
+
+String TForm2::getGuiString(String ident) {
+        String out = "";
+        for (list<guiString>::iterator ci = guiStrings.begin(); ci != guiStrings.end(); ++ci) {
+                if((*ci).identifier == ident) {
+                        out = (*ci).value;
+                        break;
+                }
+        }
+        return out;
+}
+
+/**
+   Reads all player profile folders in OFP's \Users folder and lists them in the
+   player name combobox in the settings window
+ */
+
+bool updateProfileList(String ofpfolder) {
+        bool success = false;
+        if(!ofpfolder.IsEmpty()) {
+                Form2->COMBOBOX_PROFILE->Clear();
+        	TSearchRec daten;
+                if(0 == FindFirst((ofpfolder +"\\Users\\*").c_str(), faDirectory, daten)) {
+                        try {
+                                do {
+                                        if(     daten.Size == 0 &&
+                                                daten.Name != "." &&
+                                                daten.Name != ".." &&
+                                                FileExists(ofpfolder + "\\Users\\" + daten.Name + "\\UserInfo.cfg")) {
+                                                        Form2->COMBOBOX_PROFILE->Items->Add(String(daten.Name));
+                                                        success = true;
+                                        }
+                                } while(FindNext(daten) == 0);
+                        }__finally
+                        {
+                                FindClose(daten);
+                        }
+                }
+        }
+        Form2->COMBOBOX_PROFILE->Enabled = success;
+        if(!success) {
+                Form2->COMBOBOX_PROFILE->Text = Form2->getGuiString("STRING_NOPROFILES");
+        }
+        return success;
+}
+
+bool refreshProfiles(String folder, String player) {
+        if(updateProfileList(folder)) {
+                list<String> b;
+                b.push_back("Software");
+                b.push_back("Codemasters");
+                b.push_back("Operation Flashpoint");
+                String registryPlayer = GetRegistryValue(HKEY_CURRENT_USER, b, "Player Name");
+                bool lp = false, rp = false;
+                for(int k = 0; k < Form2->COMBOBOX_PROFILE->Items->Count; k++) {
+                        if(Form2->COMBOBOX_PROFILE->Items->Strings[k] == player) {
+                                lp = true;
+                        }
+                        if(Form2->COMBOBOX_PROFILE->Items->Strings[k] == registryPlayer) {
+                                rp = true;
+                        }
+                }
+                if(lp) {
+                        Form2->COMBOBOX_PROFILE->Text = player;
+                } else if(rp) {
+                        Form2->COMBOBOX_PROFILE->Text = registryPlayer;
+                } else {
+                        Form2->COMBOBOX_PROFILE->Text = Form2->COMBOBOX_PROFILE->Items->Strings[0];
+                }
+                programSettings.player = Form2->COMBOBOX_PROFILE->Text;
+                return true;
+        } else {
+                return false;
+        }
+}
+
+void checkIfExeAndPlayerIsSet(String folder, String player) {
+        if(refreshProfiles(folder,player) &&
+           !Form2->getExe().IsEmpty() &&
+           !Form2->getExeFolder().IsEmpty()) {
+                        Form1->MENUITEM_POPUP_JOIN->Enabled = true;
+                        Form1->MENUITEM_POPUP_AUTOJOIN->Enabled = true;
+                        Form1->MENUITEM_POPUP_AUTOJOINB->Enabled = true;
+        } else {
+                        Form1->MENUITEM_POPUP_JOIN->Enabled = false;
+                        Form1->MENUITEM_POPUP_AUTOJOIN->Enabled = false;
+                        Form1->MENUITEM_POPUP_AUTOJOINB->Enabled = false;
+        }
+}
+
+/**
+   Applys a language file to the Gui
+ */
+
+void updateLanguage(String languagefile) {
+        TStringList *file = new TStringList;
+        String pathAndFile = programSettings.workdir + "\\" + languagefile;
+        guiStrings.push_back(guiString("STRING_YES","Yes"));
+        guiStrings.push_back(guiString("STRING_NO","No"));
+        guiStrings.push_back(guiString("STRING_ONLINE","Online:"));
+        guiStrings.push_back(guiString("STRING_LISTED","Listed:"));
+        guiStrings.push_back(guiString("STRING_ERRORS","Errors:"));
+        guiStrings.push_back(guiString("STRING_NOPROFILES","No player profiles found!"));
+        if(FileExists(pathAndFile)) {
+                file->LoadFromFile(pathAndFile);
+                String tmp;
+                guiStrings.clear();
+                list<String> val;
+                for(int i = 0; i < file->Count; i++) {
+                        val.clear();
+                        tmp = file->Strings[i].Trim();
+                        if(tmp.SubString(1,6) == "BUTTON") {
+                                val = getVarAndValue(tmp, "=");
+                                for(int j = 0; j < GetArrLength(guiButton); j++) {
+                                        if(guiButton[j]->Name == val.front()) {
+                                                guiButton[j]->Caption = val.back();
+                                                break;
+                                        }
+                                }
+                        } else if(tmp.SubString(1,5) == "LABEL") {
+                                val = getVarAndValue(tmp, "=");
+                                for(int j = 0; j < GetArrLength(guiLabel); j++) {
+                                        if(guiLabel[j]->Name == val.front()) {
+                                                guiLabel[j]->Caption = val.back();
+                                                break;
+                                        }
+                                }
+                        } else if(tmp.SubString(1,8) == "CHECKBOX") {
+                                val = getVarAndValue(tmp, "=");
+                                for(int j = 0; j < GetArrLength(guiCheckBox); j++) {
+                                        if(guiCheckBox[j]->Name == val.front()) {
+                                                guiCheckBox[j]->Caption = val.back();
+                                                break;
+                                        }
+                                }
+                        } else if(tmp.SubString(1,8) == "GROUPBOX") {
+                                val = getVarAndValue(tmp, "=");
+                                for(int j = 0; j < GetArrLength(guiGroupBox); j++) {
+                                        if(guiGroupBox[j]->Name == val.front()) {
+                                                guiGroupBox[j]->Caption = val.back();
+                                                break;
+                                        }
+                                }
+                        } else if(tmp.SubString(1,8) == "MENUITEM") {
+                                val = getVarAndValue(tmp, "=");
+                                for(int j = 0; j < GetArrLength(guiMenuItem); j++) {
+                                        if(guiMenuItem[j]->Name == val.front()) {
+                                                guiMenuItem[j]->Caption = val.back();
+                                                break;
+                                        }
+                                }
+                        } else if(tmp.SubString(1,15) == "SETTINGS_WINDOW") {
+                                val = getVarAndValue(tmp, "=");
+                                for(int j = 0; j < GetArrLength(guiForm); j++) {
+                                        if(guiForm[j]->Hint == val.front()) {
+                                                guiForm[j]->Caption = val.back();
+                                                break;
+                                        }
+                                }
+                        } else if(tmp.SubString(1,6) == "STRING") {
+                                val = getVarAndValue(tmp, "=");
+                                String f = val.front();
+                                String b = val.back();
+                                guiStrings.push_back(guiString(f,b));
+                        }
+                }
+                Form1->StringGrid1->Cells[0][0] = Form2->getGuiString("STRING_ID");
+                Form1->StringGrid1->Cells[1][0] = Form2->getGuiString("STRING_NAME");
+                Form1->StringGrid1->Cells[2][0] = Form2->getGuiString("STRING_PLAYERS");
+                Form1->StringGrid1->Cells[3][0] = Form2->getGuiString("STRING_STATUS");
+                Form1->StringGrid1->Cells[4][0] = Form2->getGuiString("STRING_ISLAND");
+                Form1->StringGrid1->Cells[5][0] = Form2->getGuiString("STRING_MISSION");
+                Form1->StringGrid1->Cells[6][0] = Form2->getGuiString("STRING_PING");
+                Form1->StringGrid2->Cells[0][0] = Form2->getGuiString("STRING_NAME");
+                Form1->StringGrid2->Cells[1][0] = Form2->getGuiString("STRING_SCORE");
+                Form1->StringGrid2->Cells[2][0] = Form2->getGuiString("STRING_DEATHS");
+                Form1->StringGrid2->Cells[3][0] = Form2->getGuiString("STRING_TEAM");
+                if(!Form2->COMBOBOX_PROFILE->Enabled) {
+                        Form2->COMBOBOX_PROFILE->Text = Form2->getGuiString("STRING_NOPROFILES");
+                }
+        }
+        return;
+}
+
+/**
    Reads the programs config file
  */
 
-void readConfigFile() {
+list<String> readConfigFile() {
         String exe = "";
         String interval = "";
         String folder = "";
@@ -470,6 +648,8 @@ void readConfigFile() {
                                                         exe = val;
                                                         folder = getFolder(exe);
                                                 }
+                                        } else if((tmp.SubString(1,10) == "LastPlayer")) {
+                                                player = getValue(tmp);
                                         } else if((tmp.SubString(1,8) == "Interval")) {
                                                 interval = getValue(tmp);
                                         } else if((tmp.SubString(1,8) == "LangFile")) {
@@ -484,9 +664,7 @@ void readConfigFile() {
                                 i++;
                                 tmp = file->Strings[i].Trim();
                                 while((tmp.SubString(1,7) != "[\\Conf]") && i < file->Count - 1) {
-                                        if((tmp.SubString(1,6) == "Player")) {
-                                                c.player = getValue(tmp);
-                                        } else if((tmp.SubString(1,8) == "Password")) {
+                                        if((tmp.SubString(1,8) == "Password")) {
                                                 c.password = getValue(tmp);
                                         } else if((tmp.SubString(1,4) == "Mods")) {
                                                 c.mods = Form1->splitUpMessage(getValue(tmp), ";");
@@ -671,11 +849,7 @@ void readConfigFile() {
                         exe = folder + "\\FlashpointResistance.exe";
                 }
         }
-        list<String> b;
-        b.push_back("Software");
-        b.push_back("Codemasters");
-        b.push_back("Operation Flashpoint");
-        player = GetRegistryValue(HKEY_CURRENT_USER, b, "Player Name");
+
         if(!exe.IsEmpty()) {
                 programSettings.exe = exe;
                 Form2->Edit1->Text = programSettings.exe;
@@ -687,15 +861,9 @@ void readConfigFile() {
                 Form2->BUTTON_NEWCONFIGURATION_ADD->Enabled = false;
                 Form2->GROUPBOX_NEWCONFIGURATION->Enabled = false;
         }
-        if(!Form2->getExe().IsEmpty() && !Form2->getExeFolder().IsEmpty()) {
-                Form1->MENUITEM_POPUP_JOIN->Enabled = true;
-                Form1->MENUITEM_POPUP_AUTOJOIN->Enabled = true;
-                Form1->MENUITEM_POPUP_AUTOJOINB->Enabled = true;
-        }
-        if(!player.IsEmpty()) {
-                programSettings.player = player;
-                Form2->Edit2->Text = programSettings.player;
-        }
+
+
+
         if(!langfile.IsEmpty()) {
                 if(FileExists(GetCurrentDir() + "\\" + langfile)) {
                         programSettings.languagefile = langfile;
@@ -711,8 +879,7 @@ void readConfigFile() {
         }
         Form2->Edit5->Text = String(Form2->UpDown1->Position);
         programSettings.changed = false;
-        Form1->Visible = true;
-        Form1->readServerList(ipList);
+        return ipList;
 }
 
 /**
@@ -732,112 +899,10 @@ void findLanguageFiles() {
                                 FindClose(daten);
                         }
                 }
+                return;
 }
 
-/**
-   Returns a String of the current set language for an identifier 
- */
 
-String TForm2::getGuiString(String ident) {
-        String out = "";
-        for (list<guiString>::iterator ci = guiStrings.begin(); ci != guiStrings.end(); ++ci) {
-                if((*ci).identifier == ident) {
-                        out = (*ci).value;
-                        break;
-                }
-        }
-        return out;
-}
-
-/**
-   Applys a language file to the Gui
- */
-
-void updateLanguage(String languagefile) {
-        TStringList *file = new TStringList;
-        String pathAndFile = programSettings.workdir + "\\" + languagefile;
-        guiStrings.push_back(guiString("STRING_YES","Yes"));
-        guiStrings.push_back(guiString("STRING_NO","No"));
-        guiStrings.push_back(guiString("STRING_ONLINE","Online:"));
-        guiStrings.push_back(guiString("STRING_LISTED","Listed:"));
-        guiStrings.push_back(guiString("STRING_ERRORS","Errors:"));
-        if(FileExists(pathAndFile)) {
-                file->LoadFromFile(pathAndFile);
-                String tmp;
-                guiStrings.clear();
-                list<String> val;
-                for(int i = 0; i < file->Count; i++) {
-                        val.clear();
-                        tmp = file->Strings[i].Trim();
-                        if(tmp.SubString(1,6) == "BUTTON") {
-                                val = getVarAndValue(tmp, "=");
-                                for(int j = 0; j < GetArrLength(guiButton); j++) {
-                                        if(guiButton[j]->Name == val.front()) {
-                                                guiButton[j]->Caption = val.back();
-                                                break;
-                                        }
-                                }
-                        } else if(tmp.SubString(1,5) == "LABEL") {
-                                val = getVarAndValue(tmp, "=");
-                                for(int j = 0; j < GetArrLength(guiLabel); j++) {
-                                        if(guiLabel[j]->Name == val.front()) {
-                                                guiLabel[j]->Caption = val.back();
-                                                break;
-                                        }
-                                }
-                        } else if(tmp.SubString(1,8) == "CHECKBOX") {
-                                val = getVarAndValue(tmp, "=");
-                                for(int j = 0; j < GetArrLength(guiCheckBox); j++) {
-                                        if(guiCheckBox[j]->Name == val.front()) {
-                                                guiCheckBox[j]->Caption = val.back();
-                                                break;
-                                        }
-                                }
-                        } else if(tmp.SubString(1,8) == "GROUPBOX") {
-                                val = getVarAndValue(tmp, "=");
-                                for(int j = 0; j < GetArrLength(guiGroupBox); j++) {
-                                        if(guiGroupBox[j]->Name == val.front()) {
-                                                guiGroupBox[j]->Caption = val.back();
-                                                break;
-                                        }
-                                }
-                        } else if(tmp.SubString(1,8) == "MENUITEM") {
-                                val = getVarAndValue(tmp, "=");
-                                for(int j = 0; j < GetArrLength(guiMenuItem); j++) {
-                                        if(guiMenuItem[j]->Name == val.front()) {
-                                                guiMenuItem[j]->Caption = val.back();
-                                                break;
-                                        }
-                                }
-                        } else if(tmp.SubString(1,15) == "SETTINGS_WINDOW") {
-                                val = getVarAndValue(tmp, "=");
-                                for(int j = 0; j < GetArrLength(guiForm); j++) {
-                                        if(guiForm[j]->Hint == val.front()) {
-                                                guiForm[j]->Caption = val.back();
-                                                break;
-                                        }
-                                }
-                        } else if(tmp.SubString(1,6) == "STRING") {
-                                val = getVarAndValue(tmp, "=");
-                                String f = val.front();
-                                String b = val.back();
-                                guiStrings.push_back(guiString(f,b));
-                        }
-                }
-                Form1->StringGrid1->Cells[0][0] = Form2->getGuiString("STRING_ID");
-                Form1->StringGrid1->Cells[1][0] = Form2->getGuiString("STRING_NAME");
-                Form1->StringGrid1->Cells[2][0] = Form2->getGuiString("STRING_PLAYERS");
-                Form1->StringGrid1->Cells[3][0] = Form2->getGuiString("STRING_STATUS");
-                Form1->StringGrid1->Cells[4][0] = Form2->getGuiString("STRING_ISLAND");
-                Form1->StringGrid1->Cells[5][0] = Form2->getGuiString("STRING_MISSION");
-                Form1->StringGrid1->Cells[6][0] = Form2->getGuiString("STRING_PING");
-                Form1->StringGrid2->Cells[0][0] = Form2->getGuiString("STRING_NAME");
-                Form1->StringGrid2->Cells[1][0] = Form2->getGuiString("STRING_SCORE");
-                Form1->StringGrid2->Cells[2][0] = Form2->getGuiString("STRING_DEATHS");
-                Form1->StringGrid2->Cells[3][0] = Form2->getGuiString("STRING_TEAM");
-        }
-        return;
-}
      /*
 String extractString(String a, String b) {
         String out = a;
@@ -854,6 +919,8 @@ String extractString(String a, String b) {
 void checkConfListState() {
         Form2->BUTTON_EDITCONFIGURATION_EDIT->Enabled = false;
         Form2->BUTTON_CONFIGURATION_REMOVE->Enabled = false;
+        Form2->BUTTON_EDITCONFIGURATION_UP->Enabled = true;
+        Form2->BUTTON_EDITCONFIGURATION_DOWN->Enabled = true;
         for(int i = 0; i < Form2->ListBox1->Count; i++) {
                 if(Form2->ListBox1->Selected[i]) {
                         Form2->BUTTON_EDITCONFIGURATION_EDIT->Enabled = true;
@@ -879,8 +946,12 @@ void exitEditMode() {
         return;
 }
 
-String TForm2::getConfPlayerName(int i) {
-        return programSettings.startupConfs[i].player;
+String TForm2::getCurrentPlayerName() {
+        if(!Form2->COMBOBOX_PROFILE->Enabled) {
+                return "";
+        } else {
+                return Form2->COMBOBOX_PROFILE->Text;
+        }
 }
 
 //---------------------------------------------------------------------------
@@ -901,13 +972,15 @@ void __fastcall TForm2::BUTTON_OFPEXECUTABLE_BROWSEClick(TObject *Sender)
 
 void __fastcall TForm2::FormCreate(TObject *Sender)
 {
-        readConfigFile();
-        findLanguageFiles();
-        updateConfList();
         #include "guiDB.cpp"
-        Form2->ComboBox1->Text = programSettings.languagefile;
+        findLanguageFiles();
+        list<String> ipList = readConfigFile();
         updateLanguage(programSettings.languagefile);
-
+        checkIfExeAndPlayerIsSet(programSettings.folder, programSettings.player);
+        Form1->Visible = true;
+        Form1->readServerList(ipList);
+        updateConfList();
+        Form2->ComboBox1->Text = programSettings.languagefile;
 }
 //---------------------------------------------------------------------------
 
@@ -919,6 +992,7 @@ void __fastcall TForm2::OpenDialog1CanClose(TObject *Sender,
                 programSettings.folder = getFolder(programSettings.exe);
                 Edit1->Text = programSettings.exe;
                 updateModFolderList(programSettings.folder);
+                checkIfExeAndPlayerIsSet(programSettings.folder, programSettings.player);
                 Form2->setSettingsChanged();
                 OpenDialog1->InitialDir = "";
         }
@@ -999,7 +1073,7 @@ void __fastcall TForm2::BUTTON_NEWCONFIGURATION_ADDClick(TObject *Sender)
                 for(int i = 0; i < ListBox3->Count; i++) {
                         a.push_back(ListBox3->Items->Strings[i]);
                 }
-                Configuration newC = Configuration(Edit6->Text, Edit2->Text, a, Edit3->Text, Edit4->Text, CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked, CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
+                Configuration newC = Configuration(Edit6->Text, a, Edit3->Text, Edit4->Text, CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked, CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
                 programSettings.pSaddConf(newC);
                 if(ListBox1->Items->Count >= confAmount) {
                         BUTTON_NEWCONFIGURATION_ADD->Enabled = false;
@@ -1050,9 +1124,7 @@ void __fastcall TForm2::BUTTON_NEWCONFIGURATION_CLEARClick(TObject *Sender)
 
 void __fastcall TForm2::FormClose(TObject *Sender, TCloseAction &Action)
 {
-        if(!Form2->getExe().IsEmpty() && !Form2->getExeFolder().IsEmpty()) {
-                Form1->MENUITEM_POPUP_JOIN->Enabled = true;
-        }
+        checkIfExeAndPlayerIsSet(programSettings.folder, programSettings.player);
 }
 //---------------------------------------------------------------------------
 
@@ -1091,6 +1163,8 @@ void __fastcall TForm2::BUTTON_EDITCONFIGURATION_EDITClick(TObject *Sender)
         BUTTON_EDITCONFIGURATION_CANCEL->Visible = true;
         BUTTON_EDITCONFIGURATION_CANCEL->Enabled = true;
         BUTTON_EDITCONFIGURATION_EDIT->Enabled = false;
+        BUTTON_EDITCONFIGURATION_UP->Enabled = false;
+        BUTTON_EDITCONFIGURATION_DOWN->Enabled = false;
         BUTTON_CONFIGURATION_REMOVE->Enabled = false;
 
         for(int i = 0; i < ListBox1->Count; i++) {
@@ -1099,7 +1173,6 @@ void __fastcall TForm2::BUTTON_EDITCONFIGURATION_EDITClick(TObject *Sender)
                         int j = (int) t;
                         Configuration edit = programSettings.startupConfs[j];
                         Edit6->Text = edit.label;
-                        Edit2->Text = edit.player;
                         Edit3->Text = edit.password;
                         for (list<String>::iterator ci = edit.mods.begin(); ci != edit.mods.end(); ++ci) {
                                 ListBox3->Items->Add(*ci);
@@ -1150,7 +1223,6 @@ void __fastcall TForm2::BUTTON_EDITCONFIGURATION_OKClick(TObject *Sender)
                         TObject *t = ListBox1->Items->Objects[i];
                         int j = (int) t;
                         programSettings.startupConfs[j].label = Edit6->Text;
-                        programSettings.startupConfs[j].player = Edit2->Text;
                         programSettings.startupConfs[j].mods = a;
                         programSettings.startupConfs[j].password = Edit3->Text;
                         programSettings.startupConfs[j].addParameters = Form1->splitUpMessage(Edit4->Text," ");
@@ -1182,4 +1254,64 @@ void __fastcall TForm2::BUTTON_EDITCONFIGURATION_CANCELClick(
 }
 //---------------------------------------------------------------------------
 
+
+
+void __fastcall TForm2::COMBOBOX_PROFILEChange(TObject *Sender)
+{
+        String tmp = COMBOBOX_PROFILE->Text;
+        bool found = false;
+        for(int i = 0; i < COMBOBOX_PROFILE->Items->Count; i++) {
+                if(COMBOBOX_PROFILE->Items->Strings[i] == tmp) {
+                        found = true;
+                        break;
+                }
+        }
+        if(!found) {
+                COMBOBOX_PROFILE->Text = programSettings.player;
+        } else {
+                programSettings.player = COMBOBOX_PROFILE->Text;
+        }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::BUTTON_EDITCONFIGURATION_UPClick(TObject *Sender)
+{
+        for(int i = 0; i < ListBox1->Count; i++) {
+                if(ListBox1->Selected[i]) {
+                        if(i > 0) {
+                                ListBox1->Items->Exchange(i, i - 1);
+                                Configuration tmp = programSettings.startupConfs[i];
+                                programSettings.startupConfs[i] = programSettings.startupConfs[i - 1];
+                                programSettings.startupConfs[i - 1] = tmp;
+
+                                TObject *t = ListBox1->Items->Objects[i];
+                                ListBox1->Items->Objects[i] = ListBox1->Items->Objects[i - 1];
+                                ListBox1->Items->Objects[i - 1] = t;
+                                Form2->setSettingsChanged();
+                                break;
+                        }
+                }
+        }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm2::BUTTON_EDITCONFIGURATION_DOWNClick(TObject *Sender)
+{
+        for(int i = 0; i < ListBox1->Count; i++) {
+                if(ListBox1->Selected[i]) {
+                        if(i < ListBox1->Count - 1) {
+                                ListBox1->Items->Exchange(i, i + 1);
+                                Configuration tmp = programSettings.startupConfs[i];
+                                programSettings.startupConfs[i] = programSettings.startupConfs[i + 1];
+                                programSettings.startupConfs[i + 1] = tmp;
+                                TObject *t = ListBox1->Items->Objects[i];
+                                ListBox1->Items->Objects[i] = ListBox1->Items->Objects[i + 1];
+                                ListBox1->Items->Objects[i + 1] = t;
+                                Form2->setSettingsChanged();
+                                break;
+                        }
+                }
+        }
+}
+//---------------------------------------------------------------------------
 

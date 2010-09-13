@@ -14,6 +14,7 @@
 #include <ExtCtrls.hpp>
 #include "trayicon.h"
 #include <Dialogs.hpp>
+#include "WinSkinData.hpp"
 //---------------------------------------------------------------------------
 
 class TForm1 : public TForm
@@ -103,6 +104,7 @@ __published:	// IDE-managed Components
         TMenuItem *MENUITEM_POPUP_AUTOJOINB;
         TSplitter *Splitter1;
         TPanel *Panel1;
+        TSkinData *SkinData1;
         void __fastcall NMUDP1DataReceived(TComponent *Sender,
           int NumberBytes, AnsiString FromIP, int Port);
         void __fastcall FormCreate(TObject *Sender);

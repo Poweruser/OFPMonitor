@@ -17,11 +17,9 @@ __published:	// IDE-managed Components
         TEdit *Edit1;
         TButton *BUTTON_OFPEXECUTABLE_BROWSE;
         TListBox *ListBox1;
-        TEdit *Edit2;
         TButton *BUTTON_CONFIGURATION_REMOVE;
         TButton *BUTTON_NEWCONFIGURATION_ADD;
         TEdit *Edit3;
-        TLabel *LABEL_NEWCONFIGURATION_PLAYERNAME;
         TLabel *LABEL_CONFIGURATIONS_LISTOFCONFIGURATIONS;
         TListBox *ListBox2;
         TLabel *LABEL_NEWCONFIGURATION_PASSWORD;
@@ -50,6 +48,10 @@ __published:	// IDE-managed Components
         TButton *BUTTON_EDITCONFIGURATION_EDIT;
         TButton *BUTTON_EDITCONFIGURATION_OK;
         TButton *BUTTON_EDITCONFIGURATION_CANCEL;
+        TGroupBox *GROUPBOX_PROFILE;
+        TComboBox *COMBOBOX_PROFILE;
+        TButton *BUTTON_EDITCONFIGURATION_UP;
+        TButton *BUTTON_EDITCONFIGURATION_DOWN;
         void __fastcall BUTTON_OFPEXECUTABLE_BROWSEClick(TObject *Sender);
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialog1CanClose(TObject *Sender,
@@ -73,12 +75,16 @@ __published:	// IDE-managed Components
         void __fastcall ListBox1Click(TObject *Sender);
         void __fastcall BUTTON_EDITCONFIGURATION_CANCELClick(
           TObject *Sender);
+        void __fastcall COMBOBOX_PROFILEChange(TObject *Sender);
+        void __fastcall BUTTON_EDITCONFIGURATION_UPClick(TObject *Sender);
+        void __fastcall BUTTON_EDITCONFIGURATION_DOWNClick(
+          TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         int TForm2::getConfAmount();
         String TForm2::getConfListEntry(int i);
         String TForm2::getConfModLine(int i);
-        String TForm2::getConfPlayerName(int i);
+        String TForm2::getCurrentPlayerName();
         boolean TForm2::isOFPResistance();
         void TForm2::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window);
         void TForm2::setSettingsChanged();

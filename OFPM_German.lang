@@ -30,7 +30,6 @@ LABEL_SERVERLIST_INTERVAL = Aktualisierung (sec):
 LABEL_CONFIGURATIONS_LISTOFCONFIGURATIONS = Liste der Konfigurationen:
 LABEL_NEWCONFIGURATION_MODFOLDERS = Mod-Ordner:
 LABEL_NEWCONFIGURATION_LABEL = Bezeichnung:
-LABEL_NEWCONFIGURATION_PLAYERNAME = Spielername:
 LABEL_NEWCONFIGURATION_PASSWORD = Passwort:
 LABEL_NEWCONFIGURATION_ADDITIONALPARAMETERS = Zusätzliche Parameter:
 
@@ -40,6 +39,7 @@ GROUPBOX_OFPEXECUTABLE = OFP Anwendungsdatei
 GROUPBOX_SERVERLIST = Serverliste
 GROUPBOX_LANGUAGE = Sprache
 GROUPBOX_NEWCONFIGURATION = Neue Konfiguration
+GROUPBOX_PROFILE = Spielername:
 
 SETTINGS_WINDOW = Einstellungen
 
@@ -71,7 +71,11 @@ STRING_ONLINE = Online:
 STRING_LISTED = Aufgelistet:
 STRING_ERRORS = Fehler:
 
-STRING_PLAYER_ALREADY_ON_SERVER = Es ist bereits ein Spieler mit dem selben Namen auf dem Server. Wollen die OFP dennoch starten?
+STRING_NOPROFILES = Keine Spielerprofile gefunden!
+
+STRING_PLAYER_ALREADY_ON_SERVER = Es ist bereits ein Spieler mit dem selben Namen auf dem Server. Wollen Sie OFP dennoch starten?
 BUTTON_EDITCONFIGURATION_EDIT = Bearbeiten
 BUTTON_EDITCONFIGURATION_OK = Übernehmen
 BUTTON_EDITCONFIGURATION_CANCEL = Abbrechen
+BUTTON_EDITCONFIGURATION_UP = Hoch
+BUTTON_EDITCONFIGURATION_DOWN = Runter

@@ -11,6 +11,7 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma link "trayicon"
+#pragma link "WinSkinData"
 #pragma resource "*.dfm"
 #pragma resource "wavefiles.res"
 #pragma resource "XP.res"
@@ -1161,13 +1162,13 @@ void updateServerInfoBox(int index) {
                 Form1->Label13->Caption = ServerArray[index].actver;
         } else {
                 Form1->BUTTON_SERVERINFO_COPYADDRESS->Enabled = false;
-                Form1->Label2->Caption = "";
-                Form1->Label4->Caption = "";
-                Form1->Label9->Caption = "";
-                //Form1->Label18->Caption = "";
-                Form1->Label21->Caption = "";
-                Form1->Label11->Caption = "";
-                Form1->Label13->Caption = "";
+                Form1->Label2->Caption = " ";
+                Form1->Label4->Caption = " ";
+                Form1->Label9->Caption = " ";
+                //Form1->Label18->Caption = " ";
+                Form1->Label21->Caption = " ";
+                Form1->Label11->Caption = " ";
+                Form1->Label13->Caption = " ";
         }
         return;
 }
@@ -2277,7 +2278,7 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
         int index = a->Parent->Tag;
         int port = ServerArray[index].gameport;
         String ip = ServerArray[index].ip;
-        String playername = Form2->getConfPlayerName(a->Tag);
+        String playername = Form2->getCurrentPlayerName();
 
         bool found = false;
         for (CustomPlayerList::iterator ci = ServerArray[index].playerlist.begin(); ci != ServerArray[index].playerlist.end(); ++ci) {
@@ -2438,6 +2439,7 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
                 CurrentList->Delete(0);
         }
         if(addresses.size() > 0) {
+
                 readServerList(addresses);
         }
         delete CurrentList;
@@ -2520,6 +2522,9 @@ void __fastcall TForm1::Splitter1Moved(TObject *Sender)
         Form1->Refresh();
 }
 //---------------------------------------------------------------------------
+
+
+
 
 
 

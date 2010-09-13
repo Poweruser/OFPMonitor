@@ -1,8 +1,8 @@
 object Form1: TForm1
-  Left = 273
-  Top = 135
-  Width = 893
-  Height = 596
+  Left = 254
+  Top = 245
+  Width = 891
+  Height = 594
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Color = clBtnFace
@@ -26,7 +26,7 @@ object Form1: TForm1
   object Splitter1: TSplitter
     Left = 0
     Top = 231
-    Width = 885
+    Width = 883
     Height = 4
     Cursor = crVSplit
     Align = alTop
@@ -40,8 +40,8 @@ object Form1: TForm1
   object StringGrid1: TStringGrid
     Left = 0
     Top = 235
-    Width = 885
-    Height = 281
+    Width = 883
+    Height = 279
     Align = alClient
     BiDiMode = bdRightToLeft
     ColCount = 7
@@ -79,14 +79,14 @@ object Form1: TForm1
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 885
+    Width = 883
     Height = 231
     Align = alTop
     BevelOuter = bvNone
     Constraints.MinHeight = 231
     TabOrder = 2
     object StringGrid2: TStringGrid
-      Left = 405
+      Left = 403
       Top = 0
       Width = 480
       Height = 231
@@ -310,6 +310,7 @@ object Form1: TForm1
         Width = 15
         Height = 16
         Caption = 'IP:'
+        Transparent = True
       end
       object Label2: TLabel
         Left = 40
@@ -317,6 +318,7 @@ object Form1: TForm1
         Width = 48
         Height = 16
         Caption = '                '
+        Transparent = True
       end
       object LABEL_SERVERINFO_PORT: TLabel
         Left = 144
@@ -324,6 +326,7 @@ object Form1: TForm1
         Width = 27
         Height = 16
         Caption = 'Port:'
+        Transparent = True
       end
       object Label4: TLabel
         Left = 184
@@ -331,6 +334,7 @@ object Form1: TForm1
         Width = 24
         Height = 16
         Caption = '        '
+        Transparent = True
       end
       object LABEL_SERVERINFO_PLATFORM: TLabel
         Left = 224
@@ -338,6 +342,7 @@ object Form1: TForm1
         Width = 52
         Height = 16
         Caption = 'Platform:'
+        Transparent = True
       end
       object Label9: TLabel
         Left = 312
@@ -345,6 +350,7 @@ object Form1: TForm1
         Width = 21
         Height = 16
         Caption = '       '
+        Transparent = True
       end
       object LABEL_SERVERINFO_PASSWORD: TLabel
         Left = 224
@@ -352,6 +358,7 @@ object Form1: TForm1
         Width = 63
         Height = 16
         Caption = 'Password:'
+        Transparent = True
       end
       object Label11: TLabel
         Left = 312
@@ -362,6 +369,7 @@ object Form1: TForm1
         Caption = '         '
         ParentShowHint = False
         ShowHint = False
+        Transparent = True
       end
       object LABEL_SERVERINFO_VERSION: TLabel
         Left = 224
@@ -369,6 +377,7 @@ object Form1: TForm1
         Width = 49
         Height = 16
         Caption = 'Version:'
+        Transparent = True
       end
       object Label13: TLabel
         Left = 312
@@ -376,6 +385,7 @@ object Form1: TForm1
         Width = 30
         Height = 16
         Caption = '          '
+        Transparent = True
       end
       object Label21: TLabel
         Left = 8
@@ -389,6 +399,7 @@ object Form1: TForm1
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
+        Transparent = True
       end
       object BUTTON_SERVERINFO_COPYADDRESS: TButton
         Left = 24
@@ -404,8 +415,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 516
-    Width = 885
+    Top = 514
+    Width = 883
     Height = 34
     Anchors = []
     BorderWidth = 1
@@ -435,6 +446,7 @@ object Form1: TForm1
     ParentShowHint = False
     ShowHint = False
     SimplePanel = False
+    SizeGrip = False
     UseSystemFont = False
   end
   object Timer1: TTimer
@@ -616,5 +628,139 @@ object Form1: TForm1
     OnApply = FontDialog1Apply
     Left = 576
     Top = 160
+  end
+  object SkinData1: TSkinData
+    Active = False
+    DisableTag = 99
+    SkinControls = [xcPopupMenu, xcMenuItem, xcToolbar, xcControlbar, xcCombo, xcCheckBox, xcRadioButton, xcProgress, xcScrollbar, xcEdit, xcButton, xcBitBtn, xcSpeedButton, xcSpin, xcPanel, xcGroupBox, xcStatusBar, xcTab, xcTrackBar, xcSystemMenu, xcFastReport]
+    Options = [xoPreview, xoToolbarBK, xoCaptionButtonHint]
+    Skin3rd.Strings = (
+      'TCategoryButtons=scrollbar'
+      'TPngSpeedbutton=pngspeedbutton'
+      'TPngBitBtn=pngbitbtn'
+      'TVirtualStringTree=scrollbar'
+      'TVirtualDrawTree=scrollbar'
+      'TTBXDockablePanel=Panel'
+      'TAdvPanelGroup=scrollbar'
+      'TComboboxex=combobox'
+      'TRxSpeedButton=speedbutton'
+      'THTMLViewer=scrollbar'
+      'TDBCtrlGrid=scrollbar'
+      'TfrSpeedButton=speedbutton'
+      'TfrTBButton=speedbutton'
+      'TControlBar=Panel'
+      'TTBDock=Panel'
+      'TTBToolbar=Panel'
+      'TImageEnMView=scrollbar'
+      'TImageEnView=scrollbar'
+      'TAdvMemo=scrollbar'
+      'TDBAdvMemo=scrollbar'
+      'TcxDBLookupComboBox=combobox'
+      'TcxDBComboBox=combobox'
+      'TcxDBDateEdit=combobox'
+      'TcxDBImageComboBox=combobox'
+      'TcxDBCalcEdit=combobox'
+      'TcxDBBlobEdit=combobox'
+      'TcxDBPopupEdit=combobox'
+      'TcxDBFontNameComboBox=combobox'
+      'TcxDBShellComboBox=combobox'
+      'TRxLookupEdit=combobox'
+      'TRxDBLookupCombo=combobox'
+      'TRzGroup=panel'
+      'TRzButton=button'
+      'TRzBitbtn=bitbtn'
+      'TRzMenuButton=menubtn'
+      'TRzCheckGroup=CheckGroup'
+      'TRzRadioGroup=Radiogroup'
+      'TRzButtonEdit=Edit'
+      'TRzDBRadioGroup=Radiogroup'
+      'TRzDBRadioButton=Radiobutton'
+      'TRzDateTimeEdit=combobox'
+      'TRzColorEdit=combobox'
+      'TRzDateTimePicker=combobox'
+      'TRzDBDateTimeEdit=combobox'
+      'TRzDbColorEdit=combobox'
+      'TRzDBDateTimePicker=combobox'
+      'TLMDButton=bitbtn'
+      'TLMDGroupBox=Groupbox'
+      'TDBCheckboxEh=Checkbox'
+      'TDBCheckboxEh=Checkbox'
+      'TLMDCHECKBOX=Checkbox'
+      'TLMDDBCHECKBOX=Checkbox'
+      'TLMDRadiobutton=Radiobutton'
+      'TLMDCalculator=panel'
+      'TLMDGROUPBOX=Panel'
+      'TLMDSIMPLEPANEL=Panel'
+      'TLMDDBCalendar=Panel'
+      'TLMDButtonPanel=Panel'
+      'TLMDLMDCalculator=Panel'
+      'TLMDHeaderPanel=Panel'
+      'TLMDTechnicalLine=Panel'
+      'TLMDLMDClock=Panel'
+      'TLMDTrackbar=panel'
+      'TLMDListCombobox=combobox'
+      'TLMDCheckListCombobox=combobox'
+      'TLMDHeaderListCombobox=combobox'
+      'TLMDImageCombobox=combobox'
+      'TLMDColorCombobox=combobox'
+      'TLMDFontCombobox=combobox'
+      'TLMDFontSizeCombobox=combobox'
+      'TLMDFontSizeCombobox=combobox'
+      'TLMDPrinterCombobox=combobox'
+      'TLMDDriveCombobox=combobox'
+      'TLMDCalculatorComboBox=combobox'
+      'TLMDTrackBarComboBox=combobox'
+      'TLMDCalendarComboBox=combobox'
+      'TLMDTreeComboBox=combobox'
+      'TLMDRADIOGROUP=radiogroup'
+      'TLMDCheckGroup=CheckGroup'
+      'TLMDDBRADIOGROUP=radiogroup'
+      'TLMDDBCheckGroup=CheckGroup'
+      'TLMDCalculatorEdit=edit'
+      'TLMDEDIT=Edit'
+      'TLMDMASKEDIT=Edit'
+      'TLMDBROWSEEDIT=Edit'
+      'TLMDEXTSPINEDIT=Edit'
+      'TLMDCALENDAREDIT=Edit'
+      'TLMDFILEOPENEDIT=Edit'
+      'TLMDFILESAVEEDIT=Edit'
+      'TLMDCOLOREDIT=Edit'
+      'TLMDDBEDIT=Edit'
+      'TLMDDBMASKEDIT=Edit'
+      'TLMDDBEXTSPINEDIT=Edit'
+      'TLMDDBSPINEDIT=Edit'
+      'TLMDDBEDITDBLookup=Edit'
+      'TLMDEDITDBLookup=Edit'
+      'TDBLookupCombobox=Combobox'
+      'TWWDBCombobox=Combobox'
+      'TWWDBLookupCombo=Combobox'
+      'TWWDBCombobox=Combobox'
+      'TWWKeyCombo=Combobox'
+      'TWWTempKeyCombo=combobox'
+      'TWWDBDateTimePicker=Combobox'
+      'TWWRADIOGROUP=radiogroup'
+      'TWWDBEDIT=Edit'
+      'TcxButton=bitbtn'
+      'TcxDBRadioGroup=radiogroup'
+      'TcxRadioGroup=radiogroup'
+      'TcxGroupbox=groupbox'
+      'TOVCPICTUREFIELD=Edit'
+      'TOVCDBPICTUREFIELD=Edit'
+      'TOVCSLIDEREDIT=Edit'
+      'TOVCDBSLIDEREDIT=Edit'
+      'TOVCSIMPLEFIELD=Edit'
+      'TOVCDBSIMPLEFIELD=Edit'
+      'TO32DBFLEXEDIT=Edit'
+      'TOVCNUMERICFIELD=Edit'
+      'TOVCDBNUMERICFIELD=Edit')
+    SkinFile = 'E:\suipack\skins3\Xplorer.skn'
+    SkinStore = '(none)'
+    SkinFormtype = sfMainform
+    Version = '5.80.06.23'
+    MenuUpdate = True
+    MenuMerge = False
+    Left = 376
+    Top = 112
+    SkinStream = {00000000}
   end
 end

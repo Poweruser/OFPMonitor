@@ -11,8 +11,8 @@
     <DEFFILE value=""/>
     <RESDEPEN value="$(RESFILES) Unit1.dfm Unit2.dfm"/>
     <LIBFILES value=""/>
-    <LIBRARIES value="bcbsmp.lib vclx.lib nmfast.lib rtl.lib vcl.lib"/>
-    <SPARELIBS value="vcl.lib rtl.lib nmfast.lib vclx.lib bcbsmp.lib"/>
+    <LIBRARIES value="WinSkinC6.lib bcbsmp.lib vclx.lib nmfast.lib rtl.lib vcl.lib"/>
+    <SPARELIBS value="vcl.lib rtl.lib nmfast.lib vclx.lib bcbsmp.lib WinSkinC6.lib"/>
     <PACKAGES value="vcl.bpi rtl.bpi visualclx.bpi nmfast.bpi vclx.bpi bcbsmp.bpi"/>
     <PATHCPP value=".;"/>
     <PATHPAS value=".;"/>
@@ -24,13 +24,14 @@
     <USERDEFINES value=""/>
     <SYSDEFINES value="NO_STRICT"/>
     <MAINSOURCE value="OFPMonitor.cpp"/>
-    <INCLUDEPATH value="..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl"/>
-    <LIBPATH value="..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <INCLUDEPATH value="E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl"/>
+    <LIBPATH value="$(BCB)\Projects\Lib;E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <OTHERFILES value=""/>
   </MACROS>
   <OPTIONS>
-    <IDLCFLAGS value="-I.. -IOFPMonitor -I$(BCB)\include -I$(BCB)\include\vcl -src_suffix cpp -boa"/>
+    <IDLCFLAGS value="-IE:\suipack\vclskinbcb2\CB6 -I.. -IOFPMonitor -I$(BCB)\include 
+      -I$(BCB)\include\vcl -src_suffix cpp -boa"/>
     <CFLAG1 value="-O2 -H=$(BCB)\lib\vcl60.csm -Vx -Ve -X- -a8 -b- -k- -vi -c -tW -tWM"/>
     <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
     <RFLAGS value=""/>
@@ -59,7 +60,7 @@ IncludeVerInfo=1
 AutoIncBuild=0
 MajorVer=1
 MinorVer=2
-Release=7
+Release=8
 Build=0
 Debug=0
 PreRelease=0
@@ -72,7 +73,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=by Poweruser
 FileDescription=OFP Server monitoring tool
-FileVersion=1.2.7.0
+FileVersion=1.2.8.0
 InternalName=OFPMonitor
 LegalCopyright=(c) Poweruser
 LegalTrademarks=
@@ -101,12 +102,14 @@ e:\progc\borland\cbuilder6\Bin\dcldss60.bpl=Borland Decision Cube Components
 e:\progc\borland\cbuilder6\Bin\dcltqr60.bpl=TeeChart for QuickReport Components
 
 [HistoryLists\hlIncludePath]
-Count=1
-Item0=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
+Count=2
+Item0=E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
+Item1=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=1
-Item0=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Count=2
+Item0=$(BCB)\Projects\Lib;E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item1=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1
