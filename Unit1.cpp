@@ -11,7 +11,6 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma link "trayicon"
-#pragma link "WinSkinData"
 #pragma resource "*.dfm"
 #pragma resource "wavefiles.res"
 #pragma resource "XP.res"
@@ -23,6 +22,7 @@ TForm1 *Form1;
 #define SERVERSTATE_SETTINGUP 12
 #define SERVERSTATE_BRIEFING 13
 #define SERVERSTATE_PLAYING 14
+
 
 typedef list<String> CustomStringList;
 
