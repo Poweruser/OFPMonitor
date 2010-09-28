@@ -837,6 +837,9 @@ list<String> readConfigFile() {
                 }
                 delete file;
         }
+        if(!player.IsEmpty()) {
+                programSettings.player = player;
+        };
         if(folder.IsEmpty()) {
                 list<String> a;
                 a.push_back("SOFTWARE");
