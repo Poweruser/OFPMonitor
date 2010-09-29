@@ -2340,6 +2340,8 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key,
 {
         if(Key == VK_ESCAPE) {
                 Form1->Close();
+        } else if(Key == VK_RETURN) {
+                TrayIcon1->Restore();
         }
 }
 //---------------------------------------------------------------------------
@@ -2522,12 +2524,6 @@ void __fastcall TForm1::Splitter1Moved(TObject *Sender)
         Form1->Refresh();
 }
 //---------------------------------------------------------------------------
-
-
-
-
-
-
 
 
 

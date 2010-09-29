@@ -10,7 +10,7 @@
     <IDLGENFILES value=""/>
     <DEFFILE value=""/>
     <RESDEPEN value="$(RESFILES) Unit1.dfm Unit2.dfm"/>
-    <LIBFILES value=""/>
+    <LIBFILES value="..\..\Lib\psapi.lib"/>
     <LIBRARIES value="WinSkinC6.lib bcbsmp.lib vclx.lib nmfast.lib rtl.lib vcl.lib"/>
     <SPARELIBS value="vcl.lib rtl.lib nmfast.lib vclx.lib bcbsmp.lib WinSkinC6.lib"/>
     <PACKAGES value="vcl.bpi rtl.bpi visualclx.bpi nmfast.bpi vclx.bpi bcbsmp.bpi"/>
@@ -24,14 +24,15 @@
     <USERDEFINES value=""/>
     <SYSDEFINES value="NO_STRICT"/>
     <MAINSOURCE value="OFPMonitor.cpp"/>
-    <INCLUDEPATH value="E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl"/>
-    <LIBPATH value="$(BCB)\Projects\Lib;E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <INCLUDEPATH value="E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl;E:\ProgC\Borland\CBuilder6\Projects\OFPMonitor"/>
+    <LIBPATH value="$(BCB)\Projects\Lib;E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib;E:\ProgC\Borland\CBuilder6\Projects\OFPMonitor"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <OTHERFILES value=""/>
   </MACROS>
   <OPTIONS>
     <IDLCFLAGS value="-IE:\suipack\vclskinbcb2\CB6 -I.. -IOFPMonitor -I$(BCB)\include 
-      -I$(BCB)\include\vcl -src_suffix cpp -boa"/>
+      -I$(BCB)\include\vcl -IE:\ProgC\Borland\CBuilder6\Projects\OFPMonitor 
+      -src_suffix cpp -boa"/>
     <CFLAG1 value="-O2 -H=$(BCB)\lib\vcl60.csm -Vx -Ve -X- -a8 -b- -k- -vi -c -tW -tWM"/>
     <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
     <RFLAGS value=""/>
@@ -50,6 +51,7 @@
       <FILE FILENAME="OFPMonitor.cpp" FORMNAME="" UNITNAME="OFPMonitor" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Unit1.cpp" FORMNAME="Form1" UNITNAME="Unit1" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Unit2.cpp" FORMNAME="Form2" UNITNAME="Unit2" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\Lib\psapi.lib" FORMNAME="" UNITNAME="psapi.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>
@@ -60,8 +62,8 @@ IncludeVerInfo=1
 AutoIncBuild=0
 MajorVer=1
 MinorVer=2
-Release=8
-Build=1
+Release=9
+Build=0
 Debug=0
 PreRelease=0
 Special=0
@@ -73,7 +75,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=by Poweruser
 FileDescription=OFP Server monitoring tool
-FileVersion=1.2.8.1
+FileVersion=1.2.9.0
 InternalName=OFPMonitor
 LegalCopyright=(c) Poweruser
 LegalTrademarks=
@@ -102,14 +104,16 @@ e:\progc\borland\cbuilder6\Bin\dcldss60.bpl=Borland Decision Cube Components
 e:\progc\borland\cbuilder6\Bin\dcltqr60.bpl=TeeChart for QuickReport Components
 
 [HistoryLists\hlIncludePath]
-Count=2
-Item0=E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
-Item1=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
+Count=3
+Item0=E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl;E:\ProgC\Borland\CBuilder6\Projects\OFPMonitor
+Item1=E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
+Item2=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=2
-Item0=$(BCB)\Projects\Lib;E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
-Item1=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Count=3
+Item0=$(BCB)\Projects\Lib;E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib;E:\ProgC\Borland\CBuilder6\Projects\OFPMonitor
+Item1=$(BCB)\Projects\Lib;E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item2=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1
