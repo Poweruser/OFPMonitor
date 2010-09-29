@@ -24,15 +24,13 @@
     <USERDEFINES value=""/>
     <SYSDEFINES value="NO_STRICT"/>
     <MAINSOURCE value="OFPMonitor.cpp"/>
-    <INCLUDEPATH value="E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl;E:\ProgC\Borland\CBuilder6\Projects\OFPMonitor"/>
-    <LIBPATH value="$(BCB)\Projects\Lib;E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib;E:\ProgC\Borland\CBuilder6\Projects\OFPMonitor"/>
+    <INCLUDEPATH value="..;$(BCB)\include;$(BCB)\include\vcl"/>
+    <LIBPATH value="$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <OTHERFILES value=""/>
   </MACROS>
   <OPTIONS>
-    <IDLCFLAGS value="-IE:\suipack\vclskinbcb2\CB6 -I.. -IOFPMonitor -I$(BCB)\include 
-      -I$(BCB)\include\vcl -IE:\ProgC\Borland\CBuilder6\Projects\OFPMonitor 
-      -src_suffix cpp -boa"/>
+    <IDLCFLAGS value="-I.. -I$(BCB)\include -I$(BCB)\include\vcl -src_suffix cpp -boa"/>
     <CFLAG1 value="-O2 -H=$(BCB)\lib\vcl60.csm -Vx -Ve -X- -a8 -b- -k- -vi -c -tW -tWM"/>
     <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
     <RFLAGS value=""/>
@@ -104,16 +102,18 @@ e:\progc\borland\cbuilder6\Bin\dcldss60.bpl=Borland Decision Cube Components
 e:\progc\borland\cbuilder6\Bin\dcltqr60.bpl=TeeChart for QuickReport Components
 
 [HistoryLists\hlIncludePath]
-Count=3
-Item0=E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl;E:\ProgC\Borland\CBuilder6\Projects\OFPMonitor
-Item1=E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
+Count=4
+Item0=..;$(BCB)\include;$(BCB)\include\vcl
+Item1=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 Item2=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
+Item3=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=3
-Item0=$(BCB)\Projects\Lib;E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib;E:\ProgC\Borland\CBuilder6\Projects\OFPMonitor
-Item1=$(BCB)\Projects\Lib;E:\suipack\vclskinbcb2\CB6;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
-Item2=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Count=4
+Item0=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item1=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item2=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item3=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1
