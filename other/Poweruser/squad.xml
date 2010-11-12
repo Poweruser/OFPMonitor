@@ -1,16 +1,4 @@
 ﻿<?xml version="1.0" encoding="ISO-8859-1" ?>
-<!DOCTYPE squad [
- <!ELEMENT squad (name, email, web, picture, title, member+)>
- <!ATTLIST squad nick CDATA #REQUIRED>
- <!ELEMENT web (#PCDATA)>
- <!ELEMENT picture (#PCDATA)>
- <!ELEMENT title (#PCDATA)>
- <!ELEMENT member (name, email, icq, remark)>
- <!ATTLIST member id CDATA #REQUIRED nick CDATA #REQUIRED>
- <!ELEMENT name (#PCDATA)>
- <!ELEMENT email (#PCDATA)>
- <!ELEMENT icq (#PCDATA)>
- <!ELEMENT remark (#PCDATA)>]>
 <squad nick="] [">
  <name></name>
  <email></email>
