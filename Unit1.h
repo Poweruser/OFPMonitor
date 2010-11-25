@@ -103,6 +103,11 @@ __published:	// IDE-managed Components
         TMenuItem *MENUITEM_POPUP_AUTOJOINB;
         TSplitter *Splitter1;
         TPanel *Panel1;
+        TMenuItem *MENUITEM_MAINMENU_NOTIFICATIONS;
+        TMenuItem *MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE;
+        TMenuItem *MENUITEM_MAINMENU_NOTIFICATIONS_SETTINGS;
+        TTimer *MP3Timer;
+        TMenuItem *Info1;
         void __fastcall NMUDP1DataReceived(TComponent *Sender,
           int NumberBytes, AnsiString FromIP, int Port);
         void __fastcall FormCreate(TObject *Sender);
@@ -152,6 +157,10 @@ __published:	// IDE-managed Components
         void __fastcall StringGrid1ContextPopup(TObject *Sender,
           TPoint &MousePos, bool &Handled);
         void __fastcall Splitter1Moved(TObject *Sender);
+        void __fastcall MENUITEM_MAINMENU_NOTIFICATIONS_SETTINGSClick(TObject *Sender);
+        void __fastcall MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVEClick(TObject *Sender);
+        void __fastcall MP3TimerTimer(TObject *Sender);
+        void __fastcall Info1Click(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         typedef list<String> CustomStringList;
@@ -162,7 +171,10 @@ public:		// User declarations
                                 float ratioMN,float ratioPI,float ratioPL,
                                 float ratioSC,float ratioDE,float ratioTE,
                                 int devider);
+        void TForm1::createMP3Job(int index,int serverindex, String file, String alias, int volume, int start, int end, TColor color);
+        void TForm1::stopMP3Job(String alias);
         CustomStringList TForm1::splitUpMessage(String msg, String split);
+        bool TForm1::doNameFilter(String c, String d);
         __fastcall TForm1(TComponent* Owner);
 };
 //---------------------------------------------------------------------------

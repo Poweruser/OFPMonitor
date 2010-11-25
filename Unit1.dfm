@@ -1,8 +1,8 @@
 object Form1: TForm1
-  Left = 255
-  Top = 246
-  Width = 889
-  Height = 592
+  Left = 226
+  Top = 117
+  Width = 887
+  Height = 589
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Color = clBtnFace
@@ -11,7 +11,7 @@ object Form1: TForm1
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -13
-  Font.Name = 'MS Sans Serif'
+  Font.Name = 'Default'
   Font.Style = []
   KeyPreview = True
   Menu = MainMenu1
@@ -26,7 +26,7 @@ object Form1: TForm1
   object Splitter1: TSplitter
     Left = 0
     Top = 231
-    Width = 881
+    Width = 879
     Height = 4
     Cursor = crVSplit
     Align = alTop
@@ -40,8 +40,8 @@ object Form1: TForm1
   object StringGrid1: TStringGrid
     Left = 0
     Top = 235
-    Width = 881
-    Height = 277
+    Width = 879
+    Height = 274
     Align = alClient
     BiDiMode = bdRightToLeft
     ColCount = 7
@@ -79,14 +79,14 @@ object Form1: TForm1
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 881
+    Width = 879
     Height = 231
     Align = alTop
     BevelOuter = bvNone
     Constraints.MinHeight = 231
     TabOrder = 2
     object StringGrid2: TStringGrid
-      Left = 401
+      Left = 399
       Top = 0
       Width = 480
       Height = 231
@@ -402,9 +402,9 @@ object Form1: TForm1
         Transparent = True
       end
       object BUTTON_SERVERINFO_COPYADDRESS: TButton
-        Left = 24
+        Left = 16
         Top = 54
-        Width = 185
+        Width = 193
         Height = 22
         Caption = 'Copy address to clipboard'
         Enabled = False
@@ -415,8 +415,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 512
-    Width = 881
+    Top = 509
+    Width = 879
     Height = 34
     Anchors = []
     BorderWidth = 1
@@ -598,6 +598,18 @@ object Form1: TForm1
       Caption = 'Settings'
       OnClick = MENUITEM_MAINMENU_SETTINGSClick
     end
+    object MENUITEM_MAINMENU_NOTIFICATIONS: TMenuItem
+      Caption = 'Notifications'
+      object MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE: TMenuItem
+        Caption = 'Active'
+        ShortCut = 113
+        OnClick = MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVEClick
+      end
+      object MENUITEM_MAINMENU_NOTIFICATIONS_SETTINGS: TMenuItem
+        Caption = 'Settings'
+        OnClick = MENUITEM_MAINMENU_NOTIFICATIONS_SETTINGSClick
+      end
+    end
     object MENUITEM_MAINMENU_FONT: TMenuItem
       Caption = 'Font'
       OnClick = MENUITEM_MAINMENU_FONTClick
@@ -606,6 +618,10 @@ object Form1: TForm1
       Caption = 'Get new Server list'
       ShortCut = 116
       OnClick = MENUITEM_MAINMENU_GETNEWSERVERLISTClick
+    end
+    object Info1: TMenuItem
+      Caption = 'Info'
+      OnClick = Info1Click
     end
   end
   object TrayIcon1: TTrayIcon
@@ -627,6 +643,13 @@ object Form1: TForm1
     Options = [fdForceFontExist, fdLimitSize, fdApplyButton]
     OnApply = FontDialog1Apply
     Left = 576
+    Top = 160
+  end
+  object MP3Timer: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = MP3TimerTimer
+    Left = 608
     Top = 160
   end
 end

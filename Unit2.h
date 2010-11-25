@@ -11,7 +11,7 @@
 #include <ComCtrls.hpp>
 //---------------------------------------------------------------------------
 
-class TForm2 : public TForm
+class TWINDOW_SETTINGS : public TForm
 {
 __published:	// IDE-managed Components
         TEdit *Edit1;
@@ -81,21 +81,23 @@ __published:	// IDE-managed Components
           TObject *Sender);
 private:	// User declarations
 public:		// User declarations
-        int TForm2::getConfAmount();
-        String TForm2::getConfListEntry(int i);
-        String TForm2::getConfModLine(int i);
-        String TForm2::getCurrentPlayerName();
-        boolean TForm2::isOFPResistance();
-        void TForm2::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window);
-        void TForm2::setSettingsChanged();
-        TStringList* TForm2::getWatchedList();
-        String TForm2::getConfStartLine(int i, String ip, int port);
-        String TForm2::getExe();
-        String TForm2::getExeFolder();
-        String TForm2::getGuiString(String ident);
-        __fastcall TForm2(TComponent* Owner);
+        int TWINDOW_SETTINGS::getConfAmount();
+        String TWINDOW_SETTINGS::getConfListEntry(int i);
+        String TWINDOW_SETTINGS::getConfModLine(int i);
+        String TWINDOW_SETTINGS::getCurrentPlayerName();
+        boolean TWINDOW_SETTINGS::isOFPResistance();
+        void TWINDOW_SETTINGS::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window, TStringList *notifications);
+        void TWINDOW_SETTINGS::setSettingsChanged();
+        void TWINDOW_SETTINGS::setCustomNotifications(bool active);
+        bool TWINDOW_SETTINGS::areCustomNotificationsEnabled();
+        TStringList* TWINDOW_SETTINGS::getWatchedList();
+        String TWINDOW_SETTINGS::getConfStartLine(int i, String ip, int port);
+        String TWINDOW_SETTINGS::getExe();
+        String TWINDOW_SETTINGS::getExeFolder();
+        String TWINDOW_SETTINGS::getGuiString(String ident);
+        __fastcall TWINDOW_SETTINGS(TComponent* Owner);
 };
 //---------------------------------------------------------------------------
-extern PACKAGE TForm2 *Form2;
+extern PACKAGE TWINDOW_SETTINGS *WINDOW_SETTINGS;
 //---------------------------------------------------------------------------
 #endif

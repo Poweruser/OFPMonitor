@@ -8,6 +8,8 @@
 #include ".\gamespy\msquery_header.h"
 #include "Unit1.h"
 #include "Unit2.h"
+#include "Unit3.h"
+#include "Unit4.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma link "trayicon"
@@ -23,6 +25,7 @@ TForm1 *Form1;
 #define SERVERSTATE_BRIEFING 13
 #define SERVERSTATE_PLAYING 14
 
+#define SERVERARRAY_LENGTH 256
 
 typedef list<String> CustomStringList;
 
@@ -35,7 +38,7 @@ int GetArrLength(T(&)[size]){return size;}
 
 
 /**
-   Represents and internet address with IP and port
+   Represents an internet address with IP and port
  */
 
 class Address {
@@ -58,7 +61,7 @@ class Address {
    Message-Object, which holds all important information about it
    (IP, Port, Content, Time of arrival) and will be later procressed
    by the MessageReader
- */   
+ */
 
 class Message {
         public:
@@ -179,7 +182,8 @@ class FontSettings {
                         Form1->StringGrid2->Font->Style = this->style;
                         Form1->StringGrid2->DefaultRowHeight = this->size * 2.1f;
                         Form1->Font->Charset = this->charset;
-                        Form2->Font->Charset = this->charset;
+                        WINDOW_SETTINGS->Font->Charset = this->charset;
+                        WINDOW_NOTIFICATIONS->updateFontSettings(this->charset);
                         return;
                 }
 };
@@ -689,7 +693,7 @@ int errorreports = 0;
 void addToErrorReport(String err, String msg) {
         if(err.SubString(1,6)== "Fehler" || err == "Exception InvalidInteger") {
                 errorreports++;
-                Form1->StatusBar1->Panels->Items[2]->Text = Form2->getGuiString("STRING_ERRORS") + " " + String(errorreports);
+                Form1->StatusBar1->Panels->Items[2]->Text = WINDOW_SETTINGS->getGuiString("STRING_ERRORS") + " " + String(errorreports);
         }
         TStringList *error = new TStringList;
         if(FileExists("errorreport.txt")) {
@@ -843,7 +847,7 @@ class Server {
 };
 
 
-Server ServerArray[256];
+Server ServerArray[SERVERARRAY_LENGTH];
 int numOfServers = 0;
 
 Sorter tableSorter = Sorter();
@@ -926,7 +930,7 @@ void sendUdpMessage(int index, String ip, int port, String msg) {
    @return  'true' is c does contain d, otherwise 'false'
  */
 
-bool doNameFilter(String c, String d) {
+bool TForm1::doNameFilter(String c, String d) {
         bool out = false;
         String a = c.LowerCase();
         String b = d.LowerCase();
@@ -949,7 +953,7 @@ bool doPlayerFilter(CustomPlayerList l, String s) {
         bool out = false;
         for (CustomPlayerList::iterator ci = l.begin(); ci != l.end(); ++ci) {
                 Player p = *ci;
-                if(doNameFilter(p.name, s)) {
+                if(Form1->doNameFilter(p.name, s)) {
                         out = true;
                         break;
                 }
@@ -993,12 +997,12 @@ int checkFilters(int j) {
                         ) {
                                 bool missionfilter = true;
                                 if(Form1->Edit1->Text.Trim().Length() > 0) {
-                                        missionfilter = doNameFilter(ServerArray[j].mission,Form1->Edit1->Text);
+                                        missionfilter = Form1->doNameFilter(ServerArray[j].mission,Form1->Edit1->Text);
                                 }
                                 if(missionfilter) {
                                         bool namefilter = true;
                                         if(Form1->Edit2->Text.Trim().Length() > 0) {
-                                                namefilter = doNameFilter(ServerArray[j].name,Form1->Edit2->Text);
+                                                namefilter = Form1->doNameFilter(ServerArray[j].name,Form1->Edit2->Text);
                                         }
                                         if(namefilter) {
                                                 bool playerfilter = true;
@@ -1148,16 +1152,16 @@ void processPlayerList(int index) {
 void updateServerInfoBox(int index) {
         if(index >= 0 && index < numOfServers) {
                 Form1->Label2->Caption = ServerArray[index].ip;
-                Form1->Label4->Caption = ServerArray[index].gameport;
+                Form1->Label4->Caption = ServerArray[index].gamespyport - 1;
                 Form1->Label9->Caption = ServerArray[index].platform;
                 //Form1->Label18->Caption = ServerArray[index].impl;
                 Form1->Label21->Caption = ServerArray[index].name;
                 Form1->BUTTON_SERVERINFO_COPYADDRESS->Enabled = true;
                 int a = ServerArray[index].password;
                 if(a == 0) {
-                        Form1->Label11->Caption = Form2->getGuiString("STRING_NO");
+                        Form1->Label11->Caption = WINDOW_SETTINGS->getGuiString("STRING_NO");
                 } else if(a == 1) {
-                        Form1->Label11->Caption = Form2->getGuiString("STRING_YES");
+                        Form1->Label11->Caption = WINDOW_SETTINGS->getGuiString("STRING_YES");
                 }
                 Form1->Label13->Caption = ServerArray[index].actver;
         } else {
@@ -1233,7 +1237,7 @@ void filterChanged(bool userinput) {
         }
         filterChanging = true;
         if(userinput) {
-                Form2->setSettingsChanged();
+                WINDOW_SETTINGS->setSettingsChanged();
         }
         int row = Form1->StringGrid1->Selection.BottomRight.Y;
         int selectedIndex;
@@ -1273,8 +1277,8 @@ void filterChanged(bool userinput) {
                 }
         }
         bool found = false;
-        Form1->StatusBar1->Panels->Items[0]->Text = Form2->getGuiString("STRING_LISTED") + " " + String(numOfServers);
-        Form1->StatusBar1->Panels->Items[1]->Text = Form2->getGuiString("STRING_ONLINE") + " " + String(numOfServers - hasNoName);
+        Form1->StatusBar1->Panels->Items[0]->Text = WINDOW_SETTINGS->getGuiString("STRING_LISTED") + " " + String(numOfServers);
+        Form1->StatusBar1->Panels->Items[1]->Text = WINDOW_SETTINGS->getGuiString("STRING_ONLINE") + " " + String(numOfServers - hasNoName);
         if(inList == 1) {
                 setEmptyStringGrid();
                 setEmptyPlayerList();
@@ -1460,7 +1464,7 @@ Address getAddress(String address) {
 void TForm1::readServerList(CustomStringList &servers) {
         Form1->StatusBar1->Panels->Items[0]->Text = "";
         Form1->StatusBar1->Panels->Items[1]->Text = "";
-        TStringList *watched = Form2->getWatchedList();
+        TStringList *watched = WINDOW_SETTINGS->getWatchedList();
         numOfServers = 0;
         while (servers.size() > 0) {
                 String tmp = servers.front();
@@ -1567,7 +1571,7 @@ void disableAutoJoin() {
  */
 
 void startTheGame(String configuration) {
-        ShellExecute(NULL, "open", PChar(Form2->getExe().c_str()), PChar(configuration.c_str()), PChar(Form2->getExeFolder().c_str()), SW_NORMAL);
+        ShellExecute(NULL, "open", PChar(WINDOW_SETTINGS->getExe().c_str()), PChar(configuration.c_str()), PChar(WINDOW_SETTINGS->getExeFolder().c_str()), SW_NORMAL);
 }
 
 /**
@@ -1833,6 +1837,32 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                         }
                                 }
                         }
+
+
+                        if(WINDOW_SETTINGS->areCustomNotificationsEnabled()) {
+                                list<String> playerList;
+                                for (list<Player>::iterator ci = ServerArray[i].playerlist.begin(); ci != ServerArray[i].playerlist.end(); ++ci) {
+                                        playerList.push_back((*ci).name);
+                                }
+
+                                WINDOW_NOTIFICATIONS->checkNotifications(i,
+                                                        ServerArray[i].name,
+                                                        ServerArray[i].players,
+                                                        ServerArray[i].gamestate,
+                                                        ServerArray[i].mission,
+                                                        ServerArray[i].password,
+                                                        playerList);
+
+
+
+                                /*
+                                  String servername, int players, int status,
+                                String missionname, bool passworded,
+                                list<String> playerlist) {
+                                */
+                        }
+
+
                 }
 
         return out;
@@ -1841,7 +1871,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
 /**
    This MessageReader makes sure that new incoming messages are procressed
    after each other (serial) and not at the same time (parallel). This resolves
-   some concurrent access issues on the storing data structes.
+   some concurrent access issues on the storing data structures.
  */
 
 class MessageReader {
@@ -1917,6 +1947,194 @@ void copyToClipBoard (String msg) {
         return;
 }
 
+class MP3Job {
+    public:
+        list<int> serverIndex;
+        int notificationIndex;
+        bool set;
+        bool started;
+        bool stopped;
+        String file;
+        String alias;
+        int volume;
+        int start;
+        int end;
+        bool error;
+        TColor markColor;
+
+        MP3Job() {
+                this->set = false;
+
+        }
+
+        MP3Job(int index, int serverindex, String file, String alias, int volume, int start, int end, TColor color) {
+                this->serverIndex.push_back(serverindex);
+                this->notificationIndex = index;
+                this->error = false;
+                this->file = file;
+                this->alias = alias;
+                this->volume = volume;
+                this->start = start;
+                this->end = end;
+                this->started = false;
+                this->stopped = false;
+                this->markColor = color;
+                this->set = true;
+        }
+
+        void play() {
+                if(0 != mciSendString(("Open \"" + this->file + "\" alias " + this->alias).c_str(),0,0,0)) {
+                        this->error = true;
+                }
+                if(0 != mciSendString(("play " + this->alias + " from " + String(this->start) + " to " + String(this->end)).c_str(), 0, 0, 0)) {
+                        this->error = true;
+                }
+                if(0 != mciSendString(("setaudio " + this->alias + " volume to " + String(this->volume)).c_str(), 0, 0, 0)) {
+                        this->error = true;
+                }
+                this->started = true;
+        }
+
+        bool hasEnded() {
+                char text[128];
+                mciSendString(("status " + this->alias + " position").c_str(), text, 128, 0);
+                int pos = 0;
+                try {
+                        pos = StrToInt(String(text));
+                } catch (...) {
+                }
+                return (pos >= this->end || this->error || this->stopped);
+        }
+
+        void stop() {
+                mciSendString(("Close " + this->alias).c_str(),0,0,0);
+                this->stopped = true;
+        }
+};
+
+
+class MP3Player {
+    public:
+        MP3Job jobs[5];
+
+        MP3Player() {}
+
+        void queueMP3(MP3Job job) {
+                bool alreadyPlaying = false;
+                int index = -1;
+                for(int i = 0; i < 5; i++) {
+                        if(!alreadyPlaying) {
+                                alreadyPlaying = this->jobs[i].set &&
+                                        (this->jobs[i].alias == job.alias ||
+                                         this->jobs[i].notificationIndex == job.notificationIndex) &&
+                                        !this->jobs[i].hasEnded();
+                        }
+                        if(alreadyPlaying) {
+                                index = i;
+                                break;
+                        }
+                        if(!this->jobs[i].set && index <= 0) {
+                                index = i;
+                        }
+                }
+                if(index != -1) {
+                        if(!alreadyPlaying) {
+                                this->jobs[index] = job;
+                                this->jobs[index].play();
+                                Form1->MP3Timer->Enabled = true;
+                        } else {
+                                bool alreadyIn = false;
+                                for (list<int>::iterator ci = jobs[index].serverIndex.begin(); ci != jobs[index].serverIndex.end(); ++ci) {
+                                        if(job.serverIndex.front() == *ci) {
+                                                alreadyIn = true;
+                                                break;
+                                        }
+                                }
+                                if(!alreadyIn) {
+                                        jobs[index].serverIndex.push_back(job.serverIndex.front());
+                                }
+                        }
+                }
+
+                return;
+        }
+
+        bool check() {
+                bool hasJob = false;
+                for(int i = 0; i < 5; i++) {
+                        if(jobs[i].set) {
+                                hasJob = true;
+                                if(jobs[i].hasEnded()) {
+                                        jobs[i].stop();
+                                        if(String("OFPM_MP3PREVIEW") == jobs[i].alias) {
+                                                WINDOW_NOTIFICATIONS->STOP->Click();
+                                        }
+                                        jobs[i] = MP3Job();
+                                } else if(String("OFPM_MP3PREVIEW") == jobs[i].alias) {
+                                        char text[128];
+                                        mciSendString("status OFPM_MP3PREVIEW position", text, 128,0);
+                                        String out = "";
+                                        int minutes = StrToInt(text);
+                                        int milliseconds = minutes % 1000;
+                                        WINDOW_NOTIFICATIONS->LabelMilli->Caption = IntToStr(milliseconds);
+                                        minutes = (minutes - milliseconds)/1000;
+                                        int seconds = minutes % 60;
+                                        if(seconds < 10) {
+                                                WINDOW_NOTIFICATIONS->LabelSeconds->Caption = "0" + IntToStr(seconds) + ":";
+                                        } else {
+                                                WINDOW_NOTIFICATIONS->LabelSeconds->Caption = IntToStr(seconds) + ":";
+                                        }
+                                        minutes = (minutes - seconds) / 60;
+                                        if(minutes < 10) {
+                                                WINDOW_NOTIFICATIONS->LabelMinutes->Caption = "0" + IntToStr(minutes)+ ":";
+                                        } else {
+                                                WINDOW_NOTIFICATIONS->LabelMinutes->Caption = IntToStr(minutes)+ ":";
+                                        }
+                                }
+                        }
+                }
+                return hasJob;
+        }
+
+        void stopMP3Job(String alias) {
+                for(int i = 0; i < 5; i++) {
+                        if(jobs[i].set) {
+                                if(jobs[i].alias == alias || alias == "any") {
+                                        jobs[i].stop();
+                                        jobs[i] = MP3Job();
+                                }
+                        }
+                }
+                return;
+        }
+
+        TColor getMarkingColor(int serverindex) {
+                TColor out = NULL;
+                for(int i = 0; i < 5; i++) {
+                        if(jobs[i].set) {
+                                if(!jobs[i].hasEnded()) {
+                                        for (list<int>::iterator ci = jobs[i].serverIndex.begin(); ci != jobs[i].serverIndex.end(); ++ci) {
+                                                if(serverindex == *ci) {
+                                                        out = jobs[i].markColor;
+                                                        break;
+                                                }
+                                        }
+                                }
+                        }
+                }
+                return out;
+        }
+};
+
+MP3Player mp3p = MP3Player();
+
+void TForm1::createMP3Job(int index, int serverindex, String file, String alias, int volume, int start, int end, TColor color) {
+        mp3p.queueMP3(MP3Job(index, serverindex, file, alias, volume, start, end, color));
+}
+
+void TForm1::stopMP3Job(String alias) {
+        mp3p.stopMP3Job(alias);
+}
 
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
@@ -1965,7 +2183,6 @@ void __fastcall TForm1::NMUDP1DataReceived(TComponent *Sender,
                 NMUDP1->ReadBuffer(buffer,bytes,len);
                 buffer[len] = 0;
                 String buf = String(buffer);
-                free(buffer);
                 messageReader.newMessage(Message(FromIP,Port,buf,i));
         } else {
                 addToErrorReport("Fehler 1","Receiving buffer too small. Current: 2048. Received: " + String(NumberBytes) + " Bytes");
@@ -1996,6 +2213,7 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
 {
+        mp3p.stopMP3Job("any");
         Timer1->Enabled = false;
         Timer3->Enabled = false;
         delete ServerSortList;
@@ -2014,7 +2232,7 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
                         servers.push_back(tmp);
                 }
         }
-        Form2->writeSettingToFile(servers, watched, fontsettings.createFileEntry(), windowsettings.createFileEntry());
+        WINDOW_SETTINGS->writeSettingToFile(servers, watched, fontsettings.createFileEntry(), windowsettings.createFileEntry(), WINDOW_NOTIFICATIONS->getFileEntry());
         
 }
 //---------------------------------------------------------------------------
@@ -2065,7 +2283,7 @@ void __fastcall TForm1::Timer3Timer(TObject *Sender)
                                 sendUdpMessage(a, ServerArray[a].ip,ServerArray[a].gamespyport,"\\info\\rules\\");
                         }
                 }
-        }
+        }            
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CHECKBOX_FILTER_WITHPASSWORDClick(TObject *Sender)
@@ -2113,7 +2331,7 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
                                 tableSorter.setPing();
                         }
                         filterChanged(false);
-                        Form2->setSettingsChanged();
+                        WINDOW_SETTINGS->setSettingsChanged();
                 }
         } else if(Button == mbRight && Y >= StringGrid1->DefaultRowHeight) {
                 int c = ((Y - StringGrid1->DefaultRowHeight) / (StringGrid1->DefaultRowHeight + 1)) + 1;
@@ -2219,9 +2437,9 @@ void __fastcall TForm1::Edit4Change(TObject *Sender)
 void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
 {
         int index = PopupMenu1->Tag;
-        boolean isOFPR = Form2->isOFPResistance();
-        for(int i = 0; i < Form2->getConfAmount() || i < PopupMenu1->Items->Items[0]->Count; i++) {
-                String s = Form2->getConfListEntry(i);
+        boolean isOFPR = WINDOW_SETTINGS->isOFPResistance();
+        for(int i = 0; i < WINDOW_SETTINGS->getConfAmount() || i < PopupMenu1->Items->Items[0]->Count; i++) {
+                String s = WINDOW_SETTINGS->getConfListEntry(i);
                 if(!s.IsEmpty()) {
                         TMenuItem *join;
                         TMenuItem *autojoin;
@@ -2248,20 +2466,15 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
                         autojoin->OnClick = ClickAutoJoinConfButton;
 
 
-                        String modline = Form2->getConfModLine(i);
+                        String modline = WINDOW_SETTINGS->getConfModLine(i);
                         if(isOFPR) {
                                 if(modline.Length() > 0) {
                                         modline = ";" + modline;
                                 }
                                 modline = "RES" + modline;
                         }
-                        if(ServerArray[index].equalMod == 1 && modline != ServerArray[index].mod) {
-                                join->Enabled = false;
-                                autojoin->Enabled = false;
-                        } else {
-                                join->Enabled = true;
-                                autojoin->Enabled = true;
-                        }
+                        join->Enabled = !(ServerArray[index].equalMod == 1 && modline != ServerArray[index].mod);
+                        autojoin->Enabled = join->Enabled;
                 } else {
                         if(i < PopupMenu1->Items->Items[0]->Count) {
                                 PopupMenu1->Items->Items[0]->Items[i]->Visible = false;
@@ -2278,7 +2491,7 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
         int index = a->Parent->Tag;
         int port = ServerArray[index].gameport;
         String ip = ServerArray[index].ip;
-        String playername = Form2->getCurrentPlayerName();
+        String playername = WINDOW_SETTINGS->getCurrentPlayerName();
 
         bool found = false;
         for (CustomPlayerList::iterator ci = ServerArray[index].playerlist.begin(); ci != ServerArray[index].playerlist.end(); ++ci) {
@@ -2291,11 +2504,11 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
 
         int zz = 6;
         if(found) {
-                zz = MessageBoxA(NULL, Form2->getGuiString("STRING_PLAYER_ALREADY_ON_SERVER").c_str(),
+                zz = MessageBoxA(NULL, WINDOW_SETTINGS->getGuiString("STRING_PLAYER_ALREADY_ON_SERVER").c_str(),
                                     "", MB_YESNO | MB_ICONQUESTION);
         }
         if(zz == 6) {
-              startTheGame(Form2->getConfStartLine(a->Tag,ip, port));
+              startTheGame(WINDOW_SETTINGS->getConfStartLine(a->Tag,ip, port));
         }
 }
 //---------------------------------------------------------------------------
@@ -2305,7 +2518,7 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
         TMenuItem *a = (TMenuItem *) Sender;
         int index = a->Parent->Tag;
         ServerArray[index].autojoin = true;
-        ServerArray[index].autojoinConf = Form2->getConfStartLine(a->Tag, ServerArray[index].ip, ServerArray[index].gameport);
+        ServerArray[index].autojoinConf = WINDOW_SETTINGS->getConfStartLine(a->Tag, ServerArray[index].ip, ServerArray[index].gameport);
         StringGrid1->Refresh();
         filterChanged(false);
 }
@@ -2316,7 +2529,7 @@ void __fastcall TForm1::ClickWatchButton(TObject *Sender)
         int index = a->Tag;
         a->Checked = !(a->Checked);
         ServerArray[index].watch = a->Checked;
-        TStringList *watched = Form2->getWatchedList();
+        TStringList *watched = WINDOW_SETTINGS->getWatchedList();
         if(ServerArray[index].watch) {
                 watched->Add(ServerArray[index].ip + ":" + String(ServerArray[index].gamespyport));
         } else {
@@ -2327,7 +2540,7 @@ void __fastcall TForm1::ClickWatchButton(TObject *Sender)
         }
         StringGrid1->Refresh();
         playAudioServerStatus(index, ServerArray[index].gamestate);
-        Form2->setSettingsChanged();
+        WINDOW_SETTINGS->setSettingsChanged();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CHECKBOX_FILTER_SETTINGUPClick(TObject *Sender)
@@ -2353,10 +2566,14 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
                 int zelle = ARow;
                 try {
                         int index = StrToInt((StringGrid1->Cells[0][zelle]).Trim());
-                        if(ServerArray[index].watch || ServerArray[index].autojoin) {
-                                StringGrid1->Canvas->Brush->Color = clBlue;
+                        TColor mark = mp3p.getMarkingColor(index);
+                        if(mark != NULL || ServerArray[index].watch || ServerArray[index].autojoin) {
                                 StringGrid1->Canvas->Font->Color = clWhite;
-                                if(ServerArray[index].autojoin) {
+                                if(mark != NULL) {
+                                        StringGrid1->Canvas->Brush->Color = mark;
+                                } else if(ServerArray[index].watch) {
+                                        StringGrid1->Canvas->Brush->Color = clBlue;
+                                } else if(ServerArray[index].autojoin) {
                                         StringGrid1->Canvas->Brush->Color = clRed;
                                 }
                                 StringGrid1->Canvas->FillRect(Rect);
@@ -2371,7 +2588,7 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
 
 void __fastcall TForm1::MENUITEM_MAINMENU_SETTINGSClick(TObject *Sender)
 {
-        Form2->ShowModal();        
+        WINDOW_SETTINGS->ShowModal();        
 }
 //---------------------------------------------------------------------------
 
@@ -2445,7 +2662,7 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
                 readServerList(addresses);
         }
         delete CurrentList;
-        Form2->setSettingsChanged();
+        WINDOW_SETTINGS->setSettingsChanged();
         Timer3->Enabled = true;
         Timer1->Enabled = true;
         MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = true;
@@ -2468,7 +2685,7 @@ void __fastcall TForm1::FormResize(TObject *Sender)
         if(windowsettings.init) {
                 windowsettings.refresh();
         }
-        Form2->setSettingsChanged();
+        WINDOW_SETTINGS->setSettingsChanged();
 }
 //---------------------------------------------------------------------------
 
@@ -2477,7 +2694,7 @@ void __fastcall TForm1::StringGrid1MouseUp(TObject *Sender,
 {
         windowsettings.updateGrid1();
         if(Button == mbLeft && Y < StringGrid1->DefaultRowHeight) {
-                Form2->setSettingsChanged();
+                WINDOW_SETTINGS->setSettingsChanged();
         }
 }
 //---------------------------------------------------------------------------
@@ -2487,7 +2704,7 @@ void __fastcall TForm1::StringGrid2MouseUp(TObject *Sender,
 {
         windowsettings.updateGrid2();
         if(Button == mbLeft && Y < StringGrid2->DefaultRowHeight) {
-                Form2->setSettingsChanged();
+                WINDOW_SETTINGS->setSettingsChanged();
         }
 }
 //---------------------------------------------------------------------------
@@ -2498,7 +2715,7 @@ void __fastcall TForm1::FontDialog1Apply(TObject *Sender, HWND Wnd)
         fontsettings.charset = FontDialog1->Font->Charset;
         fontsettings.style = FontDialog1->Font->Style;
         fontsettings.update();
-        Form2->setSettingsChanged();
+        WINDOW_SETTINGS->setSettingsChanged();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_POPUP_AUTOJOINBClick(TObject *Sender)
@@ -2520,10 +2737,37 @@ void __fastcall TForm1::StringGrid1ContextPopup(TObject *Sender,
 void __fastcall TForm1::Splitter1Moved(TObject *Sender)
 {
         Application->ProcessMessages();
-        Form2->setSettingsChanged();
+        WINDOW_SETTINGS->setSettingsChanged();
         Form1->Refresh();
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TForm1::MENUITEM_MAINMENU_NOTIFICATIONS_SETTINGSClick(TObject *Sender)
+{
+        WINDOW_NOTIFICATIONS->ShowModal();        
+}
+//---------------------------------------------------------------------------
 
+void __fastcall TForm1::MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVEClick(TObject *Sender)
+{
+        MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE->Checked = !MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE->Checked;
+        WINDOW_SETTINGS->setCustomNotifications(MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE->Checked);
+        WINDOW_SETTINGS->setSettingsChanged();
+        if(!MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE->Checked) {
+                mp3p.stopMP3Job("any");
+        }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::MP3TimerTimer(TObject *Sender)
+{
+        MP3Timer->Enabled = mp3p.check();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Info1Click(TObject *Sender)
+{
+        WINDOW_INFO->ShowModal();        
+}
+//---------------------------------------------------------------------------
 

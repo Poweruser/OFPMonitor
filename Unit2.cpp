@@ -10,11 +10,13 @@
 #pragma hdrstop
 
 #include "Unit2.h"
+#include "Unit3.h"
 #include "Unit1.h"
+#include "Unit4.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TForm2 *Form2;
+TWINDOW_SETTINGS *WINDOW_SETTINGS;
 
 #include "guiDBDefs.cpp"
 
@@ -32,7 +34,7 @@ int GetArrLength(T(&)[size]){return size;}
    Returns the number of game configurations the user has set
  */
 
-int TForm2::getConfAmount() {
+int TWINDOW_SETTINGS::getConfAmount() {
         return confAmount;
 }
 
@@ -170,6 +172,7 @@ class Settings {
                 String folder;
                 String player;
                 int interval;
+                bool customNotifications;
                 Configuration startupConfs[confAmount];
                 String file;
                 String languagefile;
@@ -180,6 +183,7 @@ class Settings {
                         this->watched->Sorted = true;
                         this->watched->Duplicates = dupIgnore;
                         this->workdir = GetCurrentDir();
+                        this->customNotifications = false;
                         this->interval = 1;
                         this->file = this->workdir + "\\OFPMonitor.ini";
                         this->languagefile = "Default";
@@ -213,7 +217,7 @@ class Settings {
                         this->changed = true;
                 }
 
-                void writeToFile(list<String> &servers, list<String> &watchedServers, list<String> &font, list<String> &window) {
+                void writeToFile(list<String> &servers, list<String> &watchedServers, list<String> &font, list<String> &window, TStringList *notifications) {
                         if(this->changed) {
                                 TStringList *file = new TStringList;
                                 file->Add("[General]");
@@ -221,6 +225,7 @@ class Settings {
                                 file->Add("LastPlayer = " + this->player);
                                 file->Add("LangFile = " + this->languagefile);
                                 file->Add("Interval = " + String(this->interval));
+                                file->Add("customNotifications = " + checkBool(this->customNotifications));
                                 file->Add("[\\General]");
                                 for(int i = 0; i < confAmount; i++) {
                                         if(this->startupConfs[i].set) {
@@ -275,38 +280,51 @@ class Settings {
                                         }
                                         file->Add("[\\Servers]");
                                 }
+                                while(notifications->Count > 0) {
+                                        file->Add(notifications->Strings[0]);
+                                        notifications->Delete(0);
+                                }
                                 file->SaveToFile(this->file);
+                                delete notifications;
                                 delete file;
                         }
                 }
 };
 Settings programSettings = Settings();
 
-void TForm2::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window) {
-        programSettings.writeToFile(servers, watchedServers, font, window);
+void TWINDOW_SETTINGS::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window, TStringList *notifications) {
+        programSettings.writeToFile(servers, watchedServers, font, window, notifications);
 }
 
-void TForm2::setSettingsChanged() {
+void TWINDOW_SETTINGS::setCustomNotifications(bool active) {
+        programSettings.customNotifications = active;
+}
+
+bool TWINDOW_SETTINGS::areCustomNotificationsEnabled() {
+        return programSettings.customNotifications;
+}
+
+void TWINDOW_SETTINGS::setSettingsChanged() {
         programSettings.changed = true;
 }
 
-boolean TForm2::isOFPResistance() {
+boolean TWINDOW_SETTINGS::isOFPResistance() {
         return ((programSettings.folder + "FLASHPOINTRESISTANCE.EXE") == programSettings.exe);
 }
 
-String TForm2::getConfListEntry(int i) {
+String TWINDOW_SETTINGS::getConfListEntry(int i) {
         return programSettings.startupConfs[i].createListEntry();
 }
 
-String TForm2::getConfStartLine(int i, String ip, int port) {
+String TWINDOW_SETTINGS::getConfStartLine(int i, String ip, int port) {
         return programSettings.startupConfs[i].createStartLine(ip, port, programSettings.player);
 }
 
-String TForm2::getConfModLine(int i) {
+String TWINDOW_SETTINGS::getConfModLine(int i) {
         return programSettings.startupConfs[i].createModLine();
 }
 
-TStringList* TForm2::getWatchedList() {
+TStringList* TWINDOW_SETTINGS::getWatchedList() {
         return programSettings.watched;
 }
 
@@ -314,7 +332,7 @@ TStringList* TForm2::getWatchedList() {
    Returns the currently set game exe file
  */
 
-String TForm2::getExe() {
+String TWINDOW_SETTINGS::getExe() {
         return programSettings.exe;
 }
 
@@ -322,7 +340,7 @@ String TForm2::getExe() {
    Returns the game folder
  */
 
-String TForm2::getExeFolder() {
+String TWINDOW_SETTINGS::getExeFolder() {
         return programSettings.folder;
 }
 
@@ -331,10 +349,10 @@ String TForm2::getExeFolder() {
  */
 
 void updateConfList() {
-        Form2->ListBox1->Clear();
+        WINDOW_SETTINGS->ListBox1->Clear();
         for(int i = 0; i < confAmount; i++) {
                 if(programSettings.startupConfs[i].set) {
-                        Form2->ListBox1->Items->AddObject(programSettings.startupConfs[i].createListEntry(), (TObject *) i);
+                        WINDOW_SETTINGS->ListBox1->Items->AddObject(programSettings.startupConfs[i].createListEntry(), (TObject *) i);
                 }
         }
         return;
@@ -418,13 +436,13 @@ String GetRegistryValue(void * root, list<String> a, String key) {
 
 void updateModFolderList(String ofpfolder) {
         if(!ofpfolder.IsEmpty()) {
-                Form2->ListBox2->Clear();
+                WINDOW_SETTINGS->ListBox2->Clear();
         	TSearchRec daten;
                 if(0 == FindFirst((ofpfolder +"\\*").c_str(), faDirectory, daten)) {
                         try {
                                 do {
                                         if(daten.Size == 0 && daten.Name != "." && daten.Name != "..") {
-                                                Form2->ListBox2->Items->Add(String(daten.Name));
+                                                WINDOW_SETTINGS->ListBox2->Items->Add(String(daten.Name));
                                         }
                                 } while(FindNext(daten) == 0);
                         }__finally
@@ -439,7 +457,7 @@ void updateModFolderList(String ofpfolder) {
    Returns a String of the current set language for an identifier 
  */
 
-String TForm2::getGuiString(String ident) {
+String TWINDOW_SETTINGS::getGuiString(String ident) {
         String out = "";
         for (list<guiString>::iterator ci = guiStrings.begin(); ci != guiStrings.end(); ++ci) {
                 if((*ci).identifier == ident) {
@@ -458,7 +476,7 @@ String TForm2::getGuiString(String ident) {
 bool updateProfileList(String ofpfolder) {
         bool success = false;
         if(!ofpfolder.IsEmpty()) {
-                Form2->COMBOBOX_PROFILE->Clear();
+                WINDOW_SETTINGS->COMBOBOX_PROFILE->Clear();
         	TSearchRec daten;
                 if(0 == FindFirst((ofpfolder +"\\Users\\*").c_str(), faDirectory, daten)) {
                         try {
@@ -467,7 +485,7 @@ bool updateProfileList(String ofpfolder) {
                                                 daten.Name != "." &&
                                                 daten.Name != ".." &&
                                                 FileExists(ofpfolder + "\\Users\\" + daten.Name + "\\UserInfo.cfg")) {
-                                                        Form2->COMBOBOX_PROFILE->Items->Add(String(daten.Name));
+                                                        WINDOW_SETTINGS->COMBOBOX_PROFILE->Items->Add(String(daten.Name));
                                                         success = true;
                                         }
                                 } while(FindNext(daten) == 0);
@@ -477,9 +495,9 @@ bool updateProfileList(String ofpfolder) {
                         }
                 }
         }
-        Form2->COMBOBOX_PROFILE->Enabled = success;
+        WINDOW_SETTINGS->COMBOBOX_PROFILE->Enabled = success;
         if(!success) {
-                Form2->COMBOBOX_PROFILE->Text = Form2->getGuiString("STRING_NOPROFILES");
+                WINDOW_SETTINGS->COMBOBOX_PROFILE->Text = WINDOW_SETTINGS->getGuiString("STRING_NOPROFILES");
         }
         return success;
 }
@@ -492,22 +510,22 @@ bool refreshProfiles(String folder, String player) {
                 b.push_back("Operation Flashpoint");
                 String registryPlayer = GetRegistryValue(HKEY_CURRENT_USER, b, "Player Name");
                 bool lp = false, rp = false;
-                for(int k = 0; k < Form2->COMBOBOX_PROFILE->Items->Count; k++) {
-                        if(Form2->COMBOBOX_PROFILE->Items->Strings[k] == player) {
+                for(int k = 0; k < WINDOW_SETTINGS->COMBOBOX_PROFILE->Items->Count; k++) {
+                        if(WINDOW_SETTINGS->COMBOBOX_PROFILE->Items->Strings[k] == player) {
                                 lp = true;
                         }
-                        if(Form2->COMBOBOX_PROFILE->Items->Strings[k] == registryPlayer) {
+                        if(WINDOW_SETTINGS->COMBOBOX_PROFILE->Items->Strings[k] == registryPlayer) {
                                 rp = true;
                         }
                 }
                 if(lp) {
-                        Form2->COMBOBOX_PROFILE->Text = player;
+                        WINDOW_SETTINGS->COMBOBOX_PROFILE->Text = player;
                 } else if(rp) {
-                        Form2->COMBOBOX_PROFILE->Text = registryPlayer;
+                        WINDOW_SETTINGS->COMBOBOX_PROFILE->Text = registryPlayer;
                 } else {
-                        Form2->COMBOBOX_PROFILE->Text = Form2->COMBOBOX_PROFILE->Items->Strings[0];
+                        WINDOW_SETTINGS->COMBOBOX_PROFILE->Text = WINDOW_SETTINGS->COMBOBOX_PROFILE->Items->Strings[0];
                 }
-                programSettings.player = Form2->COMBOBOX_PROFILE->Text;
+                programSettings.player = WINDOW_SETTINGS->COMBOBOX_PROFILE->Text;
                 return true;
         } else {
                 return false;
@@ -516,8 +534,8 @@ bool refreshProfiles(String folder, String player) {
 
 void checkIfExeAndPlayerIsSet(String folder, String player) {
         if(refreshProfiles(folder,player) &&
-           !Form2->getExe().IsEmpty() &&
-           !Form2->getExeFolder().IsEmpty()) {
+           !WINDOW_SETTINGS->getExe().IsEmpty() &&
+           !WINDOW_SETTINGS->getExeFolder().IsEmpty()) {
                         Form1->MENUITEM_POPUP_JOIN->Enabled = true;
                         Form1->MENUITEM_POPUP_AUTOJOIN->Enabled = true;
                         Form1->MENUITEM_POPUP_AUTOJOINB->Enabled = true;
@@ -541,6 +559,10 @@ void updateLanguage(String languagefile) {
         guiStrings.push_back(guiString("STRING_LISTED","Listed:"));
         guiStrings.push_back(guiString("STRING_ERRORS","Errors:"));
         guiStrings.push_back(guiString("STRING_NOPROFILES","No player profiles found!"));
+        /*
+        guiStrings.push_back(guiString("STRING_FROM","From:"));
+        guiStrings.push_back(guiString("STRING_FROM","To:"));
+        */
         if(FileExists(pathAndFile)) {
                 file->LoadFromFile(pathAndFile);
                 String tmp;
@@ -589,10 +611,10 @@ void updateLanguage(String languagefile) {
                                                 break;
                                         }
                                 }
-                        } else if(tmp.SubString(1,15) == "SETTINGS_WINDOW") {
+                        } else if(tmp.SubString(1,6) == "WINDOW") {
                                 val = getVarAndValue(tmp, "=");
                                 for(int j = 0; j < GetArrLength(guiForm); j++) {
-                                        if(guiForm[j]->Hint == val.front()) {
+                                        if(guiForm[j]->Name == val.front()) {
                                                 guiForm[j]->Caption = val.back();
                                                 break;
                                         }
@@ -604,20 +626,30 @@ void updateLanguage(String languagefile) {
                                 guiStrings.push_back(guiString(f,b));
                         }
                 }
-                Form1->StringGrid1->Cells[0][0] = Form2->getGuiString("STRING_ID");
-                Form1->StringGrid1->Cells[1][0] = Form2->getGuiString("STRING_NAME");
-                Form1->StringGrid1->Cells[2][0] = Form2->getGuiString("STRING_PLAYERS");
-                Form1->StringGrid1->Cells[3][0] = Form2->getGuiString("STRING_STATUS");
-                Form1->StringGrid1->Cells[4][0] = Form2->getGuiString("STRING_ISLAND");
-                Form1->StringGrid1->Cells[5][0] = Form2->getGuiString("STRING_MISSION");
-                Form1->StringGrid1->Cells[6][0] = Form2->getGuiString("STRING_PING");
-                Form1->StringGrid2->Cells[0][0] = Form2->getGuiString("STRING_NAME");
-                Form1->StringGrid2->Cells[1][0] = Form2->getGuiString("STRING_SCORE");
-                Form1->StringGrid2->Cells[2][0] = Form2->getGuiString("STRING_DEATHS");
-                Form1->StringGrid2->Cells[3][0] = Form2->getGuiString("STRING_TEAM");
-                if(!Form2->COMBOBOX_PROFILE->Enabled) {
-                        Form2->COMBOBOX_PROFILE->Text = Form2->getGuiString("STRING_NOPROFILES");
+                Form1->StringGrid1->Cells[0][0] = WINDOW_SETTINGS->getGuiString("STRING_ID");
+                Form1->StringGrid1->Cells[1][0] = WINDOW_SETTINGS->getGuiString("STRING_NAME");
+                Form1->StringGrid1->Cells[2][0] = WINDOW_SETTINGS->getGuiString("STRING_PLAYERS");
+                Form1->StringGrid1->Cells[3][0] = WINDOW_SETTINGS->getGuiString("STRING_STATUS");
+                Form1->StringGrid1->Cells[4][0] = WINDOW_SETTINGS->getGuiString("STRING_ISLAND");
+                Form1->StringGrid1->Cells[5][0] = WINDOW_SETTINGS->getGuiString("STRING_MISSION");
+                Form1->StringGrid1->Cells[6][0] = WINDOW_SETTINGS->getGuiString("STRING_PING");
+                Form1->StringGrid2->Cells[0][0] = WINDOW_SETTINGS->getGuiString("STRING_NAME");
+                Form1->StringGrid2->Cells[1][0] = WINDOW_SETTINGS->getGuiString("STRING_SCORE");
+                Form1->StringGrid2->Cells[2][0] = WINDOW_SETTINGS->getGuiString("STRING_DEATHS");
+                Form1->StringGrid2->Cells[3][0] = WINDOW_SETTINGS->getGuiString("STRING_TEAM");
+                if(!WINDOW_SETTINGS->COMBOBOX_PROFILE->Enabled) {
+                        WINDOW_SETTINGS->COMBOBOX_PROFILE->Text = WINDOW_SETTINGS->getGuiString("STRING_NOPROFILES");
                 }
+
+
+
+
+
+
+
+
+
+
         }
         return;
 }
@@ -632,6 +664,7 @@ list<String> readConfigFile() {
         String folder = "";
         String player = "";
         String langfile = "";
+        String notify = "0";
         list<String> ipList;
         if(FileExists(programSettings.file)) {
                 TStringList *file = new TStringList;
@@ -654,6 +687,8 @@ list<String> readConfigFile() {
                                                 interval = getValue(tmp);
                                         } else if((tmp.SubString(1,8) == "LangFile")) {
                                                 langfile = getValue(tmp);
+                                        } else if((tmp.SubString(1,19) == "customNotifications")) {
+                                                notify = getValue(tmp);
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
@@ -833,6 +868,44 @@ list<String> readConfigFile() {
                                         ratioTE,
                                         devider);
 
+                        } else if((tmp.SubString(1,20) == "[CustomNotification]")) {
+                                i++;
+                                tmp = file->Strings[i].Trim();
+                                list<String> mission, server, player;
+                                String name = "Unnamed", soundFile = "", color = clWindow;
+                                int statusFilter = 0, volume = 100, minPlayers = -1, maxPlayers = -1, start = 0, end = -1;
+                                while((tmp.SubString(1,21) != "[\\CustomNotification]") && i < file->Count - 1) {
+                                        if((tmp.SubString(1,4) == "name")) {
+                                                name = getValue(tmp);
+                                        } else if((tmp.SubString(1,13) == "missionFilter")) {
+                                                mission = Form1->splitUpMessage(getValue(tmp),";");
+                                        } else if((tmp.SubString(1,12) == "serverFilter")) {
+                                                server = Form1->splitUpMessage(getValue(tmp),";");
+                                        } else if((tmp.SubString(1,12) == "playerFilter")) {
+                                                player = Form1->splitUpMessage(getValue(tmp),";");
+                                        } else if((tmp.SubString(1,12) == "statusFilter")) {
+                                                try {   statusFilter = StrToInt(getValue(tmp));  }catch(...) {}
+                                        } else if((tmp.SubString(1,9) == "soundFile")) {
+                                                soundFile = getValue(tmp);
+                                        } else if((tmp.SubString(1,14) == "playbackVolume")) {
+                                                try { volume = StrToInt(getValue(tmp)); } catch (...) {}
+                                        } else if((tmp.SubString(1,13) == "playbackStart")) {
+                                                try { start = StrToInt(getValue(tmp)); } catch (...) {}
+                                        } else if((tmp.SubString(1,11) == "playbackEnd")) {
+                                                try { end = StrToInt(getValue(tmp)); } catch (...) {}
+                                        } else if((tmp.SubString(1,12) == "markingColor")) {
+                                                color = getValue(tmp);
+                                        } else if((tmp.SubString(1,14) == "minimumPlayers")) {
+                                                try { minPlayers = StrToInt(getValue(tmp)); } catch (...) {}
+                                        } else if((tmp.SubString(1,14) == "maximumPlayers")) {
+                                                try { maxPlayers = StrToInt(getValue(tmp)); } catch (...) {}
+                                        }
+                                        i++;
+                                        tmp = file->Strings[i].Trim();
+                                }
+                                WINDOW_NOTIFICATIONS->addCustomNotification(name, statusFilter, mission, server, player,
+                                        minPlayers, maxPlayers, soundFile, volume, start, end, color);                                  
+
                         }
                 }
                 delete file;
@@ -855,14 +928,14 @@ list<String> readConfigFile() {
 
         if(!exe.IsEmpty()) {
                 programSettings.exe = exe;
-                Form2->Edit1->Text = programSettings.exe;
+                WINDOW_SETTINGS->Edit1->Text = programSettings.exe;
         }
         if(!folder.IsEmpty()) {
                 programSettings.folder = folder;
                 updateModFolderList(programSettings.folder);
         } else {
-                Form2->BUTTON_NEWCONFIGURATION_ADD->Enabled = false;
-                Form2->GROUPBOX_NEWCONFIGURATION->Enabled = false;
+                WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_ADD->Enabled = false;
+                WINDOW_SETTINGS->GROUPBOX_NEWCONFIGURATION->Enabled = false;
         }
 
 
@@ -875,12 +948,14 @@ list<String> readConfigFile() {
         try {
                 int a = StrToInt(interval);
                 programSettings.setInterval(a);
-                Form2->UpDown1->Position = a;
+                WINDOW_SETTINGS->UpDown1->Position = a;
         }catch (...) {
                 programSettings.setInterval(2);
-                Form2->UpDown1->Position = 2;
+                WINDOW_SETTINGS->UpDown1->Position = 2;
         }
-        Form2->Edit5->Text = String(Form2->UpDown1->Position);
+        programSettings.customNotifications = checkBool2(notify);
+        Form1->MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE->Checked = programSettings.customNotifications;
+        WINDOW_SETTINGS->Edit5->Text = String(WINDOW_SETTINGS->UpDown1->Position);
         programSettings.changed = false;
         return ipList;
 }
@@ -890,12 +965,12 @@ list<String> readConfigFile() {
  */
 
 void findLanguageFiles() {
-                Form2->ComboBox1->Clear();
+                WINDOW_SETTINGS->ComboBox1->Clear();
                	TSearchRec daten;
                 if(0 == FindFirst("OFPM*.lang", faAnyFile, daten)) {
                         try {
                                 do {
-                                        Form2->ComboBox1->Items->Add(daten.Name);
+                                        WINDOW_SETTINGS->ComboBox1->Items->Add(daten.Name);
                                 } while(FindNext(daten) == 0);
                         }__finally
                         {
@@ -920,14 +995,14 @@ String extractString(String a, String b) {
 }
        */
 void checkConfListState() {
-        Form2->BUTTON_EDITCONFIGURATION_EDIT->Enabled = false;
-        Form2->BUTTON_CONFIGURATION_REMOVE->Enabled = false;
-        Form2->BUTTON_EDITCONFIGURATION_UP->Enabled = true;
-        Form2->BUTTON_EDITCONFIGURATION_DOWN->Enabled = true;
-        for(int i = 0; i < Form2->ListBox1->Count; i++) {
-                if(Form2->ListBox1->Selected[i]) {
-                        Form2->BUTTON_EDITCONFIGURATION_EDIT->Enabled = true;
-                        Form2->BUTTON_CONFIGURATION_REMOVE->Enabled = true;
+        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_EDIT->Enabled = false;
+        WINDOW_SETTINGS->BUTTON_CONFIGURATION_REMOVE->Enabled = false;
+        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_UP->Enabled = true;
+        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_DOWN->Enabled = true;
+        for(int i = 0; i < WINDOW_SETTINGS->ListBox1->Count; i++) {
+                if(WINDOW_SETTINGS->ListBox1->Selected[i]) {
+                        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_EDIT->Enabled = true;
+                        WINDOW_SETTINGS->BUTTON_CONFIGURATION_REMOVE->Enabled = true;
                         break;
                 }
         }
@@ -935,36 +1010,36 @@ void checkConfListState() {
 }
 
 void exitEditMode() {
-        Form2->ListBox1->Enabled = true;
-        Form2->BUTTON_EDITCONFIGURATION_OK->Enabled = false;
-        Form2->BUTTON_EDITCONFIGURATION_CANCEL->Enabled = false;
-        Form2->BUTTON_EDITCONFIGURATION_OK->Visible = false;
-        Form2->BUTTON_EDITCONFIGURATION_CANCEL->Visible = false;
-        Form2->BUTTON_NEWCONFIGURATION_ADD->Visible = true;
-        Form2->BUTTON_NEWCONFIGURATION_ADD->Enabled = true;
-        Form2->BUTTON_NEWCONFIGURATION_CLEAR->Visible = true;
-        Form2->BUTTON_NEWCONFIGURATION_CLEAR->Enabled = true;
-        Form2->BUTTON_NEWCONFIGURATION_CLEAR->Click();
+        WINDOW_SETTINGS->ListBox1->Enabled = true;
+        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_OK->Enabled = false;
+        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_CANCEL->Enabled = false;
+        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_OK->Visible = false;
+        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_CANCEL->Visible = false;
+        WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_ADD->Visible = true;
+        WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_ADD->Enabled = true;
+        WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_CLEAR->Visible = true;
+        WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_CLEAR->Enabled = true;
+        WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_CLEAR->Click();
         checkConfListState();
         return;
 }
 
-String TForm2::getCurrentPlayerName() {
-        if(!Form2->COMBOBOX_PROFILE->Enabled) {
+String TWINDOW_SETTINGS::getCurrentPlayerName() {
+        if(!WINDOW_SETTINGS->COMBOBOX_PROFILE->Enabled) {
                 return "";
         } else {
-                return Form2->COMBOBOX_PROFILE->Text;
+                return WINDOW_SETTINGS->COMBOBOX_PROFILE->Text;
         }
 }
 
 //---------------------------------------------------------------------------
-__fastcall TForm2::TForm2(TComponent* Owner)
+__fastcall TWINDOW_SETTINGS::TWINDOW_SETTINGS(TComponent* Owner)
         : TForm(Owner)
 {
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::BUTTON_OFPEXECUTABLE_BROWSEClick(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::BUTTON_OFPEXECUTABLE_BROWSEClick(TObject *Sender)
 {
         if(!Edit1->Text.IsEmpty()) {
                 OpenDialog1->InitialDir = getFolder(programSettings.exe);
@@ -973,7 +1048,7 @@ void __fastcall TForm2::BUTTON_OFPEXECUTABLE_BROWSEClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::FormCreate(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::FormCreate(TObject *Sender)
 {
         #include "guiDB.cpp"
         findLanguageFiles();
@@ -983,11 +1058,11 @@ void __fastcall TForm2::FormCreate(TObject *Sender)
         Form1->Visible = true;
         Form1->readServerList(ipList);
         updateConfList();
-        Form2->ComboBox1->Text = programSettings.languagefile;
+        WINDOW_SETTINGS->ComboBox1->Text = programSettings.languagefile;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::OpenDialog1CanClose(TObject *Sender,
+void __fastcall TWINDOW_SETTINGS::OpenDialog1CanClose(TObject *Sender,
       bool &CanClose)
 {
         if(CanClose) {
@@ -996,13 +1071,13 @@ void __fastcall TForm2::OpenDialog1CanClose(TObject *Sender,
                 Edit1->Text = programSettings.exe;
                 updateModFolderList(programSettings.folder);
                 checkIfExeAndPlayerIsSet(programSettings.folder, programSettings.player);
-                Form2->setSettingsChanged();
+                WINDOW_SETTINGS->setSettingsChanged();
                 OpenDialog1->InitialDir = "";
         }
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::Button7Click(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::Button7Click(TObject *Sender)
 {
         for(int i = 0; i < ListBox2->Count; i++) {
                 if(ListBox2->Selected[i]) {
@@ -1014,7 +1089,7 @@ void __fastcall TForm2::Button7Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::Button6Click(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::Button6Click(TObject *Sender)
 {
         for(int i = 0; i < ListBox3->Count; i++) {
                 if(ListBox3->Selected[i]) {
@@ -1025,7 +1100,7 @@ void __fastcall TForm2::Button6Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::BUTTON_NEWCONFIGURATION_UPClick(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_UPClick(TObject *Sender)
 {
         for(int i = 0; i < ListBox3->Count; i++) {
                 if(ListBox3->Selected[i]) {
@@ -1038,7 +1113,7 @@ void __fastcall TForm2::BUTTON_NEWCONFIGURATION_UPClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::BUTTON_NEWCONFIGURATION_DOWNClick(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_DOWNClick(TObject *Sender)
 {
         for(int i = 0; i < ListBox3->Count; i++) {
                 if(ListBox3->Selected[i]) {
@@ -1051,7 +1126,7 @@ void __fastcall TForm2::BUTTON_NEWCONFIGURATION_DOWNClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::BUTTON_CONFIGURATION_REMOVEClick(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::BUTTON_CONFIGURATION_REMOVEClick(TObject *Sender)
 {
         for(int i = 0; i < ListBox1->Count; i++) {
                 if(ListBox1->Selected[i]) {
@@ -1070,7 +1145,7 @@ void __fastcall TForm2::BUTTON_CONFIGURATION_REMOVEClick(TObject *Sender)
 //---------------------------------------------------------------------------
 
 
-void __fastcall TForm2::BUTTON_NEWCONFIGURATION_ADDClick(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_ADDClick(TObject *Sender)
 {
                 list<String> a;
                 for(int i = 0; i < ListBox3->Count; i++) {
@@ -1082,13 +1157,13 @@ void __fastcall TForm2::BUTTON_NEWCONFIGURATION_ADDClick(TObject *Sender)
                         BUTTON_NEWCONFIGURATION_ADD->Enabled = false;
                 }
                 updateConfList();
-                Form2->setSettingsChanged();
+                WINDOW_SETTINGS->setSettingsChanged();
                 checkConfListState();
 }
 //---------------------------------------------------------------------------
 
 
-void __fastcall TForm2::Edit5Change(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::Edit5Change(TObject *Sender)
 {
         try {
                 int a = StrToInt(Edit5->Text);
@@ -1104,14 +1179,14 @@ void __fastcall TForm2::Edit5Change(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::UpDown1Click(TObject *Sender, TUDBtnType Button)
+void __fastcall TWINDOW_SETTINGS::UpDown1Click(TObject *Sender, TUDBtnType Button)
 {
         programSettings.setInterval(UpDown1->Position);
 }
 //---------------------------------------------------------------------------
 
 
-void __fastcall TForm2::BUTTON_NEWCONFIGURATION_CLEARClick(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_CLEARClick(TObject *Sender)
 {
         while(ListBox3->Count > 0) {
                 ListBox2->Items->Add(ListBox3->Items->Strings[0]);
@@ -1125,27 +1200,27 @@ void __fastcall TForm2::BUTTON_NEWCONFIGURATION_CLEARClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::FormClose(TObject *Sender, TCloseAction &Action)
+void __fastcall TWINDOW_SETTINGS::FormClose(TObject *Sender, TCloseAction &Action)
 {
         checkIfExeAndPlayerIsSet(programSettings.folder, programSettings.player);
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::FormKeyDown(TObject *Sender, WORD &Key,
+void __fastcall TWINDOW_SETTINGS::FormKeyDown(TObject *Sender, WORD &Key,
       TShiftState Shift)
 {
         if(Key == VK_ESCAPE) {
-                Form2->Close();
+                WINDOW_SETTINGS->Close();
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm2::FormShow(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::FormShow(TObject *Sender)
 {
         updateModFolderList(programSettings.folder);
         exitEditMode();
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm2::ComboBox1Change(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::ComboBox1Change(TObject *Sender)
 {
         if(FileExists(programSettings.workdir + "\\" + ComboBox1->Text)) {
                 programSettings.languagefile = ComboBox1->Text;
@@ -1153,7 +1228,7 @@ void __fastcall TForm2::ComboBox1Change(TObject *Sender)
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm2::BUTTON_EDITCONFIGURATION_EDITClick(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_EDITClick(TObject *Sender)
 {
         BUTTON_NEWCONFIGURATION_CLEAR->Click();
         ListBox1->Enabled = false;
@@ -1215,7 +1290,7 @@ void __fastcall TForm2::BUTTON_EDITCONFIGURATION_EDITClick(TObject *Sender)
 
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm2::BUTTON_EDITCONFIGURATION_OKClick(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_OKClick(TObject *Sender)
 {
         list<String> a;
         for(int i = 0; i < ListBox3->Count; i++) {
@@ -1239,18 +1314,18 @@ void __fastcall TForm2::BUTTON_EDITCONFIGURATION_OKClick(TObject *Sender)
                 }
         }
         updateConfList();
-        Form2->setSettingsChanged();
+        WINDOW_SETTINGS->setSettingsChanged();
         exitEditMode();
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::ListBox1Click(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::ListBox1Click(TObject *Sender)
 {
         checkConfListState();              
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::BUTTON_EDITCONFIGURATION_CANCELClick(
+void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_CANCELClick(
       TObject *Sender)
 {
         exitEditMode();
@@ -1259,7 +1334,7 @@ void __fastcall TForm2::BUTTON_EDITCONFIGURATION_CANCELClick(
 
 
 
-void __fastcall TForm2::COMBOBOX_PROFILEChange(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::COMBOBOX_PROFILEChange(TObject *Sender)
 {
         String tmp = COMBOBOX_PROFILE->Text;
         bool found = false;
@@ -1277,7 +1352,7 @@ void __fastcall TForm2::COMBOBOX_PROFILEChange(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::BUTTON_EDITCONFIGURATION_UPClick(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_UPClick(TObject *Sender)
 {
         for(int i = 0; i < ListBox1->Count; i++) {
                 if(ListBox1->Selected[i]) {
@@ -1290,7 +1365,7 @@ void __fastcall TForm2::BUTTON_EDITCONFIGURATION_UPClick(TObject *Sender)
                                 TObject *t = ListBox1->Items->Objects[i];
                                 ListBox1->Items->Objects[i] = ListBox1->Items->Objects[i - 1];
                                 ListBox1->Items->Objects[i - 1] = t;
-                                Form2->setSettingsChanged();
+                                WINDOW_SETTINGS->setSettingsChanged();
                                 break;
                         }
                 }
@@ -1298,7 +1373,7 @@ void __fastcall TForm2::BUTTON_EDITCONFIGURATION_UPClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm2::BUTTON_EDITCONFIGURATION_DOWNClick(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_DOWNClick(TObject *Sender)
 {
         for(int i = 0; i < ListBox1->Count; i++) {
                 if(ListBox1->Selected[i]) {
@@ -1310,7 +1385,7 @@ void __fastcall TForm2::BUTTON_EDITCONFIGURATION_DOWNClick(TObject *Sender)
                                 TObject *t = ListBox1->Items->Objects[i];
                                 ListBox1->Items->Objects[i] = ListBox1->Items->Objects[i + 1];
                                 ListBox1->Items->Objects[i + 1] = t;
-                                Form2->setSettingsChanged();
+                                WINDOW_SETTINGS->setSettingsChanged();
                                 break;
                         }
                 }

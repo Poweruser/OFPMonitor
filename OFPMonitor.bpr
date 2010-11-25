@@ -4,15 +4,15 @@
   <MACROS>
     <VERSION value="BCB.06.00"/>
     <PROJECT value="OFPMonitor.exe"/>
-    <OBJFILES value="OFPMonitor.obj Unit1.obj Unit2.obj"/>
+    <OBJFILES value="OFPMonitor.obj Unit1.obj Unit2.obj Unit3.obj Unit4.obj"/>
     <RESFILES value="OFPMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
     <DEFFILE value=""/>
-    <RESDEPEN value="$(RESFILES) Unit1.dfm Unit2.dfm"/>
+    <RESDEPEN value="$(RESFILES) Unit1.dfm Unit2.dfm Unit3.dfm Unit4.dfm"/>
     <LIBFILES value="..\..\Lib\psapi.lib"/>
-    <LIBRARIES value="WinSkinC6.lib bcbsmp.lib vclx.lib nmfast.lib rtl.lib vcl.lib"/>
-    <SPARELIBS value="vcl.lib rtl.lib nmfast.lib vclx.lib bcbsmp.lib WinSkinC6.lib"/>
+    <LIBRARIES value="bcbsmp.lib vclx.lib nmfast.lib rtl.lib vcl.lib"/>
+    <SPARELIBS value="vcl.lib rtl.lib nmfast.lib vclx.lib bcbsmp.lib"/>
     <PACKAGES value="vcl.bpi rtl.bpi visualclx.bpi nmfast.bpi vclx.bpi bcbsmp.bpi"/>
     <PATHCPP value=".;"/>
     <PATHPAS value=".;"/>
@@ -48,8 +48,10 @@
       <FILE FILENAME="OFPMonitor.res" FORMNAME="" UNITNAME="OFPMonitor.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="OFPMonitor.cpp" FORMNAME="" UNITNAME="OFPMonitor" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Unit1.cpp" FORMNAME="Form1" UNITNAME="Unit1" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="Unit2.cpp" FORMNAME="Form2" UNITNAME="Unit2" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Unit2.cpp" FORMNAME="WINDOW_SETTINGS" UNITNAME="Unit2" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="..\..\Lib\psapi.lib" FORMNAME="" UNITNAME="psapi.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Unit3.cpp" FORMNAME="WINDOW_NOTIFICATIONS" UNITNAME="Unit3" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Unit4.cpp" FORMNAME="WINDOW_INFO" UNITNAME="Unit4" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>
@@ -59,8 +61,8 @@
 IncludeVerInfo=1
 AutoIncBuild=0
 MajorVer=1
-MinorVer=2
-Release=9
+MinorVer=3
+Release=0
 Build=0
 Debug=0
 PreRelease=0
@@ -72,8 +74,8 @@ CodePage=1252
 
 [Version Info Keys]
 CompanyName=by Poweruser
-FileDescription=OFP Server monitoring tool
-FileVersion=1.2.9.0
+FileDescription=OFP:R Server monitoring tool
+FileVersion=1.3.0.0
 InternalName=OFPMonitor
 LegalCopyright=(c) Poweruser
 LegalTrademarks=

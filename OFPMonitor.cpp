@@ -8,9 +8,10 @@
 
 //---------------------------------------------------------------------------
 USEFORM("Unit1.cpp", Form1);
-USEFORM("Unit2.cpp", Form2);
+USEFORM("Unit2.cpp", WINDOW_SETTINGS);
+USEFORM("Unit3.cpp", WINDOW_NOTIFICATIONS);
+USEFORM("Unit4.cpp", WINDOW_INFO);
 //---------------------------------------------------------------------------
-              
 class ProcessInfo {
         public:
                 DWORD pid;
@@ -63,10 +64,12 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         if(!MyAppAlreadyRunning()) {
 	        try {
                         Application->Initialize();
-                        Application->Title = "OFPMonitor 1.29";
-                        Application->CreateForm(__classid(TForm1), &Form1);
-                        Application->CreateForm(__classid(TForm2), &Form2);
-                        Application->Run();
+                        Application->Title = "OFPMonitor 1.30";
+                 Application->CreateForm(__classid(TForm1), &Form1);
+                 Application->CreateForm(__classid(TWINDOW_NOTIFICATIONS), &WINDOW_NOTIFICATIONS);
+                 Application->CreateForm(__classid(TWINDOW_INFO), &WINDOW_INFO);
+                 Application->CreateForm(__classid(TWINDOW_SETTINGS), &WINDOW_SETTINGS);
+                 Application->Run();
                 } catch (Exception &exception) {
                         Application->ShowException(&exception);
                 } catch (...) {

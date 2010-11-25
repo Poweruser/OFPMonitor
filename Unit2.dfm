@@ -1,20 +1,16 @@
-object Form2: TForm2
-  Left = 384
+object WINDOW_SETTINGS: TWINDOW_SETTINGS
+  Left = 449
   Top = 145
-  Hint = 'SETTINGS_WINDOW'
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
+  AutoSize = True
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 506
-  ClientWidth = 434
+  ClientHeight = 505
+  ClientWidth = 433
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'MS Sans Serif'
-  Font.Style = []
+  ParentFont = True
   KeyPreview = True
   OldCreateOrder = False
   Position = poScreenCenter
@@ -330,7 +326,13 @@ object Form2: TForm2
       Width = 417
       Height = 21
       AutoDropDown = True
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'MS Sans Serif'
+      Font.Style = []
       ItemHeight = 13
+      ParentFont = False
       TabOrder = 0
       OnChange = COMBOBOX_PROFILEChange
     end
@@ -354,9 +356,7 @@ object Form2: TForm2
     OnClick = BUTTON_EDITCONFIGURATION_DOWNClick
   end
   object OpenDialog1: TOpenDialog
-    Filter = 
-      'Any OFP-Executable|FLASHPOINTRESISTANCE.EXE;OperationFlashpoint.' +
-      'exe'
+    Filter = 'OFP:R (FLASHPOINTRESISTANCE.EXE)|FLASHPOINTRESISTANCE.EXE'
     Options = [ofPathMustExist, ofFileMustExist, ofNoNetworkButton, ofDontAddToRecent]
     OptionsEx = [ofExNoPlacesBar]
     OnCanClose = OpenDialog1CanClose
