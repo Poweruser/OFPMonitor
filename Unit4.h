@@ -13,7 +13,7 @@ class TWINDOW_INFO : public TForm
 __published:	// IDE-managed Components
         TMemo *Memo1;
         void __fastcall FormCreate(TObject *Sender);
-        void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
+        void __fastcall Memo1KeyDown(TObject *Sender, WORD &Key,
           TShiftState Shift);
 private:	// User declarations
 public:		// User declarations
