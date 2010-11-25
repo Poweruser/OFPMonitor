@@ -555,14 +555,19 @@ void updateLanguage(String languagefile) {
         String pathAndFile = programSettings.workdir + "\\" + languagefile;
         guiStrings.push_back(guiString("STRING_YES","Yes"));
         guiStrings.push_back(guiString("STRING_NO","No"));
+        guiStrings.push_back(guiString("STRING_NAME","Name"));
         guiStrings.push_back(guiString("STRING_ONLINE","Online:"));
         guiStrings.push_back(guiString("STRING_LISTED","Listed:"));
         guiStrings.push_back(guiString("STRING_ERRORS","Errors:"));
         guiStrings.push_back(guiString("STRING_NOPROFILES","No player profiles found!"));
-        /*
+        guiStrings.push_back(guiString("STRING_PLAYER_ALREADY_ON_SERVER","There's already a player with the same name on the server. Do you still want to start OFP?"));
         guiStrings.push_back(guiString("STRING_FROM","From:"));
-        guiStrings.push_back(guiString("STRING_FROM","To:"));
-        */
+        guiStrings.push_back(guiString("STRING_TO","To:"));
+        guiStrings.push_back(guiString("STRING_PLAYBACKVOLUME","Volume:"));
+        guiStrings.push_back(guiString("STRING_AUDIOFILE","MP3-File:"));
+        guiStrings.push_back(guiString("STRING_MARKINGCOLOR","Marking color:"));
+        guiStrings.push_back(guiString("STRING_MINIMUM","Min."));
+        guiStrings.push_back(guiString("STRING_MAXIMUM","Max:"));
         if(FileExists(pathAndFile)) {
                 file->LoadFromFile(pathAndFile);
                 String tmp;
@@ -640,16 +645,6 @@ void updateLanguage(String languagefile) {
                 if(!WINDOW_SETTINGS->COMBOBOX_PROFILE->Enabled) {
                         WINDOW_SETTINGS->COMBOBOX_PROFILE->Text = WINDOW_SETTINGS->getGuiString("STRING_NOPROFILES");
                 }
-
-
-
-
-
-
-
-
-
-
         }
         return;
 }

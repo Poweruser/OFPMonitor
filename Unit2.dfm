@@ -1,6 +1,6 @@
 object WINDOW_SETTINGS: TWINDOW_SETTINGS
-  Left = 449
-  Top = 145
+  Left = 700
+  Top = 153
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   AutoSize = True
@@ -56,7 +56,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
       Top = 12
       Width = 102
       Height = 29
-      Caption = 'Browse'
+      Caption = 'Browse ...'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13

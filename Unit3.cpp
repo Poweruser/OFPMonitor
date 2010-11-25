@@ -755,8 +755,6 @@ void __fastcall TWINDOW_NOTIFICATIONS::FormKeyDown(TObject *Sender, WORD &Key,
 //---------------------------------------------------------------------------
 void __fastcall TWINDOW_NOTIFICATIONS::TrackBar1Change(TObject *Sender)
 {
-     //   char text[128];
-     //   mciSendString(("setaudio " + alias + " volume to " + String(TrackBar1->Position)*10).c_str(), text, 24,0);
         mciSendString(("setaudio " + alias + " volume to " + String(TrackBar1->Position)*10).c_str(), 0, 0,0);
 }
 //---------------------------------------------------------------------------

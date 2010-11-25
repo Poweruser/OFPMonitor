@@ -2109,20 +2109,18 @@ class MP3Player {
         }
 
         TColor getMarkingColor(int serverindex) {
-                TColor out = NULL;
                 for(int i = 0; i < 5; i++) {
                         if(jobs[i].set) {
                                 if(!jobs[i].hasEnded()) {
                                         for (list<int>::iterator ci = jobs[i].serverIndex.begin(); ci != jobs[i].serverIndex.end(); ++ci) {
                                                 if(serverindex == *ci) {
-                                                        out = jobs[i].markColor;
-                                                        break;
+                                                        return jobs[i].markColor;
                                                 }
                                         }
                                 }
                         }
                 }
-                return out;
+                return NULL;
         }
 };
 
