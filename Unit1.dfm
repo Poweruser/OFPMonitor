@@ -1,8 +1,8 @@
 object Form1: TForm1
-  Left = 226
-  Top = 117
-  Width = 887
-  Height = 589
+  Left = 227
+  Top = 118
+  Width = 885
+  Height = 587
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Color = clBtnFace
@@ -26,7 +26,7 @@ object Form1: TForm1
   object Splitter1: TSplitter
     Left = 0
     Top = 231
-    Width = 879
+    Width = 877
     Height = 4
     Cursor = crVSplit
     Align = alTop
@@ -40,8 +40,8 @@ object Form1: TForm1
   object StringGrid1: TStringGrid
     Left = 0
     Top = 235
-    Width = 879
-    Height = 274
+    Width = 877
+    Height = 272
     Align = alClient
     BiDiMode = bdRightToLeft
     ColCount = 7
@@ -79,14 +79,14 @@ object Form1: TForm1
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 879
+    Width = 877
     Height = 231
     Align = alTop
     BevelOuter = bvNone
     Constraints.MinHeight = 231
     TabOrder = 2
     object StringGrid2: TStringGrid
-      Left = 399
+      Left = 397
       Top = 0
       Width = 480
       Height = 231
@@ -415,8 +415,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 509
-    Width = 879
+    Top = 507
+    Width = 877
     Height = 34
     Anchors = []
     BorderWidth = 1

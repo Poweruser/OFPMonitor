@@ -16,6 +16,7 @@ object WINDOW_INFO: TWINDOW_INFO
   OldCreateOrder = False
   Position = poScreenCenter
   OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
   PixelsPerInch = 96
   TextHeight = 13
   object Memo1: TMemo

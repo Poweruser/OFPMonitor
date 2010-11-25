@@ -20,3 +20,12 @@ void __fastcall TWINDOW_INFO::FormCreate(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TWINDOW_INFO::FormKeyDown(TObject *Sender, WORD &Key,
+      TShiftState Shift)
+{
+        if(Key == VK_ESCAPE) {
+                WINDOW_INFO->Close();
+        }
+}
+//---------------------------------------------------------------------------
+
