@@ -1,0 +1,22 @@
+//---------------------------------------------------------------------------
+
+#include <vcl.h>
+#pragma hdrstop
+
+#include "Unit4.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+TWINDOW_INFO *WINDOW_INFO;
+//---------------------------------------------------------------------------
+__fastcall TWINDOW_INFO::TWINDOW_INFO(TComponent* Owner)
+        : TForm(Owner)
+{
+}
+//---------------------------------------------------------------------------
+void __fastcall TWINDOW_INFO::FormCreate(TObject *Sender)
+{
+        Memo1->Lines->Strings[0] = Application->Title;
+}
+//---------------------------------------------------------------------------
+
