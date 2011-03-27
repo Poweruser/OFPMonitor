@@ -37,45 +37,6 @@ object Form1: TForm1
     ResizeStyle = rsLine
     OnMoved = Splitter1Moved
   end
-  object StringGrid1: TStringGrid
-    Left = 0
-    Top = 235
-    Width = 877
-    Height = 272
-    Align = alClient
-    BiDiMode = bdRightToLeft
-    ColCount = 7
-    Constraints.MinHeight = 88
-    Ctl3D = True
-    DefaultColWidth = 101
-    DefaultRowHeight = 18
-    FixedCols = 0
-    RowCount = 20
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSizing, goColSizing, goRowSelect]
-    ParentBiDiMode = False
-    ParentCtl3D = False
-    ParentFont = False
-    ScrollBars = ssVertical
-    TabOrder = 0
-    OnContextPopup = StringGrid1ContextPopup
-    OnDrawCell = StringGrid1DrawCell
-    OnMouseDown = StringGrid1MouseDown
-    OnMouseUp = StringGrid1MouseUp
-    OnSelectCell = StringGrid1SelectCell
-    ColWidths = (
-      29
-      196
-      53
-      68
-      58
-      183
-      41)
-  end
   object Panel1: TPanel
     Left = 0
     Top = 0
@@ -84,7 +45,7 @@ object Form1: TForm1
     Align = alTop
     BevelOuter = bvNone
     Constraints.MinHeight = 231
-    TabOrder = 2
+    TabOrder = 1
     object StringGrid2: TStringGrid
       Left = 397
       Top = 0
@@ -415,7 +376,7 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 507
+    Top = 499
     Width = 877
     Height = 34
     Anchors = []
@@ -448,6 +409,62 @@ object Form1: TForm1
     SimplePanel = False
     SizeGrip = False
     UseSystemFont = False
+  end
+  object Panel2: TPanel
+    Left = 0
+    Top = 235
+    Width = 877
+    Height = 264
+    Align = alClient
+    Caption = 'Panel2'
+    TabOrder = 2
+    object Splitter2: TSplitter
+      Left = 1
+      Top = 1
+      Width = 875
+      Height = 100
+      Cursor = crVSplit
+      Align = alTop
+    end
+    object StringGrid1: TStringGrid
+      Left = 1
+      Top = 101
+      Width = 875
+      Height = 88
+      Align = alTop
+      BiDiMode = bdRightToLeft
+      ColCount = 7
+      Constraints.MinHeight = 88
+      Ctl3D = True
+      DefaultColWidth = 101
+      DefaultRowHeight = 18
+      FixedCols = 0
+      RowCount = 20
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSizing, goColSizing, goRowSelect]
+      ParentBiDiMode = False
+      ParentCtl3D = False
+      ParentFont = False
+      ScrollBars = ssVertical
+      TabOrder = 0
+      OnContextPopup = StringGrid1ContextPopup
+      OnDrawCell = StringGrid1DrawCell
+      OnMouseDown = StringGrid1MouseDown
+      OnMouseUp = StringGrid1MouseUp
+      OnSelectCell = StringGrid1SelectCell
+      ColWidths = (
+        29
+        196
+        53
+        68
+        58
+        183
+        41)
+    end
   end
   object Timer1: TTimer
     Enabled = False

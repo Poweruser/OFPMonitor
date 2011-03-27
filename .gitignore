@@ -1,1 +1,9 @@
 *.obj
+*.~bpr
+OFPMonitor.exe
+OFPMonitor.ini
+OFPMonitor.tds
+
+*.~cpp
+*.~dfm
+*.~h

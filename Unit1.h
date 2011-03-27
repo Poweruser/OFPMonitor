@@ -108,6 +108,8 @@ __published:	// IDE-managed Components
         TMenuItem *MENUITEM_MAINMENU_NOTIFICATIONS_SETTINGS;
         TTimer *MP3Timer;
         TMenuItem *Info1;
+        TPanel *Panel2;
+        TSplitter *Splitter2;
         void __fastcall NMUDP1DataReceived(TComponent *Sender,
           int NumberBytes, AnsiString FromIP, int Port);
         void __fastcall FormCreate(TObject *Sender);
