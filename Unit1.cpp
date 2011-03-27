@@ -2164,7 +2164,7 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         PlayerSortList2->Duplicates = dupAccept;
         updateTimeoutLimit();
         Timer3->Enabled = true;
-
+        TimerIrcChat->Enabled =true;
         start_chat_client( this );
 }
 //---------------------------------------------------------------------------
@@ -2769,6 +2769,12 @@ void __fastcall TForm1::MP3TimerTimer(TObject *Sender)
 void __fastcall TForm1::Info1Click(TObject *Sender)
 {
         WINDOW_INFO->ShowModal();        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::TimerIrcChatTimer(TObject *Sender)
+{
+        irc_chat_timer( this );
 }
 //---------------------------------------------------------------------------
 

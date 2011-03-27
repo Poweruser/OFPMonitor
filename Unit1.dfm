@@ -1,6 +1,6 @@
 object Form1: TForm1
   Left = 454
-  Top = 124
+  Top = 183
   Width = 885
   Height = 762
   HorzScrollBar.Visible = False
@@ -482,6 +482,7 @@ object Form1: TForm1
         Height = 133
         Align = alRight
         ColCount = 1
+        DefaultColWidth = 164
         FixedCols = 0
         TabOrder = 0
       end
@@ -715,6 +716,13 @@ object Form1: TForm1
     Interval = 100
     OnTimer = MP3TimerTimer
     Left = 608
+    Top = 160
+  end
+  object TimerIrcChat: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = TimerIrcChatTimer
+    Left = 640
     Top = 160
   end
 end

@@ -4,7 +4,7 @@
   <MACROS>
     <VERSION value="BCB.06.00"/>
     <PROJECT value="OFPMonitor.exe"/>
-    <OBJFILES value="OFPMonitor.obj Unit1.obj Unit2.obj Unit3.obj Unit4.obj"/>
+    <OBJFILES value="OFPMonitor.obj Unit1.obj Unit2.obj Unit3.obj Unit4.obj irc\irc.obj"/>
     <RESFILES value="OFPMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
@@ -14,28 +14,29 @@
     <LIBRARIES value="bcbsmp.lib vclx.lib nmfast.lib rtl.lib vcl.lib"/>
     <SPARELIBS value="vcl.lib rtl.lib nmfast.lib vclx.lib bcbsmp.lib"/>
     <PACKAGES value="vcl.bpi rtl.bpi visualclx.bpi nmfast.bpi vclx.bpi bcbsmp.bpi"/>
-    <PATHCPP value=".;"/>
+    <PATHCPP value=".;irc"/>
     <PATHPAS value=".;"/>
     <PATHRC value=".;"/>
     <PATHASM value=".;"/>
     <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
     <RELEASELIBPATH value="$(BCB)\lib\release"/>
     <LINKER value="ilink32"/>
-    <USERDEFINES value=""/>
+    <USERDEFINES value="_DEBUG"/>
     <SYSDEFINES value="NO_STRICT"/>
     <MAINSOURCE value="OFPMonitor.cpp"/>
-    <INCLUDEPATH value="..;$(BCB)\include;$(BCB)\include\vcl"/>
-    <LIBPATH value="d:\libs;$(BCB)\lib\psdk;$(BCB)\lib;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj"/>
+    <INCLUDEPATH value="irc;..;$(BCB)\include;$(BCB)\include\vcl"/>
+    <LIBPATH value="irc;d:\libs;$(BCB)\lib\psdk;$(BCB)\lib;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <OTHERFILES value=""/>
   </MACROS>
   <OPTIONS>
     <IDLCFLAGS value="-I.. -I$(BCB)\include -I$(BCB)\include\vcl -src_suffix cpp -boa"/>
-    <CFLAG1 value="-O2 -H=$(BCB)\lib\vcl60.csm -Vx -Ve -X- -a8 -b- -k- -vi -c -tW -tWM"/>
-    <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
+    <CFLAG1 value="-Od -H=$(BCB)\lib\vcl60.csm -Vx -Ve -X- -r- -a8 -b- -k -y -v -vi- -c -tW 
+      -tWM"/>
+    <PFLAGS value="-$Y+ -$W -$O- -$A8 -v -JPHNE -M"/>
     <RFLAGS value=""/>
     <AFLAGS value="/mx /w2 /zn"/>
-    <LFLAGS value="-D&quot;&quot; -aa -Tpe -x -Gn"/>
+    <LFLAGS value="-D&quot;&quot; -aa -Tpe -x -Gn -v"/>
     <OTHERFILES value=""/>
   </OPTIONS>
   <LINKER>
@@ -52,6 +53,7 @@
       <FILE FILENAME="..\..\Lib\psapi.lib" FORMNAME="" UNITNAME="psapi.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Unit3.cpp" FORMNAME="WINDOW_NOTIFICATIONS" UNITNAME="Unit3" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Unit4.cpp" FORMNAME="WINDOW_INFO" UNITNAME="Unit4" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="irc\irc.cpp" FORMNAME="" UNITNAME="irc" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>
@@ -85,26 +87,28 @@ ProductVersion=1.0.0.0
 Comments=
 
 [HistoryLists\hlIncludePath]
-Count=4
-Item0=..;$(BCB)\include;$(BCB)\include\vcl
-Item1=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
+Count=5
+Item0=irc;..;$(BCB)\include;$(BCB)\include\vcl
+Item1=..;$(BCB)\include;$(BCB)\include\vcl
 Item2=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 Item3=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
+Item4=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=12
-Item0=d:\libs;$(BCB)\lib\psdk;$(BCB)\lib;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj
-Item1=$(BCB)\lib\psdk;$(BCB)\lib;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj
-Item2=$(BCB)\lib;$(BCB)\lib\psdk;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj
-Item3=$(BCB)/lib;$(BCB)/lib/psdk;$(BCB)/Projects/Lib;..;$(BCB)\lib\obj
-Item4=$(BCB)\lib\psdk;$(BCB)\lib;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item5=$(BCB)\lib\psdk;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item6=D:\Programme\Borland-CBuilder6\Lib\Psdk;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item7=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib;$(BCB)\lib\Psdk
-Item8=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item9=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Count=13
+Item0=irc;d:\libs;$(BCB)\lib\psdk;$(BCB)\lib;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj
+Item1=d:\libs;$(BCB)\lib\psdk;$(BCB)\lib;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj
+Item2=$(BCB)\lib\psdk;$(BCB)\lib;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj
+Item3=$(BCB)\lib;$(BCB)\lib\psdk;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj
+Item4=$(BCB)/lib;$(BCB)/lib/psdk;$(BCB)/Projects/Lib;..;$(BCB)\lib\obj
+Item5=$(BCB)\lib\psdk;$(BCB)\lib;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item6=$(BCB)\lib\psdk;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item7=D:\Programme\Borland-CBuilder6\Lib\Psdk;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item8=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib;$(BCB)\lib\Psdk
+Item9=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
 Item10=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
-Item11=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item11=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item12=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1

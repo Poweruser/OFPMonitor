@@ -115,6 +115,7 @@ __published:	// IDE-managed Components
         TPanel *Panel4;
         TEdit *Edit5;
         TRichEdit *RichEditChatContent;
+        TTimer *TimerIrcChat;
         void __fastcall NMUDP1DataReceived(TComponent *Sender,
           int NumberBytes, AnsiString FromIP, int Port);
         void __fastcall FormCreate(TObject *Sender);
@@ -168,6 +169,7 @@ __published:	// IDE-managed Components
         void __fastcall MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVEClick(TObject *Sender);
         void __fastcall MP3TimerTimer(TObject *Sender);
         void __fastcall Info1Click(TObject *Sender);
+        void __fastcall TimerIrcChatTimer(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         typedef list<String> CustomStringList;
