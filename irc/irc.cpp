@@ -14,24 +14,29 @@ DWORD WINAPI  irc_ThreadProc   (  LPVOID lpThreadParameter  );
 
 extern               int tcpsocket(void) ;
 static struct irc_thread__parm * p ;
+ 
 void start_conversation( int sd, char * name );
-
-
-
 
 struct irc_thread__parm {
     TForm1 * tform1 ;
     vector<string> messages;
-};
 
+};
+  void getplayername( );
+static char playerName[1024];
 
 void start_chat_client(  void * tf ) {
      TForm1 * tform1  = ( TForm1    *  )  tf;
+
+   getplayername();
+   if (strlen(playerName) < 1){
+        return;
+   }
     if (!p) {
         p = (struct irc_thread__parm *) malloc(sizeof(struct irc_thread__parm));
     }
-     p->tform1 = tform1;
     CreateThread(0 , 0 , irc_ThreadProc , p , 0 , 0);
+
 }
 
 
@@ -67,7 +72,7 @@ DWORD WINAPI irc_ThreadProc (LPVOID lpdwThreadParam__ ) {
     addr.sin_family      = AF_INET;
 
     int connectRes = connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
-      start_conversation(sd, "avooo");
+      start_conversation(sd, playerName);
       if( connectRes >= 0) {
         char buff [1<<10];
         int r;
@@ -110,3 +115,28 @@ void start_conversation( int sd, char * name ) {
      int s = send(sd, msg.c_str(), msg.length(), 0);
      return;
 }
+
+void  getplayername( ){
+    //http://help.github.com/fork-a-repo/
+    //"HKEY_CURRENT_USER\Software\Codemasters\Operation Flashpoint"
+    char lszValue[100];
+    LONG lRet, lEnumRet;
+    HKEY hKey = 0;
+    DWORD dwLength=100;
+    int i=0;
+
+    //char* target=(char*) &lszValue;
+    //target=playerName;
+
+    lRet = RegOpenKeyEx (HKEY_CURRENT_USER, "Software\\Codemasters\\Operation Flashpoint", 0L, KEY_READ , &hKey);
+    if(lRet == ERROR_SUCCESS)
+    {
+        DWORD dwType=REG_SZ;
+        DWORD dwSize=255;
+        lEnumRet = RegQueryValueEx(hKey, "Player Name", NULL, &dwType,(LPBYTE)playerName, &dwSize);
+       }
+     if (hKey) {
+        RegCloseKey(hKey);
+    }
+}
+
