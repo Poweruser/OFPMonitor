@@ -114,7 +114,7 @@ __published:	// IDE-managed Components
         TStringGrid *StringGrid3;
         TPanel *Panel4;
         TEdit *Edit5;
-        TRichEdit *RichEdit1;
+        TRichEdit *RichEditChatContent;
         void __fastcall NMUDP1DataReceived(TComponent *Sender,
           int NumberBytes, AnsiString FromIP, int Port);
         void __fastcall FormCreate(TObject *Sender);

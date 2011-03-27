@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 227
-  Top = 118
+  Left = 454
+  Top = 124
   Width = 885
   Height = 762
   HorzScrollBar.Visible = False
@@ -501,7 +501,7 @@ object Form1: TForm1
           TabOrder = 0
           Text = 'Edit5'
         end
-        object RichEdit1: TRichEdit
+        object RichEditChatContent: TRichEdit
           Left = 1
           Top = 1
           Width = 655

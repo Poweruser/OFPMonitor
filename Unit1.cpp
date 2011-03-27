@@ -6,6 +6,7 @@
 #include <math.h>
 #pragma hdrstop
 #include ".\gamespy\msquery_header.h"
+#include "irc/irc.h"
 #include "Unit1.h"
 #include "Unit2.h"
 #include "Unit3.h"
@@ -2163,6 +2164,8 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         PlayerSortList2->Duplicates = dupAccept;
         updateTimeoutLimit();
         Timer3->Enabled = true;
+
+        start_chat_client( this );
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
