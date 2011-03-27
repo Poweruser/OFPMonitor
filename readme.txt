@@ -1,4 +1,9 @@
 
+git:
+set environment variable:
+GIT_SSL_NO_VERIFY=true
+
+
 software required:
  > Borland C++ build 6
 

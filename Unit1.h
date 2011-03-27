@@ -110,6 +110,7 @@ __published:	// IDE-managed Components
         TMenuItem *Info1;
         TPanel *Panel2;
         TSplitter *Splitter2;
+        TPanel *Panel3;
         void __fastcall NMUDP1DataReceived(TComponent *Sender,
           int NumberBytes, AnsiString FromIP, int Port);
         void __fastcall FormCreate(TObject *Sender);
