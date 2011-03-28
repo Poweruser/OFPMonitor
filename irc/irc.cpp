@@ -14,7 +14,9 @@ extern int tcpsocket(void) ;
 static DWORD WINAPI irc_ThreadProc( LPVOID lpThreadParameter );
 static struct irc_thread__parm * p ;
 static void getplayername( ); 
-static void start_conversation( int sd, char * name );
+static void start_conversation( int sd, char * name ); 
+static void sendMessage(const char * xmsg);
+static string operationflashpoint1_channelname ("operationflashpoint1");
 
 struct irc_thread__parm {
     TForm1 * tform1 ;
@@ -23,8 +25,12 @@ struct irc_thread__parm {
     string hoscht;
     
     int sd;
+    int loggedIn;
     void consume(char* c, int i);
-}  ;
+    int sentVersion;
+    public:
+    irc_thread__parm():sentVersion(0){}
+};
 
 static char playerName[1024];
 
@@ -66,12 +72,26 @@ void chat_client_timercallback(  void * t ){
          vector<string> m  (p->messages);
          p->messages.clear();
 
-         for( int i = 0; i < m.size(); i++) { 
+        string privMsg = "PRIVMSG #" + operationflashpoint1_channelname +" :";
+         for( int i = 0; i < m.size(); i++) {
+                string& omsg = m.at(i);
+                 string cmsg = omsg;
+                 string playername;
+                 int fnd = 0;
+                 if ((fnd = cmsg.find(privMsg,0)) >= 0) {
+                     cmsg = string( cmsg, fnd + privMsg.size()  );
+                     int emp = omsg.find("!",1);
+                     playername = string( omsg, 1, emp - 1 );
+                     cmsg = playername + " : " + cmsg;
+                 } else {
+                    break;
+                 }
+
                  TRichEdit * tr =  tform1->RichEditChatContent;
                
                 AnsiString as = tr->Text;//-> = false;
-                as += AnsiString(m.at(i).c_str());
-                as += "\r\n";
+                as += AnsiString(cmsg.c_str());
+                //as += "\r\n";
                 tr->Text = as;
          }
     }
@@ -139,7 +159,6 @@ string plrname_localtoirc(  char * name  ){
     }
     return "ofpmon_" + n;
 }
-
 void start_conversation( int sd, char * name ) {
 
       string ircName =   plrname_localtoirc(name);
@@ -152,8 +171,8 @@ void start_conversation( int sd, char * name ) {
         << "CAP REQ :multi-prefix\n"
         <<  "CAP END\n"
         << "USERHOST "<<  ircName <<  "\n"
-        << "JOIN #operationflashpoint1\n"
-        << "MODE #operationflashpoint1\n";
+        << "JOIN #" << operationflashpoint1_channelname << "\n"
+        << "MODE #" << operationflashpoint1_channelname << "\n";
 
         string msg =    ss.str();
      int s = send(sd, msg.c_str(), msg.length(), 0);
@@ -210,46 +229,68 @@ void irc_thread__parm::consume(char* c2, int i2) {
         vector<string> msgs =  explode( string(c2,i2) );
         int it = 0;
         for(;it < msgs.size(); it++ ){
-    string& s = msgs.at(it);
-    
-    if (hoscht.size() == 0) {
-      int p = s.find(" NOTICE" , 0);
-      if (p > 0) {
-          hoscht = string( s , 0, p );
-      }
-    }
+            string& s = msgs.at(it);
 
-
-    string playerzNeedle( hoscht + " 353 " );
-    int kjo = playerzNeedle.size();
-    //when line beginz with diz we have incoming players
-    int p = s.find( playerzNeedle );
-
-    // shall be zero eh
-    if (p >= 0) {
-        int cursorPoz = p + playerzNeedle.size();
-        cursorPoz = s.find( ":" , cursorPoz );
-        if (cursorPoz > 0) {
-            cursorPoz++;
-            while (cursorPoz >= 0 && cursorPoz < s.size() ){
-                 int cursorNuPoz = s.find( " " , cursorPoz );
-                 if (cursorNuPoz <0){
-                  break;
-                 }
-                 if (cursorNuPoz > cursorPoz) {
-                     string player( s.c_str() ,  cursorPoz , cursorNuPoz - cursorPoz );
-                     userz.push_back(player);
-                 } else {
-                     string player( s.c_str() ,  cursorPoz , s.size() -cursorPoz - 2 );
-                     userz.push_back(player);
-                 }
-                 cursorPoz = cursorNuPoz + 1;
+            if (hoscht.size() == 0) {
+              int p = s.find(" NOTICE" , 0);
+              if (p > 0) {
+                  hoscht = string( s , 0, p );
+              }
             }
-        }
-    }
-    messages.push_back( s );
+
+
+            string playerzNeedle( hoscht + " 353 " );
+            int kjo = playerzNeedle.size();
+            //when line beginz with diz we have incoming players
+            int p = s.find( playerzNeedle );
+
+            // shall be zero eh
+            if (p >= 0) {
+                int cursorPoz = p + playerzNeedle.size();
+                cursorPoz = s.find( ":" , cursorPoz );
+                if (cursorPoz > 0) {
+                    cursorPoz++;
+                    while (cursorPoz >= 0 && cursorPoz < s.size() ){
+                         int cursorNuPoz = s.find( " " , cursorPoz );
+                         if (cursorNuPoz <0){
+                          break;
+                         }
+                         if (cursorNuPoz > cursorPoz) {
+                             string player( s.c_str() ,  cursorPoz , cursorNuPoz - cursorPoz );
+                             userz.push_back(player);
+                         } else {
+                             string player( s.c_str() ,  cursorPoz , s.size() -cursorPoz - 2 );
+                             userz.push_back(player);
+                         }
+                         cursorPoz = cursorNuPoz + 1;
+                    }
+                }
+            }
+
+            if (!sentVersion && s.find("End of /NAMES list.",0) >= 0){
+                sentVersion = 1;
+                 sendMessage( "logged in with ofpmonitor version "  OFPMONITOR_VERSIO_REPORT);
+            }
+            messages.push_back( s );
     }
 }
 
 
+
+void sendMessage(const char * xmsg){
+
+        string msg( xmsg );
+        msg = "PRIVMSG #" + operationflashpoint1_channelname + " :" + msg + "\r\n";
+        send(p->sd, msg.c_str(), msg.length(), 0);
+}
+void chat_client_pressedReturnKey(  void * t ) {
+    TForm1 * tform1  = (TForm1 *) t;
+    TEdit* te = tform1->Edit5;
+    AnsiString as = te->Text;
+    te->Text = "";
+
+    if (p && p->sd) {
+         sendMessage(as.c_str());
+    }
+}
 

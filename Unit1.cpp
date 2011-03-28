@@ -2778,3 +2778,13 @@ void __fastcall TForm1::TimerIrcChatTimer(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TForm1::Edit5KeyDown(TObject *Sender, WORD &Key,
+      TShiftState Shift)
+{
+   if(Key == VK_RETURN) {
+      chat_client_pressedReturnKey( this );
+   }
+}
+//---------------------------------------------------------------------------
+
+

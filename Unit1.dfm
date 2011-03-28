@@ -422,7 +422,7 @@ object Form1: TForm1
       Left = 1
       Top = 297
       Width = 875
-      Height = 6
+      Height = 4
       Cursor = crVSplit
       Align = alTop
       Color = clBackground
@@ -469,9 +469,9 @@ object Form1: TForm1
     end
     object Panel3: TPanel
       Left = 1
-      Top = 303
+      Top = 301
       Width = 875
-      Height = 135
+      Height = 137
       Align = alClient
       Caption = 'Panel3'
       TabOrder = 1
@@ -479,38 +479,52 @@ object Form1: TForm1
         Left = 658
         Top = 1
         Width = 216
-        Height = 133
+        Height = 135
         Align = alRight
         ColCount = 1
         DefaultColWidth = 164
         FixedCols = 0
+        RowCount = 1
+        FixedRows = 0
         TabOrder = 0
       end
       object Panel4: TPanel
         Left = 1
         Top = 1
         Width = 657
-        Height = 133
+        Height = 135
         Align = alClient
         Caption = 'Panel4'
         TabOrder = 1
-        object Edit5: TEdit
-          Left = 0
-          Top = 104
-          Width = 649
-          Height = 24
-          TabOrder = 0
-          Text = 'Edit5'
-        end
         object RichEditChatContent: TRichEdit
           Left = 1
           Top = 1
           Width = 655
-          Height = 96
-          Align = alTop
-          Lines.Strings = (
-            'RichEdit1')
+          Height = 103
+          Align = alClient
+          ScrollBars = ssBoth
+          TabOrder = 0
+        end
+        object Panel5: TPanel
+          Left = 1
+          Top = 104
+          Width = 655
+          Height = 30
+          Align = alBottom
+          Caption = 'Panel5'
           TabOrder = 1
+          DesignSize = (
+            655
+            30)
+          object Edit5: TEdit
+            Left = 0
+            Top = 0
+            Width = 655
+            Height = 30
+            Anchors = [akLeft, akTop, akRight, akBottom]
+            TabOrder = 0
+            OnKeyDown = Edit5KeyDown
+          end
         end
       end
     end
