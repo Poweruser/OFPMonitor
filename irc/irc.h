@@ -1,4 +1,5 @@
 
-void start_chat_client(  void * tform1 );
+void chat_client_connect(  void * tform1 );
+void chat_client_disconnect( );
 
-void irc_chat_timer(  void * tform1 );
+void chat_client_timercallback(  void * tform1 );

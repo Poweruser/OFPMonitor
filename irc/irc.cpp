@@ -1,31 +1,43 @@
 
 
 #include <winsock.h>
-#include "irc.h"
-
 #include <list>
 #include <iostream.h>
-#include "Unit1.h"
-              
+#include "Unit1.h" 
+#include "irc.h"
 #include <vector.h>
+#include <sstream>
+                           
+extern int tcpsocket(void) ;
 
 
-DWORD WINAPI  irc_ThreadProc   (  LPVOID lpThreadParameter  );
-
-extern               int tcpsocket(void) ;
+static DWORD WINAPI irc_ThreadProc( LPVOID lpThreadParameter );
 static struct irc_thread__parm * p ;
- 
-void start_conversation( int sd, char * name );
+static void getplayername( ); 
+static void start_conversation( int sd, char * name );
 
 struct irc_thread__parm {
     TForm1 * tform1 ;
     vector<string> messages;
+    vector<string> userz;
+    string hoscht;
+    
+    int sd;
+    void consume(char* c, int i);
+}  ;
 
-};
-  void getplayername( );
 static char playerName[1024];
 
-void start_chat_client(  void * tf ) {
+void chat_client_disconnect() {
+    if (p && p->sd) {
+        closesocket(p->sd);
+        p->sd = 0;
+        p->hoscht.clear();
+    }
+}
+
+
+void chat_client_connect(  void * tf ) {
      TForm1 * tform1  = ( TForm1    *  )  tf;
 
    getplayername();
@@ -33,18 +45,25 @@ void start_chat_client(  void * tf ) {
         return;
    }
     if (!p) {
-        p = (struct irc_thread__parm *) malloc(sizeof(struct irc_thread__parm));
+        p = new irc_thread__parm();
     }
     CreateThread(0 , 0 , irc_ThreadProc , p , 0 , 0);
-
 }
 
+static string name_irctolocal(string& n){
+        string k("ofpmon_");
+        int p = n.find(k,0);
+        if (p >= 0){
+                return string( n , p+k.size() );
+        }
+        return n;
+}
 
-void irc_chat_timer(  void * t ){
+void chat_client_timercallback(  void * t ){
     TForm1 * tform1  = (TForm1 *) t;
 
     if (p && p->messages.size() > 0) {
-         vector<string> m = vector<string>(p->messages);
+         vector<string> m  (p->messages);
          p->messages.clear();
 
          for( int i = 0; i < m.size(); i++) { 
@@ -56,13 +75,30 @@ void irc_chat_timer(  void * t ){
                 tr->Text = as;
          }
     }
+
+    if (p && p->userz.size() > 0){
+         vector<string> m  (p->userz);
+         p->userz.clear();
+         for( int i = 0; i < m.size(); i++) {
+                TStringGrid * tssg = tform1->StringGrid3;
+                int rc =  tssg->RowCount;
+                tssg->RowCount = rc + 1;
+                string& stre = m.at(i);
+                string convertedPlayerName = name_irctolocal( stre );
+                tssg->Cells[0][rc] = convertedPlayerName.c_str();
+         }
+    }
 }
+
+
+
 
 DWORD WINAPI irc_ThreadProc (LPVOID lpdwThreadParam__ ) {
     int sd = tcpsocket();
     struct sockaddr_in addr;
     struct irc_thread__parm * p_parm = (struct irc_thread__parm *) lpdwThreadParam__;
     TForm1 * tform1  = p_parm->tform1;
+    p_parm->sd = sd;
 
     memset( &addr , 0 , sizeof(addr));
     // irc.freenode.net = 140.211.167.98
@@ -76,45 +112,55 @@ DWORD WINAPI irc_ThreadProc (LPVOID lpdwThreadParam__ ) {
       if( connectRes >= 0) {
         char buff [1<<10];
         int r;
-            while((r = recv(sd, buff, sizeof(buff) , 0)) > 0){
+            while(p_parm->sd && (r = recv(sd, buff, sizeof(buff) , 0)) > 0){
                     TRichEdit * tr =  tform1->RichEditChatContent;
-                    p_parm->messages.push_back( string( buff,r ) );
-                    if ( 0 ) {
-                        AnsiString as = tr->Text;//-> = false;
-                        as += AnsiString(buff,r);
-                        as += "end \r\n";
-                        tr->Text = as;
-                    }
-                    if (0) {
-                    TStrings * ts = tr->Lines;
-                  ts->Append(AnsiString(buff,r));
-                   ts->Append("Hello \r\n");
-//                     tr->Invalidate();
-                     }
-            }
-            // send(sd, buff, len, 0);
-              // err = recv(gsTcpSocket, buff + len, dynsz - len, 0);
+                    p_parm->consume( buff,r );
+            } 
       }
 }
 
 
 
+string plrname_localtoirc(  char * name  ){
+    string n ( name );
+    int i;
+    for(i = 0; i < n.size(); i++){
+        char c = n.at(i);
+        int isSmall = c >= 'a' && c <= 'z';
+        int isBig = c >= 'A' && c <= 'Z';
+        int isNum = c >= '0' && c <= '9';
+
+        if (  !isSmall && !isBig  ){
+            n[i]='_';
+        }
+    }
+    while((i = n.find( " " , 0 )) >= 0) {
+        n = n.replace( i , 1 , "_");
+    }
+    return "ofpmon_" + n;
+}
 
 void start_conversation( int sd, char * name ) {
 
-    string msg = "CAP LS\n"
-      "NICK ";
-      msg += name;
-      msg += "\n";
-        msg+= "USER owe 0 * :Alvo\n";
-        msg +="CAP REQ :multi-prefix\n";
-        msg +="CAP END\n";
-        msg +="USERHOST Alvo\n";
-        msg +="JOIN #operationflashpoint1\n";
-        msg +="MODE #operationflashpoint1\n";
+      string ircName =   plrname_localtoirc(name);
+
+    stringstream ss;
+
+    ss << "CAP LS\n"
+      "NICK " << ircName << "\n"
+        << "USER " << ircName << " 0 * :" << ircName << "\n"
+        << "CAP REQ :multi-prefix\n"
+        <<  "CAP END\n"
+        << "USERHOST "<<  ircName <<  "\n"
+        << "JOIN #operationflashpoint1\n"
+        << "MODE #operationflashpoint1\n";
+
+        string msg =    ss.str();
      int s = send(sd, msg.c_str(), msg.length(), 0);
+
      return;
 }
+
 
 void  getplayername( ){
     //http://help.github.com/fork-a-repo/
@@ -139,4 +185,71 @@ void  getplayername( ){
         RegCloseKey(hKey);
     }
 }
+
+static vector<string> explode(string s){
+        vector<string> r;
+
+        if(s.size()>0){
+        int p = 0;
+        int t = 0;
+                while((t = s.find( "\r\n" ,p ) ) > p){
+                        t += 2;
+                        r.push_back( string(s, p, t-p) );
+                        p = t;
+                }
+            if (p < s.size() - 1){
+                   r.push_back( string(s, p, s.size() - p) );
+            }
+
+        }
+
+                       return r;
+}
+
+void irc_thread__parm::consume(char* c2, int i2) {
+        vector<string> msgs =  explode( string(c2,i2) );
+        int it = 0;
+        for(;it < msgs.size(); it++ ){
+    string& s = msgs.at(it);
+    
+    if (hoscht.size() == 0) {
+      int p = s.find(" NOTICE" , 0);
+      if (p > 0) {
+          hoscht = string( s , 0, p );
+      }
+    }
+
+
+    string playerzNeedle( hoscht + " 353 " );
+    int kjo = playerzNeedle.size();
+    //when line beginz with diz we have incoming players
+    int p = s.find( playerzNeedle );
+
+    // shall be zero eh
+    if (p >= 0) {
+        int cursorPoz = p + playerzNeedle.size();
+        cursorPoz = s.find( ":" , cursorPoz );
+        if (cursorPoz > 0) {
+            cursorPoz++;
+            while (cursorPoz >= 0 && cursorPoz < s.size() ){
+                 int cursorNuPoz = s.find( " " , cursorPoz );
+                 if (cursorNuPoz <0){
+                  break;
+                 }
+                 if (cursorNuPoz > cursorPoz) {
+                     string player( s.c_str() ,  cursorPoz , cursorNuPoz - cursorPoz );
+                     userz.push_back(player);
+                 } else {
+                     string player( s.c_str() ,  cursorPoz , s.size() -cursorPoz - 2 );
+                     userz.push_back(player);
+                 }
+                 cursorPoz = cursorNuPoz + 1;
+            }
+        }
+    }
+    messages.push_back( s );
+    }
+}
+
+
 

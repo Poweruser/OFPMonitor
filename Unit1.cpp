@@ -2165,7 +2165,7 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         updateTimeoutLimit();
         Timer3->Enabled = true;
         TimerIrcChat->Enabled =true;
-        start_chat_client( this );
+        chat_client_connect( this );
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
@@ -2774,7 +2774,7 @@ void __fastcall TForm1::Info1Click(TObject *Sender)
 
 void __fastcall TForm1::TimerIrcChatTimer(TObject *Sender)
 {
-        irc_chat_timer( this );
+        chat_client_timercallback( this );
 }
 //---------------------------------------------------------------------------
 
