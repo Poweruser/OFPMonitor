@@ -108,11 +108,10 @@ string plrname_localtoirc(  char * name  ){
 }
 
 void appendText( TForm1 * tform1, string& msg ){
-
-                 TRichEdit * tr =  tform1->RichEditChatContent;
+                TRichEdit * tr =  tform1->RichEditChatContent;
                 AnsiString& as = tr->Text;//-> = false;
                 as += AnsiString(msg.c_str());
-                //as += "\r\n";
+                as += "\r\n";
                 tr->Text = as;
 }
 
@@ -331,6 +330,7 @@ void irc_thread__parm::consume(char* c2, int i2) {
                          if (isLastPlayer) {
                             break;
                          }
+                         }
                          ps2 = after(ps2, " ");
                     }
             }
@@ -383,7 +383,7 @@ void chat_client_pressedReturnKey(  void * t ) {
 
     if (p && p->sd) {
          sendMessage(as.c_str());
-         appendText( tform1 ,  currrentTimeString( ) +  " - <me>: " + as.c_str() + "\r\n" );
+         appendText( tform1 ,  currrentTimeString( ) +  " - <me>: " + as.c_str()  );
     }
 }
 
