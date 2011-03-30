@@ -6,32 +6,40 @@
 #include "Unit1.h" 
 #include "irc.h"
 #include <vector.h>
+#include <set.h>
 #include <sstream>
                            
 extern int tcpsocket(void) ;
-
+extern unsigned long dnsdb(char *host);
 
 static DWORD WINAPI irc_ThreadProc( LPVOID lpThreadParameter );
 static struct irc_thread__parm * p ;
 static void getplayername( ); 
 static void start_conversation( int sd, char * name ); 
 static void sendMessage(const char * xmsg);
-static string operationflashpoint1_channelname ("operationflashpoint1");
+static string channelname_operationflashpoint1 ("operationflashpoint1");
+
+static string after(string& in, string& needle);
+static string before(string& in, string& needle);    
+extern unsigned long resolv(char *host) ;
 
 struct irc_thread__parm {
     TForm1 * tform1 ;
     vector<string> messages;
     vector<string> userz;
+    set<string> userzSorted;
     string hoscht;
-    
+
+    int updatePlayers;
     int sd;
     int loggedIn;
     void consume(char* c, int i);
     int sentVersion;
     public:
-    irc_thread__parm():sentVersion(0){}
+    irc_thread__parm():sentVersion(0),updatePlayers(0){
+    }
+    int sendString(string&);
 };
-
 static char playerName[1024];
 
 void chat_client_disconnect() {
@@ -44,8 +52,7 @@ void chat_client_disconnect() {
 
 
 void chat_client_connect(  void * tf ) {
-     TForm1 * tform1  = ( TForm1    *  )  tf;
-
+   TForm1 * tform1  = ( TForm1    *  )  tf;
    getplayername();
    if (strlen(playerName) < 1){
         return;
@@ -64,6 +71,35 @@ static string name_irctolocal(string& n){
         }
         return n;
 }
+   
+
+string plrname_localtoirc(  char * name  ){
+    string n ( name );
+    int i;
+    for(i = 0; i < n.size(); i++){
+        char c = n.at(i);
+        int isSmall = c >= 'a' && c <= 'z';
+        int isBig = c >= 'A' && c <= 'Z';
+        int isNum = c >= '0' && c <= '9';
+
+        if (  !isSmall &&
+              !isBig &&
+              !(i > 1 && isNum)
+                ){
+            n[i]='_';
+        }
+    }
+    return "ofpmon_" + n;
+}
+
+void appendText( TForm1 * tform1, string& msg ){
+
+                 TRichEdit * tr =  tform1->RichEditChatContent;
+                AnsiString& as = tr->Text;//-> = false;
+                as += AnsiString(msg.c_str());
+                //as += "\r\n";
+                tr->Text = as;
+}
 
 void chat_client_timercallback(  void * t ){
     TForm1 * tform1  = (TForm1 *) t;
@@ -72,31 +108,37 @@ void chat_client_timercallback(  void * t ){
          vector<string> m  (p->messages);
          p->messages.clear();
 
-        string privMsg = "PRIVMSG #" + operationflashpoint1_channelname +" :";
+        string privMsgNeedle = "PRIVMSG #" + channelname_operationflashpoint1 +" :";
          for( int i = 0; i < m.size(); i++) {
                 string& omsg = m.at(i);
                  string cmsg = omsg;
                  string playername;
                  int fnd = 0;
-                 if ((fnd = cmsg.find(privMsg,0)) >= 0) {
-                     cmsg = string( cmsg, fnd + privMsg.size()  );
+                 if ((fnd = cmsg.find(privMsgNeedle,0)) >= 0) {
+                     cmsg = string( cmsg, fnd + privMsgNeedle.size()  );
                      int emp = omsg.find("!",1);
                      playername = string( omsg, 1, emp - 1 );
                      cmsg = playername + " : " + cmsg;
-                 } else {
-                    break;
-                 }
 
-                 TRichEdit * tr =  tform1->RichEditChatContent;
-               
-                AnsiString as = tr->Text;//-> = false;
+
+                 appendText(tform1 , cmsg);
+
+                                   /*
+                TRichEdit * tr =  tform1->RichEditChatContent;
+
+                AnsiString& as = tr->Text;//-> = false;
                 as += AnsiString(cmsg.c_str());
                 //as += "\r\n";
-                tr->Text = as;
+                tr->Text = as;   */
+
+
+                 }
+
+
          }
     }
 
-    if (p && p->userz.size() > 0){
+    if (0 && p && p->userz.size() > 0){
          vector<string> m  (p->userz);
          p->userz.clear();
          for( int i = 0; i < m.size(); i++) {
@@ -108,8 +150,21 @@ void chat_client_timercallback(  void * t ){
                 tssg->Cells[0][rc] = convertedPlayerName.c_str();
          }
     }
-}
 
+    if (p->updatePlayers){
+       p->updatePlayers = 0;
+       set<string> userzSortedCopy = set<string>(p->userzSorted);
+       TStringGrid * tssg = tform1->StringGrid3;
+       tssg->RowCount = userzSortedCopy.size();
+
+       // convert to vector
+       vector<string> ulist( userzSortedCopy.begin() ,userzSortedCopy.end()  );
+       for(int i = 0; i < ulist.size(); i++) {
+             tssg->Cells[0][i] = ulist[i].c_str();
+       }
+
+    }
+}
 
 
 
@@ -122,7 +177,9 @@ DWORD WINAPI irc_ThreadProc (LPVOID lpdwThreadParam__ ) {
 
     memset( &addr , 0 , sizeof(addr));
     // irc.freenode.net = 140.211.167.98
-    int ip = inet_addr("140.211.167.98");
+    // int ip = inet_addr("140.211.167.98");
+    //int ip = dnsdb("irc.freenode.net");
+int ip =    resolv("irc.freenode.net");
     addr.sin_addr.s_addr = ip;
     addr.sin_port        = htons(6666);
     addr.sin_family      = AF_INET;
@@ -141,24 +198,11 @@ DWORD WINAPI irc_ThreadProc (LPVOID lpdwThreadParam__ ) {
 
 
 
-string plrname_localtoirc(  char * name  ){
-    string n ( name );
-    int i;
-    for(i = 0; i < n.size(); i++){
-        char c = n.at(i);
-        int isSmall = c >= 'a' && c <= 'z';
-        int isBig = c >= 'A' && c <= 'Z';
-        int isNum = c >= '0' && c <= '9';
-
-        if (  !isSmall && !isBig  ){
-            n[i]='_';
-        }
-    }
-    while((i = n.find( " " , 0 )) >= 0) {
-        n = n.replace( i , 1 , "_");
-    }
-    return "ofpmon_" + n;
+int irc_thread__parm::sendString(string& s) {
+     return   send(sd, s.c_str(), s.length(), 0);
 }
+
+
 void start_conversation( int sd, char * name ) {
 
       string ircName =   plrname_localtoirc(name);
@@ -171,11 +215,11 @@ void start_conversation( int sd, char * name ) {
         << "CAP REQ :multi-prefix\n"
         <<  "CAP END\n"
         << "USERHOST "<<  ircName <<  "\n"
-        << "JOIN #" << operationflashpoint1_channelname << "\n"
-        << "MODE #" << operationflashpoint1_channelname << "\n";
+        << "JOIN #" << channelname_operationflashpoint1 << "\n"
+        << "MODE #" << channelname_operationflashpoint1 << "\n";
 
         string msg =    ss.str();
-     int s = send(sd, msg.c_str(), msg.length(), 0);
+     int s = send(sd, msg.c_str(), msg.length(), 0);  
 
      return;
 }
@@ -221,8 +265,7 @@ static vector<string> explode(string s){
             }
 
         }
-
-                       return r;
+        return r;
 }
 
 void irc_thread__parm::consume(char* c2, int i2) {
@@ -258,18 +301,42 @@ void irc_thread__parm::consume(char* c2, int i2) {
                          if (cursorNuPoz > cursorPoz) {
                              string player( s.c_str() ,  cursorPoz , cursorNuPoz - cursorPoz );
                              userz.push_back(player);
+                             userzSorted.insert(player);
                          } else {
                              string player( s.c_str() ,  cursorPoz , s.size() -cursorPoz - 2 );
                              userz.push_back(player);
+                             userzSorted.insert(player);
                          }
+                         updatePlayers = 1;
                          cursorPoz = cursorNuPoz + 1;
                     }
                 }
             }
-
-            if (!sentVersion && s.find("End of /NAMES list.",0) >= 0){
+            
+            int pingFind =  s.find("PING " + hoscht, 0) ;
+            int joinFind = s.find( " JOIN " , 0) ;
+            int partFind = s.find( " PART " , 0) ;
+            int endNameListFind = s.find("End of /NAMES list.",0);
+            
+            if ( pingFind == 0 ) {
+              // sending pong
+              string pong ("PONG " + hoscht + "\r\n");
+              send(sd, pong.c_str(), pong.length(), 0);
+            } else if (!sentVersion && endNameListFind >= 0) {
                 sentVersion = 1;
-                 sendMessage( "logged in with ofpmonitor version "  OFPMONITOR_VERSIO_REPORT);
+                sendMessage( "Logged in with OFPMonitor version "  OFPMONITOR_VERSIO_REPORT);
+            } else if ( joinFind > 0 ) {
+              string name = after(s,":");
+              name = before(name, "!");
+              name=name_irctolocal(name);
+              userzSorted.insert(name);
+              updatePlayers = 1;
+            } else if ( partFind > 0 ) {
+              string name = after(s,":");
+              name = before(name, "!"); 
+              name=name_irctolocal(name);
+              userzSorted.erase(name);
+              updatePlayers = 1;
             }
             messages.push_back( s );
     }
@@ -280,9 +347,12 @@ void irc_thread__parm::consume(char* c2, int i2) {
 void sendMessage(const char * xmsg){
 
         string msg( xmsg );
-        msg = "PRIVMSG #" + operationflashpoint1_channelname + " :" + msg + "\r\n";
+        msg = "PRIVMSG #" + channelname_operationflashpoint1 + " :" + msg + "\r\n";
         send(p->sd, msg.c_str(), msg.length(), 0);
 }
+
+
+
 void chat_client_pressedReturnKey(  void * t ) {
     TForm1 * tform1  = (TForm1 *) t;
     TEdit* te = tform1->Edit5;
@@ -291,6 +361,24 @@ void chat_client_pressedReturnKey(  void * t ) {
 
     if (p && p->sd) {
          sendMessage(as.c_str());
+         appendText( tform1 , ("<me>:" + as + "\r\n").c_str() );
     }
 }
 
+
+static string after(string& in, string& needle){
+  int i = in.find(needle, 0);
+  if (i >= 0){
+    return string(in, i+needle.length());
+  }
+  return "";
+}
+
+
+static string before(string& in, string& needle){   
+  int i = in.find(needle, 0);
+  if (i > 0){
+    return string(in, 0, i);
+  }
+  return "";
+}
