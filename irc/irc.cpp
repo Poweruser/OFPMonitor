@@ -7,8 +7,17 @@
 #include "irc.h"
 #include <vector.h>
 #include <set.h>
+#include <time.h>
 #include <sstream>
-                           
+
+                
+//#define DEBUG_MSG
+#ifdef DEBUG_MSG
+#define INPUTOUT 1
+#else             
+#define INPUTOUT 0
+#endif
+
 extern int tcpsocket(void) ;
 extern unsigned long dnsdb(char *host);
 
@@ -100,7 +109,18 @@ void appendText( TForm1 * tform1, string& msg ){
                 //as += "\r\n";
                 tr->Text = as;
 }
+     static string curTm(){
+  time_t rawtime;
+  struct tm * timeinfo;
+  char buffer [80];
 
+  time ( &rawtime );
+  timeinfo = localtime ( &rawtime );
+
+  strftime (buffer,80,"%H:%M:%S ",timeinfo);
+ return buffer; 
+
+     }
 void chat_client_timercallback(  void * t ){
     TForm1 * tform1  = (TForm1 *) t;
 
@@ -110,7 +130,14 @@ void chat_client_timercallback(  void * t ){
 
         string privMsgNeedle = "PRIVMSG #" + channelname_operationflashpoint1 +" :";
          for( int i = 0; i < m.size(); i++) {
+
                 string& omsg = m.at(i);
+
+                
+                if (INPUTOUT) {
+                     appendText(tform1 , omsg);
+                }
+
                  string cmsg = omsg;
                  string playername;
                  int fnd = 0;
@@ -118,20 +145,14 @@ void chat_client_timercallback(  void * t ){
                      cmsg = string( cmsg, fnd + privMsgNeedle.size()  );
                      int emp = omsg.find("!",1);
                      playername = string( omsg, 1, emp - 1 );
-                     cmsg = playername + " : " + cmsg;
+                     playername = name_irctolocal(playername);
+                     cmsg = curTm() + " - " + playername + " : " + cmsg;
 
+//                     ctime_r ();
+//asctime_r( 0, 0);
+//ctime_r( 0, 0);
 
-                 appendText(tform1 , cmsg);
-
-                                   /*
-                TRichEdit * tr =  tform1->RichEditChatContent;
-
-                AnsiString& as = tr->Text;//-> = false;
-                as += AnsiString(cmsg.c_str());
-                //as += "\r\n";
-                tr->Text = as;   */
-
-
+                     appendText(tform1 , cmsg);
                  }
 
 
@@ -361,7 +382,7 @@ void chat_client_pressedReturnKey(  void * t ) {
 
     if (p && p->sd) {
          sendMessage(as.c_str());
-         appendText( tform1 , ("<me>:" + as + "\r\n").c_str() );
+         appendText( tform1 , ("<me> " + as + "\r\n").c_str() );
     }
 }
 
