@@ -330,7 +330,6 @@ void irc_thread__parm::consume(char* c2, int i2) {
                          if (isLastPlayer) {
                             break;
                          }
-                         }
                          ps2 = after(ps2, " ");
                     }
             }
