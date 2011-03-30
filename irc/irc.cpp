@@ -11,7 +11,7 @@
 #include <sstream>
 
                 
-//#define DEBUG_MSG
+#define DEBUG_MSG
 #ifdef DEBUG_MSG
 #define INPUTOUT 1
 #else             
@@ -29,8 +29,14 @@ static void sendMessage(const char * xmsg);
 static string channelname_operationflashpoint1 ("operationflashpoint1");
 
 static string after(string& in, string& needle);
-static string before(string& in, string& needle);    
-extern unsigned long resolv(char *host) ;
+static string before(string& in, string& needle);
+static int starts(string& in, string& needle);
+extern unsigned long resolv(char *host) ;  
+static string currrentTimeString();    
+static string plrname_localtoirc(  char * name  );
+static string name_irctolocal(string& n);
+
+
 
 struct irc_thread__parm {
     TForm1 * tform1 ;
@@ -109,7 +115,9 @@ void appendText( TForm1 * tform1, string& msg ){
                 //as += "\r\n";
                 tr->Text = as;
 }
-     static string curTm(){
+
+
+static string currrentTimeString(){
   time_t rawtime;
   struct tm * timeinfo;
   char buffer [80];
@@ -117,7 +125,7 @@ void appendText( TForm1 * tform1, string& msg ){
   time ( &rawtime );
   timeinfo = localtime ( &rawtime );
 
-  strftime (buffer,80,"%H:%M:%S ",timeinfo);
+  strftime (buffer,80,"%H:%M ",timeinfo);
  return buffer; 
 
      }
@@ -146,7 +154,7 @@ void chat_client_timercallback(  void * t ){
                      int emp = omsg.find("!",1);
                      playername = string( omsg, 1, emp - 1 );
                      playername = name_irctolocal(playername);
-                     cmsg = curTm() + " - " + playername + " : " + cmsg;
+                     cmsg = currrentTimeString() + " - " + playername + ": " + cmsg;
 
 //                     ctime_r ();
 //asctime_r( 0, 0);
@@ -276,10 +284,11 @@ static vector<string> explode(string s){
         if(s.size()>0){
         int p = 0;
         int t = 0;
-                while((t = s.find( "\r\n" ,p ) ) > p){
-                        t += 2;
-                        r.push_back( string(s, p, t-p) );
-                        p = t;
+                while( p < s.size() &&
+                 (t = s.find( "\r\n" ,p ) ) > p){
+                        string line (s, p, t-p);
+                        r.push_back( line );
+                        p = t + 2;
                 }
             if (p < s.size() - 1){
                    r.push_back( string(s, p, s.size() - p) );
@@ -303,35 +312,27 @@ void irc_thread__parm::consume(char* c2, int i2) {
             }
 
 
-            string playerzNeedle( hoscht + " 353 " );
-            int kjo = playerzNeedle.size();
-            //when line beginz with diz we have incoming players
-            int p = s.find( playerzNeedle );
-
-            // shall be zero eh
-            if (p >= 0) {
-                int cursorPoz = p + playerzNeedle.size();
-                cursorPoz = s.find( ":" , cursorPoz );
-                if (cursorPoz > 0) {
-                    cursorPoz++;
-                    while (cursorPoz >= 0 && cursorPoz < s.size() ){
-                         int cursorNuPoz = s.find( " " , cursorPoz );
-                         if (cursorNuPoz <0){
-                          break;
-                         }
-                         if (cursorNuPoz > cursorPoz) {
-                             string player( s.c_str() ,  cursorPoz , cursorNuPoz - cursorPoz );
-                             userz.push_back(player);
-                             userzSorted.insert(player);
+            //string playerzNeedle( hoscht + " 353 " );
+            string body = after(s , " ");
+            if (starts(body , "353 ")) {
+            string ps2 = after( body , ":" );
+                    while (ps2.size() > 0 ) {
+                         int isLastPlayer = ps2.find( " " , 0 ) == -1;
+                         string player;
+                         if (isLastPlayer) {
+                            player = ps2;
                          } else {
-                             string player( s.c_str() ,  cursorPoz , s.size() -cursorPoz - 2 );
-                             userz.push_back(player);
-                             userzSorted.insert(player);
+                            player = before(ps2, " ");
                          }
+                         player = name_irctolocal(player);
+                         userz.push_back(player);
+                         userzSorted.insert(player);
                          updatePlayers = 1;
-                         cursorPoz = cursorNuPoz + 1;
+                         if (isLastPlayer) {
+                            break;
+                         }
+                         ps2 = after(ps2, " ");
                     }
-                }
             }
             
             int pingFind =  s.find("PING " + hoscht, 0) ;
@@ -382,7 +383,7 @@ void chat_client_pressedReturnKey(  void * t ) {
 
     if (p && p->sd) {
          sendMessage(as.c_str());
-         appendText( tform1 , ("<me> " + as + "\r\n").c_str() );
+         appendText( tform1 ,  currrentTimeString( ) +  " - <me>: " + as.c_str() + "\r\n" );
     }
 }
 
@@ -402,4 +403,8 @@ static string before(string& in, string& needle){
     return string(in, 0, i);
   }
   return "";
+}
+
+static int starts(string& in, string& needle) {
+return in.find(needle,0) == 0;
 }
