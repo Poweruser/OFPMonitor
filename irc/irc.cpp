@@ -204,7 +204,7 @@ void chat_client_timercallback(  void * t ){
         p->playersParted.clear();
         for(int i = 0; i < pp.size() ; i++) {
           //p->sendString
-          appendText(  currrentTimeString() + "      *******    "  + pp.at(i) + " left    ******" );
+          appendText(tform1,  currrentTimeString() + "      *******    "  + pp.at(i) + " left    ******" );
         }
     }
     if (p->playersJoined.size() > 0) {
@@ -212,7 +212,7 @@ void chat_client_timercallback(  void * t ){
         p->playersJoined.clear();
         for(int i = 0; i < pp.size() ; i++) {
           //p->sendString
-          appendText(  currrentTimeString() + "      *******    "  + pp.at(i) + " joined    ******" );
+          appendText(tform1,  currrentTimeString() + "      *******    "  + pp.at(i) + " joined    ******" );
         }
     }
 }

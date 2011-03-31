@@ -2825,8 +2825,9 @@ void __fastcall TForm1::Disconnect1Click(TObject *Sender)
 void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
       TShiftState Shift)
 {
-   if(Key == VK_RETURN) {
+   if(Key == VK_RETURN && Shift.Contains(ssAlt)) {
       chat_client_pressedReturnKey( this );
+      MemoChatInput->Clear();
    }        
 }
 //---------------------------------------------------------------------------
