@@ -42,6 +42,8 @@ struct irc_thread__parm {
     TForm1 * tform1 ;
     vector<string> messages;
     vector<string> userz;
+    vector<string> playersParted;
+    vector<string> playersJoined;
     set<string> userzSorted;
     string hoscht;
 
@@ -79,9 +81,8 @@ void chat_client_connect(  void * tf ) {
     }
     CreateThread(0 , 0 , irc_ThreadProc , p , 0 , 0);
 }
-
 static string name_irctolocal(string& n){
-        string k("ofpmon_");
+        string k(ofpprefix);
         int p = n.find(k,0);
         if (p >= 0){
                 return string( n , p+k.size() );
@@ -106,7 +107,7 @@ string plrname_localtoirc(  char * name  ){
             n[i]='_';
         }
     }
-    return "ofpmon_" + n;
+    return ofpprefix + n;
 }
 /*
 void appendText( TForm1 * tform1, string& msg ){
@@ -163,10 +164,6 @@ void chat_client_timercallback(  void * t ){
                      playername = name_irctolocal(playername);
                      cmsg = currrentTimeString() + " - " + playername + ": " + cmsg;
 
-//                     ctime_r ();
-//asctime_r( 0, 0);
-//ctime_r( 0, 0);
-
                      appendText(tform1 , cmsg);
                  }
 
@@ -199,6 +196,24 @@ void chat_client_timercallback(  void * t ){
              tssg->Cells[0][i] = ulist[i].c_str();
        }
 
+    }
+
+
+    if (p->playersParted.size() > 0) {
+        vector<string> pp =  vector<string>(p->playersParted);
+        p->playersParted.clear();
+        for(int i = 0; i < pp.size() ; i++) {
+          //p->sendString
+          appendText(  currrentTimeString() + "      *******    "  + pp.at(i) + " left    ******" );
+        }
+    }
+    if (p->playersJoined.size() > 0) {
+        vector<string> pp =  vector<string>(p->playersJoined);
+        p->playersJoined.clear();
+        for(int i = 0; i < pp.size() ; i++) {
+          //p->sendString
+          appendText(  currrentTimeString() + "      *******    "  + pp.at(i) + " joined    ******" );
+        }
     }
 }
 
@@ -359,12 +374,17 @@ void irc_thread__parm::consume(char* c2, int i2) {
               string name = after(s,":");
               name = before(name, "!");
               name=name_irctolocal(name);
+              playersJoined .push_back(name);
               userzSorted.insert(name);
               updatePlayers = 1;
             } else if ( partFind > 0 ) {
               string name = after(s,":");
               name = before(name, "!"); 
               name=name_irctolocal(name);
+
+              playersParted.push_back(name);
+
+
               userzSorted.erase(name);
               updatePlayers = 1;
             }
