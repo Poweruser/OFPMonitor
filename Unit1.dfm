@@ -421,7 +421,7 @@ object Form1: TForm1
           Left = 0
           Top = 0
           Width = 649
-          Height = 182
+          Height = 206
           Align = alClient
           ReadOnly = True
           ScrollBars = ssVertical
@@ -429,11 +429,11 @@ object Form1: TForm1
         end
         object MemoChatInput: TMemo
           Left = 0
-          Top = 182
+          Top = 206
           Width = 649
-          Height = 50
+          Height = 26
           Align = alBottom
-          Constraints.MaxHeight = 50
+          Constraints.MaxHeight = 26
           TabOrder = 1
           OnKeyUp = MemoChatInputKeyUp
         end

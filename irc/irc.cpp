@@ -404,7 +404,6 @@ void sendMessage(const char * xmsg){
 void chat_client_pressedReturnKey(  void * t ) {
     TForm1 * tform1  = (TForm1 *) t;
     AnsiString as = tform1->MemoChatInput->Lines->Strings[0];
-    tform1->MemoChatInput->Clear();
     if (p && p->sd) {
          sendMessage(as.c_str());
          appendText( tform1 ,  currrentTimeString( ) +  " - <me>: " + as.c_str()  );
