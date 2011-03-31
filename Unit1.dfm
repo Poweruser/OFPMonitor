@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 246
-  Top = 149
+  Left = 219
+  Top = 164
   Width = 886
   Height = 706
   HorzScrollBar.Visible = False
@@ -423,6 +423,7 @@ object Form1: TForm1
           Width = 649
           Height = 206
           Align = alClient
+          ReadOnly = True
           ScrollBars = ssVertical
           TabOrder = 0
         end

@@ -2827,6 +2827,7 @@ void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
 {
    if(Key == VK_RETURN) {
       chat_client_pressedReturnKey( this );
+      MemoChatInput->Clear();
    }        
 }
 //---------------------------------------------------------------------------
