@@ -68,18 +68,37 @@ void chat_client_disconnect() {
 }
 
 
-void chat_client_connect(  void * tf ) {
+bool chat_client_connect(  void * tf ) {
    TForm1 * tform1  = ( TForm1    *  )  tf;
    getplayername();
 
    if (strlen(playerName) < 1){
-        return;
+        return false;
    }
 
     if (!p) {
         p = new irc_thread__parm();
     }
-    CreateThread(0 , 0 , irc_ThreadProc , p , 0 , 0);
+
+    int sd = tcpsocket();
+    struct sockaddr_in addr;
+
+    p->sd = sd;
+     memset( &addr , 0 , sizeof(addr));
+    // irc.freenode.net = 140.211.167.98
+    // int ip = inet_addr("140.211.167.98");
+    //int ip = dnsdb("irc.freenode.net");
+    int ip =    resolv("irc.freenode.net");
+    addr.sin_addr.s_addr = ip;
+    addr.sin_port        = htons(6666);
+    addr.sin_family      = AF_INET;
+
+    int connectRes = connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
+    if( connectRes >= 0 && p->sd) {
+        CreateThread(0 , 0 , irc_ThreadProc , p , 0 , 0);
+        return true;
+    }
+    return false;
 }
 static string name_irctolocal(string& n){
         string k(ofpprefix);
@@ -220,31 +239,16 @@ void chat_client_timercallback(  void * t ){
 
 
 DWORD WINAPI irc_ThreadProc (LPVOID lpdwThreadParam__ ) {
-    int sd = tcpsocket();
-    struct sockaddr_in addr;
-    struct irc_thread__parm * p_parm = (struct irc_thread__parm *) lpdwThreadParam__;
-    TForm1 * tform1  = p_parm->tform1;
-    p_parm->sd = sd;
-
-    memset( &addr , 0 , sizeof(addr));
-    // irc.freenode.net = 140.211.167.98
-    // int ip = inet_addr("140.211.167.98");
-    //int ip = dnsdb("irc.freenode.net");
-int ip =    resolv("irc.freenode.net");
-    addr.sin_addr.s_addr = ip;
-    addr.sin_port        = htons(6666);
-    addr.sin_family      = AF_INET;
-
-    int connectRes = connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
-      start_conversation(sd, playerName);
-      if( connectRes >= 0) {
-        char buff [1<<10];
-        int r;
-            while(p_parm->sd && (r = recv(sd, buff, sizeof(buff) , 0)) > 0){
+        struct irc_thread__parm * p_parm = (struct irc_thread__parm *) lpdwThreadParam__;
+        if(p_parm->sd) {
+                start_conversation(p_parm->sd, playerName);
+                char buff [1<<10];
+                int r;
+                while(p_parm->sd && (r = recv(p_parm->sd, buff, sizeof(buff) , 0)) > 0){
                     //TRichEdit * tr =  tform1->RichEditChatContent;
                     p_parm->consume( buff,r );
-            } 
-      }
+                }
+        }
 }
 
 

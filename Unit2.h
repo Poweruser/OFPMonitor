@@ -86,7 +86,7 @@ public:		// User declarations
         String TWINDOW_SETTINGS::getConfModLine(int i);
         String TWINDOW_SETTINGS::getCurrentPlayerName();
         boolean TWINDOW_SETTINGS::isOFPResistance();
-        void TWINDOW_SETTINGS::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window, TStringList *notifications);
+        void TWINDOW_SETTINGS::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window, list<String> chat, TStringList *notifications);
         void TWINDOW_SETTINGS::setSettingsChanged();
         void TWINDOW_SETTINGS::setCustomNotifications(bool active);
         bool TWINDOW_SETTINGS::areCustomNotificationsEnabled();

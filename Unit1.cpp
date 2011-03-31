@@ -2140,6 +2140,58 @@ void TForm1::stopMP3Job(String alias) {
         mp3p.stopMP3Job(alias);
 }
 
+
+class ChatSettings {
+        public:
+                bool autoConnect;
+                ChatSettings() {
+                        this->setAutoConnect(false);
+                }
+
+                ChatSettings(bool ac) {
+                        this->setAutoConnect(ac);
+                }
+
+                void setAutoConnect(bool ac) {
+                        this->autoConnect = ac;
+                        if(Form1 != NULL) {
+                                Form1->Connectonstart1->Checked = ac;
+                        }
+                }
+                /**
+                   Creates the section about the chat settings that will be
+                   written to the configuration file of the program
+                */
+
+                                CustomStringList createFileEntry() {
+                        CustomStringList output;
+                        output.push_back("[ChatSettings]");
+                        output.push_back("AutoConnect = " + this->checkBool(this->autoConnect));
+                        output.push_back("[\\ChatSettings]");
+                        return output;
+                }
+                                String checkBool(bool in) {
+                        if(in) {
+                                return "1";
+                        } else {
+                                return "0";
+                        }
+                }
+};
+
+ChatSettings chatsettings;
+
+/**
+   Gives Unit2, which loades the config file, access to the object
+   storing the chat settings
+ */
+
+     
+void TForm1::setChat(bool autoConnect) {
+        chatsettings = ChatSettings(autoConnect);
+}
+
+
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
@@ -2228,7 +2280,7 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
                         servers.push_back(tmp);
                 }
         }
-        WINDOW_SETTINGS->writeSettingToFile(servers, watched, fontsettings.createFileEntry(), windowsettings.createFileEntry(), WINDOW_NOTIFICATIONS->getFileEntry());
+        WINDOW_SETTINGS->writeSettingToFile(servers, watched, fontsettings.createFileEntry(), windowsettings.createFileEntry(), chatsettings.createFileEntry(), WINDOW_NOTIFICATIONS->getFileEntry());
 
 }
 //---------------------------------------------------------------------------
@@ -2764,8 +2816,6 @@ void __fastcall TForm1::Info1Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-
-
 void __fastcall TForm1::UDPSocketDataReceived(TComponent *Sender,
       int NumberBytes, AnsiString FromIP, int Port)
 {
@@ -2805,20 +2855,28 @@ void __fastcall TForm1::TimerIrcChatTimerTimer(TObject *Sender)
 
 void __fastcall TForm1::Connect1Click(TObject *Sender)
 {
+        Connect1->Enabled = false;
         MemoChatOutput->Lines->Add("Connecting...");
         TimerIrcChatTimer->Enabled = true;
-        chat_client_connect( Form1 );
+        bool result = chat_client_connect( Form1 );
+        if(!result) {
+                MemoChatOutput->Lines->Add("Connecting failed.");
+        }
+        Connect1->Enabled = !result;
+        Disconnect1->Enabled = result;
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TForm1::Disconnect1Click(TObject *Sender)
 {
+        Disconnect1->Enabled = false;
         chat_client_disconnect();
         TimerIrcChatTimer->Enabled = false;
         StringGrid3->RowCount = 0;
         StringGrid3->Cells[0][0] = "";
         StringGrid3->Cells[0][1] = "";
         MemoChatOutput->Lines->Add("Disconnected.");
+        Connect1->Enabled = true;
 }
 //---------------------------------------------------------------------------
 
@@ -2829,6 +2887,44 @@ void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
       chat_client_pressedReturnKey( this );
       MemoChatInput->Clear();
    }        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Clear1Click(TObject *Sender)
+{
+        MemoChatOutput->Clear();        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Savetofile1Click(TObject *Sender)
+{
+        SaveDialog1->Execute();        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::SaveDialog1CanClose(TObject *Sender,
+      bool &CanClose)
+{
+        TStringList *log = new TStringList;
+        for(int i = 0; i < MemoChatOutput->Lines->Count; i++) {
+                log->Add(MemoChatOutput->Lines->Strings[i]);
+        }
+        log->SaveToFile(SaveDialog1->FileName);
+        log->Clear();
+        delete log;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::SaveDialog1Close(TObject *Sender)
+{
+       ShowMessage("OnClose");        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Connectonstart1Click(TObject *Sender)
+{
+        chatsettings.autoConnect = Connectonstart1->Checked;
+        WINDOW_SETTINGS->setSettingsChanged();
 }
 //---------------------------------------------------------------------------
 

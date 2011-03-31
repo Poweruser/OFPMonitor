@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 219
-  Top = 164
+  Left = 270
+  Top = 163
   Width = 886
   Height = 706
   HorzScrollBar.Visible = False
@@ -43,13 +43,13 @@ object Form1: TForm1
     Top = 0
     Width = 878
     Height = 263
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Align = alTop
     Constraints.MinHeight = 263
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 0
     object TabSheet1: TTabSheet
-      Caption = 'TabSheet1'
+      Caption = 'Server info'
       object Panel1: TPanel
         Left = 0
         Top = 0
@@ -675,20 +675,37 @@ object Form1: TForm1
       ShortCut = 116
       OnClick = MENUITEM_MAINMENU_GETNEWSERVERLISTClick
     end
-    object Info1: TMenuItem
-      Caption = 'Info'
-      OnClick = Info1Click
-    end
     object chat1: TMenuItem
-      Caption = 'chat'
+      Caption = 'Chat'
       object Connect1: TMenuItem
         Caption = 'Connect'
         OnClick = Connect1Click
       end
       object Disconnect1: TMenuItem
         Caption = 'Disconnect'
+        Enabled = False
         OnClick = Disconnect1Click
       end
+      object Connectonstart1: TMenuItem
+        AutoCheck = True
+        Caption = 'Connect on start'
+        OnClick = Connectonstart1Click
+      end
+      object Log1: TMenuItem
+        Caption = 'Log'
+        object Savetofile1: TMenuItem
+          Caption = 'Save to file'
+          OnClick = Savetofile1Click
+        end
+        object Clear1: TMenuItem
+          Caption = 'Clear'
+          OnClick = Clear1Click
+        end
+      end
+    end
+    object Info1: TMenuItem
+      Caption = 'Info'
+      OnClick = Info1Click
     end
   end
   object TrayIcon1: TTrayIcon
@@ -724,6 +741,15 @@ object Form1: TForm1
     Interval = 10
     OnTimer = TimerIrcChatTimerTimer
     Left = 352
+    Top = 160
+  end
+  object SaveDialog1: TSaveDialog
+    OnClose = SaveDialog1Close
+    DefaultExt = 'txt'
+    Filter = 'Text file (*.txt)|*.txt'
+    Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofNoNetworkButton, ofEnableSizing]
+    OnCanClose = SaveDialog1CanClose
+    Left = 480
     Top = 160
   end
 end

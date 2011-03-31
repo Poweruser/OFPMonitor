@@ -118,6 +118,11 @@ __published:	// IDE-managed Components
         TMenuItem *Disconnect1;
         TMemo *MemoChatOutput;
         TMemo *MemoChatInput;
+        TMenuItem *Log1;
+        TMenuItem *Savetofile1;
+        TMenuItem *Clear1;
+        TSaveDialog *SaveDialog1;
+        TMenuItem *Connectonstart1;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
@@ -177,6 +182,12 @@ __published:	// IDE-managed Components
         void __fastcall Disconnect1Click(TObject *Sender);
         void __fastcall MemoChatInputKeyUp(TObject *Sender, WORD &Key,
           TShiftState Shift);
+        void __fastcall Clear1Click(TObject *Sender);
+        void __fastcall Savetofile1Click(TObject *Sender);
+        void __fastcall SaveDialog1CanClose(TObject *Sender,
+          bool &CanClose);
+        void __fastcall SaveDialog1Close(TObject *Sender);
+        void __fastcall Connectonstart1Click(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         typedef list<String> CustomStringList;
@@ -191,6 +202,7 @@ public:		// User declarations
         void TForm1::stopMP3Job(String alias);
         CustomStringList TForm1::splitUpMessage(String msg, String split);
         bool TForm1::doNameFilter(String c, String d);
+        void TForm1::setChat(bool autoConnect);
         __fastcall TForm1(TComponent* Owner);
 };
 //---------------------------------------------------------------------------

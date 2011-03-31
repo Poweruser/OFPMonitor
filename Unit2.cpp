@@ -6,7 +6,7 @@
 #include <io.h>
 #include <windows.h>
 #include <Registry.hpp>
-
+                                              
 #pragma hdrstop
 
 #include "Unit2.h"
@@ -217,7 +217,7 @@ class Settings {
                         this->changed = true;
                 }
 
-                void writeToFile(list<String> &servers, list<String> &watchedServers, list<String> &font, list<String> &window, TStringList *notifications) {
+                void writeToFile(list<String> &servers, list<String> &watchedServers, list<String> &font, list<String> &window, list<String> &chat, TStringList *notifications) {
                         if(this->changed) {
                                 TStringList *file = new TStringList;
                                 file->Add("[General]");
@@ -262,6 +262,13 @@ class Settings {
                                         file->Add(tmp);
                                         window.pop_front();
                                 }
+
+                                while(chat.size() > 0) {
+                                        tmp = chat.front();
+                                        file->Add(tmp);
+                                        chat.pop_front();
+                                }
+
                                 if (servers.size() > 0) {
                                         file->Add("[Servers]");
                                         if(watchedServers.size() > 0) {
@@ -292,8 +299,8 @@ class Settings {
 };
 Settings programSettings = Settings();
 
-void TWINDOW_SETTINGS::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window, TStringList *notifications) {
-        programSettings.writeToFile(servers, watchedServers, font, window, notifications);
+void TWINDOW_SETTINGS::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window, list<String> chat, TStringList *notifications) {
+        programSettings.writeToFile(servers, watchedServers, font, window, chat, notifications);
 }
 
 void TWINDOW_SETTINGS::setCustomNotifications(bool active) {
@@ -792,6 +799,18 @@ list<String> readConfigFile() {
                                         tmp = file->Strings[i].Trim();
                                 }
                                 Form1->setFont(name, size, charset,bold,italic);
+                        } else if((tmp.SubString(1,14) == "[ChatSettings]")) {
+                                i++;
+                                tmp = file->Strings[i].Trim();
+                                bool autoConnect = false;
+                                while((tmp.SubString(1,15) != "[\\ChatSettings]") && i < file->Count - 1) {
+                                        if((tmp.SubString(1,11) == "AutoConnect")) {
+                                                autoConnect = checkBool2(getValue(tmp));
+                                        }
+                                        i++;
+                                        tmp = file->Strings[i].Trim();
+                                }
+                                Form1->setChat(autoConnect);
                         } else if((tmp.SubString(1,16) == "[WindowSettings]")) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
@@ -917,8 +936,8 @@ list<String> readConfigFile() {
                 folder = GetRegistryValue(HKEY_LOCAL_MACHINE, a, "Main");
         }
         if(exe.IsEmpty() && !folder.IsEmpty()) {
-                if(FileExists(folder + "\\FlashpointResistance.exe")) {
-                        exe = folder + "\\FlashpointResistance.exe";
+                if(FileExists(folder + "\\FlASHPOINTRESISTANCE.exe")) {
+                        exe = folder + "\\FLASHPOINTRESISTANCE.exe";
                 }
         }
 
@@ -1046,6 +1065,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_OFPEXECUTABLE_BROWSEClick(TObject *Send
 
 void __fastcall TWINDOW_SETTINGS::FormCreate(TObject *Sender)
 {
+
         #include "guiDB.cpp"
         findLanguageFiles();
         list<String> ipList = readConfigFile();
@@ -1055,6 +1075,9 @@ void __fastcall TWINDOW_SETTINGS::FormCreate(TObject *Sender)
         Form1->readServerList(ipList);
         updateConfList();
         WINDOW_SETTINGS->ComboBox1->Text = programSettings.languagefile;
+        if(Form1->Connectonstart1->Checked) {
+                Form1->Connect1->Click();
+        }
 }
 //---------------------------------------------------------------------------
 
