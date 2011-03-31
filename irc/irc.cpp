@@ -3,7 +3,7 @@
 #include <winsock.h>
 #include <list>
 #include <iostream.h>
-#include "Unit1.h" 
+#include "Unit1.h"
 #include "irc.h"
 #include <vector.h>
 #include <set.h>
@@ -69,9 +69,11 @@ void chat_client_disconnect() {
 void chat_client_connect(  void * tf ) {
    TForm1 * tform1  = ( TForm1    *  )  tf;
    getplayername();
+
    if (strlen(playerName) < 1){
         return;
    }
+
     if (!p) {
         p = new irc_thread__parm();
     }
@@ -106,13 +108,19 @@ string plrname_localtoirc(  char * name  ){
     }
     return "ofpmon_" + n;
 }
-
+/*
 void appendText( TForm1 * tform1, string& msg ){
                 TRichEdit * tr =  tform1->RichEditChatContent;
                 AnsiString& as = tr->Text;//-> = false;
                 as += AnsiString(msg.c_str());
                 as += "\r\n";
                 tr->Text = as;
+}
+*/
+
+void appendText( TForm1 * tform1, string& msg ){
+                TMemo * tr =  tform1->MemoChatOutput;
+                tr->Lines->Add(msg.c_str());
 }
 
 
@@ -218,7 +226,7 @@ int ip =    resolv("irc.freenode.net");
         char buff [1<<10];
         int r;
             while(p_parm->sd && (r = recv(sd, buff, sizeof(buff) , 0)) > 0){
-                    TRichEdit * tr =  tform1->RichEditChatContent;
+                    //TRichEdit * tr =  tform1->RichEditChatContent;
                     p_parm->consume( buff,r );
             } 
       }
@@ -314,7 +322,7 @@ void irc_thread__parm::consume(char* c2, int i2) {
             //string playerzNeedle( hoscht + " 353 " );
             string body = after(s , " ");
             if (starts(body , "353 ")) {
-            string ps2 = after( body , ":" );
+                string ps2 = after( body , ":" );
                     while (ps2.size() > 0 ) {
                          int isLastPlayer = ps2.find( " " , 0 ) == -1;
                          string player;
@@ -330,6 +338,7 @@ void irc_thread__parm::consume(char* c2, int i2) {
                          if (isLastPlayer) {
                             break;
                          }
+                         //}
                          ps2 = after(ps2, " ");
                     }
             }
@@ -360,7 +369,7 @@ void irc_thread__parm::consume(char* c2, int i2) {
               updatePlayers = 1;
             }
             messages.push_back( s );
-    }
+        }
 }
 
 
@@ -372,20 +381,15 @@ void sendMessage(const char * xmsg){
         send(p->sd, msg.c_str(), msg.length(), 0);
 }
 
-
-
 void chat_client_pressedReturnKey(  void * t ) {
     TForm1 * tform1  = (TForm1 *) t;
-    TEdit* te = tform1->Edit5;
-    AnsiString as = te->Text;
-    te->Text = "";
-
+    AnsiString as = tform1->MemoChatInput->Lines->Strings[0];
+    tform1->MemoChatInput->Clear();
     if (p && p->sd) {
          sendMessage(as.c_str());
          appendText( tform1 ,  currrentTimeString( ) +  " - <me>: " + as.c_str()  );
     }
 }
-
 
 static string after(string& in, string& needle){
   int i = in.find(needle, 0);

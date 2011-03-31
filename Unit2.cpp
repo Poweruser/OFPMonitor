@@ -642,6 +642,7 @@ void updateLanguage(String languagefile) {
                 Form1->StringGrid2->Cells[1][0] = WINDOW_SETTINGS->getGuiString("STRING_SCORE");
                 Form1->StringGrid2->Cells[2][0] = WINDOW_SETTINGS->getGuiString("STRING_DEATHS");
                 Form1->StringGrid2->Cells[3][0] = WINDOW_SETTINGS->getGuiString("STRING_TEAM");
+                Form1->TabSheet1->Caption = Form1->GROUPBOX_SERVERINFO->Caption;
                 if(!WINDOW_SETTINGS->COMBOBOX_PROFILE->Enabled) {
                         WINDOW_SETTINGS->COMBOBOX_PROFILE->Text = WINDOW_SETTINGS->getGuiString("STRING_NOPROFILES");
                 }
@@ -1387,4 +1388,5 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_DOWNClick(TObject *Se
         }
 }
 //---------------------------------------------------------------------------
+
 

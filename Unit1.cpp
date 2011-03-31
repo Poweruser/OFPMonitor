@@ -38,6 +38,8 @@ template<typename T, int size>
 int GetArrLength(T(&)[size]){return size;}
 
 
+TNMUDP *udpSocket;
+
 /**
    Represents an internet address with IP and port
  */
@@ -280,13 +282,13 @@ class WindowSettings {
                         if(width >= Form1->Constraints->MinWidth) {
                                 Form1->Width = width;
                         }
-                        if(devider < Form1->Panel1->Constraints->MinHeight ||
+                        if(devider < Form1->PageControl1->Constraints->MinHeight ||
                            devider > Form1->ClientHeight - (    Form1->StringGrid1->Constraints->MinHeight +
                                                                 Form1->StatusBar1->Height +
                                                                 Form1->Splitter1->Height)) {
-                                Form1->Panel1->Height = Form1->Panel1->Constraints->MinHeight;
+                                Form1->PageControl1->Height = Form1->PageControl1->Constraints->MinHeight;
                         } else {
-                                Form1->Panel1->Height = devider;
+                                Form1->PageControl1->Height = devider;
                         }
                         this->ratioID = checkIfZero(ratioID,1);
                         this->ratioSN = checkIfZero(ratioSN,1);
@@ -346,7 +348,7 @@ class WindowSettings {
                         output.push_back("ratioSC = " + tmp.sprintf("%.03f", ratioSC));
                         output.push_back("ratioDE = " + tmp.sprintf("%.03f", ratioDE));
                         output.push_back("ratioTE = " + tmp.sprintf("%.03f", ratioTE));
-                        output.push_back("devider = " + String(Form1->Panel1->Height));
+                        output.push_back("devider = " + String(Form1->PageControl1->Height));
                         output.push_back("[\\WindowSettings]");
                         return output;
                 }
@@ -709,6 +711,7 @@ void addToErrorReport(String err, String msg) {
         error->Insert(0,err);
         error->Insert(0,"============================");
         error->SaveToFile("errorreport.txt");
+        delete(error);
         return;
 }
 
@@ -904,21 +907,23 @@ void updateTimeoutLimit() {
  */
 
 void sendUdpMessage(int index, String ip, int port, String msg) {
-        char buffer[256];
-        int len;
-        strcpy(buffer,msg.c_str());
-        len=strlen(buffer);
-        Form1->NMUDP1->RemotePort = port;
-        Form1->NMUDP1->RemoteHost = ip;
-        Form1->NMUDP1->SendBuffer(buffer,256,len);
-        if(ServerArray[index].messageSent == 0) {
-                ServerArray[index].messageSent = timeGetTime();
-        } else {
-                int tmp = ServerArray[index].timeouts;
-                if(tmp < timeoutLimit) {
-                        ServerArray[index].timeouts = tmp + 1;
+        if(udpSocket != NULL) {
+                char buffer[256];
+                int len;
+                strcpy(buffer,msg.c_str());
+                len=strlen(buffer);
+                udpSocket->RemotePort = port;
+                udpSocket->RemoteHost = ip;
+                udpSocket->SendBuffer(buffer,256,len);
+                if(ServerArray[index].messageSent == 0) {
+                        ServerArray[index].messageSent = timeGetTime();
                 } else {
-                        ServerArray[index].clear();
+                        int tmp = ServerArray[index].timeouts;
+                        if(tmp < timeoutLimit) {
+                                ServerArray[index].timeouts = tmp + 1;
+                        } else {
+                                ServerArray[index].clear();
+                        }
                 }
         }
         return;
@@ -1910,7 +1915,7 @@ class MessageReader {
                                                         }
                                                         if(ServerArray[j].messageSent > 1) {
                                                                 int curr = m.toa - ServerArray[j].messageSent;
-                                                                if(ServerArray[j].ping.size() > 4) {
+                                                                if(ServerArray[j].ping.size() > 1) {
                                                                         ServerArray[j].ping.pop_front();
                                                                 }
                                                                 ServerArray[j].ping.push_back(curr);
@@ -2163,31 +2168,19 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         PlayerSortList2->CaseSensitive = true;
         PlayerSortList2->Duplicates = dupAccept;
         updateTimeoutLimit();
+        udpSocket = new TNMUDP(Form1);
+        udpSocket->ReportLevel = 5;
+        udpSocket->LocalPort = 0;
+        udpSocket->RemotePort = 2303;
+        udpSocket->RemoteHost = "localhost";
+        udpSocket->OnDataReceived = UDPSocketDataReceived;
+        udpSocket->OnDataSend = UDPSocketDataSend;
         Timer3->Enabled = true;
-        TimerIrcChat->Enabled =true;
-        chat_client_connect( this );
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
         : TForm(Owner)
 {
-}
-//---------------------------------------------------------------------------
-void __fastcall TForm1::NMUDP1DataReceived(TComponent *Sender,
-      int NumberBytes, AnsiString FromIP, int Port)
-{
-        const int bytes = 2048;
-        int len;
-        if(NumberBytes < bytes) {
-                DWORD i = timeGetTime();
-                char buffer[bytes];
-                NMUDP1->ReadBuffer(buffer,bytes,len);
-                buffer[len] = 0;
-                String buf = String(buffer);
-                messageReader.newMessage(Message(FromIP,Port,buf,i));
-        } else {
-                addToErrorReport("Fehler 1","Receiving buffer too small. Current: 2048. Received: " + String(NumberBytes) + " Bytes");
-        }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
@@ -2203,6 +2196,7 @@ void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
         } else {
                 setEmptyPlayerList();
         }
+        
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Timer1Timer(TObject *Sender)
@@ -2214,6 +2208,7 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
 {
+        chat_client_disconnect();
         mp3p.stopMP3Job("any");
         Timer1->Enabled = false;
         Timer3->Enabled = false;
@@ -2234,7 +2229,7 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
                 }
         }
         WINDOW_SETTINGS->writeSettingToFile(servers, watched, fontsettings.createFileEntry(), windowsettings.createFileEntry(), WINDOW_NOTIFICATIONS->getFileEntry());
-        
+
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::BUTTON_SERVERINFO_COPYADDRESSClick(TObject *Sender)
@@ -2265,11 +2260,6 @@ void __fastcall TForm1::CHECKBOX_FILTER_BRIEFINGClick(TObject *Sender)
 void __fastcall TForm1::CHECKBOX_FILTER_DEBRIEFINGClick(TObject *Sender)
 {
         filterChanged(true);
-}
-//---------------------------------------------------------------------------
-void __fastcall TForm1::NMUDP1DataSend(TObject *Sender)
-{
-        serverCycle.setReady();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Timer3Timer(TObject *Sender)
@@ -2677,16 +2667,16 @@ void __fastcall TForm1::MENUITEM_MAINMENU_FONTClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-
 void __fastcall TForm1::FormResize(TObject *Sender)
 {
-        StringGrid2->Width = Form1->ClientWidth - (GROUPBOX_SERVERINFO->Width + 5);
+        StringGrid2->Width = TabSheet1->PageControl->Pages[0]->Width - (GROUPBOX_SERVERINFO->Width + 5);
         StringGrid1->Width = Form1->ClientWidth;
-        Panel1->Height = Form1->ClientHeight - (StatusBar1->Height + StringGrid1->Height + Splitter1->Height);
+        PageControl1->Height = Form1->ClientHeight - (StatusBar1->Height + StringGrid1->Height + Splitter1->Height);
         if(windowsettings.init) {
                 windowsettings.refresh();
         }
         WINDOW_SETTINGS->setSettingsChanged();
+        StatusBar1->Realign();
 }
 //---------------------------------------------------------------------------
 
@@ -2740,6 +2730,8 @@ void __fastcall TForm1::Splitter1Moved(TObject *Sender)
         Application->ProcessMessages();
         WINDOW_SETTINGS->setSettingsChanged();
         Form1->Refresh();
+        //Form1->EditChatInput->Top = Form1->Panel2->Top + Form1->Panel2->Height - Form1->EditChatInput->Height - Form1->Panel2->BorderWidth;
+        //Form1->MemoChatOutput->Height = Form1->Panel2->Height - Form1->EditChatInput->Height - Form1->Panel2->BorderWidth;
 }
 //---------------------------------------------------------------------------
 
@@ -2772,19 +2764,70 @@ void __fastcall TForm1::Info1Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::TimerIrcChatTimer(TObject *Sender)
+
+
+void __fastcall TForm1::UDPSocketDataReceived(TComponent *Sender,
+      int NumberBytes, AnsiString FromIP, int Port)
 {
-        chat_client_timercallback( this );
+        const int bytes = 2048;
+        int len;
+        if(NumberBytes < bytes) {
+                DWORD i = timeGetTime();
+                char buffer[bytes];
+                udpSocket->ReadBuffer(buffer,bytes,len);
+                buffer[len] = 0;
+                String buf = String(buffer);
+                messageReader.newMessage(Message(FromIP,Port,buf,i));
+        } else {
+                addToErrorReport("Fehler 1","Receiving buffer too small. Current: 2048. Received: " + String(NumberBytes) + " Bytes");
+        }
+}
+
+void __fastcall TForm1::UDPSocketDataSend(TObject *Sender)
+{
+        serverCycle.setReady();
+}
+void __fastcall TForm1::FormCloseQuery(TObject *Sender, bool &CanClose)
+{
+
+        if(udpSocket != NULL) {
+              udpSocket->Free();
+        }
+
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::Edit5KeyDown(TObject *Sender, WORD &Key,
+void __fastcall TForm1::TimerIrcChatTimerTimer(TObject *Sender)
+{
+        chat_client_timercallback( this );        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Connect1Click(TObject *Sender)
+{
+        MemoChatOutput->Lines->Add("Connecting...");
+        TimerIrcChatTimer->Enabled = true;
+        chat_client_connect( Form1 );
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Disconnect1Click(TObject *Sender)
+{
+        chat_client_disconnect();
+        TimerIrcChatTimer->Enabled = false;
+        StringGrid3->RowCount = 0;
+        StringGrid3->Cells[0][0] = "";
+        StringGrid3->Cells[0][1] = "";
+        MemoChatOutput->Lines->Add("Disconnected.");
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
       TShiftState Shift)
 {
    if(Key == VK_RETURN) {
       chat_client_pressedReturnKey( this );
-   }
+   }        
 }
 //---------------------------------------------------------------------------
-
 

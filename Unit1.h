@@ -24,7 +24,6 @@ __published:	// IDE-managed Components
         TGroupBox *GROUPBOX_SERVERINFO;
         TButton *BUTTON_SERVERINFO_COPYADDRESS;
         TTimer *Timer1;
-        TNMUDP *NMUDP1;
         TLabel *LABEL_SERVERINFO_IP;
         TLabel *Label2;
         TLabel *LABEL_SERVERINFO_PORT;
@@ -108,17 +107,17 @@ __published:	// IDE-managed Components
         TMenuItem *MENUITEM_MAINMENU_NOTIFICATIONS_SETTINGS;
         TTimer *MP3Timer;
         TMenuItem *Info1;
-        TPanel *Panel2;
-        TSplitter *Splitter2;
-        TPanel *Panel3;
+        TPageControl *PageControl1;
+        TTabSheet *TabSheet1;
+        TTabSheet *TabSheet2;
+        TTimer *TimerIrcChatTimer;
         TStringGrid *StringGrid3;
-        TPanel *Panel4;
-        TEdit *Edit5;
-        TRichEdit *RichEditChatContent;
-        TTimer *TimerIrcChat;
-        TPanel *Panel5;
-        void __fastcall NMUDP1DataReceived(TComponent *Sender,
-          int NumberBytes, AnsiString FromIP, int Port);
+        TPanel *Panel2;
+        TMenuItem *chat1;
+        TMenuItem *Connect1;
+        TMenuItem *Disconnect1;
+        TMemo *MemoChatOutput;
+        TMemo *MemoChatInput;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
@@ -130,7 +129,6 @@ __published:	// IDE-managed Components
         void __fastcall CHECKBOX_FILTER_CREATINGClick(TObject *Sender);
         void __fastcall CHECKBOX_FILTER_BRIEFINGClick(TObject *Sender);
         void __fastcall CHECKBOX_FILTER_DEBRIEFINGClick(TObject *Sender);
-        void __fastcall NMUDP1DataSend(TObject *Sender);
         void __fastcall Timer3Timer(TObject *Sender);
         void __fastcall CHECKBOX_FILTER_WITHPASSWORDClick(TObject *Sender);
         void __fastcall CHECKBOX_FILTER_WITHOUTPASSWORDClick(TObject *Sender);
@@ -170,8 +168,14 @@ __published:	// IDE-managed Components
         void __fastcall MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVEClick(TObject *Sender);
         void __fastcall MP3TimerTimer(TObject *Sender);
         void __fastcall Info1Click(TObject *Sender);
-        void __fastcall TimerIrcChatTimer(TObject *Sender);
-        void __fastcall Edit5KeyDown(TObject *Sender, WORD &Key,
+        void __fastcall UDPSocketDataSend(TObject *Sender);
+        void __fastcall UDPSocketDataReceived(TComponent *Sender,
+      int NumberBytes, AnsiString FromIP, int Port);
+        void __fastcall FormCloseQuery(TObject *Sender, bool &CanClose);
+        void __fastcall TimerIrcChatTimerTimer(TObject *Sender);
+        void __fastcall Connect1Click(TObject *Sender);
+        void __fastcall Disconnect1Click(TObject *Sender);
+        void __fastcall MemoChatInputKeyUp(TObject *Sender, WORD &Key,
           TShiftState Shift);
 private:	// User declarations
 public:		// User declarations

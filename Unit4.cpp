@@ -31,3 +31,4 @@ void __fastcall TWINDOW_INFO::Memo1KeyDown(TObject *Sender, WORD &Key,
 }
 //---------------------------------------------------------------------------
 
+
