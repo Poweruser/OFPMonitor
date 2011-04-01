@@ -1,5 +1,5 @@
 object Form1: TForm1
-  Left = 270
+  Left = 229
   Top = 163
   Width = 886
   Height = 706
@@ -43,10 +43,10 @@ object Form1: TForm1
     Top = 0
     Width = 878
     Height = 263
-    ActivePage = TABSHEET_CHAT
+    ActivePage = TABSHEET_SERVERINFO
     Align = alTop
     Constraints.MinHeight = 263
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 0
     object TABSHEET_SERVERINFO: TTabSheet
       Caption = 'Server info'

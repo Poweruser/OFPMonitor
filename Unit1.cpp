@@ -2153,7 +2153,7 @@ class ChatSettings {
                 void setAutoConnect(bool ac) {
                         this->autoConnect = ac;
                         if(Form1 != NULL) {
-                                Form1->MENUITEM_MAINMENU_CHAT_CONNECT->Checked = ac;
+                                Form1->MENUITEM_MAINMENU_CHAT_AUTOCONNECT->Checked = ac;
                         }
                 }
 
@@ -2829,6 +2829,7 @@ void __fastcall TForm1::TimerIrcChatTimerTimer(TObject *Sender)
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
 {
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = false;
+        Form1->PageControl1->ActivePage = Form1->TABSHEET_CHAT;
         MemoChatOutput->Lines->Add("Connecting...");
         TimerIrcChatTimer->Enabled = true;
         bool result = chat_client_connect( Form1 );
