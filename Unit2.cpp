@@ -636,6 +636,14 @@ void updateLanguage(String languagefile) {
                                 String f = val.front();
                                 String b = val.back();
                                 guiStrings.push_back(guiString(f,b));
+                        } else if(tmp.SubString(1,8) == "TABSHEET") {
+                                val = getVarAndValue(tmp, "=");
+                                for(int j = 0; j < GetArrLength(guiTabSheet); j++) {
+                                        if(guiTabSheet[j]->Name == val.front()) {
+                                                guiTabSheet[j]->Caption = val.back();
+                                                break;
+                                        }
+                                }
                         }
                 }
                 Form1->StringGrid1->Cells[0][0] = WINDOW_SETTINGS->getGuiString("STRING_ID");
@@ -649,7 +657,6 @@ void updateLanguage(String languagefile) {
                 Form1->StringGrid2->Cells[1][0] = WINDOW_SETTINGS->getGuiString("STRING_SCORE");
                 Form1->StringGrid2->Cells[2][0] = WINDOW_SETTINGS->getGuiString("STRING_DEATHS");
                 Form1->StringGrid2->Cells[3][0] = WINDOW_SETTINGS->getGuiString("STRING_TEAM");
-                Form1->TabSheet1->Caption = Form1->GROUPBOX_SERVERINFO->Caption;
                 if(!WINDOW_SETTINGS->COMBOBOX_PROFILE->Enabled) {
                         WINDOW_SETTINGS->COMBOBOX_PROFILE->Text = WINDOW_SETTINGS->getGuiString("STRING_NOPROFILES");
                 }
@@ -1075,8 +1082,8 @@ void __fastcall TWINDOW_SETTINGS::FormCreate(TObject *Sender)
         Form1->readServerList(ipList);
         updateConfList();
         WINDOW_SETTINGS->ComboBox1->Text = programSettings.languagefile;
-        if(Form1->Connectonstart1->Checked) {
-                Form1->Connect1->Click();
+        if(Form1->MENUITEM_MAINMENU_CHAT_AUTOCONNECT->Checked) {
+                Form1->MENUITEM_MAINMENU_CHAT_CONNECT->Click();
         }
 }
 //---------------------------------------------------------------------------

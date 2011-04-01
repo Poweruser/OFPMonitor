@@ -2155,7 +2155,7 @@ class ChatSettings {
                 void setAutoConnect(bool ac) {
                         this->autoConnect = ac;
                         if(Form1 != NULL) {
-                                Form1->Connectonstart1->Checked = ac;
+                                Form1->MENUITEM_MAINMENU_CHAT_CONNECT->Checked = ac;
                         }
                 }
                 /**
@@ -2721,7 +2721,7 @@ void __fastcall TForm1::MENUITEM_MAINMENU_FONTClick(TObject *Sender)
 
 void __fastcall TForm1::FormResize(TObject *Sender)
 {
-        StringGrid2->Width = TabSheet1->PageControl->Pages[0]->Width - (GROUPBOX_SERVERINFO->Width + 5);
+        StringGrid2->Width = TABSHEET_SERVERINFO->PageControl->Pages[0]->Width - (GROUPBOX_SERVERINFO->Width + 5);
         StringGrid1->Width = Form1->ClientWidth;
         PageControl1->Height = Form1->ClientHeight - (StatusBar1->Height + StringGrid1->Height + Splitter1->Height);
         if(windowsettings.init) {
@@ -2853,30 +2853,30 @@ void __fastcall TForm1::TimerIrcChatTimerTimer(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::Connect1Click(TObject *Sender)
+void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
 {
-        Connect1->Enabled = false;
+        MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = false;
         MemoChatOutput->Lines->Add("Connecting...");
         TimerIrcChatTimer->Enabled = true;
         bool result = chat_client_connect( Form1 );
         if(!result) {
                 MemoChatOutput->Lines->Add("Connecting failed.");
         }
-        Connect1->Enabled = !result;
-        Disconnect1->Enabled = result;
+        MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = !result;
+        MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = result;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::Disconnect1Click(TObject *Sender)
+void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
 {
-        Disconnect1->Enabled = false;
+        MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = false;
         chat_client_disconnect();
         TimerIrcChatTimer->Enabled = false;
         StringGrid3->RowCount = 0;
         StringGrid3->Cells[0][0] = "";
         StringGrid3->Cells[0][1] = "";
         MemoChatOutput->Lines->Add("Disconnected.");
-        Connect1->Enabled = true;
+        MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = true;
 }
 //---------------------------------------------------------------------------
 
@@ -2890,13 +2890,13 @@ void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::Clear1Click(TObject *Sender)
+void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CLEARLOGClick(TObject *Sender)
 {
         MemoChatOutput->Clear();        
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::Savetofile1Click(TObject *Sender)
+void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_SAVETOFILEClick(TObject *Sender)
 {
         SaveDialog1->Execute();        
 }
@@ -2921,10 +2921,11 @@ void __fastcall TForm1::SaveDialog1Close(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::Connectonstart1Click(TObject *Sender)
+void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_AUTOCONNECTClick(TObject *Sender)
 {
-        chatsettings.autoConnect = Connectonstart1->Checked;
+        chatsettings.autoConnect = MENUITEM_MAINMENU_CHAT_AUTOCONNECT->Checked;
         WINDOW_SETTINGS->setSettingsChanged();
 }
 //---------------------------------------------------------------------------
+
 

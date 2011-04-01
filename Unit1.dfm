@@ -43,12 +43,12 @@ object Form1: TForm1
     Top = 0
     Width = 878
     Height = 263
-    ActivePage = TabSheet1
+    ActivePage = TABSHEET_CHAT
     Align = alTop
     Constraints.MinHeight = 263
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 0
-    object TabSheet1: TTabSheet
+    object TABSHEET_SERVERINFO: TTabSheet
       Caption = 'Server info'
       object Panel1: TPanel
         Left = 0
@@ -388,7 +388,7 @@ object Form1: TForm1
         end
       end
     end
-    object TabSheet2: TTabSheet
+    object TABSHEET_CHAT: TTabSheet
       Caption = 'Chat'
       ImageIndex = 1
       object StringGrid3: TStringGrid
@@ -675,31 +675,31 @@ object Form1: TForm1
       ShortCut = 116
       OnClick = MENUITEM_MAINMENU_GETNEWSERVERLISTClick
     end
-    object chat1: TMenuItem
+    object MENUITEM_MAINMENU_CHAT: TMenuItem
       Caption = 'Chat'
-      object Connect1: TMenuItem
+      object MENUITEM_MAINMENU_CHAT_CONNECT: TMenuItem
         Caption = 'Connect'
-        OnClick = Connect1Click
+        OnClick = MENUITEM_MAINMENU_CHAT_CONNECTClick
       end
-      object Disconnect1: TMenuItem
+      object MENUITEM_MAINMENU_CHAT_DISCONNECT: TMenuItem
         Caption = 'Disconnect'
         Enabled = False
-        OnClick = Disconnect1Click
+        OnClick = MENUITEM_MAINMENU_CHAT_DISCONNECTClick
       end
-      object Connectonstart1: TMenuItem
+      object MENUITEM_MAINMENU_CHAT_AUTOCONNECT: TMenuItem
         AutoCheck = True
         Caption = 'Connect on start'
-        OnClick = Connectonstart1Click
+        OnClick = MENUITEM_MAINMENU_CHAT_AUTOCONNECTClick
       end
-      object Log1: TMenuItem
+      object MENUITEM_MAINMENU_CHAT_LOG: TMenuItem
         Caption = 'Log'
-        object Savetofile1: TMenuItem
+        object MENUITEM_MAINMENU_CHAT_SAVETOFILE: TMenuItem
           Caption = 'Save to file'
-          OnClick = Savetofile1Click
+          OnClick = MENUITEM_MAINMENU_CHAT_SAVETOFILEClick
         end
-        object Clear1: TMenuItem
+        object MENUITEM_MAINMENU_CHAT_CLEARLOG: TMenuItem
           Caption = 'Clear'
-          OnClick = Clear1Click
+          OnClick = MENUITEM_MAINMENU_CHAT_CLEARLOGClick
         end
       end
     end

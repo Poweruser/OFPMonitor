@@ -3,8 +3,10 @@ TCheckBox *guiCheckBox[10];
 TLabel *guiLabel[17];
 TGroupBox *guiGroupBox[7];
 TForm *guiForm[3];
-TMenuItem *guiMenuItem[12];
+TMenuItem *guiMenuItem[19];
 TStatusPanel *guiStatusPanel[10];
+TTabSheet *guiTabSheet[2];
+
 
 /**
    Object that stores and identifier and the 

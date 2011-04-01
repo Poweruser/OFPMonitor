@@ -108,21 +108,21 @@ __published:	// IDE-managed Components
         TTimer *MP3Timer;
         TMenuItem *Info1;
         TPageControl *PageControl1;
-        TTabSheet *TabSheet1;
-        TTabSheet *TabSheet2;
+        TTabSheet *TABSHEET_SERVERINFO;
+        TTabSheet *TABSHEET_CHAT;
         TTimer *TimerIrcChatTimer;
         TStringGrid *StringGrid3;
         TPanel *Panel2;
-        TMenuItem *chat1;
-        TMenuItem *Connect1;
-        TMenuItem *Disconnect1;
+        TMenuItem *MENUITEM_MAINMENU_CHAT;
+        TMenuItem *MENUITEM_MAINMENU_CHAT_CONNECT;
+        TMenuItem *MENUITEM_MAINMENU_CHAT_DISCONNECT;
         TMemo *MemoChatOutput;
         TMemo *MemoChatInput;
-        TMenuItem *Log1;
-        TMenuItem *Savetofile1;
-        TMenuItem *Clear1;
+        TMenuItem *MENUITEM_MAINMENU_CHAT_LOG;
+        TMenuItem *MENUITEM_MAINMENU_CHAT_SAVETOFILE;
+        TMenuItem *MENUITEM_MAINMENU_CHAT_CLEARLOG;
         TSaveDialog *SaveDialog1;
-        TMenuItem *Connectonstart1;
+        TMenuItem *MENUITEM_MAINMENU_CHAT_AUTOCONNECT;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
@@ -178,16 +178,16 @@ __published:	// IDE-managed Components
       int NumberBytes, AnsiString FromIP, int Port);
         void __fastcall FormCloseQuery(TObject *Sender, bool &CanClose);
         void __fastcall TimerIrcChatTimerTimer(TObject *Sender);
-        void __fastcall Connect1Click(TObject *Sender);
-        void __fastcall Disconnect1Click(TObject *Sender);
+        void __fastcall MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender);
+        void __fastcall MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender);
         void __fastcall MemoChatInputKeyUp(TObject *Sender, WORD &Key,
           TShiftState Shift);
-        void __fastcall Clear1Click(TObject *Sender);
-        void __fastcall Savetofile1Click(TObject *Sender);
+        void __fastcall MENUITEM_MAINMENU_CHAT_CLEARLOGClick(TObject *Sender);
+        void __fastcall MENUITEM_MAINMENU_CHAT_SAVETOFILEClick(TObject *Sender);
         void __fastcall SaveDialog1CanClose(TObject *Sender,
           bool &CanClose);
         void __fastcall SaveDialog1Close(TObject *Sender);
-        void __fastcall Connectonstart1Click(TObject *Sender);
+        void __fastcall MENUITEM_MAINMENU_CHAT_AUTOCONNECTClick(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         typedef list<String> CustomStringList;
