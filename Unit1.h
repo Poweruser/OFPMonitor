@@ -186,7 +186,6 @@ __published:	// IDE-managed Components
         void __fastcall MENUITEM_MAINMENU_CHAT_SAVETOFILEClick(TObject *Sender);
         void __fastcall SaveDialog1CanClose(TObject *Sender,
           bool &CanClose);
-        void __fastcall SaveDialog1Close(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_CHAT_AUTOCONNECTClick(TObject *Sender);
 private:	// User declarations
 public:		// User declarations

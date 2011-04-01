@@ -744,7 +744,6 @@ object Form1: TForm1
     Top = 160
   end
   object SaveDialog1: TSaveDialog
-    OnClose = SaveDialog1Close
     DefaultExt = 'txt'
     Filter = 'Text file (*.txt)|*.txt'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofNoNetworkButton, ofEnableSizing]

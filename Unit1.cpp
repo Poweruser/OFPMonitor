@@ -2061,7 +2061,6 @@ class MP3Player {
                                 }
                         }
                 }
-
                 return;
         }
 
@@ -2140,7 +2139,6 @@ void TForm1::stopMP3Job(String alias) {
         mp3p.stopMP3Job(alias);
 }
 
-
 class ChatSettings {
         public:
                 bool autoConnect;
@@ -2158,19 +2156,21 @@ class ChatSettings {
                                 Form1->MENUITEM_MAINMENU_CHAT_CONNECT->Checked = ac;
                         }
                 }
+
                 /**
                    Creates the section about the chat settings that will be
                    written to the configuration file of the program
                 */
 
-                                CustomStringList createFileEntry() {
+                CustomStringList createFileEntry() {
                         CustomStringList output;
                         output.push_back("[ChatSettings]");
                         output.push_back("AutoConnect = " + this->checkBool(this->autoConnect));
                         output.push_back("[\\ChatSettings]");
                         return output;
                 }
-                                String checkBool(bool in) {
+        private:
+                String checkBool(bool in) {
                         if(in) {
                                 return "1";
                         } else {
@@ -2186,11 +2186,9 @@ ChatSettings chatsettings;
    storing the chat settings
  */
 
-     
 void TForm1::setChat(bool autoConnect) {
         chatsettings = ChatSettings(autoConnect);
 }
-
 
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
@@ -2248,7 +2246,6 @@ void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
         } else {
                 setEmptyPlayerList();
         }
-        
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Timer1Timer(TObject *Sender)
@@ -2281,7 +2278,6 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
                 }
         }
         WINDOW_SETTINGS->writeSettingToFile(servers, watched, fontsettings.createFileEntry(), windowsettings.createFileEntry(), chatsettings.createFileEntry(), WINDOW_NOTIFICATIONS->getFileEntry());
-
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::BUTTON_SERVERINFO_COPYADDRESSClick(TObject *Sender)
@@ -2433,7 +2429,6 @@ void __fastcall TForm1::Edit3Change(TObject *Sender)
                 Edit3->Text = UpDown1->Position;
         }
         filterChanged(true);
-
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::UpDown1Click(TObject *Sender, TUDBtnType Button)
@@ -2476,7 +2471,6 @@ void __fastcall TForm1::Edit4Change(TObject *Sender)
         filterChanged(true);
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
 {
         int index = PopupMenu1->Tag;
@@ -2507,7 +2501,6 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
                         autojoin->Caption = s;
                         autojoin->Visible = true;
                         autojoin->OnClick = ClickAutoJoinConfButton;
-
 
                         String modline = WINDOW_SETTINGS->getConfModLine(i);
                         if(isOFPR) {
@@ -2601,7 +2594,6 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key,
         }
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
       int ARow, TRect &Rect, TGridDrawState State)
 {
@@ -2628,19 +2620,16 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
         }
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::MENUITEM_MAINMENU_SETTINGSClick(TObject *Sender)
 {
         WINDOW_SETTINGS->ShowModal();        
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::MENUITEM_MAINMENU_EXITClick(TObject *Sender)
 {
         Form1->Close();        
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
 {
         MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = false;
@@ -2701,7 +2690,6 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
                 CurrentList->Delete(0);
         }
         if(addresses.size() > 0) {
-
                 readServerList(addresses);
         }
         delete CurrentList;
@@ -2711,14 +2699,12 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
         MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = true;
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::MENUITEM_MAINMENU_FONTClick(TObject *Sender)
 {
         FontDialog1->Font = StringGrid1->Font;
         FontDialog1->Execute();        
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::FormResize(TObject *Sender)
 {
         StringGrid2->Width = TABSHEET_SERVERINFO->PageControl->Pages[0]->Width - (GROUPBOX_SERVERINFO->Width + 5);
@@ -2731,7 +2717,6 @@ void __fastcall TForm1::FormResize(TObject *Sender)
         StatusBar1->Realign();
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::StringGrid1MouseUp(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
@@ -2741,7 +2726,6 @@ void __fastcall TForm1::StringGrid1MouseUp(TObject *Sender,
         }
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::StringGrid2MouseUp(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
@@ -2776,23 +2760,18 @@ void __fastcall TForm1::StringGrid1ContextPopup(TObject *Sender,
         Form1->StringGrid1MouseDown(Sender, mbRight, TShiftState(), X, Y);
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::Splitter1Moved(TObject *Sender)
 {
         Application->ProcessMessages();
         WINDOW_SETTINGS->setSettingsChanged();
         Form1->Refresh();
-        //Form1->EditChatInput->Top = Form1->Panel2->Top + Form1->Panel2->Height - Form1->EditChatInput->Height - Form1->Panel2->BorderWidth;
-        //Form1->MemoChatOutput->Height = Form1->Panel2->Height - Form1->EditChatInput->Height - Form1->Panel2->BorderWidth;
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::MENUITEM_MAINMENU_NOTIFICATIONS_SETTINGSClick(TObject *Sender)
 {
         WINDOW_NOTIFICATIONS->ShowModal();        
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVEClick(TObject *Sender)
 {
         MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE->Checked = !MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE->Checked;
@@ -2803,19 +2782,16 @@ void __fastcall TForm1::MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVEClick(TObject *Sen
         }
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::MP3TimerTimer(TObject *Sender)
 {
         MP3Timer->Enabled = mp3p.check();
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::Info1Click(TObject *Sender)
 {
         WINDOW_INFO->ShowModal();        
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::UDPSocketDataReceived(TComponent *Sender,
       int NumberBytes, AnsiString FromIP, int Port)
 {
@@ -2832,27 +2808,24 @@ void __fastcall TForm1::UDPSocketDataReceived(TComponent *Sender,
                 addToErrorReport("Fehler 1","Receiving buffer too small. Current: 2048. Received: " + String(NumberBytes) + " Bytes");
         }
 }
-
+//---------------------------------------------------------------------------
 void __fastcall TForm1::UDPSocketDataSend(TObject *Sender)
 {
         serverCycle.setReady();
 }
+//---------------------------------------------------------------------------
 void __fastcall TForm1::FormCloseQuery(TObject *Sender, bool &CanClose)
 {
-
         if(udpSocket != NULL) {
               udpSocket->Free();
         }
-
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::TimerIrcChatTimerTimer(TObject *Sender)
 {
         chat_client_timercallback( this );        
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
 {
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = false;
@@ -2866,7 +2839,6 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
         MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = result;
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
 {
         MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = false;
@@ -2879,7 +2851,6 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = true;
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
       TShiftState Shift)
 {
@@ -2889,19 +2860,16 @@ void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
    }        
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CLEARLOGClick(TObject *Sender)
 {
         MemoChatOutput->Clear();        
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_SAVETOFILEClick(TObject *Sender)
 {
         SaveDialog1->Execute();        
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::SaveDialog1CanClose(TObject *Sender,
       bool &CanClose)
 {
@@ -2914,13 +2882,6 @@ void __fastcall TForm1::SaveDialog1CanClose(TObject *Sender,
         delete log;
 }
 //---------------------------------------------------------------------------
-
-void __fastcall TForm1::SaveDialog1Close(TObject *Sender)
-{
-       ShowMessage("OnClose");        
-}
-//---------------------------------------------------------------------------
-
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_AUTOCONNECTClick(TObject *Sender)
 {
         chatsettings.autoConnect = MENUITEM_MAINMENU_CHAT_AUTOCONNECT->Checked;
