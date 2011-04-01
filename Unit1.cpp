@@ -30,7 +30,7 @@ TForm1 *Form1;
 
 typedef list<String> CustomStringList;
 
-/**
+/**                                                                                       
    Macro to retrieve the length of an array
  */
 
@@ -185,17 +185,21 @@ class FontSettings {
                         Form1->StringGrid2->Font->Style = this->style;
                         Form1->StringGrid2->DefaultRowHeight = this->size * 2.1f;
                         Form1->Font->Charset = this->charset;
+                        Form1->Panel2->Font->Charset = this->charset;
+                        Form1->Panel2->Font->Name = this->name;
+                        Form1->Panel2->Font->Size = this->size;
+                        Form1->Panel2->Font->Style = this->style;
+                        Form1->MemoChatInput->Constraints->MaxHeight = 3 * this->size * 2.0f;
+                        Form1->MemoChatInput->Height = Form1->MemoChatInput->Constraints->MaxHeight;
                         WINDOW_SETTINGS->Font->Charset = this->charset;
                         WINDOW_NOTIFICATIONS->updateFontSettings(this->charset);
                         return;
                 }
 };
 
-
 /**
    Stores the current column width ratios of the Server and Player tables
 */
-
 
 class WindowSettings {
         public:
@@ -2141,12 +2145,21 @@ void TForm1::stopMP3Job(String alias) {
 
 class ChatSettings {
         public:
+                String host;
+                int port;
+                String channel;
                 bool autoConnect;
                 ChatSettings() {
+                        this->host = "irc.freenode.net";
+                        this->port = 6666;
+                        this->channel = "operationflashpoint1";
                         this->setAutoConnect(false);
                 }
 
-                ChatSettings(bool ac) {
+                ChatSettings(String h, int p, String c, bool ac) {
+                        this->host = h;
+                        this->port = p;
+                        this->channel = c;
                         this->setAutoConnect(ac);
                 }
 
@@ -2165,6 +2178,9 @@ class ChatSettings {
                 CustomStringList createFileEntry() {
                         CustomStringList output;
                         output.push_back("[ChatSettings]");
+                        output.push_back("Host = " + this->host);
+                        output.push_back("Port = " + String(this->port));
+                        output.push_back("Channel = " + this->channel);
                         output.push_back("AutoConnect = " + this->checkBool(this->autoConnect));
                         output.push_back("[\\ChatSettings]");
                         return output;
@@ -2186,8 +2202,20 @@ ChatSettings chatsettings;
    storing the chat settings
  */
 
-void TForm1::setChat(bool autoConnect) {
-        chatsettings = ChatSettings(autoConnect);
+void TForm1::setChat(String host, int port, String channel, bool autoConnect) {
+        chatsettings = ChatSettings(host, port, channel, autoConnect);
+}
+
+String TForm1::getChatHost() {
+        return chatsettings.host;
+}
+
+String TForm1::getChatChannel() {
+        return chatsettings.channel;
+}
+
+int TForm1::getChatPort() {
+        return chatsettings.port;
 }
 
 //---------------------------------------------------------------------------
@@ -2830,7 +2858,8 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
 {
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = false;
         Form1->PageControl1->ActivePage = Form1->TABSHEET_CHAT;
-        MemoChatOutput->Lines->Add("Connecting...");
+        MemoChatOutput->Lines->Add("Connecting to:  " + Form1->getChatHost() + ":" + String(Form1->getChatPort()));
+        MemoChatOutput->Lines->Add("Channel:  " + Form1->getChatChannel());
         TimerIrcChatTimer->Enabled = true;
         bool result = chat_client_connect( Form1 );
         if(!result) {
@@ -2855,10 +2884,10 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
 void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
       TShiftState Shift)
 {
-   if(Key == VK_RETURN) {
-      chat_client_pressedReturnKey( this );
-      MemoChatInput->Clear();
-   }        
+        if(Key == VK_RETURN) {
+                chat_client_pressedReturnKey( this );
+                MemoChatInput->Clear();
+        }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CLEARLOGClick(TObject *Sender)
@@ -2887,6 +2916,19 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_AUTOCONNECTClick(TObject *Sender)
 {
         chatsettings.autoConnect = MENUITEM_MAINMENU_CHAT_AUTOCONNECT->Checked;
         WINDOW_SETTINGS->setSettingsChanged();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::MemoChatInputChange(TObject *Sender)
+{
+
+        while(MemoChatInput->Lines->Count > 3) {
+                int start = MemoChatInput->SelStart;
+                int length = MemoChatInput->SelLength;
+                MemoChatInput->Lines->Delete(MemoChatInput->Lines->Count - 1);
+                MemoChatInput->SelStart = start;
+                MemoChatInput->SelLength = length;
+        }
 }
 //---------------------------------------------------------------------------
 

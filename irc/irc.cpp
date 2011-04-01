@@ -2,6 +2,7 @@
 #include <list>
 #include <iostream.h>
 #include "Unit1.h"
+#include "Unit2.h"
 #include "irc.h"
 #include <vector.h>
 #include <set.h>
@@ -23,7 +24,7 @@ static struct irc_thread__parm * p ;
 static void getplayername( ); 
 static void start_conversation( int sd, char * name ); 
 static void sendMessage(const char * xmsg);
-static string channelname_operationflashpoint1 ("operationflashpoint1");
+//static string channelname_operationflashpoint1 ("operationflashpoint1");
 
 static string after(string& in, string& needle);
 static string before(string& in, string& needle);
@@ -66,10 +67,6 @@ void chat_client_disconnect() {
 bool chat_client_connect(void *tf) {
         TForm1 *tform1 = ( TForm1 *) tf;
         getplayername();
-
-        if (strlen(playerName) < 1) {
-                return false;
-        }
         if (!p) {
                 p = new irc_thread__parm();
         }
@@ -82,9 +79,12 @@ bool chat_client_connect(void *tf) {
         // irc.freenode.net = 140.211.167.98
         // int ip = inet_addr("140.211.167.98");
         //int ip = dnsdb("irc.freenode.net");
-        int ip = resolv("irc.freenode.net");
+
+                //int ip = resolv("irc.freenode.net");
+        int ip = resolv(Form1->getChatHost().c_str());
         addr.sin_addr.s_addr = ip;
-        addr.sin_port        = htons(6666);
+                //  addr.sin_port        = htons(6666);
+        addr.sin_port        = htons(Form1->getChatPort());
         addr.sin_family      = AF_INET;
 
         int connectRes = connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
@@ -139,7 +139,9 @@ void chat_client_timercallback(void * t) {
         if (p && p->messages.size() > 0) {
                 vector<string> m  (p->messages);
                 p->messages.clear();
-                string privMsgNeedle = "PRIVMSG #" + channelname_operationflashpoint1 + " :";
+                //string privMsgNeedle = "PRIVMSG #" + channelname_operationflashpoint1 + " :";
+                string privMsgNeedle = Form1->getChatChannel().c_str();
+                privMsgNeedle = "PRIVMSG #" + privMsgNeedle + " :";
                 for(int i = 0; i < m.size(); i++) {
                         string& omsg = m.at(i);
                         if (INPUTOUT) {
@@ -232,8 +234,8 @@ void start_conversation( int sd, char * name ) {
         << "CAP REQ :multi-prefix\n"
         <<  "CAP END\n"
         << "USERHOST "<<  ircName <<  "\n"
-        << "JOIN #" << channelname_operationflashpoint1 << "\n"
-        << "MODE #" << channelname_operationflashpoint1 << "\n";
+        << "JOIN #" << Form1->getChatChannel() << "\n"
+        << "MODE #" << Form1->getChatChannel() << "\n";
 
         string msg = ss.str();
         int s = send(sd, msg.c_str(), msg.length(), 0);
@@ -241,6 +243,16 @@ void start_conversation( int sd, char * name ) {
 }
 
 void  getplayername() {
+        String currentOFPPlayer = WINDOW_SETTINGS->getCurrentPlayerName();
+        if(currentOFPPlayer.IsEmpty()) {
+                string tmp = "Guest" + currrentTimeString();
+                strcpy(playerName, tmp.c_str());
+        } else {
+                strcpy(playerName, WINDOW_SETTINGS->getCurrentPlayerName().c_str());
+        }
+        return;
+        /*
+          
         //http://help.github.com/fork-a-repo/
         //"HKEY_CURRENT_USER\Software\Codemasters\Operation Flashpoint"
         char lszValue[100];
@@ -261,6 +273,7 @@ void  getplayername() {
         if (hKey) {
                 RegCloseKey(hKey);
         }
+        */
 }
 
 static vector<string> explode(string s){
@@ -349,14 +362,18 @@ void irc_thread__parm::consume(char* c2, int i2) {
 
 void sendMessage(const char *xmsg) {
         string msg( xmsg );
-        msg = "PRIVMSG #" + channelname_operationflashpoint1 + " :" + msg + "\r\n";
+        string channel = Form1->getChatChannel().c_str();
+        msg = "PRIVMSG #" + channel + " :" + msg + "\r\n";
         send(p->sd, msg.c_str(), msg.length(), 0);
 }
 
 void chat_client_pressedReturnKey(void *t) {
         TForm1 *tform1 = (TForm1 *) t;
-        AnsiString as = tform1->MemoChatInput->Lines->Strings[0];
-        tform1->MemoChatInput->Clear();
+        String input = "";
+        for(int i = 0; i < tform1->MemoChatInput->Lines->Count; i++) {
+                input += tform1->MemoChatInput->Lines->Strings[i];
+        }
+        string as = input.c_str();
         if (p && p->sd) {
                 sendMessage(as.c_str());
                 appendText(tform1,  currrentTimeString( ) +  " - <me>: " + as.c_str());

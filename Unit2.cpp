@@ -809,15 +809,26 @@ list<String> readConfigFile() {
                         } else if((tmp.SubString(1,14) == "[ChatSettings]")) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
+                                String host = "irc.freenode.net";
+                                String channel = "operationflashpoint1";
+                                int port = 6666;
                                 bool autoConnect = false;
                                 while((tmp.SubString(1,15) != "[\\ChatSettings]") && i < file->Count - 1) {
                                         if((tmp.SubString(1,11) == "AutoConnect")) {
                                                 autoConnect = checkBool2(getValue(tmp));
+                                        } else if((tmp.SubString(1,4) == "Host")) {
+                                                host = getValue(tmp);
+                                        } else if((tmp.SubString(1,4) == "Port")) {
+                                                try {
+                                                        port = StrToInt(getValue(tmp));
+                                                } catch (...) {}
+                                        } else if((tmp.SubString(1,7) == "Channel")) {
+                                                channel = getValue(tmp);
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
-                                Form1->setChat(autoConnect);
+                                Form1->setChat(host, port, channel, autoConnect);
                         } else if((tmp.SubString(1,16) == "[WindowSettings]")) {
                                 i++;
                                 tmp = file->Strings[i].Trim();

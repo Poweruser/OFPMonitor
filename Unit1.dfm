@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 229
-  Top = 163
+  Left = 198
+  Top = 151
   Width = 886
   Height = 706
   HorzScrollBar.Visible = False
@@ -435,6 +435,7 @@ object Form1: TForm1
           Align = alBottom
           Constraints.MaxHeight = 26
           TabOrder = 1
+          OnChange = MemoChatInputChange
           OnKeyUp = MemoChatInputKeyUp
         end
       end
