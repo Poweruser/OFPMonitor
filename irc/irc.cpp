@@ -9,7 +9,7 @@
 #include <time.h>
 #include <sstream>
                 
-//#define DEBUG_MSG
+#define DEBUG_MSG
 #ifdef DEBUG_MSG
         #define INPUTOUT 1
 #else             
@@ -290,7 +290,12 @@ static vector<string> explode(string s){
         }
         return r;
 }
-
+static string readPlayerFromLine(string& s){
+          string name = after(s, ":");
+                        name = before(name, "!");
+                        name = name_irctolocal(name);
+                        return name;
+}
 void irc_thread__parm::consume(char* c2, int i2) {
         vector<string> msgs = explode( string(c2, i2) );
         int it = 0;
@@ -325,6 +330,11 @@ void irc_thread__parm::consume(char* c2, int i2) {
                                 }
                                 ps2 = after(ps2, " ");
                         }
+                } else if ( starts(body , "QUIT ") ){
+                    string name = readPlayerFromLine(s);    
+                        playersParted.push_back(name);
+                        userzSorted.erase(name);
+                        updatePlayers = 1;
                 }
             
                 int pingFind = s.find("PING " + hoscht, 0) ;
@@ -340,16 +350,12 @@ void irc_thread__parm::consume(char* c2, int i2) {
                         sentVersion = 1;
                         sendMessage( "Logged in with OFPMonitor version "  OFPMONITOR_VERSIO_REPORT);
                 } else if (joinFind > 0) {
-                        string name = after(s, ":");
-                        name = before(name, "!");
-                        name = name_irctolocal(name);
+                        string name = readPlayerFromLine(s);
                         playersJoined.push_back(name);
                         userzSorted.insert(name);
                         updatePlayers = 1;
                 } else if (partFind > 0) {
-                        string name = after(s, ":");
-                        name = before(name, "!");
-                        name = name_irctolocal(name);
+                        string name = readPlayerFromLine(s);
                         playersParted.push_back(name);
                         userzSorted.erase(name);
                         updatePlayers = 1;
