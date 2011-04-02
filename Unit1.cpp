@@ -2861,7 +2861,7 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
         MemoChatOutput->Lines->Add("Connecting to:  " + Form1->getChatHost() + ":" + String(Form1->getChatPort()));
         MemoChatOutput->Lines->Add("Channel:  " + Form1->getChatChannel());
         TimerIrcChatTimer->Enabled = true;
-        bool result = chat_client_connect( Form1 );
+        bool result = chat_client_connect();
         if(!result) {
                 MemoChatOutput->Lines->Add("Connecting failed.");
         }
@@ -2885,7 +2885,11 @@ void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
       TShiftState Shift)
 {
         if(Key == VK_RETURN) {
-                chat_client_pressedReturnKey( this );
+                String input = "";
+                for(int i = 0; i < Form1->MemoChatInput->Lines->Count; i++) {
+                        input += Form1->MemoChatInput->Lines->Strings[i];
+                }
+                chat_client_pressedReturnKey(this, input.c_str());
                 MemoChatInput->Clear();
         }
 }

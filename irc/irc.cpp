@@ -2,7 +2,7 @@
 #include <list>
 #include <iostream.h>
 #include "Unit1.h"
-#include "Unit2.h"
+#include "Unit2.h"                                                          a
 #include "irc.h"
 #include <vector.h>
 #include <set.h>
@@ -30,7 +30,7 @@ static string after(string& in, string& needle);
 static string before(string& in, string& needle);
 static int starts(string& in, string& needle);
 extern unsigned long resolv(char *host) ;  
-static string currrentTimeString();    
+static string currentTimeString();
 static string plrname_localtoirc(  char * name  );
 static string name_irctolocal(string& n);
 
@@ -64,8 +64,7 @@ void chat_client_disconnect() {
         }
 }
 
-bool chat_client_connect(void *tf) {
-        TForm1 *tform1 = ( TForm1 *) tf;
+bool chat_client_connect() {
         getplayername();
         if (!p) {
                 p = new irc_thread__parm();
@@ -123,13 +122,13 @@ void appendText( TForm1 * tform1, string& msg ) {
         tr->Lines->Add(msg.c_str());
 }
 
-static string currrentTimeString() {
+static string currentTimeString() {
         time_t rawtime;
         struct tm * timeinfo;
         char buffer [80];
         time ( &rawtime );
         timeinfo = localtime ( &rawtime );
-        strftime (buffer, 80, "%H:%M ", timeinfo);
+        strftime (buffer, 80, "%H:%M", timeinfo);
         return buffer;
 }
 
@@ -155,7 +154,7 @@ void chat_client_timercallback(void * t) {
                                 int emp = omsg.find("!", 1);
                                 playername = string(omsg, 1, emp - 1);
                                 playername = name_irctolocal(playername);
-                                cmsg = currrentTimeString() + " - " + playername + ": " + cmsg;
+                                cmsg = currentTimeString() + " - " + playername + ": " + cmsg;
                                 appendText(tform1, cmsg);
                         }
                 }
@@ -192,7 +191,7 @@ void chat_client_timercallback(void * t) {
                 p->playersParted.clear();
                 for(int i = 0; i < pp.size(); i++) {
                         //p->sendString
-                        appendText(tform1, currrentTimeString() +
+                        appendText(tform1, currentTimeString() +
                          "      *******    "  + pp.at(i) + " left      ******");
                 }
         }
@@ -201,7 +200,7 @@ void chat_client_timercallback(void * t) {
                 p->playersJoined.clear();
                 for(int i = 0; i < pp.size(); i++) {
                         //p->sendString
-                        appendText(tform1, currrentTimeString() +
+                        appendText(tform1, currentTimeString() +
                          "      *******    "  + pp.at(i) + " joined    ******");
                 }
         }
@@ -224,15 +223,14 @@ int irc_thread__parm::sendString(string& s) {
         return   send(sd, s.c_str(), s.length(), 0);
 }
 
-
 void start_conversation( int sd, char * name ) {
         string ircName = plrname_localtoirc(name);
         stringstream ss;
         ss << "CAP LS\n"
-        "NICK " << ircName << "\n"
+        << "NICK " << ircName << "\n"
         << "USER " << ircName << " 0 * :" << ircName << "\n"
         << "CAP REQ :multi-prefix\n"
-        <<  "CAP END\n"
+        << "CAP END\n"
         << "USERHOST "<<  ircName <<  "\n"
         << "JOIN #" << Form1->getChatChannel() << "\n"
         << "MODE #" << Form1->getChatChannel() << "\n";
@@ -245,7 +243,7 @@ void start_conversation( int sd, char * name ) {
 void  getplayername() {
         String currentOFPPlayer = WINDOW_SETTINGS->getCurrentPlayerName();
         if(currentOFPPlayer.IsEmpty()) {
-                string tmp = "Guest" + currrentTimeString();
+                string tmp = "Guest" + currentTimeString();
                 strcpy(playerName, tmp.c_str());
         } else {
                 strcpy(playerName, WINDOW_SETTINGS->getCurrentPlayerName().c_str());
@@ -367,16 +365,11 @@ void sendMessage(const char *xmsg) {
         send(p->sd, msg.c_str(), msg.length(), 0);
 }
 
-void chat_client_pressedReturnKey(void *t) {
+void chat_client_pressedReturnKey(void *t, const char *msg) {
         TForm1 *tform1 = (TForm1 *) t;
-        String input = "";
-        for(int i = 0; i < tform1->MemoChatInput->Lines->Count; i++) {
-                input += tform1->MemoChatInput->Lines->Strings[i];
-        }
-        string as = input.c_str();
         if (p && p->sd) {
-                sendMessage(as.c_str());
-                appendText(tform1,  currrentTimeString( ) +  " - <me>: " + as.c_str());
+                sendMessage(msg);
+                appendText(tform1,  currentTimeString( ) +  " - " + playerName + ": " + msg);
         }
 }
 
