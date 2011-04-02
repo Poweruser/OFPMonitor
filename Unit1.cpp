@@ -1253,7 +1253,7 @@ void filterChanged(bool userinput) {
         int selectedIndex;
         try {
                 AnsiString& cellValue = Form1->StringGrid1->Cells[0][row];
-                if (cellValue.length() > 0) {
+                if (cellValue.Length() > 0) {
                         selectedIndex = StrToInt(Form1->StringGrid1->Cells[0][row]);
                 } else {
                         selectedIndex = -1;
