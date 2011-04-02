@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 283
-  Top = 127
+  Left = 229
+  Top = 135
   Width = 886
   Height = 706
   HorzScrollBar.Visible = False
@@ -396,6 +396,7 @@ object Form1: TForm1
         Top = 0
         Width = 221
         Height = 232
+        Hint = 'ALT + LeftMouse mutes the user you click on'
         Align = alRight
         ColCount = 1
         DefaultColWidth = 200
@@ -405,6 +406,8 @@ object Form1: TForm1
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine]
         ScrollBars = ssVertical
         TabOrder = 0
+        OnDrawCell = StringGrid3DrawCell
+        OnMouseDown = StringGrid3MouseDown
       end
       object Panel2: TPanel
         Left = 0

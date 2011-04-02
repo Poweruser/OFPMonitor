@@ -110,7 +110,7 @@ string plrname_localtoirc(  char * name  ) {
                 int isBig   = c >= 'A' && c <= 'Z';
                 int isNum   = c >= '0' && c <= '9';
 
-                if (!isSmall  &&  !isBig  &&  !(i > 1 && isNum)){
+                if (!isSmall  &&  !isBig  &&  !(i > 0 && isNum)){
                         n[i] = '_';
                 }
         }
@@ -154,8 +154,10 @@ void chat_client_timercallback(void * t) {
                                 int emp = omsg.find("!", 1);
                                 playername = string(omsg, 1, emp - 1);
                                 playername = name_irctolocal(playername);
-                                cmsg = currentTimeString() + " - " + playername + ": " + cmsg;
-                                appendText(tform1, cmsg);
+                                if(!Form1->isChatUserBlocked(playername.c_str())) {
+                                        cmsg = currentTimeString() + " - " + playername + ": " + cmsg;
+                                        appendText(tform1, cmsg);
+                                }
                         }
                 }
         }
@@ -246,7 +248,7 @@ void  getplayername() {
                 string tmp = "Guest" + currentTimeString();
                 strcpy(playerName, tmp.c_str());
         } else {
-                strcpy(playerName, WINDOW_SETTINGS->getCurrentPlayerName().c_str());
+                strcpy(playerName, currentOFPPlayer.c_str());
         }
         return;
         /*
@@ -369,7 +371,7 @@ void chat_client_pressedReturnKey(void *t, const char *msg) {
         TForm1 *tform1 = (TForm1 *) t;
         if (p && p->sd) {
                 sendMessage(msg);
-                appendText(tform1,  currentTimeString( ) +  " - " + playerName + ": " + msg);
+                appendText(tform1,  currentTimeString( ) +  " - " + name_irctolocal(plrname_localtoirc(playerName)) + ": " + msg);
         }
 }
 

@@ -188,6 +188,10 @@ __published:	// IDE-managed Components
           bool &CanClose);
         void __fastcall MENUITEM_MAINMENU_CHAT_AUTOCONNECTClick(TObject *Sender);
         void __fastcall MemoChatInputChange(TObject *Sender);
+        void __fastcall StringGrid3MouseDown(TObject *Sender,
+          TMouseButton Button, TShiftState Shift, int X, int Y);
+        void __fastcall StringGrid3DrawCell(TObject *Sender, int ACol,
+          int ARow, TRect &Rect, TGridDrawState State);
 private:	// User declarations
 public:		// User declarations
         typedef list<String> CustomStringList;
@@ -206,6 +210,7 @@ public:		// User declarations
         String TForm1::getChatHost();
         int TForm1::getChatPort();
         String TForm1::getChatChannel();
+        bool TForm1::isChatUserBlocked(String username);
         __fastcall TForm1(TComponent* Owner);
 };
 //---------------------------------------------------------------------------

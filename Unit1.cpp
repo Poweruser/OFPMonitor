@@ -2196,6 +2196,7 @@ class ChatSettings {
 };
 
 ChatSettings chatsettings;
+TStringList *blockedChatUsers = new TStringList();
 
 /**
    Gives Unit2, which loades the config file, access to the object
@@ -2204,6 +2205,11 @@ ChatSettings chatsettings;
 
 void TForm1::setChat(String host, int port, String channel, bool autoConnect) {
         chatsettings = ChatSettings(host, port, channel, autoConnect);
+}
+
+bool TForm1::isChatUserBlocked(String username) {
+        int index;
+        return blockedChatUsers->Find(username, index);
 }
 
 String TForm1::getChatHost() {
@@ -2245,6 +2251,9 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         PlayerSortList2->Sorted = true;
         PlayerSortList2->CaseSensitive = true;
         PlayerSortList2->Duplicates = dupAccept;
+        blockedChatUsers->Sorted = true;
+        blockedChatUsers->CaseSensitive = true;
+        blockedChatUsers->Duplicates = dupIgnore;
         updateTimeoutLimit();
         udpSocket = new TNMUDP(Form1);
         udpSocket->ReportLevel = 5;
@@ -2292,6 +2301,7 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
         delete ServerSortList;
         delete PlayerSortList;
         delete PlayerSortList2;
+        delete blockedChatUsers;
         CustomStringList servers;
         CustomStringList watched;
         for(int i = 0; i < GetArrLength(ServerArray); i++) {
@@ -2641,7 +2651,7 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
                                 }
                                 StringGrid1->Canvas->FillRect(Rect);
                                 Rect.Left = Rect.Left + 2;
-                                DrawText(StringGrid1->Canvas->Handle, StringGrid1->Cells[ACol][ARow].c_str(), 
+                                DrawText(StringGrid1->Canvas->Handle, StringGrid1->Cells[ACol][ARow].c_str(),
                                                 -1, &Rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
                         }
                 } catch (...) {}
@@ -2925,7 +2935,6 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_AUTOCONNECTClick(TObject *Sender)
 
 void __fastcall TForm1::MemoChatInputChange(TObject *Sender)
 {
-
         while(MemoChatInput->Lines->Count > 3) {
                 int start = MemoChatInput->SelStart;
                 int length = MemoChatInput->SelLength;
@@ -2933,6 +2942,39 @@ void __fastcall TForm1::MemoChatInputChange(TObject *Sender)
                 MemoChatInput->SelStart = start;
                 MemoChatInput->SelLength = length;
         }
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::StringGrid3MouseDown(TObject *Sender,
+      TMouseButton Button, TShiftState Shift, int X, int Y)
+{
+        if(Shift.Contains(ssAlt) && Button == mbLeft) {
+                int col, row;
+                StringGrid3->MouseToCell(X, Y, col, row);
+                String userToBlock = StringGrid3->Cells[col][row];
+                int index = -1;
+                if(blockedChatUsers->Find(userToBlock, index)) {
+                        blockedChatUsers->Delete(index);
+                } else {
+                        blockedChatUsers->Add(userToBlock);
+                }
+                StringGrid3->Repaint();
+        }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::StringGrid3DrawCell(TObject *Sender, int ACol,
+      int ARow, TRect &Rect, TGridDrawState State)
+{
+        StringGrid3->Canvas->Font->Color = clBlack;
+        StringGrid3->Canvas->Brush->Color = clWindow;
+        if(Form1->isChatUserBlocked(StringGrid3->Cells[ACol][ARow])) {
+                StringGrid3->Canvas->Font->Color = clWhite;
+                StringGrid3->Canvas->Brush->Color = clBlack;
+        }
+        StringGrid3->Canvas->FillRect(Rect);
+        Rect.Left = Rect.Left + 2;
+        DrawText(StringGrid3->Canvas->Handle, StringGrid3->Cells[ACol][ARow].c_str(),
+                -1, &Rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 }
 //---------------------------------------------------------------------------
 
