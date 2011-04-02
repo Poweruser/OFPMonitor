@@ -248,7 +248,7 @@ void  getplayername() {
                 string tmp = "Guest" + currentTimeString();
                 strcpy(playerName, tmp.c_str());
         } else {
-                strcpy(playerName, WINDOW_SETTINGS->getCurrentPlayerName().c_str());
+                strcpy(playerName, currentOFPPlayer.c_str());
         }
         return;
         /*
@@ -292,12 +292,14 @@ static vector<string> explode(string s){
         }
         return r;
 }
+
 static string readPlayerFromLine(string& s){
           string name = after(s, ":");
                         name = before(name, "!");
                         name = name_irctolocal(name);
                         return name;
 }
+
 void irc_thread__parm::consume(char* c2, int i2) {
         vector<string> msgs = explode( string(c2, i2) );
         int it = 0;
