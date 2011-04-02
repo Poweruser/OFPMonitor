@@ -110,7 +110,7 @@ string plrname_localtoirc(  char * name  ) {
                 int isBig   = c >= 'A' && c <= 'Z';
                 int isNum   = c >= '0' && c <= '9';
 
-                if (!isSmall  &&  !isBig  &&  !(i > 0 && isNum)){
+                if (!isSmall  &&  !isBig  &&  !(i > 1 && isNum)){
                         n[i] = '_';
                 }
         }
@@ -154,10 +154,10 @@ void chat_client_timercallback(void * t) {
                                 int emp = omsg.find("!", 1);
                                 playername = string(omsg, 1, emp - 1);
                                 playername = name_irctolocal(playername);
-                                if(!Form1->isChatUserBlocked(playername.c_str())) {
-                                        cmsg = currentTimeString() + " - " + playername + ": " + cmsg;
-                                        appendText(tform1, cmsg);
-                                }
+				if(!Form1->isChatUserBlocked(playername.c_str())) {                                
+					cmsg = currentTimeString() + " - " + playername + ": " + cmsg;
+                                	appendText(tform1, cmsg);
+				}
                         }
                 }
         }
@@ -248,7 +248,7 @@ void  getplayername() {
                 string tmp = "Guest" + currentTimeString();
                 strcpy(playerName, tmp.c_str());
         } else {
-                strcpy(playerName, currentOFPPlayer.c_str());
+                strcpy(playerName, WINDOW_SETTINGS->getCurrentPlayerName().c_str());
         }
         return;
         /*
@@ -292,7 +292,12 @@ static vector<string> explode(string s){
         }
         return r;
 }
-
+static string readPlayerFromLine(string& s){
+          string name = after(s, ":");
+                        name = before(name, "!");
+                        name = name_irctolocal(name);
+                        return name;
+}
 void irc_thread__parm::consume(char* c2, int i2) {
         vector<string> msgs = explode( string(c2, i2) );
         int it = 0;
@@ -327,6 +332,11 @@ void irc_thread__parm::consume(char* c2, int i2) {
                                 }
                                 ps2 = after(ps2, " ");
                         }
+                } else if ( starts(body , "QUIT ") ){
+                    string name = readPlayerFromLine(s);    
+                        playersParted.push_back(name);
+                        userzSorted.erase(name);
+                        updatePlayers = 1;
                 }
             
                 int pingFind = s.find("PING " + hoscht, 0) ;
@@ -342,16 +352,12 @@ void irc_thread__parm::consume(char* c2, int i2) {
                         sentVersion = 1;
                         sendMessage( "Logged in with OFPMonitor version "  OFPMONITOR_VERSIO_REPORT);
                 } else if (joinFind > 0) {
-                        string name = after(s, ":");
-                        name = before(name, "!");
-                        name = name_irctolocal(name);
+                        string name = readPlayerFromLine(s);
                         playersJoined.push_back(name);
                         userzSorted.insert(name);
                         updatePlayers = 1;
                 } else if (partFind > 0) {
-                        string name = after(s, ":");
-                        name = before(name, "!");
-                        name = name_irctolocal(name);
+                        string name = readPlayerFromLine(s);
                         playersParted.push_back(name);
                         userzSorted.erase(name);
                         updatePlayers = 1;
@@ -371,7 +377,7 @@ void chat_client_pressedReturnKey(void *t, const char *msg) {
         TForm1 *tform1 = (TForm1 *) t;
         if (p && p->sd) {
                 sendMessage(msg);
-                appendText(tform1,  currentTimeString( ) +  " - " + name_irctolocal(plrname_localtoirc(playerName)) + ": " + msg);
+                appendText(tform1,  currentTimeString( ) +  " - " + playerName + ": " + msg);
         }
 }
 
