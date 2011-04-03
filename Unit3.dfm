@@ -164,7 +164,7 @@ object WINDOW_NOTIFICATIONS: TWINDOW_NOTIFICATIONS
     TabOrder = 0
     OnClick = ListBox1Click
   end
-  object GroupBox1: TGroupBox
+  object GROUPBOX_NOTIFICATIONS_FILTERS: TGroupBox
     Left = 182
     Top = 8
     Width = 305

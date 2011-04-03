@@ -18,7 +18,7 @@ class TWINDOW_NOTIFICATIONS : public TForm
 {
 __published:	// IDE-managed Components
         TColorBox *ColorBox1;
-        TGroupBox *GroupBox1;
+        TGroupBox *GROUPBOX_NOTIFICATIONS_FILTERS;
         TListBox *ListBox1;
         TButton *BUTTON_NEWNOTIFICATION_ADD;
         TCheckBox *CHECKBOX_FILTER_CREATING;

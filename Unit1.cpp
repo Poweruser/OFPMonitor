@@ -1161,28 +1161,33 @@ void processPlayerList(int index) {
 
 void updateServerInfoBox(int index) {
         if(index >= 0 && index < numOfServers) {
-                Form1->Label2->Caption = ServerArray[index].ip;
-                Form1->Label4->Caption = ServerArray[index].gamespyport - 1;
-                Form1->Label9->Caption = ServerArray[index].platform;
+                Form1->LABEL_SERVERINFO_IP_VALUE->Caption = ServerArray[index].ip;
+                Form1->LABEL_SERVERINFO_PORT_VALUE->Caption = ServerArray[index].gamespyport - 1;
+                Form1->LABEL_SERVERINFO_PLATFORM_VALUE->Caption = ServerArray[index].platform;
                 //Form1->Label18->Caption = ServerArray[index].impl;
-                Form1->Label21->Caption = ServerArray[index].name;
+                Form1->LABEL_SERVERINFO_NAME->Caption = ServerArray[index].name;
                 Form1->BUTTON_SERVERINFO_COPYADDRESS->Enabled = true;
-                int a = ServerArray[index].password;
-                if(a == 0) {
-                        Form1->Label11->Caption = WINDOW_SETTINGS->getGuiString("STRING_NO");
-                } else if(a == 1) {
-                        Form1->Label11->Caption = WINDOW_SETTINGS->getGuiString("STRING_YES");
+                if(ServerArray[index].password) {
+                        Form1->LABEL_SERVERINFO_PASSWORD_VALUE->Caption = WINDOW_SETTINGS->getGuiString("STRING_YES");
+                } else {
+                        Form1->LABEL_SERVERINFO_PASSWORD_VALUE->Caption = WINDOW_SETTINGS->getGuiString("STRING_NO");
                 }
-                Form1->Label13->Caption = ServerArray[index].actver;
+                if(ServerArray[index].equalMod) {
+                        Form1->LABEL_SERVERINFO_EQMODREQ_VALUE->Caption = WINDOW_SETTINGS->getGuiString("STRING_YES");
+                } else {
+                        Form1->LABEL_SERVERINFO_EQMODREQ_VALUE->Caption = WINDOW_SETTINGS->getGuiString("STRING_NO");
+                }
+                Form1->LABEL_SERVERINFO_VERSION_VALUE->Caption = ServerArray[index].actver;
         } else {
                 Form1->BUTTON_SERVERINFO_COPYADDRESS->Enabled = false;
-                Form1->Label2->Caption = " ";
-                Form1->Label4->Caption = " ";
-                Form1->Label9->Caption = " ";
+                Form1->LABEL_SERVERINFO_NAME->Caption = " ";
+                Form1->LABEL_SERVERINFO_IP_VALUE->Caption = " ";
+                Form1->LABEL_SERVERINFO_PORT_VALUE->Caption = " ";
+                Form1->LABEL_SERVERINFO_VERSION_VALUE->Caption = " ";
+                Form1->LABEL_SERVERINFO_PLATFORM_VALUE->Caption = " ";
+                Form1->LABEL_SERVERINFO_PASSWORD_VALUE->Caption = " ";
+                Form1->LABEL_SERVERINFO_EQMODREQ_VALUE->Caption = " ";
                 //Form1->Label18->Caption = " ";
-                Form1->Label21->Caption = " ";
-                Form1->Label11->Caption = " ";
-                Form1->Label13->Caption = " ";
         }
         return;
 }
@@ -2325,7 +2330,7 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::BUTTON_SERVERINFO_COPYADDRESSClick(TObject *Sender)
 {
-        copyToClipBoard(Label2->Caption + ":" + Label4->Caption);
+        copyToClipBoard(LABEL_SERVERINFO_IP_VALUE->Caption + ":" + LABEL_SERVERINFO_PORT_VALUE->Caption);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CHECKBOX_FILTER_PLAYINGClick(TObject *Sender)
@@ -2982,3 +2987,6 @@ void __fastcall TForm1::StringGrid3DrawCell(TObject *Sender, int ACol,
                 -1, &Rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 }
 //---------------------------------------------------------------------------
+
+
+

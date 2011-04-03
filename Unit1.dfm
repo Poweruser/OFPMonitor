@@ -286,7 +286,7 @@ object Form1: TForm1
             Caption = 'IP:'
             Transparent = True
           end
-          object Label2: TLabel
+          object LABEL_SERVERINFO_IP_VALUE: TLabel
             Left = 40
             Top = 32
             Width = 48
@@ -302,7 +302,7 @@ object Form1: TForm1
             Caption = 'Port:'
             Transparent = True
           end
-          object Label4: TLabel
+          object LABEL_SERVERINFO_PORT_VALUE: TLabel
             Left = 184
             Top = 32
             Width = 24
@@ -311,31 +311,31 @@ object Form1: TForm1
             Transparent = True
           end
           object LABEL_SERVERINFO_PLATFORM: TLabel
-            Left = 224
+            Left = 232
             Top = 32
             Width = 52
             Height = 16
             Caption = 'Platform:'
             Transparent = True
           end
-          object Label9: TLabel
-            Left = 312
+          object LABEL_SERVERINFO_PLATFORM_VALUE: TLabel
+            Left = 328
             Top = 32
-            Width = 21
+            Width = 24
             Height = 16
-            Caption = '       '
+            Caption = '        '
             Transparent = True
           end
           object LABEL_SERVERINFO_PASSWORD: TLabel
-            Left = 224
+            Left = 232
             Top = 48
             Width = 63
             Height = 16
             Caption = 'Password:'
             Transparent = True
           end
-          object Label11: TLabel
-            Left = 312
+          object LABEL_SERVERINFO_PASSWORD_VALUE: TLabel
+            Left = 328
             Top = 48
             Width = 27
             Height = 16
@@ -346,27 +346,27 @@ object Form1: TForm1
             Transparent = True
           end
           object LABEL_SERVERINFO_VERSION: TLabel
-            Left = 224
-            Top = 64
+            Left = 232
+            Top = 16
             Width = 49
             Height = 16
             Caption = 'Version:'
             Transparent = True
           end
-          object Label13: TLabel
-            Left = 312
-            Top = 64
+          object LABEL_SERVERINFO_VERSION_VALUE: TLabel
+            Left = 328
+            Top = 16
             Width = 30
             Height = 16
             Caption = '          '
             Transparent = True
           end
-          object Label21: TLabel
+          object LABEL_SERVERINFO_NAME: TLabel
             Left = 8
             Top = 16
-            Width = 66
+            Width = 217
             Height = 16
-            Caption = '                      '
+            AutoSize = False
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -13
@@ -374,6 +374,20 @@ object Form1: TForm1
             Font.Style = []
             ParentFont = False
             Transparent = True
+          end
+          object LABEL_SERVERINFO_EQMODREQ: TLabel
+            Left = 232
+            Top = 64
+            Width = 73
+            Height = 16
+            Caption = 'EqModReq:'
+          end
+          object LABEL_SERVERINFO_EQMODREQ_VALUE: TLabel
+            Left = 328
+            Top = 64
+            Width = 27
+            Height = 16
+            Caption = '         '
           end
           object BUTTON_SERVERINFO_COPYADDRESS: TButton
             Left = 16

@@ -25,9 +25,9 @@ __published:	// IDE-managed Components
         TButton *BUTTON_SERVERINFO_COPYADDRESS;
         TTimer *Timer1;
         TLabel *LABEL_SERVERINFO_IP;
-        TLabel *Label2;
+        TLabel *LABEL_SERVERINFO_IP_VALUE;
         TLabel *LABEL_SERVERINFO_PORT;
-        TLabel *Label4;
+        TLabel *LABEL_SERVERINFO_PORT_VALUE;
         TCheckBox *CHECKBOX_FILTER_PLAYING;
         TCheckBox *CHECKBOX_FILTER_WAITING;
         TCheckBox *CHECKBOX_FILTER_CREATING;
@@ -39,11 +39,11 @@ __published:	// IDE-managed Components
         TLabel *LABEL_FILTER_SERVERNAME;
         TTimer *Timer3;
         TLabel *LABEL_SERVERINFO_PLATFORM;
-        TLabel *Label9;
+        TLabel *LABEL_SERVERINFO_PLATFORM_VALUE;
         TLabel *LABEL_SERVERINFO_PASSWORD;
-        TLabel *Label11;
+        TLabel *LABEL_SERVERINFO_PASSWORD_VALUE;
         TLabel *LABEL_SERVERINFO_VERSION;
-        TLabel *Label13;
+        TLabel *LABEL_SERVERINFO_VERSION_VALUE;
         TCheckBox *CHECKBOX_FILTER_WITHPASSWORD;
         TCheckBox *CHECKBOX_FILTER_WITHOUTPASSWORD;
         TLabel *LABEL_FILTER_PASSWORD;
@@ -80,7 +80,7 @@ __published:	// IDE-managed Components
         TMenuItem *N92;
         TLabel *LABEL_FILTER_STATUS;
         TMenuItem *MENUITEM_POPUP_WATCH;
-        TLabel *Label21;
+        TLabel *LABEL_SERVERINFO_NAME;
         TMainMenu *MainMenu1;
         TMenuItem *MENUITEM_MAINMENU_EXIT;
         TMenuItem *MENUITEM_MAINMENU_SETTINGS;
@@ -123,6 +123,8 @@ __published:	// IDE-managed Components
         TMenuItem *MENUITEM_MAINMENU_CHAT_CLEARLOG;
         TSaveDialog *SaveDialog1;
         TMenuItem *MENUITEM_MAINMENU_CHAT_AUTOCONNECT;
+        TLabel *LABEL_SERVERINFO_EQMODREQ;
+        TLabel *LABEL_SERVERINFO_EQMODREQ_VALUE;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
