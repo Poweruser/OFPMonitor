@@ -316,7 +316,7 @@ void TWINDOW_SETTINGS::setSettingsChanged() {
 }
 
 boolean TWINDOW_SETTINGS::isOFPResistance() {
-        return ((programSettings.folder + "FLASHPOINTRESISTANCE.EXE") == programSettings.exe);
+        return ((programSettings.folder + "FLASHPOINTRESISTANCE.EXE").LowerCase() == programSettings.exe.LowerCase());
 }
 
 String TWINDOW_SETTINGS::getConfListEntry(int i) {
