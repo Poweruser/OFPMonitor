@@ -17,21 +17,21 @@ object WINDOW_NOTIFICATIONS: TWINDOW_NOTIFICATIONS
   PixelsPerInch = 96
   TextHeight = 13
   object LABEL_AUDIO_FROM: TLabel
-    Left = 166
-    Top = 316
+    Left = 182
+    Top = 314
     Width = 26
     Height = 13
     Caption = 'From:'
   end
   object LABEL_AUDIO_TO: TLabel
-    Left = 166
-    Top = 362
+    Left = 182
+    Top = 358
     Width = 16
     Height = 13
     Caption = 'To:'
   end
   object LABEL_MARKINGCOLOR: TLabel
-    Left = 262
+    Left = 270
     Top = 358
     Width = 67
     Height = 13
@@ -91,7 +91,7 @@ object WINDOW_NOTIFICATIONS: TWINDOW_NOTIFICATIONS
     Caption = 'Name:'
   end
   object LABEL_AUDIOFILE: TLabel
-    Left = 166
+    Left = 182
     Top = 272
     Width = 75
     Height = 13
@@ -367,40 +367,40 @@ object WINDOW_NOTIFICATIONS: TWINDOW_NOTIFICATIONS
   object Edit4: TEdit
     Left = 6
     Top = 288
-    Width = 137
+    Width = 169
     Height = 21
     TabOrder = 8
     Text = ' '
   end
   object Edit1: TEdit
-    Left = 168
+    Left = 182
     Top = 288
-    Width = 319
+    Width = 303
     Height = 21
     ReadOnly = True
     TabOrder = 9
     OnChange = Edit1Change
   end
   object BUTTON_BROWSE: TButton
-    Left = 264
+    Left = 272
     Top = 320
-    Width = 222
+    Width = 214
     Height = 33
     Caption = 'Browse ...'
     TabOrder = 10
     OnClick = BUTTON_BROWSEClick
   end
   object ColorBox1: TColorBox
-    Left = 264
-    Top = 377
-    Width = 222
+    Left = 272
+    Top = 376
+    Width = 214
     Height = 22
     Style = [cbStandardColors, cbCustomColor, cbPrettyNames]
     ItemHeight = 16
     TabOrder = 11
   end
   object Edit10: TEdit
-    Left = 214
+    Left = 230
     Top = 376
     Width = 28
     Height = 21
@@ -412,8 +412,8 @@ object WINDOW_NOTIFICATIONS: TWINDOW_NOTIFICATIONS
     OnChange = Edit10Change
   end
   object Edit5: TEdit
-    Left = 166
-    Top = 330
+    Left = 182
+    Top = 332
     Width = 21
     Height = 21
     BiDiMode = bdRightToLeft
@@ -424,8 +424,8 @@ object WINDOW_NOTIFICATIONS: TWINDOW_NOTIFICATIONS
     OnChange = Edit5Change
   end
   object Edit6: TEdit
-    Left = 190
-    Top = 330
+    Left = 206
+    Top = 332
     Width = 21
     Height = 21
     BiDiMode = bdRightToLeft
@@ -436,8 +436,8 @@ object WINDOW_NOTIFICATIONS: TWINDOW_NOTIFICATIONS
     OnChange = Edit6Change
   end
   object Edit7: TEdit
-    Left = 214
-    Top = 330
+    Left = 230
+    Top = 332
     Width = 28
     Height = 21
     BiDiMode = bdRightToLeft
@@ -448,7 +448,7 @@ object WINDOW_NOTIFICATIONS: TWINDOW_NOTIFICATIONS
     OnChange = Edit7Change
   end
   object Edit8: TEdit
-    Left = 166
+    Left = 182
     Top = 376
     Width = 21
     Height = 21
@@ -460,7 +460,7 @@ object WINDOW_NOTIFICATIONS: TWINDOW_NOTIFICATIONS
     OnChange = Edit8Change
   end
   object Edit9: TEdit
-    Left = 190
+    Left = 206
     Top = 376
     Width = 21
     Height = 21
@@ -691,7 +691,7 @@ object WINDOW_NOTIFICATIONS: TWINDOW_NOTIFICATIONS
   object TrackBar1: TTrackBar
     Left = 0
     Top = 364
-    Width = 150
+    Width = 161
     Height = 37
     BorderWidth = 5
     Ctl3D = True
