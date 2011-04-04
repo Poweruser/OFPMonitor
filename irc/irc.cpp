@@ -94,12 +94,16 @@ bool chat_client_connect() {
         return false;
 }
 static string name_irctolocal(string& n) {
-        string k(ofpprefix);
-        int p = n.find(k, 0);
-        if (p >= 0) {
-                return string(n, p + k.size());
+        string playername = n;
+        if (starts(playername , "@")){
+                playername = after(playername , "@");
         }
-        return n;
+        string k(ofpprefix);
+        int p = playername.find(k, 0);
+        if (p >= 0) {
+                return string(playername, p + k.size());
+        }
+        return playername;
 }              
 
 string plrname_localtoirc(  char * name  ) {
