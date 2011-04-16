@@ -1782,7 +1782,14 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                         } else if (tmp == "mod") {
                                                 ++ci;
                                                 counter--;
-                                                ServerArray[i].mod = *ci;
+                                                String m = *ci;
+                                                if(m.SubString(1,3) == "RES") {
+                                                        m = m.SubString(4, m.Length() - 3);
+                                                }
+                                                if(m.SubString(1,1) == ";") {
+                                                        m = m.SubString(2, m.Length() - 1);
+                                                }
+                                                ServerArray[i].mod = m;
                                         } else if (tmp == "equalModRequired") {
                                                 ++ci;
                                                 counter--;
@@ -2447,11 +2454,14 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
                                 PopupMenu1->Items->Items[4]->Checked = ServerArray[index].watch;
                                 int i = 0;
                                 for (CustomStringList::iterator ci = t.begin(); ci != t.end(); ++ci) {
-                                        TMenuItem *m = PopupMenu1->Items->Items[3]->Items[i];
-                                        m->Caption = *ci;
-                                        m->Visible = true;
-                                        i++;
+                                        if(!(*ci).IsEmpty()) {
+                                                TMenuItem *m = PopupMenu1->Items->Items[3]->Items[i];
+                                                m->Caption = *ci;
+                                                m->Visible = true;
+                                                i++;
+                                        }
                                 }
+                                PopupMenu1->Items->Items[3]->Enabled = (i > 0);
                                 for(; i < PopupMenu1->Items->Items[3]->Count; i++) {
                                         TMenuItem *m = PopupMenu1->Items->Items[3]->Items[i];
                                         m->Visible = false;
@@ -2522,12 +2532,35 @@ void __fastcall TForm1::Edit4Change(TObject *Sender)
 void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
 {
         int index = PopupMenu1->Tag;
-        boolean isOFPR = WINDOW_SETTINGS->isOFPResistance();
-        for(int i = 0; i < WINDOW_SETTINGS->getConfAmount() || i < PopupMenu1->Items->Items[0]->Count; i++) {
-                String s = WINDOW_SETTINGS->getConfListEntry(i);
+        int additionalItems = 2;
+
+        TMenuItem *join;
+        TMenuItem *autojoin;
+
+        int i = 0;
+        for(i = 0; i < additionalItems; i++) {
+                join = PopupMenu1->Items->Items[0]->Items[i];
+                autojoin = PopupMenu1->Items->Items[1]->Items[i];
+                join->Tag = i - additionalItems;
+                autojoin->Tag = i - additionalItems;
+                join->Visible = true;
+                autojoin->Visible = true;
+                if(i == 0) {
+                        join->OnClick = ClickJoinButton;
+                        autojoin->OnClick = ClickAutoJoinConfButton;
+                        join->Enabled = !(ServerArray[index].equalMod == 1 && !ServerArray[index].mod.IsEmpty());
+                        autojoin->Enabled = join->Enabled;
+                } else if(i == 1) {
+                        join->OnClick = ClickJoinButton;
+                        autojoin->OnClick = ClickAutoJoinConfButton;
+                        join->Enabled = true;
+                        autojoin->Enabled = true;
+                }
+        }
+
+        for(i = additionalItems; i - additionalItems < WINDOW_SETTINGS->getConfAmount() || i < PopupMenu1->Items->Items[0]->Count; i++) {
+                String s = WINDOW_SETTINGS->getConfListEntry(i - additionalItems);
                 if(!s.IsEmpty()) {
-                        TMenuItem *join;
-                        TMenuItem *autojoin;
                         if(i < PopupMenu1->Items->Items[0]->Count) {
                                 join = PopupMenu1->Items->Items[0]->Items[i];
                         } else {
@@ -2540,23 +2573,17 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
                                 autojoin = new TMenuItem(this);
                                 PopupMenu1->Items->Items[1]->Add(autojoin);
                         }
-                        join->Tag = i;
+                        join->Tag = i - additionalItems;
                         join->Caption = s;
                         join->Visible = true;
                         join->OnClick = ClickJoinButton;
 
-                        autojoin->Tag = i;
+                        autojoin->Tag = i - additionalItems;
                         autojoin->Caption = s;
                         autojoin->Visible = true;
                         autojoin->OnClick = ClickAutoJoinConfButton;
 
-                        String modline = WINDOW_SETTINGS->getConfModLine(i);
-                        if(isOFPR) {
-                                if(modline.Length() > 0) {
-                                        modline = ";" + modline;
-                                }
-                                modline = "RES" + modline;
-                        }
+                        String modline = WINDOW_SETTINGS->getConfModLine(i - additionalItems);
                         join->Enabled = !(ServerArray[index].equalMod == 1 && modline != ServerArray[index].mod);
                         autojoin->Enabled = join->Enabled;
                 } else {
@@ -2592,7 +2619,13 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
                                     "", MB_YESNO | MB_ICONQUESTION);
         }
         if(zz == 6) {
-              startTheGame(WINDOW_SETTINGS->getConfStartLine(a->Tag,ip, port));
+                if(a->Tag >= 0 && a->Tag < WINDOW_SETTINGS->getConfAmount()) {
+                        startTheGame(WINDOW_SETTINGS->getConfStartLine(a->Tag, ip, port));
+                } else if(a->Tag == -2) {
+                        startTheGame(WINDOW_SETTINGS->getNoModsStartLine(ip, port));
+                } else if(a->Tag == -1) {
+                        startTheGame(WINDOW_SETTINGS->getSameModsStartLine(ip, port, ServerArray[index].mod));
+                }
         }
 }
 //---------------------------------------------------------------------------
@@ -2602,7 +2635,13 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
         TMenuItem *a = (TMenuItem *) Sender;
         int index = a->Parent->Tag;
         ServerArray[index].autojoin = true;
-        ServerArray[index].autojoinConf = WINDOW_SETTINGS->getConfStartLine(a->Tag, ServerArray[index].ip, ServerArray[index].gameport);
+        if(a->Tag >= 0 && a->Tag < WINDOW_SETTINGS->getConfAmount()) {
+                ServerArray[index].autojoinConf = WINDOW_SETTINGS->getConfStartLine(a->Tag, ServerArray[index].ip, ServerArray[index].gameport);
+        } else if(a->Tag == -2) {
+                ServerArray[index].autojoinConf = WINDOW_SETTINGS->getNoModsStartLine(ServerArray[index].ip, ServerArray[index].gameport);
+        } else if(a->Tag == -1) {
+                ServerArray[index].autojoinConf = WINDOW_SETTINGS->getSameModsStartLine(ServerArray[index].ip, ServerArray[index].gameport, ServerArray[index].mod);
+        }
         StringGrid1->Refresh();
         filterChanged(false);
 }
@@ -2626,6 +2665,7 @@ void __fastcall TForm1::ClickWatchButton(TObject *Sender)
         playAudioServerStatus(index, ServerArray[index].gamestate);
         WINDOW_SETTINGS->setSettingsChanged();
 }
+
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CHECKBOX_FILTER_SETTINGUPClick(TObject *Sender)
 {
@@ -2987,6 +3027,3 @@ void __fastcall TForm1::StringGrid3DrawCell(TObject *Sender, int ACol,
                 -1, &Rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 }
 //---------------------------------------------------------------------------
-
-
-

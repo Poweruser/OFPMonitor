@@ -92,6 +92,8 @@ public:		// User declarations
         bool TWINDOW_SETTINGS::areCustomNotificationsEnabled();
         TStringList* TWINDOW_SETTINGS::getWatchedList();
         String TWINDOW_SETTINGS::getConfStartLine(int i, String ip, int port);
+        String TWINDOW_SETTINGS::getNoModsStartLine(String ip, int port);
+        String TWINDOW_SETTINGS::getSameModsStartLine(String ip, int port, String servermods);
         String TWINDOW_SETTINGS::getExe();
         String TWINDOW_SETTINGS::getExeFolder();
         String TWINDOW_SETTINGS::getGuiString(String ident);

@@ -552,11 +552,11 @@ object Form1: TForm1
     object MENUITEM_POPUP_JOIN: TMenuItem
       Caption = 'Join'
       Enabled = False
-      object N01: TMenuItem
-        Caption = '0'
+      object MENUITEM_POPUP_JOIN_NOMODS: TMenuItem
+        Caption = 'No mods'
       end
-      object N11: TMenuItem
-        Caption = '1'
+      object MENUITEM_POPUP_JOIN_SAMEMODS: TMenuItem
+        Caption = 'Same mods as server'
       end
       object N21: TMenuItem
         Caption = '2'
@@ -586,11 +586,11 @@ object Form1: TForm1
     object MENUITEM_POPUP_AUTOJOIN: TMenuItem
       Caption = 'Auto-Join'
       Enabled = False
-      object N03: TMenuItem
-        Caption = '0'
+      object MENUITEM_POPUP_AUTOJOIN_NOMODS: TMenuItem
+        Caption = 'No mods'
       end
-      object N13: TMenuItem
-        Caption = '1'
+      object MENUITEM_POPUP_AUTOJOIN_SAMEMODS: TMenuItem
+        Caption = 'Same mods as server'
       end
       object N23: TMenuItem
         Caption = '2'

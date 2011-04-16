@@ -95,7 +95,7 @@ class Configuration {
                                 out += " \"-name=" + player + "\"";
                         }
                         if(!ml.IsEmpty()) {
-                                out += " \"-mod="+ this->createModLine() +"\"";
+                                out += " \"-mod="+ ml +"\"";
                         }
                         return out;
                 }
@@ -296,6 +296,19 @@ class Settings {
                                 delete file;
                         }
                 }
+
+                String createStartLine(String ip, int port, String player, String modline) {
+                        String out = " -nosplash -nomap ";
+                        out += " -connect=" + ip;
+                        out += " -port=" + String(port);
+                        if(!player.IsEmpty()) {
+                                out += " \"-name=" + player + "\"";
+                        }
+                        if(!modline.IsEmpty()) {
+                                out += " \"-mod="+ modline +"\"";
+                        }
+                        return out;
+                }
 };
 Settings programSettings = Settings();
 
@@ -315,16 +328,20 @@ void TWINDOW_SETTINGS::setSettingsChanged() {
         programSettings.changed = true;
 }
 
-boolean TWINDOW_SETTINGS::isOFPResistance() {
-        return ((programSettings.folder + "FLASHPOINTRESISTANCE.EXE").LowerCase() == programSettings.exe.LowerCase());
-}
-
 String TWINDOW_SETTINGS::getConfListEntry(int i) {
         return programSettings.startupConfs[i].createListEntry();
 }
 
 String TWINDOW_SETTINGS::getConfStartLine(int i, String ip, int port) {
         return programSettings.startupConfs[i].createStartLine(ip, port, programSettings.player);
+}
+
+String TWINDOW_SETTINGS::getNoModsStartLine(String ip, int port) {
+        return programSettings.createStartLine(ip, port, programSettings.player, "");
+}
+
+String TWINDOW_SETTINGS::getSameModsStartLine(String ip, int port, String servermods) {
+        return programSettings.createStartLine(ip, port, programSettings.player, servermods);
 }
 
 String TWINDOW_SETTINGS::getConfModLine(int i) {
@@ -575,6 +592,7 @@ void updateLanguage(String languagefile) {
         guiStrings.push_back(guiString("STRING_MARKINGCOLOR","Marking color:"));
         guiStrings.push_back(guiString("STRING_MINIMUM","Min."));
         guiStrings.push_back(guiString("STRING_MAXIMUM","Max:"));
+        
         if(FileExists(pathAndFile)) {
                 file->LoadFromFile(pathAndFile);
                 String tmp;

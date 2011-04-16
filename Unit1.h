@@ -58,8 +58,8 @@ __published:	// IDE-managed Components
         TMenuItem *MENUITEM_POPUP_JOIN;
         TCheckBox *CHECKBOX_FILTER_SETTINGUP;
         TMenuItem *MENUITEM_POPUP_MODS;
-        TMenuItem *N01;
-        TMenuItem *N11;
+        TMenuItem *MENUITEM_POPUP_JOIN_NOMODS;
+        TMenuItem *MENUITEM_POPUP_JOIN_SAMEMODS;
         TMenuItem *N21;
         TMenuItem *N31;
         TMenuItem *N41;
@@ -89,8 +89,8 @@ __published:	// IDE-managed Components
         TFontDialog *FontDialog1;
         TMenuItem *MENUITEM_MAINMENU_FONT;
         TMenuItem *MENUITEM_POPUP_AUTOJOIN;
-        TMenuItem *N03;
-        TMenuItem *N13;
+        TMenuItem *MENUITEM_POPUP_AUTOJOIN_NOMODS;
+        TMenuItem *MENUITEM_POPUP_AUTOJOIN_SAMEMODS;
         TMenuItem *N23;
         TMenuItem *N33;
         TMenuItem *N43;

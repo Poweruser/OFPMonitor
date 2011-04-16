@@ -3,7 +3,7 @@ TCheckBox *guiCheckBox[10];
 TLabel *guiLabel[18];
 TGroupBox *guiGroupBox[8];
 TForm *guiForm[3];
-TMenuItem *guiMenuItem[19];
+TMenuItem *guiMenuItem[23];
 TStatusPanel *guiStatusPanel[10];
 TTabSheet *guiTabSheet[2];
 
