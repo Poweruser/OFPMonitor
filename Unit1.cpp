@@ -2543,18 +2543,18 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
                 autojoin = PopupMenu1->Items->Items[1]->Items[i];
                 join->Tag = i - additionalItems;
                 autojoin->Tag = i - additionalItems;
-                join->Visible = true;
-                autojoin->Visible = true;
                 if(i == 0) {
                         join->OnClick = ClickJoinButton;
                         autojoin->OnClick = ClickAutoJoinConfButton;
                         join->Enabled = !(ServerArray[index].equalMod == 1 && !ServerArray[index].mod.IsEmpty());
                         autojoin->Enabled = join->Enabled;
+                        join->Visible = true;
+                        autojoin->Visible = true;
                 } else if(i == 1) {
                         join->OnClick = ClickJoinButton;
                         autojoin->OnClick = ClickAutoJoinConfButton;
-                        join->Enabled = true;
-                        autojoin->Enabled = true;
+                        join->Visible = ServerArray[index].equalMod;
+                        autojoin->Visible = join->Visible;
                 }
         }
 

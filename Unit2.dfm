@@ -41,7 +41,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     Top = 0
     Width = 431
     Height = 48
-    Caption = 'OFP Executable '
+    Caption = 'OFP:R Executable '
     TabOrder = 0
     object Edit1: TEdit
       Left = 8
