@@ -64,7 +64,7 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         if(!MyAppAlreadyRunning()) {
 	        try {
                         Application->Initialize();
-                        Application->Title = "OFPMonitor 1.4";
+                        Application->Title = "OFPMonitor 1.40rc1";
                  Application->CreateForm(__classid(TForm1), &Form1);
                  Application->CreateForm(__classid(TWINDOW_NOTIFICATIONS), &WINDOW_NOTIFICATIONS);
                  Application->CreateForm(__classid(TWINDOW_INFO), &WINDOW_INFO);
