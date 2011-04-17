@@ -86,23 +86,21 @@ ProductVersion=1.0.0.0
 Comments=Release Candidate 1
 
 [HistoryLists\hlIncludePath]
-Count=6
+Count=5
 Item0=irc;..;$(BCB)\include;$(BCB)\include\vcl
-Item1=e:\cooltrayicon;irc;..;$(BCB)\include;$(BCB)\include\vcl
-Item2=..;$(BCB)\include;$(BCB)\include\vcl
+Item1=..;$(BCB)\include;$(BCB)\include\vcl
+Item2=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 Item3=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 Item4=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
-Item5=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=7
+Count=6
 Item0=d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item1=e:\cooltrayicon;d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item2=irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item3=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item1=irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item2=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item3=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
 Item4=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
-Item5=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
-Item6=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item5=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1
