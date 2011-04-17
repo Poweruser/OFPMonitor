@@ -14,6 +14,7 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma link "trayicon"
+#pragma link "CoolTrayIcon"
 #pragma resource "*.dfm"
 #pragma resource "wavefiles.res"
 #pragma resource "XP.res"
@@ -1363,9 +1364,9 @@ void filterChanged(bool userinput) {
 
         }
         if(found) {
-                Form1->TrayIcon1->Hint = ServerArray[selectedIndex].name + "     " + getGameState(ServerArray[selectedIndex].gamestate) + "     " +  String(ServerArray[selectedIndex].players) + " Players";
+                Form1->CoolTrayIcon1->Hint = ServerArray[selectedIndex].name + "     " + getGameState(ServerArray[selectedIndex].gamestate) + "     " +  String(ServerArray[selectedIndex].players) + " Players";
         } else {
-                Form1->TrayIcon1->Hint = "OFPMonitor";
+                Form1->CoolTrayIcon1->Hint = "OFPMonitor";
         }
         filterChanging = false;
         return;
@@ -2242,9 +2243,17 @@ int TForm1::getChatPort() {
         return chatsettings.port;
 }
 
+void TForm1::ChatNotification(String msg) {
+        if(!Form1->Visible || PageControl1->TabIndex != TABSHEET_CHAT->PageIndex) {
+                CoolTrayIcon1->HideBalloonHint();
+                Form1->CoolTrayIcon1->ShowBalloonHint(WideString("OFPMonitor " + TABSHEET_CHAT->Caption), WideString(msg), bitInfo, 3);
+        }
+}
+
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
+        Application->OnMinimize = OnMinimize;
         windowsettings = WindowSettings(0,0,0,0,0.0f, 0.0f,0.0f, 0.0f,
                                 0.0f,0.0f, 0.0f, 0.0f,0.0f, 0.0f, 0.0f, 0);
         numOfServers = 0;
@@ -2679,7 +2688,7 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key,
         if(Key == VK_ESCAPE) {
                 Form1->Close();
         } else if(Key == VK_RETURN) {
-                TrayIcon1->Restore();
+                CoolTrayIcon1->ShowMainForm();
         }
 }
 //---------------------------------------------------------------------------
@@ -3028,3 +3037,27 @@ void __fastcall TForm1::StringGrid3DrawCell(TObject *Sender, int ACol,
                 -1, &Rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 }
 //---------------------------------------------------------------------------
+void __fastcall TForm1::OnMinimize(TObject *Sender)
+{
+        CoolTrayIcon1->HideMainForm();
+}
+void __fastcall TForm1::CoolTrayIcon1Click(TObject *Sender)
+{
+        CoolTrayIcon1->ShowMainForm();
+        CoolTrayIcon1->HideBalloonHint();
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::TABSHEET_CHATShow(TObject *Sender)
+{
+        TABSHEET_CHAT->Highlighted = false;  
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::MemoChatOutputChange(TObject *Sender)
+{
+        if(PageControl1->TabIndex != TABSHEET_CHAT->PageIndex) {
+                TABSHEET_CHAT->Highlighted = true;
+        }
+}
+//---------------------------------------------------------------------------
+

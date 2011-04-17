@@ -8,7 +8,7 @@
 #include <set.h>
 #include <time.h>
 #include <sstream>
-                
+
 //#define DEBUG_MSG
 #ifdef DEBUG_MSG
         #define INPUTOUT 1
@@ -24,7 +24,6 @@ static struct irc_thread__parm * p ;
 static void getplayername( ); 
 static void start_conversation( int sd, char * name ); 
 static void sendMessage(const char * xmsg);
-//static string channelname_operationflashpoint1 ("operationflashpoint1");
 
 static string after(string& in, string& needle);
 static string before(string& in, string& needle);
@@ -75,14 +74,8 @@ bool chat_client_connect() {
 
         p->sd = sd;
         memset(&addr, 0, sizeof(addr));
-        // irc.freenode.net = 140.211.167.98
-        // int ip = inet_addr("140.211.167.98");
-        //int ip = dnsdb("irc.freenode.net");
-
-                //int ip = resolv("irc.freenode.net");
         int ip = resolv(Form1->getChatHost().c_str());
         addr.sin_addr.s_addr = ip;
-                //  addr.sin_port        = htons(6666);
         addr.sin_port        = htons(Form1->getChatPort());
         addr.sin_family      = AF_INET;
 
@@ -161,6 +154,9 @@ void chat_client_timercallback(void * t) {
 				if(!Form1->isChatUserBlocked(playername.c_str())) {                                
 					cmsg = currentTimeString() + " - " + playername + ": " + cmsg;
                                 	appendText(tform1, cmsg);
+                                        if(Form1->doNameFilter(cmsg.c_str(), playerName)) {
+                                                tform1->ChatNotification(cmsg.c_str());
+                                        }
 				}
                         }
                 }
@@ -219,7 +215,6 @@ DWORD WINAPI irc_ThreadProc (LPVOID lpdwThreadParam__ ) {
                 char buff [1<<10];
                 int r;
                 while(p_parm->sd && (r = recv(p_parm->sd, buff, sizeof(buff), 0)) > 0){
-                    //TRichEdit * tr =  tform1->RichEditChatContent;
                     p_parm->consume(buff, r);
                 }
         }
@@ -255,29 +250,6 @@ void  getplayername() {
                 strcpy(playerName, currentOFPPlayer.c_str());
         }
         return;
-        /*
-          
-        //http://help.github.com/fork-a-repo/
-        //"HKEY_CURRENT_USER\Software\Codemasters\Operation Flashpoint"
-        char lszValue[100];
-        LONG lRet, lEnumRet;
-        HKEY hKey = 0;
-        DWORD dwLength = 100;
-        int i = 0;
-
-        //char* target=(char*) &lszValue;
-        //target=playerName;
-
-        lRet = RegOpenKeyEx (HKEY_CURRENT_USER, "Software\\Codemasters\\Operation Flashpoint", 0L, KEY_READ , &hKey);
-        if(lRet == ERROR_SUCCESS) {
-                DWORD dwType=REG_SZ;
-                DWORD dwSize=255;
-                lEnumRet = RegQueryValueEx(hKey, "Player Name", NULL, &dwType,(LPBYTE)playerName, &dwSize);
-        }
-        if (hKey) {
-                RegCloseKey(hKey);
-        }
-        */
 }
 
 static vector<string> explode(string s){
@@ -356,7 +328,7 @@ void irc_thread__parm::consume(char* c2, int i2) {
                         send(sd, pong.c_str(), pong.length(), 0);
                 } else if (!sentVersion && endNameListFind >= 0) {
                         sentVersion = 1;
-                        sendMessage( "Logged in with OFPMonitor version "  OFPMONITOR_VERSIO_REPORT);
+                        sendMessage( ("Logged in with " + Application->Title).c_str());
                 } else if (joinFind > 0) {
                         string name = readPlayerFromLine(s);
                         playersJoined.push_back(name);

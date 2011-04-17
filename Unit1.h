@@ -14,6 +14,7 @@
 #include <ExtCtrls.hpp>
 #include "trayicon.h"
 #include <Dialogs.hpp>
+#include "CoolTrayIcon.hpp"
 //---------------------------------------------------------------------------
 
 class TForm1 : public TForm
@@ -85,7 +86,6 @@ __published:	// IDE-managed Components
         TMenuItem *MENUITEM_MAINMENU_EXIT;
         TMenuItem *MENUITEM_MAINMENU_SETTINGS;
         TMenuItem *MENUITEM_MAINMENU_GETNEWSERVERLIST;
-        TTrayIcon *TrayIcon1;
         TFontDialog *FontDialog1;
         TMenuItem *MENUITEM_MAINMENU_FONT;
         TMenuItem *MENUITEM_POPUP_AUTOJOIN;
@@ -125,6 +125,7 @@ __published:	// IDE-managed Components
         TMenuItem *MENUITEM_MAINMENU_CHAT_AUTOCONNECT;
         TLabel *LABEL_SERVERINFO_EQMODREQ;
         TLabel *LABEL_SERVERINFO_EQMODREQ_VALUE;
+        TCoolTrayIcon *CoolTrayIcon1;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
@@ -152,6 +153,7 @@ __published:	// IDE-managed Components
         void __fastcall ClickJoinButton(TObject *Sender);
         void __fastcall ClickAutoJoinConfButton(TObject *Sender);
         void __fastcall ClickWatchButton(TObject *Sender);
+        void __fastcall OnMinimize(TObject *Sender);
         void __fastcall CHECKBOX_FILTER_SETTINGUPClick(TObject *Sender);
         void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
           TShiftState Shift);
@@ -194,6 +196,9 @@ __published:	// IDE-managed Components
           TMouseButton Button, TShiftState Shift, int X, int Y);
         void __fastcall StringGrid3DrawCell(TObject *Sender, int ACol,
           int ARow, TRect &Rect, TGridDrawState State);
+        void __fastcall CoolTrayIcon1Click(TObject *Sender);
+        void __fastcall TABSHEET_CHATShow(TObject *Sender);
+        void __fastcall MemoChatOutputChange(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         typedef list<String> CustomStringList;
@@ -212,8 +217,10 @@ public:		// User declarations
         String TForm1::getChatHost();
         int TForm1::getChatPort();
         String TForm1::getChatChannel();
+        void TForm1::ChatNotification(String msg);
         bool TForm1::isChatUserBlocked(String username);
         __fastcall TForm1(TComponent* Owner);
+
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TForm1 *Form1;
