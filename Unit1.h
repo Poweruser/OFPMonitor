@@ -15,6 +15,7 @@
 #include "trayicon.h"
 #include <Dialogs.hpp>
 #include "CoolTrayIcon.hpp"
+
 //---------------------------------------------------------------------------
 
 class TForm1 : public TForm

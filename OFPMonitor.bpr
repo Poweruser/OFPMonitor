@@ -24,14 +24,13 @@
     <USERDEFINES value=""/>
     <SYSDEFINES value="NO_STRICT"/>
     <MAINSOURCE value="OFPMonitor.cpp"/>
-    <INCLUDEPATH value="e:\cooltrayicon;irc;..;$(BCB)\include;$(BCB)\include\vcl"/>
-    <LIBPATH value="e:\cooltrayicon;d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <INCLUDEPATH value="irc;..;$(BCB)\include;$(BCB)\include\vcl"/>
+    <LIBPATH value="d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <OTHERFILES value=""/>
   </MACROS>
   <OPTIONS>
-    <IDLCFLAGS value="-Ie:\cooltrayicon -Iirc -I.. -I$(BCB)\include -I$(BCB)\include\vcl 
-      -src_suffix cpp -boa"/>
+    <IDLCFLAGS value="-Iirc -I.. -I$(BCB)\include -I$(BCB)\include\vcl -src_suffix cpp -boa"/>
     <CFLAG1 value="-O2 -H=$(BCB)\lib\vcl60.csm -Vx -Ve -X- -a8 -b- -k- -vi -c -tW -tWM"/>
     <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
     <RFLAGS value=""/>
@@ -88,8 +87,8 @@ Comments=Release Candidate 1
 
 [HistoryLists\hlIncludePath]
 Count=6
-Item0=e:\cooltrayicon;irc;..;$(BCB)\include;$(BCB)\include\vcl
-Item1=irc;..;$(BCB)\include;$(BCB)\include\vcl
+Item0=irc;..;$(BCB)\include;$(BCB)\include\vcl
+Item1=e:\cooltrayicon;irc;..;$(BCB)\include;$(BCB)\include\vcl
 Item2=..;$(BCB)\include;$(BCB)\include\vcl
 Item3=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 Item4=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
@@ -97,8 +96,8 @@ Item5=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
 Count=7
-Item0=e:\cooltrayicon;d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item1=d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item0=d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item1=e:\cooltrayicon;d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
 Item2=irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
 Item3=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
 Item4=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
