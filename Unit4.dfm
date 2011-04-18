@@ -4,7 +4,7 @@ object WINDOW_INFO: TWINDOW_INFO
   AutoSize = True
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
-  Caption = 'WINDOW_INFO'
+  Caption = 'Information'
   ClientHeight = 185
   ClientWidth = 321
   Color = clBtnFace
