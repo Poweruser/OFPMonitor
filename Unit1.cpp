@@ -2687,7 +2687,7 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key,
 {
         if(Key == VK_ESCAPE) {
                 Form1->Close();
-        } else if(Key == VK_RETURN) {
+        } else if(Key == VK_F13) {
                 CoolTrayIcon1->ShowMainForm();
         }
 }
@@ -2928,40 +2928,34 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
 {
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = false;
         Form1->PageControl1->ActivePage = Form1->TABSHEET_CHAT;
-        MemoChatOutput->Lines->Add("Connecting to:  " + Form1->getChatHost() + ":" + String(Form1->getChatPort()));
-        MemoChatOutput->Lines->Add("Channel:  " + Form1->getChatChannel());
+
+        MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTINGTO") +
+                "  " + Form1->getChatHost() + ":" + String(Form1->getChatPort()));
+        MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CHANNEL") +
+                "  " + Form1->getChatChannel());
         TimerIrcChatTimer->Enabled = true;
         bool result = chat_client_connect();
         if(!result) {
-                MemoChatOutput->Lines->Add("Connecting failed.");
+                MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTIONFAILED"));
+        } else {
+                MemoChatInput->Clear();
         }
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = !result;
         MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = result;
+        MemoChatInput->Enabled = result;
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
 {
+        MemoChatInput->Enabled = false;
         MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = false;
         chat_client_disconnect();
         TimerIrcChatTimer->Enabled = false;
         StringGrid3->RowCount = 0;
         StringGrid3->Cells[0][0] = "";
         StringGrid3->Cells[0][1] = "";
-        MemoChatOutput->Lines->Add("Disconnected.");
+        MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_DISCONNECTED"));
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = true;
-}
-//---------------------------------------------------------------------------
-void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
-      TShiftState Shift)
-{
-        if(Key == VK_RETURN) {
-                String input = "";
-                for(int i = 0; i < Form1->MemoChatInput->Lines->Count; i++) {
-                        input += Form1->MemoChatInput->Lines->Strings[i];
-                }
-                chat_client_pressedReturnKey(this, input.c_str());
-                MemoChatInput->Clear();
-        }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CLEARLOGClick(TObject *Sender)
@@ -3052,11 +3046,25 @@ void __fastcall TForm1::TABSHEET_CHATShow(TObject *Sender)
         TABSHEET_CHAT->Highlighted = false;  
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::MemoChatOutputChange(TObject *Sender)
 {
         if(PageControl1->TabIndex != TABSHEET_CHAT->PageIndex) {
                 TABSHEET_CHAT->Highlighted = true;
+        }
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::MemoChatInputKeyDown(TObject *Sender, WORD &Key,
+      TShiftState Shift)
+{
+        if(Key == VK_RETURN) {
+                String input = "";
+                for(int i = 0; i < Form1->MemoChatInput->Lines->Count; i++) {
+                        input += Form1->MemoChatInput->Lines->Strings[i];
+                }
+                MemoChatInput->Clear();
+                if(!input.Trim().IsEmpty()) {
+                        chat_client_pressedReturnKey(this, input.c_str());
+                }
         }
 }
 //---------------------------------------------------------------------------

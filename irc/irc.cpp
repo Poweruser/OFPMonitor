@@ -154,8 +154,9 @@ void chat_client_timercallback(void * t) {
 				if(!Form1->isChatUserBlocked(playername.c_str())) {                                
 					cmsg = currentTimeString() + " - " + playername + ": " + cmsg;
                                 	appendText(tform1, cmsg);
-                                        if(Form1->doNameFilter(cmsg.c_str(), playerName)) {
-                                                tform1->ChatNotification(cmsg.c_str());
+                                        if(Form1->doNameFilter(cmsg.c_str(), playerName) ||
+                                           Form1->doNameFilter(cmsg.c_str(), (ofpprefix + plrname_localtoirc(playerName)).c_str())) {
+                                               tform1->ChatNotification(cmsg.c_str());
                                         }
 				}
                         }
@@ -193,8 +194,10 @@ void chat_client_timercallback(void * t) {
                 p->playersParted.clear();
                 for(int i = 0; i < pp.size(); i++) {
                         //p->sendString
-                        appendText(tform1, currentTimeString() +
-                         "      *******    "  + pp.at(i) + " left      ******");
+                        string text = currentTimeString() + "      *******    "  + pp.at(i) + " ";
+                        text += WINDOW_SETTINGS->getGuiString("STRING_CHAT_LEFT").c_str();
+                        text += "    ******";
+                        appendText(tform1, text);
                 }
         }
         if (p->playersJoined.size() > 0) {
@@ -202,8 +205,10 @@ void chat_client_timercallback(void * t) {
                 p->playersJoined.clear();
                 for(int i = 0; i < pp.size(); i++) {
                         //p->sendString
-                        appendText(tform1, currentTimeString() +
-                         "      *******    "  + pp.at(i) + " joined    ******");
+                        string text = currentTimeString() + "      *******    "  + pp.at(i) + " ";
+                        text += WINDOW_SETTINGS->getGuiString("STRING_CHAT_JOINED").c_str();
+                        text += "    ******";
+                        appendText(tform1, text);
                 }
         }
 }

@@ -592,6 +592,12 @@ void updateLanguage(String languagefile) {
         guiStrings.push_back(guiString("STRING_MARKINGCOLOR","Marking color:"));
         guiStrings.push_back(guiString("STRING_MINIMUM","Min."));
         guiStrings.push_back(guiString("STRING_MAXIMUM","Max:"));
+        guiStrings.push_back(guiString("STRING_CHAT_CONNECTINGTO","Connecting to:"));
+        guiStrings.push_back(guiString("STRING_CHAT_CHANNEL","Channel:"));
+        guiStrings.push_back(guiString("STRING_CHAT_DISCONNECTED","Disconnected."));
+        guiStrings.push_back(guiString("STRING_CHAT_CONNECTING FAILED","Connecting failed."));
+        guiStrings.push_back(guiString("STRING_CHAT_JOINED","joined"));
+        guiStrings.push_back(guiString("STRING_CHAT_LEFT","left"));
         
         if(FileExists(pathAndFile)) {
                 file->LoadFromFile(pathAndFile);

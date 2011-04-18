@@ -185,8 +185,6 @@ __published:	// IDE-managed Components
         void __fastcall TimerIrcChatTimerTimer(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender);
-        void __fastcall MemoChatInputKeyUp(TObject *Sender, WORD &Key,
-          TShiftState Shift);
         void __fastcall MENUITEM_MAINMENU_CHAT_CLEARLOGClick(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_CHAT_SAVETOFILEClick(TObject *Sender);
         void __fastcall SaveDialog1CanClose(TObject *Sender,
@@ -200,6 +198,8 @@ __published:	// IDE-managed Components
         void __fastcall CoolTrayIcon1Click(TObject *Sender);
         void __fastcall TABSHEET_CHATShow(TObject *Sender);
         void __fastcall MemoChatOutputChange(TObject *Sender);
+        void __fastcall MemoChatInputKeyDown(TObject *Sender, WORD &Key,
+          TShiftState Shift);
 private:	// User declarations
 public:		// User declarations
         typedef list<String> CustomStringList;

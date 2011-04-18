@@ -43,10 +43,10 @@ object Form1: TForm1
     Top = 0
     Width = 878
     Height = 263
-    ActivePage = TABSHEET_SERVERINFO
+    ActivePage = TABSHEET_CHAT
     Align = alTop
     Constraints.MinHeight = 263
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 0
     object TABSHEET_SERVERINFO: TTabSheet
       Caption = 'Server info'
@@ -453,9 +453,10 @@ object Form1: TForm1
           Height = 26
           Align = alBottom
           Constraints.MaxHeight = 26
+          Enabled = False
           TabOrder = 1
           OnChange = MemoChatInputChange
-          OnKeyUp = MemoChatInputKeyUp
+          OnKeyDown = MemoChatInputKeyDown
         end
       end
     end

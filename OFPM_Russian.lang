@@ -108,3 +108,10 @@ STRING_AUDIOFILE = MP3-файл:
 STRING_MARKINGCOLOR = Цвет подсветки:
 STRING_MINIMUM = минимум:
 STRING_MAXIMUM = максимум:
+
+STRING_CHAT_CONNECTINGTO = Подключение к:
+STRING_CHAT_CHANNEL = Чат канала:
+STRING_CHAT_DISCONNECTED = Отключившийся.
+STRING_CHAT_CONNECTINGFAILED = Подключение не удалось.
+STRING_CHAT_JOINED = вступил
+STRING_CHAT_LEFT = оставил

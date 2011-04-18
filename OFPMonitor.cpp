@@ -64,7 +64,7 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         if(!MyAppAlreadyRunning()) {
 	        try {
                         Application->Initialize();
-                        Application->Title = "OFPMonitor 1.40rc2";
+                        Application->Title = "OFPMonitor 1.40";
                  Application->CreateForm(__classid(TForm1), &Form1);
                  Application->CreateForm(__classid(TWINDOW_NOTIFICATIONS), &WINDOW_NOTIFICATIONS);
                  Application->CreateForm(__classid(TWINDOW_INFO), &WINDOW_INFO);
@@ -92,8 +92,8 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
                                         if ( GetModuleFileNameExA( hProcess, hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR))) {
                                                 AnsiString str = AnsiString(szModName);
                                                 if(getExeFromFullPath(str) == getExeFromFullPath(Application->ExeName)) {
-                                                        SendMessage((*ci).hWindow,WM_KEYDOWN,VK_RETURN, NULL);
-                                                        SendMessage((*ci).hWindow,WM_KEYUP,VK_RETURN, NULL);
+                                                        SendMessage((*ci).hWindow,WM_KEYDOWN,VK_F13, NULL);
+                                                        SendMessage((*ci).hWindow,WM_KEYUP,VK_F13, NULL);
                                                         SetForegroundWindow((*ci).hWindow);
                                                         return 0;
                                                 }
