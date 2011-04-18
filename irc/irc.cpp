@@ -33,6 +33,8 @@ static string currentTimeString();
 static string plrname_localtoirc(  char * name  );
 static string name_irctolocal(string& n);
 
+static string allowedExtraCharacters = "_-[]^";
+
 struct irc_thread__parm {
         TForm1 * tform1 ;
         vector<string> messages;
@@ -106,8 +108,8 @@ string plrname_localtoirc(  char * name  ) {
                 int isSmall = c >= 'a' && c <= 'z';
                 int isBig   = c >= 'A' && c <= 'Z';
                 int isNum   = c >= '0' && c <= '9';
-
-                if (!isSmall  &&  !isBig  &&  !(i > 1 && isNum)){
+                int extra   = Form1->doNameFilter(allowedExtraCharacters.c_str(), c);
+                if (!isSmall  &&  !isBig  &&  !(i > 1 && isNum) && !extra){
                         n[i] = '_';
                 }
         }
@@ -320,6 +322,10 @@ void irc_thread__parm::consume(char* c2, int i2) {
                         playersParted.push_back(name);
                         userzSorted.erase(name);
                         updatePlayers = 1;
+                } else if ( starts(body , "433 ")) {
+                        string ps2 = after( body , ":" );
+                        appendText(Form1, ps2);
+                        Form1->MENUITEM_MAINMENU_CHAT_DISCONNECT->Click();
                 }
             
                 int pingFind = s.find("PING " + hoscht, 0) ;
