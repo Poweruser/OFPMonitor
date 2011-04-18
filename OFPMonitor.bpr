@@ -24,13 +24,14 @@
     <USERDEFINES value=""/>
     <SYSDEFINES value="NO_STRICT"/>
     <MAINSOURCE value="OFPMonitor.cpp"/>
-    <INCLUDEPATH value="irc;..;$(BCB)\include;$(BCB)\include\vcl"/>
-    <LIBPATH value="d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <INCLUDEPATH value="irc;include;..;$(BCB)\include;$(BCB)\include\vcl"/>
+    <LIBPATH value="irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <OTHERFILES value=""/>
   </MACROS>
   <OPTIONS>
-    <IDLCFLAGS value="-Iirc -I.. -I$(BCB)\include -I$(BCB)\include\vcl -src_suffix cpp -boa"/>
+    <IDLCFLAGS value="-Iirc -Iinclude -I.. -I$(BCB)\include -I$(BCB)\include\vcl -src_suffix cpp 
+      -boa"/>
     <CFLAG1 value="-O2 -H=$(BCB)\lib\vcl60.csm -Vx -Ve -X- -a8 -b- -k- -vi -c -tW -tWM"/>
     <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
     <RFLAGS value=""/>
@@ -86,21 +87,23 @@ ProductVersion=1.0.0.0
 Comments=
 
 [HistoryLists\hlIncludePath]
-Count=5
-Item0=irc;..;$(BCB)\include;$(BCB)\include\vcl
-Item1=..;$(BCB)\include;$(BCB)\include\vcl
-Item2=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
+Count=6
+Item0=irc;include;..;$(BCB)\include;$(BCB)\include\vcl
+Item1=irc;..;$(BCB)\include;$(BCB)\include\vcl
+Item2=..;$(BCB)\include;$(BCB)\include\vcl
 Item3=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 Item4=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
+Item5=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=6
-Item0=d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item1=irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item2=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item3=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Count=7
+Item0=irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib
+Item1=d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item2=irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item3=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
 Item4=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
-Item5=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item5=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item6=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1
