@@ -3015,7 +3015,6 @@ void __fastcall TForm1::StringGrid3MouseDown(TObject *Sender,
         }
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TForm1::StringGrid3DrawCell(TObject *Sender, int ACol,
       int ARow, TRect &Rect, TGridDrawState State)
 {
@@ -3065,6 +3064,14 @@ void __fastcall TForm1::MemoChatInputKeyDown(TObject *Sender, WORD &Key,
                 if(!input.Trim().IsEmpty()) {
                         chat_client_pressedReturnKey(this, input.c_str());
                 }
+        }
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
+      TShiftState Shift)
+{
+        if(Key == VK_RETURN) {
+                MemoChatInput->Clear();
         }
 }
 //---------------------------------------------------------------------------

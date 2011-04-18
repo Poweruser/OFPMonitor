@@ -457,6 +457,7 @@ object Form1: TForm1
           TabOrder = 1
           OnChange = MemoChatInputChange
           OnKeyDown = MemoChatInputKeyDown
+          OnKeyUp = MemoChatInputKeyUp
         end
       end
     end
