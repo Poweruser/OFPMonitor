@@ -13,7 +13,6 @@
 #include "Unit4.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
-#pragma link "trayicon"
 #pragma link "CoolTrayIcon"
 #pragma resource "*.dfm"
 #pragma resource "wavefiles.res"

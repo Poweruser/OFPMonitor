@@ -1,6 +1,3 @@
-
-#include <stdlib.h>
-#include <time.h>
 #include <winsock.h>
 #include <windows.h>
 #include <direct.h>

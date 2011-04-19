@@ -1,4 +1,3 @@
-#include <winsock.h>
 #include <list>
 #include <iostream.h>
 #include "Unit1.h"
