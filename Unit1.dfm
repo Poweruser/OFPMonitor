@@ -1,8 +1,8 @@
 object Form1: TForm1
-  Left = 240
-  Top = 152
-  Width = 886
-  Height = 706
+  Left = 241
+  Top = 81
+  Width = 884
+  Height = 704
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Color = clBtnFace
@@ -27,12 +27,12 @@ object Form1: TForm1
   object Splitter1: TSplitter
     Left = 0
     Top = 263
-    Width = 878
-    Height = 4
+    Width = 876
+    Height = 3
     Cursor = crVSplit
     Align = alTop
     AutoSnap = False
-    Color = clBackground
+    Color = clBlack
     MinSize = 88
     ParentColor = False
     ResizeStyle = rsLine
@@ -41,7 +41,7 @@ object Form1: TForm1
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 878
+    Width = 876
     Height = 263
     ActivePage = TABSHEET_SERVERINFO
     Align = alTop
@@ -53,14 +53,14 @@ object Form1: TForm1
       object Panel1: TPanel
         Left = 0
         Top = 0
-        Width = 870
+        Width = 868
         Height = 232
         Align = alClient
         BevelOuter = bvNone
         Constraints.MinHeight = 231
         TabOrder = 0
         object StringGrid2: TStringGrid
-          Left = 390
+          Left = 388
           Top = 0
           Width = 480
           Height = 232
@@ -464,8 +464,8 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 626
-    Width = 878
+    Top = 624
+    Width = 876
     Height = 34
     BorderWidth = 1
     DragMode = dmAutomatic
@@ -499,9 +499,9 @@ object Form1: TForm1
   end
   object StringGrid1: TStringGrid
     Left = 0
-    Top = 267
-    Width = 878
-    Height = 359
+    Top = 266
+    Width = 876
+    Height = 358
     Align = alClient
     BiDiMode = bdRightToLeft
     ColCount = 7
