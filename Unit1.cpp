@@ -16,7 +16,6 @@
 #pragma link "CoolTrayIcon"
 #pragma resource "*.dfm"
 #pragma resource "wavefiles.res"
-#pragma resource "XP.res"
 
 TForm1 *Form1;
 
