@@ -97,6 +97,9 @@ class Configuration {
                         if(!ml.IsEmpty()) {
                                 out += " \"-mod="+ ml +"\"";
                         }
+                        if(!this->password.IsEmpty()) {
+                                out += " \"-password="  + this->password + "\"";
+                        }
                         return out;
                 }
                 String createListEntry() {
