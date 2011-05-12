@@ -27,7 +27,7 @@ object WINDOW_INFO: TWINDOW_INFO
     Lines.Strings = (
       ''
       ''
-      'Programmed by Poweruser'
+      'Programmed by Poweruser and Alvo'
       'Email:  poweruser.rs@hotmail.com'
       ''
       
@@ -37,8 +37,15 @@ object WINDOW_INFO: TWINDOW_INFO
       '  -  suggesting new features or changes'
       '  -  creating language files'
       ''
-      'The source code of this program is available at'
-      'http://github.com/Poweruser/OFPMonitor')
+      
+        'The source code and latest downloads of this program are availab' +
+        'le at'
+      'http://github.com/Poweruser/OFPMonitor'
+      ''
+      
+        'This program is using excerpts from the source code of the progr' +
+        'am'
+      #39'gslist'#39' (Author: Luigi Auriemma, http://aluigi.altervista.org)')
     ReadOnly = True
     TabOrder = 0
     WordWrap = False
