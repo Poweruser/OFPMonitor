@@ -17,9 +17,15 @@
 
 extern int tcpsocket(void) ;
 extern unsigned long dnsdb(char *host);
+extern unsigned long resolv(char *host) ;
 
 static DWORD WINAPI irc_ThreadProc( LPVOID lpThreadParameter );
-static struct irc_thread__parm * p ;
+/* Thread which is always active and detects disconnects from network */ 
+static DWORD WINAPI irc_ThreadProc_ReconnectWatchThread( LPVOID lpThreadParameter );
+/* 0: thread not started, 1: thread started, will stay as 1 forever */
+static int rReconnectWatchThread_started = 0;
+
+static struct irc_thread__parm * ircThreadInstance ;
 static void getplayername( ); 
 static void start_conversation( int sd, char * name ); 
 static void sendMessage(const char * xmsg);
@@ -27,7 +33,6 @@ static void sendMessage(const char * xmsg);
 static string after(string& in, string& needle);
 static string before(string& in, string& needle);
 static int starts(string& in, string& needle);
-extern unsigned long resolv(char *host) ;  
 static string currentTimeString();
 static string plrname_localtoirc(  char * name  );
 static string name_irctolocal(string& n);
@@ -57,33 +62,39 @@ struct irc_thread__parm {
 static char playerName[1024];
 
 void chat_client_disconnect() {
-        if (p && p->sd) {
-                closesocket(p->sd);
-                p->sd = 0;
-                p->hoscht.clear();
+        if (ircThreadInstance && ircThreadInstance->sd) {
+                closesocket(ircThreadInstance->sd);
+                ircThreadInstance->sd = 0;
+                ircThreadInstance->hoscht.clear();
         }
 }
 
 bool chat_client_connect() {
         getplayername();
-        if (!p) {
-                p = new irc_thread__parm();
+        if (!ircThreadInstance) {
+                ircThreadInstance = new irc_thread__parm();
         }
         
-        int sd = tcpsocket();
+        int temporarySocket = tcpsocket();
         struct sockaddr_in addr;
 
-        p->sd = sd;
         memset(&addr, 0, sizeof(addr));
         int ip = resolv(Form1->getChatHost().c_str());
         addr.sin_addr.s_addr = ip;
         addr.sin_port        = htons(Form1->getChatPort());
         addr.sin_family      = AF_INET;
 
-        int connectRes = connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
-        if( connectRes >= 0 && p->sd) {
-                CreateThread(0, 0, irc_ThreadProc, p, 0, 0);
+        int connectRes = connect(temporarySocket, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
+        if( connectRes >= 0 && temporarySocket) {
+                ircThreadInstance->sd = temporarySocket;
+                CreateThread(0, 0, irc_ThreadProc, ircThreadInstance, 0, 0);
+                if (!rReconnectWatchThread_started) {
+                    rReconnectWatchThread_started = 1;
+                    CreateThread(0, 0, irc_ThreadProc_ReconnectWatchThread, 0, 0, 0);
+                }
                 return true;
+        } else {
+            closesocket(temporarySocket);
         }
         return false;
 }
@@ -133,9 +144,9 @@ static string currentTimeString() {
 void chat_client_timercallback(void * t) {
         TForm1 *tform1 = (TForm1 *) t;
 
-        if (p && p->messages.size() > 0) {
-                vector<string> m  (p->messages);
-                p->messages.clear();
+        if (ircThreadInstance && ircThreadInstance->messages.size() > 0) {
+                vector<string> m  (ircThreadInstance->messages);
+                ircThreadInstance->messages.clear();
                 //string privMsgNeedle = "PRIVMSG #" + channelname_operationflashpoint1 + " :";
                 string privMsgNeedle = Form1->getChatChannel().c_str();
                 privMsgNeedle = "PRIVMSG #" + privMsgNeedle + " :";
@@ -164,9 +175,9 @@ void chat_client_timercallback(void * t) {
                 }
         }
 
-        if (0 && p && p->userz.size() > 0) {
-                vector<string> m  (p->userz);
-                p->userz.clear();
+        if (0 && ircThreadInstance && ircThreadInstance->userz.size() > 0) {
+                vector<string> m  (ircThreadInstance->userz);
+                ircThreadInstance->userz.clear();
                 for(int i = 0; i < m.size(); i++) {
                         TStringGrid *tssg = tform1->StringGrid3;
                         int rc =  tssg->RowCount;
@@ -177,9 +188,9 @@ void chat_client_timercallback(void * t) {
                 }
         }
 
-        if (p->updatePlayers) {
-                p->updatePlayers = 0;
-                set<string> userzSortedCopy = set<string>(p->userzSorted);
+        if (ircThreadInstance->updatePlayers) {
+                ircThreadInstance->updatePlayers = 0;
+                set<string> userzSortedCopy = set<string>(ircThreadInstance->userzSorted);
                 TStringGrid *tssg = tform1->StringGrid3;
                 tssg->RowCount = userzSortedCopy.size();
 
@@ -190,22 +201,22 @@ void chat_client_timercallback(void * t) {
                 }
         }
 
-        if (p->playersParted.size() > 0) {
-                vector<string> pp =  vector<string>(p->playersParted);
-                p->playersParted.clear();
+        if (ircThreadInstance->playersParted.size() > 0) {
+                vector<string> pp =  vector<string>(ircThreadInstance->playersParted);
+                ircThreadInstance->playersParted.clear();
                 for(int i = 0; i < pp.size(); i++) {
-                        //p->sendString
+                        //ircThreadInstance->sendString
                         string text = currentTimeString() + "      *******    "  + pp.at(i) + " ";
                         text += WINDOW_SETTINGS->getGuiString("STRING_CHAT_LEFT").c_str();
                         text += "    ******";
                         appendText(tform1, text);
                 }
         }
-        if (p->playersJoined.size() > 0) {
-                vector<string> pp =  vector<string>(p->playersJoined);
-                p->playersJoined.clear();
+        if (ircThreadInstance->playersJoined.size() > 0) {
+                vector<string> pp =  vector<string>(ircThreadInstance->playersJoined);
+                ircThreadInstance->playersJoined.clear();
                 for(int i = 0; i < pp.size(); i++) {
-                        //p->sendString
+                        //ircThreadInstance->sendString
                         string text = currentTimeString() + "      *******    "  + pp.at(i) + " ";
                         text += WINDOW_SETTINGS->getGuiString("STRING_CHAT_JOINED").c_str();
                         text += "    ******";
@@ -224,6 +235,27 @@ DWORD WINAPI irc_ThreadProc (LPVOID lpdwThreadParam__ ) {
                     p_parm->consume(buff, r);
                 }
         }
+}
+
+
+DWORD WINAPI irc_ThreadProc_ReconnectWatchThread (LPVOID lpdwThreadParam__ ) {
+       while(true) {
+            Sleep(300 * 1000); // sleep longer time until nickname in use is solved
+            if (ircThreadInstance && ircThreadInstance->sd) {
+                int r = ircThreadInstance->sendString("PING " + ircThreadInstance->hoscht);
+                if (r < 0) {
+                    // could not set send, trying to reconnect
+                    
+                        ircThreadInstance->userz.clear();
+                        ircThreadInstance->playersParted.clear();
+                        ircThreadInstance->playersJoined.clear();
+                        ircThreadInstance->userzSorted.clear();
+                        ircThreadInstance->updatePlayers = 1;
+                        ircThreadInstance->messages.push_back(  currentTimeString( ) +  " - trying to reconnect"  );
+                        chat_client_connect();
+                }
+            }
+       }
 }
 
 int irc_thread__parm::sendString(string& s) {
@@ -358,12 +390,12 @@ void sendMessage(const char *xmsg) {
         string msg( xmsg );
         string channel = Form1->getChatChannel().c_str();
         msg = "PRIVMSG #" + channel + " :" + msg + "\r\n";
-        send(p->sd, msg.c_str(), msg.length(), 0);
+        send(ircThreadInstance->sd, msg.c_str(), msg.length(), 0);
 }
 
 void chat_client_pressedReturnKey(void *t, const char *msg) {
         TForm1 *tform1 = (TForm1 *) t;
-        if (p && p->sd) {
+        if (ircThreadInstance && ircThreadInstance->sd) {
                 sendMessage(msg);
                 appendText(tform1,  currentTimeString( ) +  " - " + playerName + ": " + msg);
         }
