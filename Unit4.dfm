@@ -5,8 +5,8 @@ object WINDOW_INFO: TWINDOW_INFO
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Information'
-  ClientHeight = 185
-  ClientWidth = 321
+  ClientHeight = 217
+  ClientWidth = 353
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,13 +21,13 @@ object WINDOW_INFO: TWINDOW_INFO
   object Memo1: TMemo
     Left = 0
     Top = 0
-    Width = 321
-    Height = 185
+    Width = 353
+    Height = 217
     HideSelection = False
     Lines.Strings = (
       ''
       ''
-      'Programmed by Poweruser'
+      'Programmed by Poweruser and Alvo'
       'Email:  poweruser.rs@hotmail.com'
       ''
       
@@ -37,8 +37,15 @@ object WINDOW_INFO: TWINDOW_INFO
       '  -  suggesting new features or changes'
       '  -  creating language files'
       ''
-      'The source code of this program is available at'
-      'http://github.com/Poweruser/OFPMonitor')
+      
+        'The source code and latest downloads of this program are availab' +
+        'le at'
+      'http://github.com/Poweruser/OFPMonitor'
+      ''
+      
+        'This program is using excerpts from the source code of the progr' +
+        'am'
+      #39'gslist'#39' (Author: Luigi Auriemma, http://aluigi.altervista.org)')
     ReadOnly = True
     TabOrder = 0
     WordWrap = False
