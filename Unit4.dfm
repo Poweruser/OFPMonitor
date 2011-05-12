@@ -5,8 +5,8 @@ object WINDOW_INFO: TWINDOW_INFO
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Information'
-  ClientHeight = 185
-  ClientWidth = 321
+  ClientHeight = 217
+  ClientWidth = 353
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -21,8 +21,8 @@ object WINDOW_INFO: TWINDOW_INFO
   object Memo1: TMemo
     Left = 0
     Top = 0
-    Width = 321
-    Height = 185
+    Width = 353
+    Height = 217
     HideSelection = False
     Lines.Strings = (
       ''
