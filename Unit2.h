@@ -20,7 +20,6 @@ __published:	// IDE-managed Components
         TButton *BUTTON_CONFIGURATION_REMOVE;
         TButton *BUTTON_NEWCONFIGURATION_ADD;
         TEdit *Edit3;
-        TLabel *LABEL_CONFIGURATIONS_LISTOFCONFIGURATIONS;
         TListBox *ListBox2;
         TLabel *LABEL_NEWCONFIGURATION_PASSWORD;
         TCheckBox *CHECKBOX_NEWCONFIGURATION_NOSPLASH;
@@ -52,6 +51,8 @@ __published:	// IDE-managed Components
         TComboBox *COMBOBOX_PROFILE;
         TButton *BUTTON_EDITCONFIGURATION_UP;
         TButton *BUTTON_EDITCONFIGURATION_DOWN;
+        TGroupBox *GROUPBOX_CONFIGURATIONS;
+        TButton *BUTTON_EDITCONFIGURATION_COPY;
         void __fastcall BUTTON_OFPEXECUTABLE_BROWSEClick(TObject *Sender);
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialog1CanClose(TObject *Sender,
@@ -78,6 +79,8 @@ __published:	// IDE-managed Components
         void __fastcall COMBOBOX_PROFILEChange(TObject *Sender);
         void __fastcall BUTTON_EDITCONFIGURATION_UPClick(TObject *Sender);
         void __fastcall BUTTON_EDITCONFIGURATION_DOWNClick(
+          TObject *Sender);
+        void __fastcall BUTTON_EDITCONFIGURATION_COPYClick(
           TObject *Sender);
 private:	// User declarations
 public:		// User declarations

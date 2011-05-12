@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 
-#include <vcl.h>
+#include <vcl.h>                                                       
 #include <list.h>
 #include <filectrl.hpp>
 #include <io.h>
@@ -140,6 +140,24 @@ class Configuration {
                                 }
                         }
                         return paraline;
+                }
+
+                Configuration clone() {
+                        list<String> c_mods;
+                        for (list<String>::iterator cm = this->mods.begin(); cm != this->mods.end(); ++cm) {
+                                c_mods.push_back(*cm);
+                        }
+                        list<String> c_addParameters;
+                        for (list<String>::iterator cap = this->addParameters.begin(); cap != this->addParameters.end(); ++cap) {
+                                c_addParameters.push_back(*cap);
+                        }
+                        Configuration copy = Configuration();
+                        copy.set = true;
+                        copy.label = this->label;
+                        copy.password = this->password;
+                        copy.mods = c_mods;
+                        copy.addParameters = c_addParameters;
+                        return copy;
                 }
 };
 
@@ -1055,17 +1073,20 @@ String extractString(String a, String b) {
 }
        */
 void checkConfListState() {
-        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_EDIT->Enabled = false;
-        WINDOW_SETTINGS->BUTTON_CONFIGURATION_REMOVE->Enabled = false;
-        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_UP->Enabled = true;
-        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_DOWN->Enabled = true;
+        bool itemSelected = false;
         for(int i = 0; i < WINDOW_SETTINGS->ListBox1->Count; i++) {
                 if(WINDOW_SETTINGS->ListBox1->Selected[i]) {
-                        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_EDIT->Enabled = true;
-                        WINDOW_SETTINGS->BUTTON_CONFIGURATION_REMOVE->Enabled = true;
+                        itemSelected = true;
                         break;
                 }
         }
+        bool limitReached = WINDOW_SETTINGS->ListBox1->Items->Count >= confAmount;
+        WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_ADD->Enabled = !limitReached;
+        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_EDIT->Enabled = itemSelected;
+        WINDOW_SETTINGS->BUTTON_CONFIGURATION_REMOVE->Enabled = itemSelected;
+        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_COPY->Enabled = itemSelected && !limitReached;
+        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_UP->Enabled = itemSelected;
+        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_DOWN->Enabled = itemSelected;
         return;
 }
 
@@ -1200,15 +1221,11 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_CONFIGURATION_REMOVEClick(TObject *Send
                         ListBox1->Items->Delete(i);
                 }
         }
-        if(ListBox1->Items->Count < confAmount) {
-                BUTTON_NEWCONFIGURATION_ADD->Enabled = true;
-        }
         updateConfList();
         checkConfListState();
 }
 //---------------------------------------------------------------------------
-
-
+        
 void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_ADDClick(TObject *Sender)
 {
                 list<String> a;
@@ -1217,15 +1234,11 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_ADDClick(TObject *Send
                 }
                 Configuration newC = Configuration(Edit6->Text, a, Edit3->Text, Edit4->Text, CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked, CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
                 programSettings.pSaddConf(newC);
-                if(ListBox1->Items->Count >= confAmount) {
-                        BUTTON_NEWCONFIGURATION_ADD->Enabled = false;
-                }
                 updateConfList();
                 WINDOW_SETTINGS->setSettingsChanged();
                 checkConfListState();
 }
 //---------------------------------------------------------------------------
-
 
 void __fastcall TWINDOW_SETTINGS::Edit5Change(TObject *Sender)
 {
@@ -1248,8 +1261,7 @@ void __fastcall TWINDOW_SETTINGS::UpDown1Click(TObject *Sender, TUDBtnType Butto
         programSettings.setInterval(UpDown1->Position);
 }
 //---------------------------------------------------------------------------
-
-
+                 
 void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_CLEARClick(TObject *Sender)
 {
         while(ListBox3->Count > 0) {
@@ -1307,6 +1319,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_EDITClick(TObject *Se
         BUTTON_EDITCONFIGURATION_EDIT->Enabled = false;
         BUTTON_EDITCONFIGURATION_UP->Enabled = false;
         BUTTON_EDITCONFIGURATION_DOWN->Enabled = false;
+        BUTTON_EDITCONFIGURATION_COPY->Enabled = false;
         BUTTON_CONFIGURATION_REMOVE->Enabled = false;
 
         for(int i = 0; i < ListBox1->Count; i++) {
@@ -1396,8 +1409,6 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_CANCELClick(
 }
 //---------------------------------------------------------------------------
 
-
-
 void __fastcall TWINDOW_SETTINGS::COMBOBOX_PROFILEChange(TObject *Sender)
 {
         String tmp = COMBOBOX_PROFILE->Text;
@@ -1457,4 +1468,20 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_DOWNClick(TObject *Se
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_COPYClick(
+      TObject *Sender)
+{
+        for(int i = 0; i < ListBox1->Count; i++) {
+                if(ListBox1->Selected[i]) {
+                        TObject *t = ListBox1->Items->Objects[i];
+                        int j = (int) t;
+                        Configuration copy = programSettings.startupConfs[j].clone();
+                        programSettings.pSaddConf(copy);
+                }
+        }
+        updateConfList();
+        WINDOW_SETTINGS->setSettingsChanged();
+        checkConfListState();
+}
+//---------------------------------------------------------------------------
 

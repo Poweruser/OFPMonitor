@@ -1,13 +1,13 @@
 object WINDOW_SETTINGS: TWINDOW_SETTINGS
-  Left = 700
-  Top = 153
+  Left = 526
+  Top = 162
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   AutoSize = True
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 505
+  ClientHeight = 537
   ClientWidth = 433
   Color = clBtnFace
   ParentFont = True
@@ -20,22 +20,6 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object LABEL_CONFIGURATIONS_LISTOFCONFIGURATIONS: TLabel
-    Left = 2
-    Top = 148
-    Width = 100
-    Height = 13
-    Caption = 'List of configurations:'
-  end
-  object ListBox1: TListBox
-    Left = 0
-    Top = 164
-    Width = 432
-    Height = 145
-    ItemHeight = 13
-    TabOrder = 3
-    OnClick = ListBox1Click
-  end
   object GROUPBOX_OFPEXECUTABLE: TGroupBox
     Left = 0
     Top = 0
@@ -69,11 +53,11 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
   end
   object GROUPBOX_NEWCONFIGURATION: TGroupBox
     Left = 0
-    Top = 312
+    Top = 344
     Width = 433
     Height = 193
     Caption = 'New configuration'
-    TabOrder = 6
+    TabOrder = 3
     object LABEL_NEWCONFIGURATION_PASSWORD: TLabel
       Left = 264
       Top = 84
@@ -294,32 +278,13 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
       OnChange = ComboBox1Change
     end
   end
-  object BUTTON_EDITCONFIGURATION_EDIT: TButton
-    Left = 246
-    Top = 140
-    Width = 93
-    Height = 25
-    Caption = 'Edit'
-    Enabled = False
-    TabOrder = 4
-    OnClick = BUTTON_EDITCONFIGURATION_EDITClick
-  end
-  object BUTTON_CONFIGURATION_REMOVE: TButton
-    Left = 338
-    Top = 140
-    Width = 93
-    Height = 25
-    Caption = 'Remove'
-    TabOrder = 5
-    OnClick = BUTTON_CONFIGURATION_REMOVEClick
-  end
   object GROUPBOX_PROFILE: TGroupBox
     Left = 0
     Top = 48
     Width = 431
     Height = 45
     Caption = 'Player name'
-    TabOrder = 7
+    TabOrder = 4
     object COMBOBOX_PROFILE: TComboBox
       Left = 8
       Top = 16
@@ -337,23 +302,68 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
       OnChange = COMBOBOX_PROFILEChange
     end
   end
-  object BUTTON_EDITCONFIGURATION_UP: TButton
-    Left = 152
-    Top = 140
-    Width = 45
-    Height = 25
-    Caption = 'Up'
-    TabOrder = 8
-    OnClick = BUTTON_EDITCONFIGURATION_UPClick
-  end
-  object BUTTON_EDITCONFIGURATION_DOWN: TButton
-    Left = 196
-    Top = 140
-    Width = 45
-    Height = 25
-    Caption = 'Down'
-    TabOrder = 9
-    OnClick = BUTTON_EDITCONFIGURATION_DOWNClick
+  object GROUPBOX_CONFIGURATIONS: TGroupBox
+    Left = 0
+    Top = 144
+    Width = 433
+    Height = 196
+    Caption = 'List of configurations'
+    TabOrder = 5
+    object BUTTON_EDITCONFIGURATION_COPY: TButton
+      Left = 150
+      Top = 164
+      Width = 94
+      Height = 25
+      Caption = 'Copy'
+      TabOrder = 5
+      OnClick = BUTTON_EDITCONFIGURATION_COPYClick
+    end
+    object ListBox1: TListBox
+      Left = 4
+      Top = 16
+      Width = 425
+      Height = 145
+      ItemHeight = 13
+      TabOrder = 0
+      OnClick = ListBox1Click
+    end
+    object BUTTON_EDITCONFIGURATION_UP: TButton
+      Left = 4
+      Top = 164
+      Width = 50
+      Height = 25
+      Caption = 'Up'
+      TabOrder = 1
+      OnClick = BUTTON_EDITCONFIGURATION_UPClick
+    end
+    object BUTTON_EDITCONFIGURATION_EDIT: TButton
+      Left = 243
+      Top = 164
+      Width = 94
+      Height = 25
+      Caption = 'Edit'
+      Enabled = False
+      TabOrder = 2
+      OnClick = BUTTON_EDITCONFIGURATION_EDITClick
+    end
+    object BUTTON_EDITCONFIGURATION_DOWN: TButton
+      Left = 53
+      Top = 164
+      Width = 50
+      Height = 25
+      Caption = 'Down'
+      TabOrder = 3
+      OnClick = BUTTON_EDITCONFIGURATION_DOWNClick
+    end
+    object BUTTON_CONFIGURATION_REMOVE: TButton
+      Left = 336
+      Top = 164
+      Width = 94
+      Height = 25
+      Caption = 'Remove'
+      TabOrder = 4
+      OnClick = BUTTON_CONFIGURATION_REMOVEClick
+    end
   end
   object OpenDialog1: TOpenDialog
     Filter = 'OFP:R (FLASHPOINTRESISTANCE.EXE)|FLASHPOINTRESISTANCE.EXE'
