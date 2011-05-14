@@ -221,6 +221,7 @@ public:		// User declarations
         int TForm1::getChatPort();
         String TForm1::getChatChannel();
         void TForm1::ChatNotification(String msg);
+        void TForm1::ChatConnectionLost();
         bool TForm1::isChatUserBlocked(String username);
         __fastcall TForm1(TComponent* Owner);
 

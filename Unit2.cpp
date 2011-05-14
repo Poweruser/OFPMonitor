@@ -619,6 +619,7 @@ void updateLanguage(String languagefile) {
         guiStrings.push_back(guiString("STRING_CHAT_CONNECTING FAILED","Connecting failed."));
         guiStrings.push_back(guiString("STRING_CHAT_JOINED","joined"));
         guiStrings.push_back(guiString("STRING_CHAT_LEFT","left"));
+        guiStrings.push_back(guiString("STRING_CHAT_CONNECTIONLOST","Connection lost. Reconnecting ..."));
         
         if(FileExists(pathAndFile)) {
                 file->LoadFromFile(pathAndFile);

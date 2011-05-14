@@ -114,5 +114,6 @@ STRING_CHAT_CONNECTINGTO = Pripojte se k:
 STRING_CHAT_CHANNEL = Kanál:
 STRING_CHAT_DISCONNECTED = Odpojeno.
 STRING_CHAT_CONNECTINGFAILED = Pripojení se nezdarilo.
+STRING_CHAT_CONNECTIONLOST = Spojení ztraceno. Opetovné pripojení ...
 STRING_CHAT_JOINED = pripojil
 STRING_CHAT_LEFT = odpojen

@@ -114,5 +114,6 @@ STRING_CHAT_CONNECTINGTO = Laczenie z:
 STRING_CHAT_CHANNEL = Kanal
 STRING_CHAT_DISCONNECTED = Polaczenie przerwane.
 STRING_CHAT_CONNECTINGFAILED = Polaczenie nie powiodlo sie.
+STRING_CHAT_CONNECTIONLOST = Polaczenie utracone. Polacz ponownie ...
 STRING_CHAT_JOINED = dolaczyl
 STRING_CHAT_LEFT = odlaczony

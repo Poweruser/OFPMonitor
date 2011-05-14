@@ -2166,11 +2166,13 @@ class ChatSettings {
                 int port;
                 String channel;
                 bool autoConnect;
+                int connectionLost;
                 ChatSettings() {
                         this->host = "irc.freenode.net";
                         this->port = 6666;
                         this->channel = "operationflashpoint1";
                         this->setAutoConnect(false);
+                        this->connectionLost = 0;
                 }
 
                 ChatSettings(String h, int p, String c, bool ac) {
@@ -2178,6 +2180,7 @@ class ChatSettings {
                         this->port = p;
                         this->channel = c;
                         this->setAutoConnect(ac);
+                        this->connectionLost = 0;
                 }
 
                 void setAutoConnect(bool ac) {
@@ -2246,6 +2249,10 @@ void TForm1::ChatNotification(String msg) {
                 CoolTrayIcon1->HideBalloonHint();
                 Form1->CoolTrayIcon1->ShowBalloonHint(WideString("OFPMonitor " + TABSHEET_CHAT->Caption), WideString(msg), bitInfo, 3);
         }
+}
+
+void TForm1::ChatConnectionLost() {
+        chatsettings.connectionLost = 1;
 }
 
 //---------------------------------------------------------------------------
@@ -2319,7 +2326,10 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
 {
-        chat_client_disconnect();
+        Form1->Enabled = false;
+        if(MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled) {
+                MENUITEM_MAINMENU_CHAT_DISCONNECT->Click();
+        }
         mp3p.stopMP3Job("any");
         Timer1->Enabled = false;
         Timer3->Enabled = false;
@@ -2919,28 +2929,38 @@ void __fastcall TForm1::FormCloseQuery(TObject *Sender, bool &CanClose)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::TimerIrcChatTimerTimer(TObject *Sender)
 {
-        chat_client_timercallback( this );        
+        if(chatsettings.connectionLost == 1) {
+                chatsettings.connectionLost = 2;
+                MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTIONLOST"));
+                MENUITEM_MAINMENU_CHAT_DISCONNECT->Click();
+                MENUITEM_MAINMENU_CHAT_CONNECT->Click();
+        } else {
+                chat_client_timercallback( this );
+        }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
 {
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = false;
         Form1->PageControl1->ActivePage = Form1->TABSHEET_CHAT;
+        if(chatsettings.connectionLost == 0) {
+                MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTINGTO") +
+                        "  " + Form1->getChatHost() + ":" + String(Form1->getChatPort()));
+                MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CHANNEL") +
+                        "  " + Form1->getChatChannel());
+        }
 
-        MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTINGTO") +
-                "  " + Form1->getChatHost() + ":" + String(Form1->getChatPort()));
-        MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CHANNEL") +
-                "  " + Form1->getChatChannel());
         TimerIrcChatTimer->Enabled = true;
         bool result = chat_client_connect();
         if(!result) {
-                MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTIONFAILED"));
+                MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTINGFAILED"));
         } else {
                 MemoChatInput->Clear();
         }
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = !result;
         MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = result;
         MemoChatInput->Enabled = result;
+        chatsettings.connectionLost = 0;
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
@@ -2952,7 +2972,9 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
         StringGrid3->RowCount = 0;
         StringGrid3->Cells[0][0] = "";
         StringGrid3->Cells[0][1] = "";
-        MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_DISCONNECTED"));
+        if(chatsettings.connectionLost == 0) {
+                MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_DISCONNECTED"));
+        }
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = true;
 }
 //---------------------------------------------------------------------------

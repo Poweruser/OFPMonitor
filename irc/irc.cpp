@@ -3,7 +3,7 @@
 #include "Unit1.h"
 #include "Unit2.h"                                                          
 #include "irc.h"
-#include <vector.h>
+#include <vector.h>                                                                           
 #include <set.h>
 #include <time.h>
 #include <sstream>
@@ -17,15 +17,9 @@
 
 extern int tcpsocket(void) ;
 extern unsigned long dnsdb(char *host);
-extern unsigned long resolv(char *host) ;
 
 static DWORD WINAPI irc_ThreadProc( LPVOID lpThreadParameter );
-/* Thread which is always active and detects disconnects from network */ 
-static DWORD WINAPI irc_ThreadProc_ReconnectWatchThread( LPVOID lpThreadParameter );
-/* 0: thread not started, 1: thread started, will stay as 1 forever */
-static int rReconnectWatchThread_started = 0;
-
-static struct irc_thread__parm * ircThreadInstance ;
+static struct irc_thread__parm * ircThreadInstance;
 static void getplayername( ); 
 static void start_conversation( int sd, char * name ); 
 static void sendMessage(const char * xmsg);
@@ -33,6 +27,7 @@ static void sendMessage(const char * xmsg);
 static string after(string& in, string& needle);
 static string before(string& in, string& needle);
 static int starts(string& in, string& needle);
+extern unsigned long resolv(char *host) ;  
 static string currentTimeString();
 static string plrname_localtoirc(  char * name  );
 static string name_irctolocal(string& n);
@@ -44,7 +39,7 @@ struct irc_thread__parm {
         vector<string> messages;
         vector<string> userz;
         vector<string> playersParted;
-        vector<string> playersJoined;
+        vector<string> playersJoined;    
         set<string> userzSorted;
         string hoscht;
 
@@ -66,35 +61,39 @@ void chat_client_disconnect() {
                 closesocket(ircThreadInstance->sd);
                 ircThreadInstance->sd = 0;
                 ircThreadInstance->hoscht.clear();
+                ircThreadInstance->userz.clear();
+                ircThreadInstance->playersParted.clear();
+                ircThreadInstance->playersJoined.clear();
+ 	        ircThreadInstance->userzSorted.clear();
         }
 }
 
 bool chat_client_connect() {
         getplayername();
-        if (!ircThreadInstance) {
-                ircThreadInstance = new irc_thread__parm();
+        if (ircThreadInstance) {
+             delete ircThreadInstance;   
         }
+        ircThreadInstance = new irc_thread__parm();
         
-        int temporarySocket = tcpsocket();
+        int sd = tcpsocket();
+        int length = 360000;
+        int re = setsockopt(sd,SOL_SOCKET,SO_RCVTIMEO,(const char *)&length,sizeof(length));
+
         struct sockaddr_in addr;
 
+        ircThreadInstance->sd = sd;
         memset(&addr, 0, sizeof(addr));
         int ip = resolv(Form1->getChatHost().c_str());
         addr.sin_addr.s_addr = ip;
         addr.sin_port        = htons(Form1->getChatPort());
         addr.sin_family      = AF_INET;
 
-        int connectRes = connect(temporarySocket, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
-        if( connectRes >= 0 && temporarySocket) {
-                ircThreadInstance->sd = temporarySocket;
+        int connectRes = connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
+        if( connectRes >= 0 && ircThreadInstance->sd) {
                 CreateThread(0, 0, irc_ThreadProc, ircThreadInstance, 0, 0);
-                if (!rReconnectWatchThread_started) {
-                    rReconnectWatchThread_started = 1;
-                    CreateThread(0, 0, irc_ThreadProc_ReconnectWatchThread, 0, 0, 0);
-                }
                 return true;
         } else {
-            closesocket(temporarySocket);
+            closesocket(sd);
         }
         return false;
 }
@@ -205,7 +204,7 @@ void chat_client_timercallback(void * t) {
                 vector<string> pp =  vector<string>(ircThreadInstance->playersParted);
                 ircThreadInstance->playersParted.clear();
                 for(int i = 0; i < pp.size(); i++) {
-                        //ircThreadInstance->sendString
+                        //p->sendString
                         string text = currentTimeString() + "      *******    "  + pp.at(i) + " ";
                         text += WINDOW_SETTINGS->getGuiString("STRING_CHAT_LEFT").c_str();
                         text += "    ******";
@@ -216,7 +215,7 @@ void chat_client_timercallback(void * t) {
                 vector<string> pp =  vector<string>(ircThreadInstance->playersJoined);
                 ircThreadInstance->playersJoined.clear();
                 for(int i = 0; i < pp.size(); i++) {
-                        //ircThreadInstance->sendString
+                        //p->sendString
                         string text = currentTimeString() + "      *******    "  + pp.at(i) + " ";
                         text += WINDOW_SETTINGS->getGuiString("STRING_CHAT_JOINED").c_str();
                         text += "    ******";
@@ -230,32 +229,18 @@ DWORD WINAPI irc_ThreadProc (LPVOID lpdwThreadParam__ ) {
         if(p_parm->sd) {
                 start_conversation(p_parm->sd, playerName);
                 char buff [1<<10];
-                int r;
-                while(p_parm->sd && (r = recv(p_parm->sd, buff, sizeof(buff), 0)) > 0){
-                    p_parm->consume(buff, r);
+                int r, rping;
+                do {
+                        while(p_parm->sd && (r = recv(p_parm->sd, buff, sizeof(buff), 0)) > 0){
+                                p_parm->consume(buff, r);
+                        }
+                } while(  ircThreadInstance &&
+                        ircThreadInstance->sd &&
+                        (rping = ircThreadInstance->sendString("PING " + ircThreadInstance->hoscht + " \r\n")) >= 0);
+                if(ircThreadInstance && ircThreadInstance->sd) {
+                        Form1->ChatConnectionLost();
                 }
         }
-}
-
-
-DWORD WINAPI irc_ThreadProc_ReconnectWatchThread (LPVOID lpdwThreadParam__ ) {
-       while(true) {
-            Sleep(300 * 1000); // sleep longer time until nickname in use is solved
-            if (ircThreadInstance && ircThreadInstance->sd) {
-                int r = ircThreadInstance->sendString("PING " + ircThreadInstance->hoscht);
-                if (r < 0) {
-                    // could not set send, trying to reconnect
-                    
-                        ircThreadInstance->userz.clear();
-                        ircThreadInstance->playersParted.clear();
-                        ircThreadInstance->playersJoined.clear();
-                        ircThreadInstance->userzSorted.clear();
-                        ircThreadInstance->updatePlayers = 1;
-                        ircThreadInstance->messages.push_back(  currentTimeString( ) +  " - trying to reconnect"  );
-                        chat_client_connect();
-                }
-            }
-       }
 }
 
 int irc_thread__parm::sendString(string& s) {

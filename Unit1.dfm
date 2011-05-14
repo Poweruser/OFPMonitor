@@ -752,7 +752,7 @@ object Form1: TForm1
   end
   object TimerIrcChatTimer: TTimer
     Enabled = False
-    Interval = 10
+    Interval = 100
     OnTimer = TimerIrcChatTimerTimer
     Left = 352
     Top = 160

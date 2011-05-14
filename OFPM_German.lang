@@ -114,5 +114,6 @@ STRING_CHAT_CONNECTINGTO = Verbinde mit:
 STRING_CHAT_CHANNEL = Kanal:
 STRING_CHAT_DISCONNECTED = Verbindung getrennt.
 STRING_CHAT_CONNECTINGFAILED = Verbindung fehlgeschlagen.
+STRING_CHAT_CONNECTIONLOST = Verbindung verloren. Verbinde erneut ...
 STRING_CHAT_JOINED = ist beigetreten
 STRING_CHAT_LEFT = trennte

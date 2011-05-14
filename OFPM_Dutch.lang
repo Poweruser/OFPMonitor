@@ -114,5 +114,6 @@ STRING_CHAT_CONNECTINGTO = Tilslut til:
 STRING_CHAT_CHANNEL = Kanal:
 STRING_CHAT_DISCONNECTED = Afbrudt.
 STRING_CHAT_CONNECTINGFAILED = Tilslutning mislykkedes.
+STRING_CHAT_CONNECTIONLOST = Forbindelse mistet. Genoprette forbindelsen ...
 STRING_CHAT_JOINED = tiltrådte
 STRING_CHAT_LEFT = venstre
