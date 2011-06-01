@@ -1382,6 +1382,7 @@ class BroadcastRotation {
                 bool receivingFirstTime;
                 bool loseTurnValue;
                 bool IsReady;
+                int selectedServerForDisplay;
                 BroadcastRotation() {
                         this->reset();
                 }
@@ -1395,6 +1396,7 @@ class BroadcastRotation {
                         this->IsReady = true;
                         this->receivingFirstTime = true;
                         this->loseTurnValue = false;
+                        this->selectedServerForDisplay = 0;
                 }
 
                 /**
@@ -1921,11 +1923,13 @@ class MessageReader {
                         this->working = true;
                         while(this->messageList.size() > 0) {
                                 Message m = this->messageList.front();
+                                bool handled = false;
                                 for(int j = 0; j < numOfServers; j++) {
                                         if(ServerArray[j].index == -1) {
                                                 break;
                                         }
                                         if(ServerArray[j].ip == m.ip && ServerArray[j].gamespyport == m.port) {
+                                                handled = true;
                                                 if(readInfoPacket(j, m.content, m.ip, m.port)) {
                                                         if(!ServerArray[j].loseATurn && ServerArray[j].players == 0) {
                                                                 if(serverCycle.receivingFirstTime) {
@@ -1948,6 +1952,9 @@ class MessageReader {
                                         }
                                 }
                                 this->messageList.pop_front();
+                                if(!handled) {
+                                        addToErrorReport("Non-handled message", String(m.ip) + ":" + String(m.port) + "   =>   " + m.content);
+                                }
                         }
                         this->working = false;
                 }
@@ -2309,6 +2316,7 @@ void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
         if(!z.IsEmpty()) {
                 try {
                         int index = StrToInt(z);
+                        serverCycle.selectedServerForDisplay = index;
                         processPlayerList(index);
                         updateServerInfoBox(index);
                 } catch (...) { }
@@ -2389,7 +2397,10 @@ void __fastcall TForm1::Timer3Timer(TObject *Sender)
         if(serverCycle.isReady()) {
                 int a = serverCycle.next();
                 if(a >= 0) {
-                        if(ServerArray[a].players > 0 || ServerArray[a].name.IsEmpty()) {
+                        if(     serverCycle.selectedServerForDisplay == a ||
+                                ServerArray[a].name.IsEmpty() ||
+                                ServerArray[a].players != ServerArray[a].playerlist.size()) {
+
                                 sendUdpMessage(a, ServerArray[a].ip,ServerArray[a].gamespyport,"\\info\\rules\\players\\");
                         } else {
                                 sendUdpMessage(a, ServerArray[a].ip,ServerArray[a].gamespyport,"\\info\\rules\\");
