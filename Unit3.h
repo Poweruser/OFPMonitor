@@ -100,6 +100,8 @@ __published:	// IDE-managed Components
         void __fastcall Edit7Change(TObject *Sender);
         void __fastcall Edit8Change(TObject *Sender);
         void __fastcall Edit9Change(TObject *Sender);
+        void __fastcall Edit1KeyUp(TObject *Sender, WORD &Key,
+          TShiftState Shift);
 private:	// User declarations
 public:
 		// User declarations

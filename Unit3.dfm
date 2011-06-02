@@ -380,6 +380,7 @@ object WINDOW_NOTIFICATIONS: TWINDOW_NOTIFICATIONS
     ReadOnly = True
     TabOrder = 9
     OnChange = Edit1Change
+    OnKeyUp = Edit1KeyUp
   end
   object BUTTON_BROWSE: TButton
     Left = 272

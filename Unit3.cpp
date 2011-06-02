@@ -331,10 +331,10 @@ void TWINDOW_NOTIFICATIONS::checkNotifications(int index, String servername, int
                                         } else { playertest = true; }
                                         if(servertest && missiontest && playertest) {
                                                 Form1->createMP3Job(i, index, CustomNotify[i].soundFile,"MP3_" + String(index) + "_" + String(i), CustomNotify[i].playbackVolume*10, CustomNotify[i].playbackStart, CustomNotify[i].playbackEnd, CustomNotify[i].markingColor);
-                                        } else { Form1->stopMP3Job("MP3_" + String(index) + "_" + String(i)); }
-                                } else { Form1->stopMP3Job("MP3_" + String(index) + "_" + String(i)); }
-                        } else { Form1->stopMP3Job("MP3_" + String(index) + "_" + String(i)); }
-                } else { Form1->stopMP3Job("MP3_" + String(index) + "_" + String(i)); }
+                                        } else { Form1->stopMP3Job("MP3_" + String(index) + "_" + String(i), index); }
+                                } else { Form1->stopMP3Job("MP3_" + String(index) + "_" + String(i), index); }
+                        } else { Form1->stopMP3Job("MP3_" + String(index) + "_" + String(i), index); }
+                } else { Form1->stopMP3Job("MP3_" + String(index) + "_" + String(i), index); }
         }
         return;
 }
@@ -761,7 +761,7 @@ void __fastcall TWINDOW_NOTIFICATIONS::TrackBar1Change(TObject *Sender)
 
 void __fastcall TWINDOW_NOTIFICATIONS::STOPClick(TObject *Sender)
 {
-        Form1->stopMP3Job(alias);
+        Form1->stopMP3Job(alias, -1);
         PLAY->Visible = true;
         STOP->Visible = false;        
 }
@@ -864,7 +864,13 @@ void __fastcall TWINDOW_NOTIFICATIONS::Edit9Change(TObject *Sender)
         }
 }
 //---------------------------------------------------------------------------
-
-
-
+                         
+void __fastcall TWINDOW_NOTIFICATIONS::Edit1KeyUp(TObject *Sender,
+      WORD &Key, TShiftState Shift)
+{
+        if(Key == VK_DELETE) {
+                Edit1->Text = "";
+        }        
+}
+//---------------------------------------------------------------------------
 

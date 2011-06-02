@@ -213,7 +213,7 @@ public:		// User declarations
                                 float ratioSC,float ratioDE,float ratioTE,
                                 int devider);
         void TForm1::createMP3Job(int index,int serverindex, String file, String alias, int volume, int start, int end, TColor color);
-        void TForm1::stopMP3Job(String alias);
+        void TForm1::stopMP3Job(String alias, int serverindex);
         CustomStringList TForm1::splitUpMessage(String msg, String split);
         bool TForm1::doNameFilter(String c, String d);
         void TForm1::setChat(String host, int port, String channel, bool autoConnect);

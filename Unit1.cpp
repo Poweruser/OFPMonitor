@@ -1987,7 +1987,7 @@ class MP3Job {
         int notificationIndex;
         bool set;
         bool started;
-        bool stopped;
+        bool stopped;               
         String file;
         String alias;
         int volume;
@@ -2017,31 +2017,39 @@ class MP3Job {
         }
 
         void play() {
-                if(0 != mciSendString(("Open \"" + this->file + "\" alias " + this->alias).c_str(),0,0,0)) {
-                        this->error = true;
+                if(FileExists(this->file)) {
+                        if(0 != mciSendString(("Open \"" + this->file + "\" alias " + this->alias).c_str(),0,0,0)) {
+                                this->error = true;
+                        }
+                        if(0 != mciSendString(("play " + this->alias + " from " + String(this->start) + " to " + String(this->end)).c_str(), 0, 0, 0)) {
+                                this->error = true;
+                        }
+                        if(0 != mciSendString(("setaudio " + this->alias + " volume to " + String(this->volume)).c_str(), 0, 0, 0)) {
+                                this->error = true;
+                        }
+                        this->started = true;
                 }
-                if(0 != mciSendString(("play " + this->alias + " from " + String(this->start) + " to " + String(this->end)).c_str(), 0, 0, 0)) {
-                        this->error = true;
-                }
-                if(0 != mciSendString(("setaudio " + this->alias + " volume to " + String(this->volume)).c_str(), 0, 0, 0)) {
-                        this->error = true;
-                }
-                this->started = true;
         }
 
         bool hasEnded() {
-                char text[128];
-                mciSendString(("status " + this->alias + " position").c_str(), text, 128, 0);
-                int pos = 0;
-                try {
-                        pos = StrToInt(String(text));
-                } catch (...) {
+                if(FileExists(this->file)) {
+                        char text[128];
+                        mciSendString(("status " + this->alias + " position").c_str(), text, 128, 0);
+                        int pos = 0;
+                        try {
+                                pos = StrToInt(String(text));
+                        } catch (...) {
+                        }
+                        return (pos >= this->end || this->error || this->stopped);
+                } else {
+                        return (this->error || this->stopped);
                 }
-                return (pos >= this->end || this->error || this->stopped);
         }
 
         void stop() {
-                mciSendString(("Close " + this->alias).c_str(),0,0,0);
+                if(FileExists(this->file)) {
+                        mciSendString(("Close " + this->alias).c_str(),0,0,0);
+                }
                 this->stopped = true;
         }
 };
@@ -2130,9 +2138,24 @@ class MP3Player {
         }
 
         void stopMP3Job(String alias) {
+                this->stopMP3Job(alias, -1);
+        }
+
+        void stopMP3Job(String alias, int serverindex) {
                 for(int i = 0; i < 5; i++) {
                         if(jobs[i].set) {
-                                if(jobs[i].alias == alias || alias == "any") {
+                                if(jobs[i].alias == alias) {
+                                        int num = jobs[i].serverIndex.size();
+                                        for(int j = 0; j < num; j++) {
+                                                if(jobs[i].serverIndex.front() == serverindex) {
+                                                        jobs[i].serverIndex.pop_front();
+                                                } else {
+                                                        jobs[i].serverIndex.push_back(jobs[i].serverIndex.front());
+                                                        jobs[i].serverIndex.pop_front();
+                                                }
+                                        }
+                                }
+                                if(alias == "any" || jobs[i].serverIndex.size() == 0) {
                                         jobs[i].stop();
                                         jobs[i] = MP3Job();
                                 }
@@ -2163,8 +2186,8 @@ void TForm1::createMP3Job(int index, int serverindex, String file, String alias,
         mp3p.queueMP3(MP3Job(index, serverindex, file, alias, volume, start, end, color));
 }
 
-void TForm1::stopMP3Job(String alias) {
-        mp3p.stopMP3Job(alias);
+void TForm1::stopMP3Job(String alias, int serverindex) {
+        mp3p.stopMP3Job(alias, serverindex);
 }
 
 class ChatSettings {
