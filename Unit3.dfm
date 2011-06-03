@@ -383,10 +383,10 @@ object WINDOW_NOTIFICATIONS: TWINDOW_NOTIFICATIONS
     OnKeyUp = Edit1KeyUp
   end
   object BUTTON_BROWSE: TButton
-    Left = 272
+    Left = 368
     Top = 320
-    Width = 214
-    Height = 33
+    Width = 118
+    Height = 41
     Caption = 'Browse ...'
     TabOrder = 10
     OnClick = BUTTON_BROWSEClick
@@ -708,6 +708,14 @@ object WINDOW_NOTIFICATIONS: TWINDOW_NOTIFICATIONS
     TickMarks = tmBottomRight
     TickStyle = tsAuto
     OnChange = TrackBar1Change
+  end
+  object CHECKBOX_REPEAT: TCheckBox
+    Left = 272
+    Top = 334
+    Width = 89
+    Height = 17
+    Caption = 'CHECKBOX_REPEAT'
+    TabOrder = 21
   end
   object OpenDialog1: TOpenDialog
     Filter = '*.mp3|*.mp3'

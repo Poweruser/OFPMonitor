@@ -2083,10 +2083,13 @@ bool TForm1::isNotificationRuleActive(int index) {
         return false;
 }
 
-void TForm1::resetNotifications() {
+void TForm1::resetNotifications(int notificationIndex) {
         for(int i = 0; i < GetArrLength(ServerArray); i++) {
                 if(ServerArray[i].index < 0) { break; }
-                ServerArray[i].notificationRuleIndex = -1;
+                if(ServerArray[i].notificationRuleIndex == notificationIndex ||
+                        notificationIndex == -1) {
+                        ServerArray[i].notificationRuleIndex = -1;
+                }
         }
 }
 

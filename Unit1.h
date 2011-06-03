@@ -220,7 +220,7 @@ public:		// User declarations
         void TForm1::ChatConnectionLost();
         bool TForm1::isChatUserBlocked(String username);
         bool TForm1::isNotificationRuleActive(int index);
-        void TForm1::resetNotifications();
+        void TForm1::resetNotifications(int notificationIndex);
         __fastcall TForm1(TComponent* Owner);
 
 };

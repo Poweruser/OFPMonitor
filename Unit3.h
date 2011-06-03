@@ -72,6 +72,7 @@ __published:	// IDE-managed Components
         TLabel *LabelSeconds;
         TLabel *LabelMilli;
         TTimer *MP3Timer;
+        TCheckBox *CHECKBOX_REPEAT;
         void __fastcall BUTTON_BROWSEClick(TObject *Sender);
         void __fastcall OpenDialog1CanClose(TObject *Sender,
           bool &CanClose);
@@ -112,7 +113,7 @@ public:
        void TWINDOW_NOTIFICATIONS::addCustomNotification(String name, int filters, list<String> &mission,
                                     list<String> &server, list<String> &player, int minPlayers,
                                     int maxPlayers, String soundFile, int volume, int start, int end,
-                                    String color);
+                                    String color, int repeat);
        int TWINDOW_NOTIFICATIONS::checkNotifications(String servername, int players, int status,
                                 String missionname, bool passworded,
                                 list<String> playerlist);

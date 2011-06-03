@@ -952,7 +952,7 @@ list<String> readConfigFile() {
                                 tmp = file->Strings[i].Trim();
                                 list<String> mission, server, player;
                                 String name = "Unnamed", soundFile = "", color = clWindow;
-                                int statusFilter = 0, volume = 100, minPlayers = -1, maxPlayers = -1, start = 0, end = -1;
+                                int statusFilter = 0, volume = 100, minPlayers = -1, maxPlayers = -1, start = 0, end = -1, repeat = 0;
                                 while((tmp.SubString(1,21) != "[\\CustomNotification]") && i < file->Count - 1) {
                                         if((tmp.SubString(1,4) == "name")) {
                                                 name = getValue(tmp);
@@ -978,12 +978,14 @@ list<String> readConfigFile() {
                                                 try { minPlayers = StrToInt(getValue(tmp)); } catch (...) {}
                                         } else if((tmp.SubString(1,14) == "maximumPlayers")) {
                                                 try { maxPlayers = StrToInt(getValue(tmp)); } catch (...) {}
+                                        } else if((tmp.SubString(1,6) == "repeat")) {
+                                                try { repeat = StrToInt(getValue(tmp)); } catch (...) {}
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
                                 WINDOW_NOTIFICATIONS->addCustomNotification(name, statusFilter, mission, server, player,
-                                        minPlayers, maxPlayers, soundFile, volume, start, end, color);                                  
+                                        minPlayers, maxPlayers, soundFile, volume, start, end, color, repeat);                                  
 
                         }
                 }

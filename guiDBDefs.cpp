@@ -1,5 +1,5 @@
 TButton *guiButton[13];
-TCheckBox *guiCheckBox[10];
+TCheckBox *guiCheckBox[11];
 TLabel *guiLabel[17];
 TGroupBox *guiGroupBox[9];
 TForm *guiForm[3];

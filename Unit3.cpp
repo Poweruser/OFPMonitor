@@ -68,6 +68,7 @@ class CustomNotification {
                 int playbackStart;
                 int playbackEnd;
                 TColor markingColor;
+                int repeat;
                 bool set;
 
                 CustomNotification () {
@@ -78,7 +79,7 @@ class CustomNotification {
                 CustomNotification (String name, int filters, list<String> &mission,
                                     list<String> &server, list<String> &player, int minPlayers,
                                     int maxPlayers, String soundFile, int volume, int start, int end,
-                                    String color) {
+                                    String color, int repeat) {
                         this->name = name;
                         this->withoutPassword = ((filters & 1) == 1);
                         filters = filters >> 1;
@@ -105,6 +106,7 @@ class CustomNotification {
                         this->playbackStart = start;
                         this->playbackEnd = end;
                         this->markingColor = StringToColor(color);
+                        this->repeat = repeat;
                         this->set = true;
                 }
 
@@ -113,7 +115,7 @@ class CustomNotification {
                         bool statusWithPW, bool statusWithoutPW,
                         list<String> &mission, list<String> &server,
                         list<String> &player, int minPlayers, int maxPlayers,
-                        String soundFile, int volume, int start, int end, String color) {
+                        String soundFile, int volume, int start, int end, String color, int repeat) {
                         this->name = name;
                         this->withoutPassword = statusWithoutPW;
                         this->withPassword = statusWithPW;
@@ -133,6 +135,7 @@ class CustomNotification {
                         this->playbackStart = start;
                         this->playbackEnd = end;
                         this->markingColor = StringToColor(color);
+                        this->repeat = repeat;
                         this->set = true;
                 }
 
@@ -202,6 +205,7 @@ class CustomNotification {
                         output->Add("playbackVolume = " + String(this->playbackVolume));
                         output->Add("playbackStart = " + String(this->playbackStart));
                         output->Add("playbackEnd = " + String(this->playbackEnd));
+                        output->Add("repeat = " + IntToStr(this->repeat));
                         output->Add("[\\CustomNotification]");
 
                         return output;
@@ -270,13 +274,13 @@ TStringList* TWINDOW_NOTIFICATIONS::getFileEntry() {
 void TWINDOW_NOTIFICATIONS::addCustomNotification(String name, int filters, list<String> &mission,
                                     list<String> &server, list<String> &player, int minPlayers,
                                     int maxPlayers, String soundFile, int volume, int start, int end,
-                                    String color) {
+                                    String color, int repeat) {
         for(int i = 0; i < GetArrLength(CustomNotify); i++) {
                 if(!CustomNotify[i].set) {
                         CustomNotify[i] = CustomNotification(name, filters,
                                     mission, server, player,
                                     minPlayers, maxPlayers,
-                                    soundFile, volume, start, end, color);
+                                    soundFile, volume, start, end, color, repeat);
                         break;
                 }
         }
@@ -422,6 +426,7 @@ class MP3Job {
         bool error;
         bool started;
         bool stopped;
+        bool repeat;
         String file;
         String alias;
         int volume;
@@ -443,6 +448,7 @@ class MP3Job {
                                 this->volume = CustomNotify[index].playbackVolume;
                                 this->start = CustomNotify[index].playbackStart;
                                 this->end = CustomNotify[index].playbackEnd;
+                                this->repeat = ((CustomNotify[index].repeat == 1) ? true : false);
                         }
                 }
                 this->started = false;
@@ -559,6 +565,9 @@ class MP3Player {
                                 if(jobs[i].hasEnded()) {
                                         jobs[i].stop();
                                         jobs[i] = MP3Job();
+                                        if(jobs[i].repeat) {
+                                                Form1->resetNotifications(jobs[i].notificationIndex);
+                                        }
                                 }
                         }
                 }
@@ -626,7 +635,7 @@ void TWINDOW_NOTIFICATIONS::MP3add(int index) {
 
 void TWINDOW_NOTIFICATIONS::MP3shutdown() {
         mp3p.reset();
-        Form1->resetNotifications();
+        Form1->resetNotifications(-1);
 }
         
 //---------------------------------------------------------------------------
@@ -702,6 +711,7 @@ void __fastcall TWINDOW_NOTIFICATIONS::BUTTON_NEWNOTIFICATION_CLEARClick(TObject
         CHECKBOX_FILTER_WITHOUTPASSWORD->Checked = true;
         CHECKBOX_FILTER_MINPLAYERS->Checked = false;
         CHECKBOX_FILTER_MAXPLAYERS->Checked = false;
+        CHECKBOX_REPEAT->Checked = false;
         UpDown1->Position = 0;
         UpDown2->Position = 0;
         Edit1->Text = "";
@@ -752,6 +762,7 @@ void __fastcall TWINDOW_NOTIFICATIONS::BUTTON_EDITNOTIFICATION_EDITClick(TObject
                         CHECKBOX_FILTER_MINPLAYERS->Checked = (cN.minPlayers >= 0);
                         UpDown2->Position = max(cN.maxPlayers, 0);
                         CHECKBOX_FILTER_MAXPLAYERS->Checked = (cN.maxPlayers >= 0);
+                        CHECKBOX_REPEAT->Checked = (cN.repeat == 1);
                         Memo1->Clear();
                         for (list<String>::iterator ci = cN.missionFilter.begin(); ci != cN.missionFilter.end(); ++ci) {
                                 Memo1->Lines->Add(*ci);
@@ -824,6 +835,7 @@ void __fastcall TWINDOW_NOTIFICATIONS::BUTTON_EDITNOTIFICATION_OKClick(TObject *
                                 CustomNotify[j].maxPlayers = -1;
                         }
                         CustomNotify[j].soundFile = Edit1->Text;
+                        CustomNotify[j].repeat = CHECKBOX_REPEAT->Checked;
                         CustomNotify[j].playbackVolume = TrackBar1->Position;
                         CustomNotify[i].playbackStart =
                                                 StrToInt(Edit5->Text)*60000 +
@@ -880,7 +892,8 @@ void __fastcall TWINDOW_NOTIFICATIONS::BUTTON_NEWNOTIFICATION_ADDClick(TObject *
                                 StrToInt(WINDOW_NOTIFICATIONS->Edit8->Text)*60000 +
                                 StrToInt(WINDOW_NOTIFICATIONS->Edit9->Text)*1000 +
                                 StrToInt(WINDOW_NOTIFICATIONS->Edit10->Text),
-                        ColorToString(ColorBox1->Selected));
+                        ColorToString(ColorBox1->Selected),
+                        CHECKBOX_REPEAT->Checked);
 
                 for(int i = 0; i < GetArrLength(CustomNotify); i++) {
                         if(!CustomNotify[i].set) {
