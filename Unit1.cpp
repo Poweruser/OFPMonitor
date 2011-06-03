@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
-#include <list>
-#include <iostream.h>                                                  
+#include <list.h>
+#include <iostream.h>
 #include <mmsystem.h>
 #include <math.h>
 #pragma hdrstop
@@ -788,6 +788,7 @@ class Server {
                 bool loseATurn;
                 CustomPlayerList playerlist;
                 QueryAnswer queries[queryArrayLength];
+                int notificationRuleIndex;
 
                 /**
                    Default Constructor of a blank server
@@ -851,6 +852,7 @@ class Server {
                         this->messageSent = 0;
                         this->queryid = 0;
                         this->playerlist.clear();
+                        this->notificationRuleIndex = -1;
                 }
 };
 
@@ -1866,34 +1868,27 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                         }
                                 }
                         }
-
-
                         if(WINDOW_SETTINGS->areCustomNotificationsEnabled()) {
                                 list<String> playerList;
                                 for (list<Player>::iterator ci = ServerArray[i].playerlist.begin(); ci != ServerArray[i].playerlist.end(); ++ci) {
                                         playerList.push_back((*ci).name);
                                 }
-
-                                WINDOW_NOTIFICATIONS->checkNotifications(i,
-                                                        ServerArray[i].name,
+                                int now = WINDOW_NOTIFICATIONS->checkNotifications(ServerArray[i].name,
                                                         ServerArray[i].players,
                                                         ServerArray[i].gamestate,
                                                         ServerArray[i].mission,
                                                         ServerArray[i].password,
                                                         playerList);
-
-
-
-                                /*
-                                  String servername, int players, int status,
-                                String missionname, bool passworded,
-                                list<String> playerlist) {
-                                */
+                                if(now == -1 && ServerArray[i].notificationRuleIndex >= -1) {
+                                        int old = ServerArray[i].notificationRuleIndex;
+                                        ServerArray[i].notificationRuleIndex = now;
+                                        WINDOW_NOTIFICATIONS->MP3remove(old);
+                                } else if(ServerArray[i].notificationRuleIndex == -1 && now >= -1) {
+                                        ServerArray[i].notificationRuleIndex = now;
+                                        WINDOW_NOTIFICATIONS->MP3add(ServerArray[i].notificationRuleIndex);
+                                }
                         }
-
-
                 }
-
         return out;
 }
 
@@ -1979,215 +1974,6 @@ void copyToClipBoard (String msg) {
                 CloseClipboard();
         }
         return;
-}
-
-class MP3Job {
-    public:
-        list<int> serverIndex;
-        int notificationIndex;
-        bool set;
-        bool started;
-        bool stopped;               
-        String file;
-        String alias;
-        int volume;
-        int start;
-        int end;
-        bool error;
-        TColor markColor;
-
-        MP3Job() {
-                this->set = false;
-
-        }
-
-        MP3Job(int index, int serverindex, String file, String alias, int volume, int start, int end, TColor color) {
-                this->serverIndex.push_back(serverindex);
-                this->notificationIndex = index;
-                this->error = false;
-                this->file = file;
-                this->alias = alias;
-                this->volume = volume;
-                this->start = start;
-                this->end = end;
-                this->started = false;
-                this->stopped = false;
-                this->markColor = color;
-                this->set = true;
-        }
-
-        void play() {
-                if(FileExists(this->file)) {
-                        if(0 != mciSendString(("Open \"" + this->file + "\" alias " + this->alias).c_str(),0,0,0)) {
-                                this->error = true;
-                        }
-                        if(0 != mciSendString(("play " + this->alias + " from " + String(this->start) + " to " + String(this->end)).c_str(), 0, 0, 0)) {
-                                this->error = true;
-                        }
-                        if(0 != mciSendString(("setaudio " + this->alias + " volume to " + String(this->volume)).c_str(), 0, 0, 0)) {
-                                this->error = true;
-                        }
-                        this->started = true;
-                }
-        }
-
-        bool hasEnded() {
-                if(FileExists(this->file)) {
-                        char text[128];
-                        mciSendString(("status " + this->alias + " position").c_str(), text, 128, 0);
-                        int pos = 0;
-                        try {
-                                pos = StrToInt(String(text));
-                        } catch (...) {
-                        }
-                        return (pos >= this->end || this->error || this->stopped);
-                } else {
-                        return (this->error || this->stopped);
-                }
-        }
-
-        void stop() {
-                if(FileExists(this->file)) {
-                        mciSendString(("Close " + this->alias).c_str(),0,0,0);
-                }
-                this->stopped = true;
-        }
-};
-
-
-class MP3Player {
-    public:
-        MP3Job jobs[5];
-
-        MP3Player() {}
-
-        void queueMP3(MP3Job job) {
-                bool alreadyPlaying = false;
-                int index = -1;
-                for(int i = 0; i < 5; i++) {
-                        if(!alreadyPlaying) {
-                                alreadyPlaying = this->jobs[i].set &&
-                                        (this->jobs[i].alias == job.alias ||
-                                         this->jobs[i].notificationIndex == job.notificationIndex) &&
-                                        !this->jobs[i].hasEnded();
-                        }
-                        if(alreadyPlaying) {
-                                index = i;
-                                break;
-                        }
-                        if(!this->jobs[i].set && index <= 0) {
-                                index = i;
-                        }
-                }
-                if(index != -1) {
-                        if(!alreadyPlaying) {
-                                this->jobs[index] = job;
-                                this->jobs[index].play();
-                                Form1->MP3Timer->Enabled = true;
-                        } else {
-                                bool alreadyIn = false;
-                                for (list<int>::iterator ci = jobs[index].serverIndex.begin(); ci != jobs[index].serverIndex.end(); ++ci) {
-                                        if(job.serverIndex.front() == *ci) {
-                                                alreadyIn = true;
-                                                break;
-                                        }
-                                }
-                                if(!alreadyIn) {
-                                        jobs[index].serverIndex.push_back(job.serverIndex.front());
-                                }
-                        }
-                }
-                return;
-        }
-
-        bool check() {
-                bool hasJob = false;
-                for(int i = 0; i < 5; i++) {
-                        if(jobs[i].set) {
-                                hasJob = true;
-                                if(jobs[i].hasEnded()) {
-                                        jobs[i].stop();
-                                        if(String("OFPM_MP3PREVIEW") == jobs[i].alias) {
-                                                WINDOW_NOTIFICATIONS->STOP->Click();
-                                        }
-                                        jobs[i] = MP3Job();
-                                } else if(String("OFPM_MP3PREVIEW") == jobs[i].alias) {
-                                        char text[128];
-                                        mciSendString("status OFPM_MP3PREVIEW position", text, 128,0);
-                                        String out = "";
-                                        int minutes = StrToInt(text);
-                                        int milliseconds = minutes % 1000;
-                                        WINDOW_NOTIFICATIONS->LabelMilli->Caption = IntToStr(milliseconds);
-                                        minutes = (minutes - milliseconds)/1000;
-                                        int seconds = minutes % 60;
-                                        if(seconds < 10) {
-                                                WINDOW_NOTIFICATIONS->LabelSeconds->Caption = "0" + IntToStr(seconds) + ":";
-                                        } else {
-                                                WINDOW_NOTIFICATIONS->LabelSeconds->Caption = IntToStr(seconds) + ":";
-                                        }
-                                        minutes = (minutes - seconds) / 60;
-                                        if(minutes < 10) {
-                                                WINDOW_NOTIFICATIONS->LabelMinutes->Caption = "0" + IntToStr(minutes)+ ":";
-                                        } else {
-                                                WINDOW_NOTIFICATIONS->LabelMinutes->Caption = IntToStr(minutes)+ ":";
-                                        }
-                                }
-                        }
-                }
-                return hasJob;
-        }
-
-        void stopMP3Job(String alias) {
-                this->stopMP3Job(alias, -1);
-        }
-
-        void stopMP3Job(String alias, int serverindex) {
-                for(int i = 0; i < 5; i++) {
-                        if(jobs[i].set) {
-                                if(jobs[i].alias == alias) {
-                                        int num = jobs[i].serverIndex.size();
-                                        for(int j = 0; j < num; j++) {
-                                                if(jobs[i].serverIndex.front() == serverindex) {
-                                                        jobs[i].serverIndex.pop_front();
-                                                } else {
-                                                        jobs[i].serverIndex.push_back(jobs[i].serverIndex.front());
-                                                        jobs[i].serverIndex.pop_front();
-                                                }
-                                        }
-                                }
-                                if(alias == "any" || jobs[i].serverIndex.size() == 0) {
-                                        jobs[i].stop();
-                                        jobs[i] = MP3Job();
-                                }
-                        }
-                }
-                return;
-        }
-
-        TColor getMarkingColor(int serverindex) {
-                for(int i = 0; i < 5; i++) {
-                        if(jobs[i].set) {
-                                if(!jobs[i].hasEnded()) {
-                                        for (list<int>::iterator ci = jobs[i].serverIndex.begin(); ci != jobs[i].serverIndex.end(); ++ci) {
-                                                if(serverindex == *ci) {
-                                                        return jobs[i].markColor;
-                                                }
-                                        }
-                                }
-                        }
-                }
-                return NULL;
-        }
-};
-
-MP3Player mp3p = MP3Player();
-
-void TForm1::createMP3Job(int index, int serverindex, String file, String alias, int volume, int start, int end, TColor color) {
-        mp3p.queueMP3(MP3Job(index, serverindex, file, alias, volume, start, end, color));
-}
-
-void TForm1::stopMP3Job(String alias, int serverindex) {
-        mp3p.stopMP3Job(alias, serverindex);
 }
 
 class ChatSettings {
@@ -2285,6 +2071,25 @@ void TForm1::ChatConnectionLost() {
         chatsettings.connectionLost = 1;
 }
 
+bool TForm1::isNotificationRuleActive(int index) {
+        for(int i = 0; i < GetArrLength(ServerArray); i++) {
+                if(ServerArray[i].index < 0) {
+                        break;
+                }
+                if(ServerArray[i].notificationRuleIndex == index) {
+                        return true;
+                }
+        }
+        return false;
+}
+
+void TForm1::resetNotifications() {
+        for(int i = 0; i < GetArrLength(ServerArray); i++) {
+                if(ServerArray[i].index < 0) { break; }
+                ServerArray[i].notificationRuleIndex = -1;
+        }
+}
+
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
@@ -2361,7 +2166,7 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
         if(MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled) {
                 MENUITEM_MAINMENU_CHAT_DISCONNECT->Click();
         }
-        mp3p.stopMP3Job("any");
+        WINDOW_NOTIFICATIONS->MP3shutdown();
         Timer1->Enabled = false;
         Timer3->Enabled = false;
         delete ServerSortList;
@@ -2741,7 +2546,7 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
                 int zelle = ARow;
                 try {
                         int index = StrToInt((StringGrid1->Cells[0][zelle]).Trim());
-                        TColor mark = mp3p.getMarkingColor(index);
+                        TColor mark = WINDOW_NOTIFICATIONS->getMarkingColor(ServerArray[index].notificationRuleIndex);
                         if(mark != NULL || ServerArray[index].watch || ServerArray[index].autojoin) {
                                 StringGrid1->Canvas->Font->Color = clWhite;
                                 if(mark != NULL) {
@@ -2918,13 +2723,8 @@ void __fastcall TForm1::MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVEClick(TObject *Sen
         WINDOW_SETTINGS->setCustomNotifications(MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE->Checked);
         WINDOW_SETTINGS->setSettingsChanged();
         if(!MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE->Checked) {
-                mp3p.stopMP3Job("any");
+                WINDOW_NOTIFICATIONS->MP3shutdown();
         }
-}
-//---------------------------------------------------------------------------
-void __fastcall TForm1::MP3TimerTimer(TObject *Sender)
-{
-        MP3Timer->Enabled = mp3p.check();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Info1Click(TObject *Sender)

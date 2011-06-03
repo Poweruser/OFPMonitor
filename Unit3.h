@@ -71,6 +71,7 @@ __published:	// IDE-managed Components
         TLabel *LabelMinutes;
         TLabel *LabelSeconds;
         TLabel *LabelMilli;
+        TTimer *MP3Timer;
         void __fastcall BUTTON_BROWSEClick(TObject *Sender);
         void __fastcall OpenDialog1CanClose(TObject *Sender,
           bool &CanClose);
@@ -102,6 +103,7 @@ __published:	// IDE-managed Components
         void __fastcall Edit9Change(TObject *Sender);
         void __fastcall Edit1KeyUp(TObject *Sender, WORD &Key,
           TShiftState Shift);
+        void __fastcall MP3TimerTimer(TObject *Sender);
 private:	// User declarations
 public:
 		// User declarations
@@ -111,10 +113,14 @@ public:
                                     list<String> &server, list<String> &player, int minPlayers,
                                     int maxPlayers, String soundFile, int volume, int start, int end,
                                     String color);
-       void TWINDOW_NOTIFICATIONS::checkNotifications(int serverindex, String servername, int players, int status,
+       int TWINDOW_NOTIFICATIONS::checkNotifications(String servername, int players, int status,
                                 String missionname, bool passworded,
                                 list<String> playerlist);
        void TWINDOW_NOTIFICATIONS::updateFontSettings(int charset);
+       TColor TWINDOW_NOTIFICATIONS::getMarkingColor(int index);
+       void TWINDOW_NOTIFICATIONS::MP3remove(int index);
+       void TWINDOW_NOTIFICATIONS::MP3add(int index);
+       void TWINDOW_NOTIFICATIONS::MP3shutdown();
         __fastcall TWINDOW_NOTIFICATIONS(TComponent* Owner);
 };
 //---------------------------------------------------------------------------

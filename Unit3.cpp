@@ -29,7 +29,7 @@ TWINDOW_NOTIFICATIONS *WINDOW_NOTIFICATIONS;
    Macro to retrieve the length of an array
  */
 
-String alias = "OFPM_MP3PREVIEW";
+//String alias = "OFPM_MP3PREVIEW";
 
 template<typename T, int size>
 int GetArrLength(T(&)[size]){return size;}
@@ -282,12 +282,12 @@ void TWINDOW_NOTIFICATIONS::addCustomNotification(String name, int filters, list
         }
 }
 
-void TWINDOW_NOTIFICATIONS::checkNotifications(int index, String servername, int players, int status,
+int TWINDOW_NOTIFICATIONS::checkNotifications(String servername, int players, int status,
                                 String missionname, bool passworded,
                                 list<String> playerlist) {
-
         for(int i = 0; i < GetArrLength(CustomNotify); i++) {
-                if(     passworded && CustomNotify[i].withPassword ||
+            if(CustomNotify[i].set) {
+                if(passworded && CustomNotify[i].withPassword ||
                         !passworded && CustomNotify[i].withoutPassword) {
                         if(     (CustomNotify[i].minPlayers <= players ||
                                  CustomNotify[i].minPlayers < 0) &&
@@ -311,7 +311,6 @@ void TWINDOW_NOTIFICATIONS::checkNotifications(int index, String servername, int
                                                 }
                                         } else { servertest = true; }
                                         if(CustomNotify[i].missionFilter.size() > 0) {
-
                                                 for (list<String>::iterator ci = CustomNotify[i].missionFilter.begin(); ci != CustomNotify[i].missionFilter.end(); ++ci) {
                                                         if(Form1->doNameFilter(missionname,*ci)) {
                                                                 missiontest = true;
@@ -330,13 +329,14 @@ void TWINDOW_NOTIFICATIONS::checkNotifications(int index, String servername, int
                                                 }
                                         } else { playertest = true; }
                                         if(servertest && missiontest && playertest) {
-                                                Form1->createMP3Job(i, index, CustomNotify[i].soundFile,"MP3_" + String(index) + "_" + String(i), CustomNotify[i].playbackVolume*10, CustomNotify[i].playbackStart, CustomNotify[i].playbackEnd, CustomNotify[i].markingColor);
-                                        } else { Form1->stopMP3Job("MP3_" + String(index) + "_" + String(i), index); }
-                                } else { Form1->stopMP3Job("MP3_" + String(index) + "_" + String(i), index); }
-                        } else { Form1->stopMP3Job("MP3_" + String(index) + "_" + String(i), index); }
-                } else { Form1->stopMP3Job("MP3_" + String(index) + "_" + String(i), index); }
+                                                return i;
+                                        }
+                                }
+                        }
+                }
+            }
         }
-        return;
+        return -1;
 }
 
 
@@ -413,6 +413,220 @@ void updateLanguage() {
 void TWINDOW_NOTIFICATIONS::updateFontSettings(int charset) {
         WINDOW_NOTIFICATIONS->Font->Charset = charset;
         return;
+}
+
+class MP3Job {
+    public:
+        int notificationIndex;
+        bool set;
+        bool error;
+        bool started;
+        bool stopped;
+        String file;
+        String alias;
+        int volume;
+        int start;
+        int end;
+
+        MP3Job() {
+                this->notificationIndex = -1;
+                this->set = false;
+        }
+
+        MP3Job(int index) {
+                this->notificationIndex = index;
+                this->error = false;
+                if(this->notificationIndex >= 0 && this->notificationIndex <= GetArrLength(CustomNotify)) {
+                        if(CustomNotify[this->notificationIndex].set) {
+                                this->file = CustomNotify[index].soundFile;
+                                this->alias = "OFPM_MP3_" + IntToStr(this->notificationIndex);
+                                this->volume = CustomNotify[index].playbackVolume;
+                                this->start = CustomNotify[index].playbackStart;
+                                this->end = CustomNotify[index].playbackEnd;
+                        }
+                }
+                this->started = false;
+                this->stopped = false;
+                this->set = true;  
+        }
+
+        void play() {
+                if(FileExists(this->file)) {
+                        if(0 != mciSendString(("Open \"" + this->file + "\" alias " + this->alias).c_str(),0,0,0)) {
+                                ShowMessage(this->file);
+                                this->error = true;
+                        }
+                        if(0 != mciSendString(("play " + this->alias + " from " + String(this->start) + " to " + String(this->end)).c_str(), 0, 0, 0)) {
+                                this->error = true;
+                        }
+                        if(0 != mciSendString(("setaudio " + this->alias + " volume to " + String(this->volume)).c_str(), 0, 0, 0)) {
+                                this->error = true;
+                        }
+                        this->started = true;
+                }
+        }
+
+        bool hasEnded() {
+                if(FileExists(this->file)) {
+                        char text[128];
+                        mciSendString(("status " + this->alias + " position").c_str(), text, 128, 0);
+                        int pos = 0;
+                        try {
+                                pos = StrToInt(String(text));
+                        } catch (...) {
+                        }
+                        return (pos >= this->end || this->error || this->stopped);
+                } else {
+                        return (this->error || this->stopped);
+                }
+        }
+
+        void stop() {
+                if(FileExists(this->file)) {
+                        mciSendString(("Close " + this->alias).c_str(),0,0,0);
+                }
+                this->stopped = true;
+        }
+};
+
+class MP3Player {
+    public:
+        MP3Job jobs[5];
+        MP3Job preview;
+        int limit;
+
+        MP3Player() {
+                this->limit = 5;
+        }
+
+        void MP3add (int index) {
+                for(int i = 0; i < this->limit; i++) {
+                        if(this->jobs[i].notificationIndex == index) {
+                                return;
+                        }
+                }
+                for(int i = 0; i < this->limit; i++) {
+                        if(!this->jobs[i].set) {
+                                this->jobs[i] = MP3Job(index);
+                                this->jobs[i].play();
+                                break;
+                        }
+                }
+        }
+
+        void MP3startPreview() {
+                MP3stopPreview();
+                MP3Job p = MP3Job(-1);
+                p.alias = "OFPM_MP3PREVIEW";
+                p.file = WINDOW_NOTIFICATIONS->Edit1->Text;
+                p.volume = WINDOW_NOTIFICATIONS->TrackBar1->Position*10;
+                p.start = StrToInt(WINDOW_NOTIFICATIONS->Edit5->Text)*60000 +
+                        StrToInt(WINDOW_NOTIFICATIONS->Edit6->Text)*1000 +
+                        StrToInt(WINDOW_NOTIFICATIONS->Edit7->Text);
+                p.end = StrToInt(WINDOW_NOTIFICATIONS->Edit8->Text)*60000 +
+                        StrToInt(WINDOW_NOTIFICATIONS->Edit9->Text)*1000 +
+                        StrToInt(WINDOW_NOTIFICATIONS->Edit10->Text);
+                this->preview = p;
+                this->preview.play();
+                WINDOW_NOTIFICATIONS->MP3Timer->Enabled = true;
+        }
+
+        void MP3stopPreview() {
+                if(this->preview.set) {
+                        if(this->preview.started) {
+                                this->preview.stop();
+                                this->preview = MP3Job();
+                        }
+                }         
+        }
+
+        void reset() {
+                for(int i = 0; i < this->limit; i++) {
+                        if(this->jobs[i].set) {
+                                if(this->jobs[i].started) {
+                                        this->jobs[i].stop();
+                                }
+                                this->jobs[i] = MP3Job();
+                        }
+                }           
+        }
+
+        bool check() {
+                bool hasJob = false;
+                for(int i = 0; i < this->limit; i++) {
+                        if(this->jobs[i].set) {
+                                hasJob = true;
+                                if(jobs[i].hasEnded()) {
+                                        jobs[i].stop();
+                                        jobs[i] = MP3Job();
+                                }
+                        }
+                }
+                if(this->preview.set) {
+                        hasJob = true;
+                        if(this->preview.hasEnded()) {
+                                WINDOW_NOTIFICATIONS->STOP->Click();
+                        } else {
+                                char text[128];
+                                mciSendString("status OFPM_MP3PREVIEW position", text, 128,0);
+                                String out = "";
+                                int minutes = StrToInt(text);
+                                int milliseconds = minutes % 1000;
+                                WINDOW_NOTIFICATIONS->LabelMilli->Caption = IntToStr(milliseconds);
+                                minutes = (minutes - milliseconds)/1000;
+                                int seconds = minutes % 60;
+                                if(seconds < 10) {
+                                        WINDOW_NOTIFICATIONS->LabelSeconds->Caption = "0" + IntToStr(seconds) + ":";
+                                } else {
+                                        WINDOW_NOTIFICATIONS->LabelSeconds->Caption = IntToStr(seconds) + ":";
+                                }
+                                minutes = (minutes - seconds) / 60;
+                                if(minutes < 10) {
+                                        WINDOW_NOTIFICATIONS->LabelMinutes->Caption = "0" + IntToStr(minutes)+ ":";
+                                } else {
+                                        WINDOW_NOTIFICATIONS->LabelMinutes->Caption = IntToStr(minutes)+ ":";
+                                }
+                        }   
+                }
+                return hasJob;
+        }
+
+        void MP3remove(int index) {
+                for(int i = 0; i < this->limit; i++) {
+                        if(jobs[i].set) {
+                                if(jobs[i].notificationIndex == index) {
+                                        if(!Form1->isNotificationRuleActive(index)) {
+                                                jobs[i].stop();
+                                                jobs[i] = MP3Job();
+                                        }
+                                }
+                        }
+                }
+        }
+};
+
+MP3Player mp3p = MP3Player();
+
+TColor TWINDOW_NOTIFICATIONS::getMarkingColor(int index) {
+        if(index >= 0 && index < GetArrLength(CustomNotify)) {
+                if(CustomNotify[index].set) {
+                        return CustomNotify[index].markingColor;
+                }
+        }
+        return NULL;
+}
+
+void TWINDOW_NOTIFICATIONS::MP3remove(int index) {
+        mp3p.MP3remove(index);
+}
+void TWINDOW_NOTIFICATIONS::MP3add(int index) {
+        mp3p.MP3add(index);
+        MP3Timer->Enabled = true;
+}
+
+void TWINDOW_NOTIFICATIONS::MP3shutdown() {
+        mp3p.reset();
+        Form1->resetNotifications();
 }
         
 //---------------------------------------------------------------------------
@@ -734,13 +948,7 @@ void __fastcall TWINDOW_NOTIFICATIONS::PLAYClick(TObject *Sender)
                 LabelMinutes->Visible = true;
                 PLAY->Visible = false;
                 STOP->Visible = true;
-                Form1->createMP3Job(-1, -1, Edit1->Text,alias,TrackBar1->Position*10,
-                        StrToInt(Edit5->Text)*60000 +
-                        StrToInt(Edit6->Text)*1000 +
-                        StrToInt(Edit7->Text),
-                        StrToInt(Edit8->Text)*60000 +
-                        StrToInt(Edit9->Text)*1000 +
-                        StrToInt(Edit10->Text), clBlack);
+                mp3p.MP3startPreview();
         }
 }
 //---------------------------------------------------------------------------
@@ -755,13 +963,13 @@ void __fastcall TWINDOW_NOTIFICATIONS::FormKeyDown(TObject *Sender, WORD &Key,
 //---------------------------------------------------------------------------
 void __fastcall TWINDOW_NOTIFICATIONS::TrackBar1Change(TObject *Sender)
 {
-        mciSendString(("setaudio " + alias + " volume to " + String(TrackBar1->Position)*10).c_str(), 0, 0,0);
+        mciSendString(("setaudio OFPM_MP3PREVIEW volume to " + String(TrackBar1->Position)*10).c_str(), 0, 0,0);
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_NOTIFICATIONS::STOPClick(TObject *Sender)
 {
-        Form1->stopMP3Job(alias, -1);
+        mp3p.MP3stopPreview();
         PLAY->Visible = true;
         STOP->Visible = false;        
 }
@@ -871,6 +1079,12 @@ void __fastcall TWINDOW_NOTIFICATIONS::Edit1KeyUp(TObject *Sender,
         if(Key == VK_DELETE) {
                 Edit1->Text = "";
         }        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_NOTIFICATIONS::MP3TimerTimer(TObject *Sender)
+{
+        MP3Timer->Enabled = mp3p.check();        
 }
 //---------------------------------------------------------------------------
 

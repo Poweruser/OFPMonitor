@@ -716,4 +716,11 @@ object WINDOW_NOTIFICATIONS: TWINDOW_NOTIFICATIONS
     Left = 304
     Top = 152
   end
+  object MP3Timer: TTimer
+    Enabled = False
+    Interval = 100
+    OnTimer = MP3TimerTimer
+    Left = 304
+    Top = 120
+  end
 end

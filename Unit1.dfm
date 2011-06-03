@@ -743,13 +743,6 @@ object Form1: TForm1
     Left = 576
     Top = 160
   end
-  object MP3Timer: TTimer
-    Enabled = False
-    Interval = 100
-    OnTimer = MP3TimerTimer
-    Left = 608
-    Top = 160
-  end
   object TimerIrcChatTimer: TTimer
     Enabled = False
     Interval = 100

@@ -106,7 +106,6 @@ __published:	// IDE-managed Components
         TMenuItem *MENUITEM_MAINMENU_NOTIFICATIONS;
         TMenuItem *MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE;
         TMenuItem *MENUITEM_MAINMENU_NOTIFICATIONS_SETTINGS;
-        TTimer *MP3Timer;
         TMenuItem *Info1;
         TPageControl *PageControl1;
         TTabSheet *TABSHEET_SERVERINFO;
@@ -176,7 +175,6 @@ __published:	// IDE-managed Components
         void __fastcall Splitter1Moved(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_NOTIFICATIONS_SETTINGSClick(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVEClick(TObject *Sender);
-        void __fastcall MP3TimerTimer(TObject *Sender);
         void __fastcall Info1Click(TObject *Sender);
         void __fastcall UDPSocketDataSend(TObject *Sender);
         void __fastcall UDPSocketDataReceived(TComponent *Sender,
@@ -212,8 +210,6 @@ public:		// User declarations
                                 float ratioMN,float ratioPI,float ratioPL,
                                 float ratioSC,float ratioDE,float ratioTE,
                                 int devider);
-        void TForm1::createMP3Job(int index,int serverindex, String file, String alias, int volume, int start, int end, TColor color);
-        void TForm1::stopMP3Job(String alias, int serverindex);
         CustomStringList TForm1::splitUpMessage(String msg, String split);
         bool TForm1::doNameFilter(String c, String d);
         void TForm1::setChat(String host, int port, String channel, bool autoConnect);
@@ -223,6 +219,8 @@ public:		// User declarations
         void TForm1::ChatNotification(String msg);
         void TForm1::ChatConnectionLost();
         bool TForm1::isChatUserBlocked(String username);
+        bool TForm1::isNotificationRuleActive(int index);
+        void TForm1::resetNotifications();
         __fastcall TForm1(TComponent* Owner);
 
 };
