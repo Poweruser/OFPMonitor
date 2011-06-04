@@ -1983,12 +1983,14 @@ class ChatSettings {
                 String channel;
                 bool autoConnect;
                 int connectionLost;
+                bool doConnect;
                 ChatSettings() {
                         this->host = "irc.freenode.net";
                         this->port = 6666;
                         this->channel = "operationflashpoint1";
                         this->setAutoConnect(false);
                         this->connectionLost = 0;
+                        this->doConnect = false;
                 }
 
                 ChatSettings(String h, int p, String c, bool ac) {
@@ -1997,6 +1999,7 @@ class ChatSettings {
                         this->channel = c;
                         this->setAutoConnect(ac);
                         this->connectionLost = 0;
+                        this->doConnect = false;
                 }
 
                 void setAutoConnect(bool ac) {
@@ -2774,6 +2777,18 @@ void __fastcall TForm1::TimerIrcChatTimerTimer(TObject *Sender)
         } else {
                 chat_client_timercallback( this );
         }
+        if(chatsettings.doConnect) {
+                chatsettings.doConnect = false;
+                bool result = chat_client_connect();
+                if(!result) {
+                        MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTINGFAILED"));
+                } else {
+                        MemoChatInput->Clear();
+                }
+                MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = !result;
+                MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = result;
+                MemoChatInput->Enabled = result;
+        }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
@@ -2786,17 +2801,8 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
                 MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CHANNEL") +
                         "  " + Form1->getChatChannel());
         }
-
+        chatsettings.doConnect = true;
         TimerIrcChatTimer->Enabled = true;
-        bool result = chat_client_connect();
-        if(!result) {
-                MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTINGFAILED"));
-        } else {
-                MemoChatInput->Clear();
-        }
-        MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = !result;
-        MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = result;
-        MemoChatInput->Enabled = result;
         chatsettings.connectionLost = 0;
 }
 //---------------------------------------------------------------------------

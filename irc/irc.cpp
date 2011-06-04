@@ -142,6 +142,7 @@ static string currentTimeString() {
 
 void chat_client_timercallback(void * t) {
         TForm1 *tform1 = (TForm1 *) t;
+        if( ircThreadInstance == NULL) { return; }
 
         if (ircThreadInstance && ircThreadInstance->messages.size() > 0) {
                 vector<string> m  (ircThreadInstance->messages);
