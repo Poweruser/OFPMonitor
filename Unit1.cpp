@@ -1149,7 +1149,7 @@ void processPlayerList(int index) {
                                 Form1->StringGrid2->Cells[2][i] = q->deaths;
                                 Form1->StringGrid2->Cells[3][i] = q->team;
                                 PlayerSortList2->Delete(0);
-                        } 
+                        }
                 }
         }
         return;
