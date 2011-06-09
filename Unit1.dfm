@@ -381,6 +381,7 @@ object Form1: TForm1
             Width = 73
             Height = 16
             Caption = 'EqModReq:'
+            Transparent = True
           end
           object LABEL_SERVERINFO_EQMODREQ_VALUE: TLabel
             Left = 328
@@ -388,6 +389,7 @@ object Form1: TForm1
             Width = 27
             Height = 16
             Caption = '         '
+            Transparent = True
           end
           object BUTTON_SERVERINFO_COPYADDRESS: TButton
             Left = 16
@@ -464,7 +466,7 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 420
+    Top = 412
     Width = 658
     Height = 34
     BorderWidth = 1
@@ -501,7 +503,7 @@ object Form1: TForm1
     Left = 0
     Top = 266
     Width = 658
-    Height = 154
+    Height = 146
     Align = alClient
     BiDiMode = bdRightToLeft
     ColCount = 7
