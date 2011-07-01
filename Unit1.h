@@ -103,9 +103,6 @@ __published:	// IDE-managed Components
         TMenuItem *MENUITEM_POPUP_AUTOJOINB;
         TSplitter *Splitter1;
         TPanel *Panel1;
-        TMenuItem *MENUITEM_MAINMENU_NOTIFICATIONS;
-        TMenuItem *MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE;
-        TMenuItem *MENUITEM_MAINMENU_NOTIFICATIONS_SETTINGS;
         TMenuItem *Info1;
         TPageControl *PageControl1;
         TTabSheet *TABSHEET_SERVERINFO;
@@ -173,8 +170,6 @@ __published:	// IDE-managed Components
         void __fastcall StringGrid1ContextPopup(TObject *Sender,
           TPoint &MousePos, bool &Handled);
         void __fastcall Splitter1Moved(TObject *Sender);
-        void __fastcall MENUITEM_MAINMENU_NOTIFICATIONS_SETTINGSClick(TObject *Sender);
-        void __fastcall MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVEClick(TObject *Sender);
         void __fastcall Info1Click(TObject *Sender);
         void __fastcall UDPSocketDataSend(TObject *Sender);
         void __fastcall UDPSocketDataReceived(TComponent *Sender,

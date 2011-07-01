@@ -9,7 +9,6 @@
 #include "irc/irc.h"
 #include "Unit1.h"
 #include "Unit2.h"
-#include "Unit3.h"
 #include "Unit4.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -17,26 +16,18 @@
 #pragma resource "*.dfm"
 #pragma resource "wavefiles.res"
 
+
 TForm1 *Form1;
+#include "OFPMonitor.h"
+using namespace OFPMonitor_Unit1;
 
-#define SERVERSTATE_CREATING 2
-#define SERVERSTATE_WAITING 6
-#define SERVERSTATE_DEBRIEFING 9
-#define SERVERSTATE_SETTINGUP 12
-#define SERVERSTATE_BRIEFING 13
-#define SERVERSTATE_PLAYING 14
 
-#define SERVERARRAY_LENGTH 256
 
 typedef list<String> CustomStringList;
 
 /**                                                                                       
    Macro to retrieve the length of an array
  */
-
-template<typename T, int size>
-int GetArrLength(T(&)[size]){return size;}
-
 
 TNMUDP *udpSocket;
 
@@ -192,7 +183,7 @@ class FontSettings {
                         Form1->MemoChatInput->Constraints->MaxHeight = 3 * this->size * 2.0f;
                         Form1->MemoChatInput->Height = Form1->MemoChatInput->Constraints->MaxHeight;
                         WINDOW_SETTINGS->Font->Charset = this->charset;
-                        WINDOW_NOTIFICATIONS->updateFontSettings(this->charset);
+                        WINDOW_SETTINGS->updateFontSettings(this->charset);
                         return;
                 }
 };
@@ -687,7 +678,7 @@ class Player {
 };
 
 typedef list<Player> CustomPlayerList;
-const unsigned int queryArrayLength = 10;
+
 int errorreports = 0;
 
 /**
@@ -1179,7 +1170,7 @@ void updateServerInfoBox(int index) {
                 } else {
                         Form1->LABEL_SERVERINFO_EQMODREQ_VALUE->Caption = WINDOW_SETTINGS->getGuiString("STRING_NO");
                 }
-                Form1->LABEL_SERVERINFO_VERSION_VALUE->Caption = ServerArray[index].actver;
+                                Form1->LABEL_SERVERINFO_VERSION_VALUE->Caption = IntToStr(ServerArray[index].reqver) + " / " + IntToStr(ServerArray[index].actver);
         } else {
                 Form1->BUTTON_SERVERINFO_COPYADDRESS->Enabled = false;
                 Form1->LABEL_SERVERINFO_NAME->Caption = " ";
@@ -1594,8 +1585,12 @@ void disableAutoJoin() {
    Launches OFP with the passed start up configuration
  */
 
-void startTheGame(String configuration) {
-        ShellExecute(NULL, "open", PChar(WINDOW_SETTINGS->getExe().c_str()), PChar(configuration.c_str()), PChar(WINDOW_SETTINGS->getExeFolder().c_str()), SW_NORMAL);
+void startTheGame(String configuration, int actVer, int reqVer) {
+        String exe = WINDOW_SETTINGS->getExe(actVer, reqVer);
+        if(!exe.IsEmpty()) {
+                ShowMessage( + "\n" + configuration + "\n" +  WINDOW_SETTINGS->getExeFolder(actVer, reqVer));
+                ShellExecute(NULL, "open", PChar(exe.c_str()), PChar(configuration.c_str()), PChar(WINDOW_SETTINGS->getExeFolder(actVer, reqVer).c_str()), SW_NORMAL);
+        }
 }
 
 /**
@@ -1823,7 +1818,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                                                    newStatus != SERVERSTATE_PLAYING &&
                                                                    ServerArray[i].autojoin) {
                                                                         ServerArray[i].autojoin = false;
-                                                                        startTheGame(ServerArray[i].autojoinConf);
+                                                                        startTheGame(ServerArray[i].autojoinConf, ServerArray[i].actver, ServerArray[i].reqver);
                                                                         disableAutoJoin();
                                                                 }
                                                         }
@@ -1873,7 +1868,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                 for (list<Player>::iterator ci = ServerArray[i].playerlist.begin(); ci != ServerArray[i].playerlist.end(); ++ci) {
                                         playerList.push_back((*ci).name);
                                 }
-                                int now = WINDOW_NOTIFICATIONS->checkNotifications(ServerArray[i].name,
+                                int now = WINDOW_SETTINGS->checkNotifications(ServerArray[i].name,
                                                         ServerArray[i].players,
                                                         ServerArray[i].gamestate,
                                                         ServerArray[i].mission,
@@ -1882,10 +1877,10 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                                 if(now == -1 && ServerArray[i].notificationRuleIndex >= -1) {
                                         int old = ServerArray[i].notificationRuleIndex;
                                         ServerArray[i].notificationRuleIndex = now;
-                                        WINDOW_NOTIFICATIONS->MP3remove(old);
+                                        WINDOW_SETTINGS->MP3remove(old);
                                 } else if(ServerArray[i].notificationRuleIndex == -1 && now >= -1) {
                                         ServerArray[i].notificationRuleIndex = now;
-                                        WINDOW_NOTIFICATIONS->MP3add(ServerArray[i].notificationRuleIndex);
+                                        WINDOW_SETTINGS->MP3add(ServerArray[i].notificationRuleIndex);
                                 }
                         }
                 }
@@ -2135,7 +2130,6 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         udpSocket->RemoteHost = "localhost";
         udpSocket->OnDataReceived = UDPSocketDataReceived;
         udpSocket->OnDataSend = UDPSocketDataSend;
-        Timer3->Enabled = true;
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
@@ -2172,7 +2166,7 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
         if(MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled) {
                 MENUITEM_MAINMENU_CHAT_DISCONNECT->Click();
         }
-        WINDOW_NOTIFICATIONS->MP3shutdown();
+        WINDOW_SETTINGS->MP3shutdown();
         Timer1->Enabled = false;
         Timer3->Enabled = false;
         delete ServerSortList;
@@ -2192,7 +2186,7 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
                         servers.push_back(tmp);
                 }
         }
-        WINDOW_SETTINGS->writeSettingToFile(servers, watched, fontsettings.createFileEntry(), windowsettings.createFileEntry(), chatsettings.createFileEntry(), WINDOW_NOTIFICATIONS->getFileEntry());
+        WINDOW_SETTINGS->writeSettingToFile(servers, watched, fontsettings.createFileEntry(), windowsettings.createFileEntry(), chatsettings.createFileEntry(), WINDOW_SETTINGS->getFileEntry());
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::BUTTON_SERVERINFO_COPYADDRESSClick(TObject *Sender)
@@ -2234,7 +2228,6 @@ void __fastcall TForm1::Timer3Timer(TObject *Sender)
                         if(     serverCycle.selectedServerForDisplay == a ||
                                 ServerArray[a].name.IsEmpty() ||
                                 ServerArray[a].players != ServerArray[a].playerlist.size()) {
-
                                 sendUdpMessage(a, ServerArray[a].ip,ServerArray[a].gamespyport,"\\info\\rules\\players\\");
                         } else {
                                 sendUdpMessage(a, ServerArray[a].ip,ServerArray[a].gamespyport,"\\info\\rules\\");
@@ -2420,9 +2413,15 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
                         autojoin->Visible = join->Visible;
                 }
         }
-
+        int gameid = WINDOW_SETTINGS->getGameId(ServerArray[index].actver, ServerArray[index].reqver);
+        MENUITEM_POPUP_JOIN->Enabled = (gameid >= 0);
+        MENUITEM_POPUP_AUTOJOIN->Enabled = (gameid >= 0);
+        MENUITEM_POPUP_AUTOJOINB->Enabled = (gameid >= 0);
         for(i = additionalItems; i - additionalItems < WINDOW_SETTINGS->getConfAmount() || i < PopupMenu1->Items->Items[0]->Count; i++) {
-                String s = WINDOW_SETTINGS->getConfListEntry(i - additionalItems);
+                String s = "";
+                if(gameid >= 0) {
+                        s = WINDOW_SETTINGS->getConfListEntry(gameid, i - additionalItems);
+                }
                 if(!s.IsEmpty()) {
                         if(i < PopupMenu1->Items->Items[0]->Count) {
                                 join = PopupMenu1->Items->Items[0]->Items[i];
@@ -2446,7 +2445,7 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
                         autojoin->Visible = true;
                         autojoin->OnClick = ClickAutoJoinConfButton;
 
-                        String modline = WINDOW_SETTINGS->getConfModLine(i - additionalItems);
+                        String modline = WINDOW_SETTINGS->getConfModLine(gameid, i - additionalItems);
                         join->Enabled = !(ServerArray[index].equalMod == 1 && modline != ServerArray[index].mod);
                         autojoin->Enabled = join->Enabled;
                 } else {
@@ -2482,12 +2481,15 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
                                     "", MB_YESNO | MB_ICONQUESTION);
         }
         if(zz == 6) {
-                if(a->Tag >= 0 && a->Tag < WINDOW_SETTINGS->getConfAmount()) {
-                        startTheGame(WINDOW_SETTINGS->getConfStartLine(a->Tag, ip, port));
-                } else if(a->Tag == -2) {
-                        startTheGame(WINDOW_SETTINGS->getNoModsStartLine(ip, port));
-                } else if(a->Tag == -1) {
-                        startTheGame(WINDOW_SETTINGS->getSameModsStartLine(ip, port, ServerArray[index].mod));
+                int gameid = WINDOW_SETTINGS->getGameId(ServerArray[index].actver, ServerArray[index].reqver);
+                if(gameid >= 0) {
+                        if(a->Tag >= 0 && a->Tag < WINDOW_SETTINGS->getConfAmount()) {
+                                startTheGame(WINDOW_SETTINGS->getConfStartLine(gameid, a->Tag, ip, port), ServerArray[index].actver, ServerArray[index].reqver);
+                        } else if(a->Tag == -2) {
+                                startTheGame(WINDOW_SETTINGS->getNoModsStartLine(gameid, ip, port), ServerArray[index].actver, ServerArray[index].reqver);
+                        } else if(a->Tag == -1) {
+                                startTheGame(WINDOW_SETTINGS->getSameModsStartLine(gameid, ip, port, ServerArray[index].mod), ServerArray[index].actver, ServerArray[index].reqver);
+                        }
                 }
         }
 }
@@ -2497,13 +2499,16 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
         disableAutoJoin();
         TMenuItem *a = (TMenuItem *) Sender;
         int index = a->Parent->Tag;
-        ServerArray[index].autojoin = true;
-        if(a->Tag >= 0 && a->Tag < WINDOW_SETTINGS->getConfAmount()) {
-                ServerArray[index].autojoinConf = WINDOW_SETTINGS->getConfStartLine(a->Tag, ServerArray[index].ip, ServerArray[index].gameport);
-        } else if(a->Tag == -2) {
-                ServerArray[index].autojoinConf = WINDOW_SETTINGS->getNoModsStartLine(ServerArray[index].ip, ServerArray[index].gameport);
-        } else if(a->Tag == -1) {
-                ServerArray[index].autojoinConf = WINDOW_SETTINGS->getSameModsStartLine(ServerArray[index].ip, ServerArray[index].gameport, ServerArray[index].mod);
+        int gameid = WINDOW_SETTINGS->getGameId(ServerArray[index].actver, ServerArray[index].reqver);
+        if(gameid >= 0) {
+                ServerArray[index].autojoin = true;
+                if(a->Tag >= 0 && a->Tag < WINDOW_SETTINGS->getConfAmount()) {
+                        ServerArray[index].autojoinConf = WINDOW_SETTINGS->getConfStartLine(gameid, a->Tag, ServerArray[index].ip, ServerArray[index].gameport);
+                } else if(a->Tag == -2) {
+                        ServerArray[index].autojoinConf = WINDOW_SETTINGS->getNoModsStartLine(gameid, ServerArray[index].ip, ServerArray[index].gameport);
+                } else if(a->Tag == -1) {
+                        ServerArray[index].autojoinConf = WINDOW_SETTINGS->getSameModsStartLine(gameid, ServerArray[index].ip, ServerArray[index].gameport, ServerArray[index].mod);
+                }
         }
         StringGrid1->Refresh();
         filterChanged(false);
@@ -2542,6 +2547,8 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key,
                 Form1->Close();
         } else if(Key == VK_F13) {
                 CoolTrayIcon1->ShowMainForm();
+        } else if(Key == VK_F2) {
+                WINDOW_SETTINGS->CHECKBOX_NOTIFICATIONS_ACTIVE->Checked = !WINDOW_SETTINGS->CHECKBOX_NOTIFICATIONS_ACTIVE->Checked;
         }
 }
 //---------------------------------------------------------------------------
@@ -2552,7 +2559,7 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
                 int zelle = ARow;
                 try {
                         int index = StrToInt((StringGrid1->Cells[0][zelle]).Trim());
-                        TColor mark = WINDOW_NOTIFICATIONS->getMarkingColor(ServerArray[index].notificationRuleIndex);
+                        TColor mark = WINDOW_SETTINGS->getMarkingColor(ServerArray[index].notificationRuleIndex);
                         if(mark != NULL || ServerArray[index].watch || ServerArray[index].autojoin) {
                                 StringGrid1->Canvas->Font->Color = clWhite;
                                 if(mark != NULL) {
@@ -2716,21 +2723,6 @@ void __fastcall TForm1::Splitter1Moved(TObject *Sender)
         Application->ProcessMessages();
         WINDOW_SETTINGS->setSettingsChanged();
         Form1->Refresh();
-}
-//---------------------------------------------------------------------------
-void __fastcall TForm1::MENUITEM_MAINMENU_NOTIFICATIONS_SETTINGSClick(TObject *Sender)
-{
-        WINDOW_NOTIFICATIONS->ShowModal();        
-}
-//---------------------------------------------------------------------------
-void __fastcall TForm1::MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVEClick(TObject *Sender)
-{
-        MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE->Checked = !MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE->Checked;
-        WINDOW_SETTINGS->setCustomNotifications(MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE->Checked);
-        WINDOW_SETTINGS->setSettingsChanged();
-        if(!MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE->Checked) {
-                WINDOW_NOTIFICATIONS->MP3shutdown();
-        }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Info1Click(TObject *Sender)
@@ -2938,4 +2930,8 @@ void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
         }
 }
 //---------------------------------------------------------------------------
+
+
+
+
 

@@ -9,7 +9,6 @@
 //---------------------------------------------------------------------------
 USEFORM("Unit1.cpp", Form1);
 USEFORM("Unit2.cpp", WINDOW_SETTINGS);
-USEFORM("Unit3.cpp", WINDOW_NOTIFICATIONS);
 USEFORM("Unit4.cpp", WINDOW_INFO);
 //---------------------------------------------------------------------------
 class ProcessInfo {
@@ -64,9 +63,8 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         if(!MyAppAlreadyRunning()) {
 	        try {
                         Application->Initialize();
-                        Application->Title = "OFPMonitor 1.42";
+                        Application->Title = "OFPMonitor 1.50a";
                  Application->CreateForm(__classid(TForm1), &Form1);
-                 Application->CreateForm(__classid(TWINDOW_NOTIFICATIONS), &WINDOW_NOTIFICATIONS);
                  Application->CreateForm(__classid(TWINDOW_INFO), &WINDOW_INFO);
                  Application->CreateForm(__classid(TWINDOW_SETTINGS), &WINDOW_SETTINGS);
                  Application->Run();

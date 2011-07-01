@@ -354,9 +354,9 @@ object Form1: TForm1
             Transparent = True
           end
           object LABEL_SERVERINFO_VERSION_VALUE: TLabel
-            Left = 328
+            Left = 304
             Top = 16
-            Width = 30
+            Width = 49
             Height = 16
             Caption = '          '
             Transparent = True
@@ -409,7 +409,7 @@ object Form1: TForm1
       ImageIndex = 1
       OnShow = TABSHEET_CHATShow
       object StringGrid3: TStringGrid
-        Left = 649
+        Left = 429
         Top = 0
         Width = 221
         Height = 232
@@ -429,7 +429,7 @@ object Form1: TForm1
       object Panel2: TPanel
         Left = 0
         Top = 0
-        Width = 649
+        Width = 429
         Height = 232
         Align = alClient
         Alignment = taLeftJustify
@@ -440,7 +440,7 @@ object Form1: TForm1
         object MemoChatOutput: TMemo
           Left = 0
           Top = 0
-          Width = 649
+          Width = 429
           Height = 206
           Align = alClient
           ReadOnly = True
@@ -451,7 +451,7 @@ object Form1: TForm1
         object MemoChatInput: TMemo
           Left = 0
           Top = 206
-          Width = 649
+          Width = 429
           Height = 26
           Align = alBottom
           Constraints.MaxHeight = 26
@@ -466,7 +466,7 @@ object Form1: TForm1
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 412
+    Top = 420
     Width = 658
     Height = 34
     BorderWidth = 1
@@ -503,7 +503,7 @@ object Form1: TForm1
     Left = 0
     Top = 266
     Width = 658
-    Height = 146
+    Height = 154
     Align = alClient
     BiDiMode = bdRightToLeft
     ColCount = 7
@@ -677,18 +677,6 @@ object Form1: TForm1
     object MENUITEM_MAINMENU_SETTINGS: TMenuItem
       Caption = 'Settings'
       OnClick = MENUITEM_MAINMENU_SETTINGSClick
-    end
-    object MENUITEM_MAINMENU_NOTIFICATIONS: TMenuItem
-      Caption = 'Notifications'
-      object MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVE: TMenuItem
-        Caption = 'Active'
-        ShortCut = 113
-        OnClick = MENUITEM_MAINMENU_NOTIFICATIONS_ACTIVEClick
-      end
-      object MENUITEM_MAINMENU_NOTIFICATIONS_SETTINGS: TMenuItem
-        Caption = 'Settings'
-        OnClick = MENUITEM_MAINMENU_NOTIFICATIONS_SETTINGSClick
-      end
     end
     object MENUITEM_MAINMENU_FONT: TMenuItem
       Caption = 'Font'
