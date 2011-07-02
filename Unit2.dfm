@@ -1332,6 +1332,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 95
           Height = 13
           Caption = 'IRC Server address:'
+          Transparent = True
         end
         object LABEL_CHAT_IRCSERVER_PORT: TLabel
           Left = 384
@@ -1339,6 +1340,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 22
           Height = 13
           Caption = 'Port:'
+          Transparent = True
         end
         object LABEL_CHAT_IRCSERVER_CHANNEL: TLabel
           Left = 16
@@ -1346,6 +1348,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 42
           Height = 13
           Caption = 'Channel:'
+          Transparent = True
         end
         object EDIT_CHAT_IRCSERVER_ADDRESS: TEdit
           Left = 16
@@ -1395,11 +1398,12 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 54
           Height = 13
           Caption = 'User name:'
+          Transparent = True
         end
         object COMBOBOX_CHAT_USERNAME: TComboBox
           Left = 16
           Top = 32
-          Width = 193
+          Width = 209
           Height = 21
           ItemHeight = 13
           MaxLength = 14
@@ -1407,9 +1411,9 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           TabOrder = 0
         end
         object CHECKBOX_CHAT_AUTOCONNECT: TCheckBox
-          Left = 248
+          Left = 256
           Top = 32
-          Width = 217
+          Width = 209
           Height = 17
           Caption = 'Autoconnect on startup'
           TabOrder = 1

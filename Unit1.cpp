@@ -16,7 +16,7 @@
 #pragma resource "*.dfm"
 #pragma resource "wavefiles.res"
 
-
+                
 TForm1 *Form1;
 #include "OFPMonitor.h"
 using namespace OFPMonitor_Unit1;
