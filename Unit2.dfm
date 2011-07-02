@@ -202,6 +202,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 42
           Width = 449
           Height = 21
+          ReadOnly = True
           TabOrder = 2
         end
         object COMBOBOX_OFPRES_PROFILE: TComboBox
