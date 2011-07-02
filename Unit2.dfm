@@ -25,8 +25,8 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     Top = 0
     Width = 505
     Height = 473
-    ActivePage = TABSHEET_CHATSETTINGS
-    TabIndex = 4
+    ActivePage = TABSHEET_GENERAL
+    TabIndex = 0
     TabOrder = 0
     object TABSHEET_GENERAL: TTabSheet
       Caption = 'General'
@@ -1322,10 +1322,10 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
       object GROUPBOX_CHATSETTINGS_SERVER: TGroupBox
         Left = 8
         Top = 80
-        Width = 473
+        Width = 481
         Height = 113
         Caption = 'Chat server '
-        TabOrder = 0
+        TabOrder = 1
         object LABEL_CHAT_IRCSERVER_ADDRESS: TLabel
           Left = 16
           Top = 16
@@ -1385,10 +1385,10 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
       object GROUPBOX_CHATSETTINGS_GENERAL: TGroupBox
         Left = 8
         Top = 8
-        Width = 473
+        Width = 481
         Height = 65
         Caption = 'General settings '
-        TabOrder = 1
+        TabOrder = 0
         object LABEL_CHAT_USERNAME: TLabel
           Left = 16
           Top = 16
