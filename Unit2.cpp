@@ -23,13 +23,11 @@ TWINDOW_SETTINGS *WINDOW_SETTINGS;
 #include "OFPMonitor.h"
 using namespace OFPMonitor_Unit2;
 
-
-
 String getGameName(int gameid) {
         if(gameid == GAMEID_OFPCWC) { return "OFP:CWC"; }
         if(gameid == GAMEID_OFPRES) { return "OFP:RES"; }
         if(gameid == GAMEID_ARMACWA) { return "ARMA:CWA"; }
-        return "crap";
+        return "UNKNOWN GAME";
 }
 
 
@@ -39,6 +37,7 @@ int getGameId(String name) {
         if(name == "ARMA:CWA") { return GAMEID_ARMACWA; }
         return -1;
 }
+
 
 /**
    Returns the number of game configurations the user has set
@@ -449,7 +448,7 @@ class Settings {
                         this->changed = true;
                 }
 
-                void writeToFile(list<String> &servers, list<String> &watchedServers, list<String> &font, list<String> &window, list<String> &chat, TStringList *notifications) {
+                void writeToFile(list<String> &servers, list<String> &watchedServers, list<String> &font, list<String> &window, list<String> &chat) {
                         if(this->changed) {
                                 TStringList *file = new TStringList;
                                 file->Add("[General]");
@@ -532,6 +531,7 @@ class Settings {
                                         }
                                         file->Add("[\\Servers]");
                                 }
+                                TStringList *notifications = WINDOW_SETTINGS->getNotificationsFileEntries();
                                 while(notifications->Count > 0) {
                                         file->Add(notifications->Strings[0]);
                                         notifications->Delete(0);
@@ -606,16 +606,19 @@ class Settings {
                         if(WINDOW_SETTINGS->ComboBox2->Items->Count > 0) {
                                 WINDOW_SETTINGS->ComboBox2->Text = WINDOW_SETTINGS->ComboBox2->Items->Strings[0];
                                 WINDOW_SETTINGS->ComboBox2Change(WINDOW_SETTINGS);
+                                WINDOW_SETTINGS->ComboBox2->Enabled = true;
+                                WINDOW_SETTINGS->GROUPBOX_NEWCONFIGURATION->Enabled = true;
                         } else {
                                 WINDOW_SETTINGS->ComboBox2->Text = "";
                                 WINDOW_SETTINGS->ComboBox2->Enabled = false;
+                                WINDOW_SETTINGS->ComboBox2->OnChange(WINDOW_SETTINGS);
                         }
                 }
 };
 Settings programSettings = Settings();
 
-void TWINDOW_SETTINGS::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window, list<String> chat, TStringList *notifications) {
-        programSettings.writeToFile(servers, watchedServers, font, window, chat, notifications);
+void TWINDOW_SETTINGS::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window, list<String> chat) {
+        programSettings.writeToFile(servers, watchedServers, font, window, chat);
 }
 
 void TWINDOW_SETTINGS::setCustomNotifications(bool active) {
@@ -748,8 +751,8 @@ list<String> getVarAndValue(String in, String diff) {
  */
 
 void updateModFolderList(String ofpfolder) {
+        WINDOW_SETTINGS->LISTBOX_MODFOLDERS_ALL->Clear();
         if(!ofpfolder.IsEmpty()) {
-                WINDOW_SETTINGS->LISTBOX_MODFOLDERS_ALL->Clear();
         	TSearchRec daten;
                 if(0 == FindFirst((ofpfolder +"\\*").c_str(), faDirectory, daten)) {
                         try {
@@ -1589,6 +1592,23 @@ class CustomNotification {
 
 CustomNotification CustomNotify[32];
 
+TStringList* TWINDOW_SETTINGS::getNotificationsFileEntries() {
+        TStringList *entry = new TStringList;
+
+        for(int i = 0; i < GetArrLength(CustomNotify); i++) {
+                if(CustomNotify[i].set) {
+                        TStringList *part = CustomNotify[i].createFileEntry();
+                        while(part->Count > 0) {
+                                entry->Add(part->Strings[0]);
+                                part->Delete(0);
+                        }
+                        delete part;
+                }
+        }
+        
+        return entry;
+}
+
 class SongPosition {
      public:
         int milli;
@@ -1626,22 +1646,7 @@ void printPlaybackRange(int start, int end) {
 }
 
 
-TStringList* TWINDOW_SETTINGS::getFileEntry() {
-        TStringList *entry = new TStringList;
 
-        for(int i = 0; i < GetArrLength(CustomNotify); i++) {
-                if(CustomNotify[i].set) {
-                        TStringList *part = CustomNotify[i].createFileEntry();
-                        while(part->Count > 0) {
-                                entry->Add(part->Strings[0]);
-                                part->Delete(0);
-                        }
-                        delete part;
-                }
-        }
-        
-        return entry;
-}
 
 void TWINDOW_SETTINGS::addCustomNotification(String name, int filters, list<String> &mission,
                                     list<String> &server, list<String> &player, int minPlayers,
@@ -2015,7 +2020,7 @@ void __fastcall TWINDOW_SETTINGS::OpenDialog1CanClose(TObject *Sender,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TWINDOW_SETTINGS::Button7Click(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_MOVERIGHTClick(TObject *Sender)
 {
         for(int i = 0; i < LISTBOX_MODFOLDERS_ALL->Count; i++) {
                 if(LISTBOX_MODFOLDERS_ALL->Selected[i]) {
@@ -2027,7 +2032,7 @@ void __fastcall TWINDOW_SETTINGS::Button7Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TWINDOW_SETTINGS::Button6Click(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_MOVELEFTClick(TObject *Sender)
 {
         for(int i = 0; i < LISTBOX_MODFOLDERS_SELECTED->Count; i++) {
                 if(LISTBOX_MODFOLDERS_SELECTED->Selected[i]) {
@@ -2358,9 +2363,39 @@ void __fastcall TWINDOW_SETTINGS::ComboBox2Change(TObject *Sender)
         if(ComboBox2->Text.IsEmpty()) {
                 GROUPBOX_CONFIGURATIONS->Enabled = false;
                 GROUPBOX_NEWCONFIGURATION->Enabled = false;
+                BUTTON_NEWCONFIGURATION_MOVELEFT->Enabled = false;
+                BUTTON_NEWCONFIGURATION_MOVERIGHT->Enabled = false;
+                BUTTON_NEWCONFIGURATION_UP->Enabled = false;
+                BUTTON_NEWCONFIGURATION_DOWN->Enabled = false;
+                BUTTON_EDITCONFIGURATION_OK->Enabled = false;
+                BUTTON_NEWCONFIGURATION_ADD->Enabled = false;
+                BUTTON_NEWCONFIGURATION_CLEAR->Enabled = false;
+                BUTTON_EDITCONFIGURATION_CANCEL->Enabled = false;
+                EDIT_NEWCONFIGURATION_LABEL->Enabled = false;
+                EDIT_NEWCONFIGURATION_PASSWORD->Enabled = false;
+                EDIT_NEWCONFIGURATION_PARAMETERS->Enabled = false;
+                CHECKBOX_NEWCONFIGURATION_NOSPLASH->Enabled = false;
+                CHECKBOX_NEWCONFIGURATION_NOMAP->Enabled = false;
+                LISTBOX_MODFOLDERS_ALL->Enabled = false;
+                LISTBOX_MODFOLDERS_SELECTED->Enabled = false;
         } else {
                 GROUPBOX_CONFIGURATIONS->Enabled = true;
                 GROUPBOX_NEWCONFIGURATION->Enabled = true;
+                BUTTON_NEWCONFIGURATION_UP->Enabled = true;
+                BUTTON_NEWCONFIGURATION_DOWN->Enabled = true;
+                BUTTON_EDITCONFIGURATION_OK->Enabled = true;
+                BUTTON_NEWCONFIGURATION_ADD->Enabled = true;
+                BUTTON_NEWCONFIGURATION_CLEAR->Enabled = true;
+                BUTTON_EDITCONFIGURATION_CANCEL->Enabled = true;
+                BUTTON_NEWCONFIGURATION_MOVELEFT->Enabled = false;
+                BUTTON_NEWCONFIGURATION_MOVERIGHT->Enabled = false;
+                EDIT_NEWCONFIGURATION_LABEL->Enabled = true;
+                EDIT_NEWCONFIGURATION_PASSWORD->Enabled = true;
+                EDIT_NEWCONFIGURATION_PARAMETERS->Enabled = true;
+                CHECKBOX_NEWCONFIGURATION_NOSPLASH->Enabled = true;
+                CHECKBOX_NEWCONFIGURATION_NOMAP->Enabled = true;
+                LISTBOX_MODFOLDERS_ALL->Enabled = true;
+                LISTBOX_MODFOLDERS_SELECTED->Enabled = true;
                 int comboindex = ComboBox2->Items->IndexOf(ComboBox2->Text);
                 if(comboindex >= 0) {
                         int gameid = (int) ComboBox2->Items->Objects[comboindex];
@@ -2943,9 +2978,5 @@ void __fastcall TWINDOW_SETTINGS::CHECKBOX_ARMACWAClick(TObject *Sender)
         GROUPBOX_ARMACWA->Enabled = CHECKBOX_ARMACWA->Checked;
         WINDOW_SETTINGS->setSettingsChanged();
 }
-
-
-
-
 
 

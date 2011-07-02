@@ -36,8 +36,8 @@ __published:	// IDE-managed Components
         TOpenDialog *OpenDialog1;
         TGroupBox *GROUPBOX_SERVERLIST;
         TListBox *LISTBOX_MODFOLDERS_SELECTED;
-        TButton *Button6;
-        TButton *Button7;
+        TButton *BUTTON_NEWCONFIGURATION_MOVELEFT;
+        TButton *BUTTON_NEWCONFIGURATION_MOVERIGHT;
         TButton *BUTTON_NEWCONFIGURATION_UP;
         TButton *BUTTON_NEWCONFIGURATION_DOWN;
         TEdit *EDIT_NEWCONFIGURATION_LABEL;
@@ -146,8 +146,8 @@ __published:	// IDE-managed Components
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialog1CanClose(TObject *Sender,
           bool &CanClose);
-        void __fastcall Button7Click(TObject *Sender);
-        void __fastcall Button6Click(TObject *Sender);
+        void __fastcall BUTTON_NEWCONFIGURATION_MOVERIGHTClick(TObject *Sender);
+        void __fastcall BUTTON_NEWCONFIGURATION_MOVELEFTClick(TObject *Sender);
         void __fastcall BUTTON_NEWCONFIGURATION_UPClick(TObject *Sender);
         void __fastcall BUTTON_NEWCONFIGURATION_DOWNClick(TObject *Sender);
         void __fastcall BUTTON_CONFIGURATION_REMOVEClick(TObject *Sender);
@@ -217,7 +217,7 @@ public:		// User declarations
         String TWINDOW_SETTINGS::getConfModLine(int gameid, int i);
         String TWINDOW_SETTINGS::getCurrentPlayerName();
         boolean TWINDOW_SETTINGS::isOFPResistance();
-        void TWINDOW_SETTINGS::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window, list<String> chat, TStringList *notifications);
+        void TWINDOW_SETTINGS::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window, list<String> chat);
         void TWINDOW_SETTINGS::setSettingsChanged();
         void TWINDOW_SETTINGS::setCustomNotifications(bool active);
         bool TWINDOW_SETTINGS::areCustomNotificationsEnabled();
@@ -237,7 +237,7 @@ public:		// User declarations
         int TWINDOW_SETTINGS::checkNotifications(String servername, int players, int status,
                                 String missionname, bool passworded,
                                 list<String> playerList);
-        TStringList* TWINDOW_SETTINGS::getFileEntry();
+        TStringList* TWINDOW_SETTINGS::getNotificationsFileEntries();
         void TWINDOW_SETTINGS::updateFontSettings(int charset);
         TColor TWINDOW_SETTINGS::getMarkingColor(int index);
         void TWINDOW_SETTINGS::MP3remove(int index);

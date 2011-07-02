@@ -1,6 +1,6 @@
 object WINDOW_SETTINGS: TWINDOW_SETTINGS
-  Left = 267
-  Top = 122
+  Left = 190
+  Top = 103
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   BorderIcons = [biSystemMenu]
@@ -24,14 +24,8 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     Top = 8
     Width = 505
     Height = 473
-    ActivePage = TABSHEET_GAMES
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
-    TabIndex = 1
+    ActivePage = TABSHEET_NOTIFICATIONS
+    TabIndex = 3
     TabOrder = 0
     object TABSHEET_GENERAL: TTabSheet
       Caption = 'General'
@@ -130,6 +124,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 40
           Width = 449
           Height = 21
+          ReadOnly = True
           TabOrder = 0
         end
         object COMBOBOX_OFPCWC_PROFILE: TComboBox
@@ -202,7 +197,6 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 42
           Width = 449
           Height = 21
-          ReadOnly = True
           TabOrder = 1
         end
         object COMBOBOX_OFPRES_PROFILE: TComboBox
@@ -264,6 +258,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 40
           Width = 449
           Height = 21
+          ReadOnly = True
           TabOrder = 0
         end
         object COMBOBOX_ARMACWA_PROFILE: TComboBox
@@ -517,23 +512,23 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           ItemHeight = 13
           TabOrder = 3
         end
-        object Button6: TButton
+        object BUTTON_NEWCONFIGURATION_MOVELEFT: TButton
           Left = 136
           Top = 16
           Width = 33
           Height = 25
           Caption = '<'
           TabOrder = 2
-          OnClick = Button6Click
+          OnClick = BUTTON_NEWCONFIGURATION_MOVELEFTClick
         end
-        object Button7: TButton
+        object BUTTON_NEWCONFIGURATION_MOVERIGHT: TButton
           Left = 96
           Top = 16
           Width = 33
           Height = 25
           Caption = '>'
           TabOrder = 1
-          OnClick = Button7Click
+          OnClick = BUTTON_NEWCONFIGURATION_MOVERIGHTClick
         end
         object BUTTON_NEWCONFIGURATION_UP: TButton
           Left = 168
@@ -1097,7 +1092,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Left = 16
           Top = 16
           Width = 33
-          Height = 17
+          Height = 13
           Caption = 'Status:'
         end
         object LABEL_FILTER_PASSWORD: TLabel

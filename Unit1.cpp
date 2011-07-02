@@ -1588,7 +1588,7 @@ void disableAutoJoin() {
 void startTheGame(String configuration, int actVer, int reqVer) {
         String exe = WINDOW_SETTINGS->getExe(actVer, reqVer);
         if(!exe.IsEmpty()) {
-                ShowMessage( + "\n" + configuration + "\n" +  WINDOW_SETTINGS->getExeFolder(actVer, reqVer));
+                //ShowMessage( + "\n" + configuration + "\n" +  WINDOW_SETTINGS->getExeFolder(actVer, reqVer));
                 ShellExecute(NULL, "open", PChar(exe.c_str()), PChar(configuration.c_str()), PChar(WINDOW_SETTINGS->getExeFolder(actVer, reqVer).c_str()), SW_NORMAL);
         }
 }
@@ -2186,7 +2186,7 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
                         servers.push_back(tmp);
                 }
         }
-        WINDOW_SETTINGS->writeSettingToFile(servers, watched, fontsettings.createFileEntry(), windowsettings.createFileEntry(), chatsettings.createFileEntry(), WINDOW_SETTINGS->getFileEntry());
+        WINDOW_SETTINGS->writeSettingToFile(servers, watched, fontsettings.createFileEntry(), windowsettings.createFileEntry(), chatsettings.createFileEntry());
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::BUTTON_SERVERINFO_COPYADDRESSClick(TObject *Sender)
@@ -2727,7 +2727,7 @@ void __fastcall TForm1::Splitter1Moved(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Info1Click(TObject *Sender)
 {
-        WINDOW_INFO->ShowModal();        
+        WINDOW_INFO->ShowModal();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::UDPSocketDataReceived(TComponent *Sender,

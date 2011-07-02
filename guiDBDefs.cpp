@@ -4,7 +4,6 @@ TLabel *guiLabel[17];
 TGroupBox *guiGroupBox[9];
 TForm *guiForm[2];
 TMenuItem *guiMenuItem[20];
-//TStatusPanel *guiStatusPanel[10];
 TTabSheet *guiTabSheet[7];
 
 

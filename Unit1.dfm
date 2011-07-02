@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 200
-  Top = 150
+  Left = 407
+  Top = 175
   Width = 666
   Height = 500
   HorzScrollBar.Visible = False
@@ -356,7 +356,7 @@ object Form1: TForm1
           object LABEL_SERVERINFO_VERSION_VALUE: TLabel
             Left = 304
             Top = 16
-            Width = 49
+            Width = 30
             Height = 16
             Caption = '          '
             Transparent = True
