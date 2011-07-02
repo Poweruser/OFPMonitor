@@ -1,13 +1,14 @@
 object WINDOW_SETTINGS: TWINDOW_SETTINGS
-  Left = 207
-  Top = 147
+  Left = 228
+  Top = 149
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
+  AutoSize = True
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 547
-  ClientWidth = 516
+  ClientHeight = 473
+  ClientWidth = 505
   Color = clBtnFace
   ParentFont = True
   KeyPreview = True
@@ -20,8 +21,8 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
   PixelsPerInch = 96
   TextHeight = 13
   object PageControl1: TPageControl
-    Left = 6
-    Top = 8
+    Left = 0
+    Top = 0
     Width = 505
     Height = 473
     ActivePage = TABSHEET_GENERAL
@@ -32,12 +33,12 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
       object GROUPBOX_SERVERLIST: TGroupBox
         Left = 8
         Top = 54
-        Width = 433
+        Width = 481
         Height = 45
         Caption = 'Server list '
-        TabOrder = 0
+        TabOrder = 1
         object LABEL_SERVERLIST_INTERVAL: TLabel
-          Left = 13
+          Left = 16
           Top = 20
           Width = 102
           Height = 13
@@ -45,16 +46,16 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Transparent = True
         end
         object EDIT_SERVERLIST_UPDATE: TEdit
-          Left = 352
+          Left = 384
           Top = 15
-          Width = 49
+          Width = 65
           Height = 21
           TabOrder = 0
           Text = '2'
           OnChange = EDIT_SERVERLIST_UPDATEChange
         end
         object UPDOWN_SERVERLIST_UPDATE: TUpDown
-          Left = 401
+          Left = 449
           Top = 15
           Width = 15
           Height = 21
@@ -68,16 +69,16 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         end
       end
       object GROUPBOX_LANGUAGE: TGroupBox
-        Left = 10
+        Left = 8
         Top = 6
-        Width = 431
+        Width = 481
         Height = 45
         Caption = 'Language '
-        TabOrder = 1
+        TabOrder = 0
         object ComboBox1: TComboBox
-          Left = 8
+          Left = 16
           Top = 16
-          Width = 409
+          Width = 449
           Height = 21
           AutoDropDown = True
           ImeMode = imDisable
@@ -89,7 +90,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
       object GROUPBOX_NOTIFICATIONS: TGroupBox
         Left = 8
         Top = 104
-        Width = 433
+        Width = 481
         Height = 45
         Caption = 'Notifications'
         TabOrder = 2
@@ -112,7 +113,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Top = 8
         Width = 481
         Height = 121
-        TabOrder = 0
+        TabOrder = 1
         object LABEL_OFPCWC_PLAYERNAME: TLabel
           Left = 16
           Top = 72
@@ -127,7 +128,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 449
           Height = 21
           ReadOnly = True
-          TabOrder = 0
+          TabOrder = 2
         end
         object COMBOBOX_OFPCWC_PROFILE: TComboBox
           Left = 16
@@ -144,7 +145,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 109
           Height = 37
           Caption = 'Browse ...'
-          TabOrder = 2
+          TabOrder = 0
           OnClick = BUTTON_OFPCWC_BROWSEClick
         end
         object Panel1: TPanel
@@ -178,7 +179,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Top = 136
         Width = 481
         Height = 121
-        TabOrder = 1
+        TabOrder = 3
         object LABEL_OFPRES_PLAYERNAME: TLabel
           Left = 16
           Top = 72
@@ -201,7 +202,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 42
           Width = 449
           Height = 21
-          TabOrder = 1
+          TabOrder = 2
         end
         object COMBOBOX_OFPRES_PROFILE: TComboBox
           Left = 16
@@ -216,7 +217,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Font.Style = []
           ItemHeight = 13
           ParentFont = False
-          TabOrder = 2
+          TabOrder = 1
           OnChange = COMBOBOX_OFPRES_PROFILEChange
         end
         object Panel2: TPanel
@@ -251,7 +252,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Top = 264
         Width = 481
         Height = 121
-        TabOrder = 2
+        TabOrder = 5
         object LABEL_ARMACWA_PLAYERNAME: TLabel
           Left = 16
           Top = 72
@@ -266,7 +267,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 449
           Height = 21
           ReadOnly = True
-          TabOrder = 0
+          TabOrder = 2
         end
         object COMBOBOX_ARMACWA_PROFILE: TComboBox
           Left = 16
@@ -283,7 +284,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 109
           Height = 37
           Caption = 'Browse ...'
-          TabOrder = 2
+          TabOrder = 0
           OnClick = BUTTON_ARMACWA_BROWSEClick
         end
         object Panel3: TPanel
@@ -321,7 +322,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Caption = 'Operation Flashpoint: Cold War Crisis'
         Checked = True
         State = cbChecked
-        TabOrder = 3
+        TabOrder = 0
         OnClick = CHECKBOX_OFPCWCClick
       end
       object CHECKBOX_OFPRES: TCheckBox
@@ -332,7 +333,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Caption = 'Operation Flashpoint: Resistance'
         Checked = True
         State = cbChecked
-        TabOrder = 4
+        TabOrder = 2
         OnClick = CHECKBOX_OFPRESClick
       end
       object CHECKBOX_ARMACWA: TCheckBox
@@ -343,12 +344,12 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Caption = 'ArmA: Cold War Assault'
         Checked = True
         State = cbChecked
-        TabOrder = 5
+        TabOrder = 4
         OnClick = CHECKBOX_ARMACWAClick
       end
     end
     object TABSHEET_MODS: TTabSheet
-      Caption = 'Mod Configurations'
+      Caption = 'Mod configurations'
       ImageIndex = 2
       OnShow = TABSHEET_MODSShow
       object GROUPBOX_CONFIGURATIONS: TGroupBox
@@ -357,14 +358,14 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 481
         Height = 185
         Caption = 'List of configurations'
-        TabOrder = 0
+        TabOrder = 1
         object BUTTON_EDITCONFIGURATION_COPY: TButton
           Left = 181
           Top = 148
           Width = 94
           Height = 25
           Caption = 'Copy'
-          TabOrder = 5
+          TabOrder = 3
           OnClick = BUTTON_EDITCONFIGURATION_COPYClick
         end
         object BUTTON_EDITCONFIGURATION_EDIT: TButton
@@ -374,7 +375,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Height = 25
           Caption = 'Edit'
           Enabled = False
-          TabOrder = 2
+          TabOrder = 4
           OnClick = BUTTON_EDITCONFIGURATION_EDITClick
         end
         object LISTBOX_CONFIGURATIONS: TListBox
@@ -401,7 +402,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 50
           Height = 25
           Caption = 'Down'
-          TabOrder = 3
+          TabOrder = 2
           OnClick = BUTTON_EDITCONFIGURATION_DOWNClick
         end
         object BUTTON_CONFIGURATION_REMOVE: TButton
@@ -410,7 +411,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 99
           Height = 25
           Caption = 'Remove'
-          TabOrder = 4
+          TabOrder = 5
           OnClick = BUTTON_CONFIGURATION_REMOVEClick
         end
       end
@@ -420,7 +421,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 481
         Height = 213
         Caption = 'New configuration'
-        TabOrder = 1
+        TabOrder = 2
         object LABEL_NEWCONFIGURATION_PASSWORD: TLabel
           Left = 272
           Top = 100
@@ -469,7 +470,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 114
           Width = 192
           Height = 21
-          TabOrder = 7
+          TabOrder = 1
         end
         object LISTBOX_MODFOLDERS_ALL: TListBox
           Left = 8
@@ -479,7 +480,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           ItemHeight = 13
           MultiSelect = True
           Sorted = True
-          TabOrder = 0
+          TabOrder = 5
         end
         object CHECKBOX_NEWCONFIGURATION_NOSPLASH: TCheckBox
           Left = 272
@@ -489,7 +490,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Caption = ' -nosplash'
           Checked = True
           State = cbChecked
-          TabOrder = 9
+          TabOrder = 3
         end
         object CHECKBOX_NEWCONFIGURATION_NOMAP: TCheckBox
           Left = 360
@@ -499,14 +500,14 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Caption = ' -nomap'
           Checked = True
           State = cbChecked
-          TabOrder = 10
+          TabOrder = 4
         end
         object EDIT_NEWCONFIGURATION_PARAMETERS: TEdit
           Left = 273
           Top = 160
           Width = 192
           Height = 21
-          TabOrder = 8
+          TabOrder = 2
         end
         object BUTTON_NEWCONFIGURATION_ADD: TButton
           Left = 274
@@ -523,7 +524,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 121
           Height = 161
           ItemHeight = 13
-          TabOrder = 3
+          TabOrder = 6
         end
         object BUTTON_NEWCONFIGURATION_MOVELEFT: TButton
           Left = 136
@@ -531,7 +532,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 33
           Height = 25
           Caption = '<'
-          TabOrder = 2
+          TabOrder = 8
           OnClick = BUTTON_NEWCONFIGURATION_MOVELEFTClick
         end
         object BUTTON_NEWCONFIGURATION_MOVERIGHT: TButton
@@ -540,7 +541,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 33
           Height = 25
           Caption = '>'
-          TabOrder = 1
+          TabOrder = 7
           OnClick = BUTTON_NEWCONFIGURATION_MOVERIGHTClick
         end
         object BUTTON_NEWCONFIGURATION_UP: TButton
@@ -549,7 +550,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 45
           Height = 25
           Caption = 'Up'
-          TabOrder = 4
+          TabOrder = 9
           OnClick = BUTTON_NEWCONFIGURATION_UPClick
         end
         object BUTTON_NEWCONFIGURATION_DOWN: TButton
@@ -558,7 +559,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 45
           Height = 25
           Caption = 'Down'
-          TabOrder = 5
+          TabOrder = 10
           OnClick = BUTTON_NEWCONFIGURATION_DOWNClick
         end
         object EDIT_NEWCONFIGURATION_LABEL: TEdit
@@ -566,7 +567,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 74
           Width = 193
           Height = 21
-          TabOrder = 6
+          TabOrder = 0
         end
         object BUTTON_EDITCONFIGURATION_CANCEL: TButton
           Left = 370
@@ -595,7 +596,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 449
         Height = 21
         ItemHeight = 13
-        TabOrder = 2
+        TabOrder = 0
         OnChange = ComboBox2Change
       end
     end
@@ -695,7 +696,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 169
         Height = 25
         Caption = 'Remove'
-        TabOrder = 21
+        TabOrder = 3
         OnClick = BUTTON_NOTIFICATION_REMOVEClick
       end
       object BUTTON_EDITNOTIFICATION_EDIT: TButton
@@ -704,26 +705,30 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 169
         Height = 25
         Caption = 'Edit'
-        TabOrder = 20
+        TabOrder = 4
         OnClick = BUTTON_EDITNOTIFICATION_EDITClick
       end
-      object BUTTON_NEWNOTIFICATION_ADD: TButton
+      object BUTTON_EDITNOTIFICATION_OK: TButton
         Left = 6
         Top = 248
         Width = 85
         Height = 25
-        Caption = 'Add'
-        TabOrder = 17
-        OnClick = BUTTON_NEWNOTIFICATION_ADDClick
+        Caption = 'OK'
+        Enabled = False
+        TabOrder = 5
+        Visible = False
+        OnClick = BUTTON_EDITNOTIFICATION_OKClick
       end
-      object BUTTON_NEWNOTIFICATION_CLEAR: TButton
+      object BUTTON_EDITNOTIFICATION_CANCEL: TButton
         Left = 90
         Top = 248
         Width = 85
         Height = 25
-        Caption = 'Clear'
-        TabOrder = 16
-        OnClick = BUTTON_NEWNOTIFICATION_CLEARClick
+        Caption = 'Cancel'
+        Enabled = False
+        TabOrder = 6
+        Visible = False
+        OnClick = BUTTON_EDITNOTIFICATION_CANCELClick
       end
       object CHECKBOX_REPEAT: TCheckBox
         Left = 272
@@ -731,7 +736,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 89
         Height = 17
         Caption = 'Repeat'
-        TabOrder = 0
+        TabOrder = 20
       end
       object TrackBar1: TTrackBar
         Left = 0
@@ -747,7 +752,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Position = 100
         SelEnd = 0
         SelStart = 0
-        TabOrder = 1
+        TabOrder = 12
         ThumbLength = 15
         TickMarks = tmBottomRight
         TickStyle = tsAuto
@@ -758,7 +763,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Top = 344
         Width = 41
         Height = 42
-        TabOrder = 2
+        TabOrder = 11
         OnClick = PLAYClick
         Glyph.Data = {
           360C0000424D360C000000000000360000002800000020000000200000000100
@@ -866,7 +871,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Top = 344
         Width = 41
         Height = 41
-        TabOrder = 3
+        TabOrder = 13
         Visible = False
         OnClick = STOPClick
         Glyph.Data = {
@@ -978,7 +983,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         BiDiMode = bdRightToLeft
         MaxLength = 2
         ParentBiDiMode = False
-        TabOrder = 4
+        TabOrder = 18
         Text = '0'
         OnChange = EDIT_SONGEND_SECChange
       end
@@ -990,7 +995,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         BiDiMode = bdRightToLeft
         MaxLength = 2
         ParentBiDiMode = False
-        TabOrder = 5
+        TabOrder = 17
         Text = '0'
         OnChange = EDIT_SONGEND_MINChange
       end
@@ -1002,7 +1007,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         BiDiMode = bdRightToLeft
         MaxLength = 3
         ParentBiDiMode = False
-        TabOrder = 6
+        TabOrder = 16
         Text = '0'
         OnChange = EDIT_SONGSTART_MILLChange
       end
@@ -1014,7 +1019,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         BiDiMode = bdRightToLeft
         MaxLength = 2
         ParentBiDiMode = False
-        TabOrder = 7
+        TabOrder = 15
         Text = '0'
         OnChange = EDIT_SONGSTART_SECChange
       end
@@ -1026,7 +1031,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         BiDiMode = bdRightToLeft
         MaxLength = 2
         ParentBiDiMode = False
-        TabOrder = 8
+        TabOrder = 14
         Text = '0'
         OnChange = EDIT_SONGSTART_MINChange
       end
@@ -1038,7 +1043,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         BiDiMode = bdRightToLeft
         MaxLength = 3
         ParentBiDiMode = False
-        TabOrder = 9
+        TabOrder = 19
         Text = '0'
         OnChange = EDIT_SONGEND_MILLChange
       end
@@ -1049,7 +1054,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Height = 22
         Style = [cbStandardColors, cbCustomColor, cbPrettyNames]
         ItemHeight = 16
-        TabOrder = 10
+        TabOrder = 21
       end
       object BUTTON_BROWSE: TButton
         Left = 371
@@ -1057,7 +1062,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 118
         Height = 41
         Caption = 'Browse ...'
-        TabOrder = 11
+        TabOrder = 10
         OnClick = BUTTON_BROWSEClick
       end
       object EDIT_NOTIFICATION_FILE: TEdit
@@ -1066,7 +1071,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 303
         Height = 21
         ReadOnly = True
-        TabOrder = 12
+        TabOrder = 9
         OnChange = EDIT_NOTIFICATION_FILEChange
         OnKeyUp = EDIT_NOTIFICATION_FILEKeyUp
       end
@@ -1075,7 +1080,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Top = 312
         Width = 169
         Height = 21
-        TabOrder = 13
+        TabOrder = 8
         Text = ' '
       end
       object GROUPBOX_NOTIFICATIONS_FILTERS: TGroupBox
@@ -1084,7 +1089,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 305
         Height = 257
         Caption = 'Filters'
-        TabOrder = 14
+        TabOrder = 1
         object LABEL_FILTER_SERVERNAME_BOX: TLabel
           Left = 152
           Top = 96
@@ -1289,30 +1294,26 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 169
         Height = 185
         ItemHeight = 13
-        TabOrder = 15
+        TabOrder = 0
         OnClick = LISTBOX_NOTIFICATIONSClick
       end
-      object BUTTON_EDITNOTIFICATION_OK: TButton
+      object BUTTON_NEWNOTIFICATION_ADD: TButton
         Left = 6
         Top = 248
         Width = 85
         Height = 25
-        Caption = 'OK'
-        Enabled = False
-        TabOrder = 19
-        Visible = False
-        OnClick = BUTTON_EDITNOTIFICATION_OKClick
+        Caption = 'Add'
+        TabOrder = 2
+        OnClick = BUTTON_NEWNOTIFICATION_ADDClick
       end
-      object BUTTON_EDITNOTIFICATION_CANCEL: TButton
+      object BUTTON_NEWNOTIFICATION_CLEAR: TButton
         Left = 90
         Top = 248
         Width = 85
         Height = 25
-        Caption = 'Cancel'
-        Enabled = False
-        TabOrder = 18
-        Visible = False
-        OnClick = BUTTON_EDITNOTIFICATION_CANCELClick
+        Caption = 'Clear'
+        TabOrder = 7
+        OnClick = BUTTON_NEWNOTIFICATION_CLEARClick
       end
     end
     object TABSHEET_CHATSETTINGS: TTabSheet
@@ -1338,7 +1339,6 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     Enabled = False
     Interval = 100
     OnTimer = MP3TimerTimer
-    Left = 304
-    Top = 216
+    Left = 392
   end
 end

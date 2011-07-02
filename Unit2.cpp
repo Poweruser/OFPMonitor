@@ -342,8 +342,8 @@ class Game {
                                 this->folder = getFolder(this->exe);
                                 this->queryVersion();
                                 this->detectPlayer(player);
+                                this->set = true;
                         }
-                        this->set = true;
                 }
 
                 void detectPlayer(String setP) {
@@ -3016,6 +3016,7 @@ void __fastcall TWINDOW_SETTINGS::CHECKBOX_ARMACWAClick(TObject *Sender)
                 programSettings.removeGame(GAMEID_ARMACWA);
         } else {
                 checkForAutoDetection(GAMEID_ARMACWA);
+                programSettings.games[GAMEID_ARMACWA].set = true;
                 updateGames();
         }
         GROUPBOX_ARMACWA->Visible = CHECKBOX_ARMACWA->Checked;
