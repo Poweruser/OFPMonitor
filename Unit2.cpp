@@ -30,7 +30,6 @@ String getGameName(int gameid) {
         return "UNKNOWN GAME";
 }
 
-
 int getGameId(String name) {
         if(name == "OFP:CWC") { return GAMEID_OFPCWC; }
         if(name == "OFP:RES") { return GAMEID_OFPRES; }
@@ -59,7 +58,6 @@ class Configuration {
                 String password;
                 list<String> addParameters;
                 int gameid;
-//Configuration(gameid, EDIT_NEWCONFIGURATION_LABEL->Text, a, EDIT_NEWCONFIGURATION_PASSWORD->Text, EDIT_NEWCONFIGURATION_PARAMETERS->Text, CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked, CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
                 Configuration(int gameid, String l, list<String> &m, String pw, String aP, bool ns, bool nm) {
                         this->set = true;
                         this->gameid = gameid;
@@ -78,6 +76,11 @@ class Configuration {
 		Configuration () {
 			this->set = false;
 		}
+
+                /**
+                   Constructs the settings file's entry for this configuration
+                 */
+
                 TStringList* createFileEntry() {
                         TStringList *output = new TStringList;
                         output->Add("[Conf]");
@@ -97,6 +100,12 @@ class Configuration {
                         output->Add("[\\Conf]");
                         return output;
                 }
+
+                /**
+                   Constructs the startup line, the game application is fed with
+                   when OFPMonitor launches the application
+                */
+
                 String createStartLine(String ip, int port, String player) {
                         String out = "";
                         out += " " + this->createParameterLine();
@@ -114,6 +123,11 @@ class Configuration {
                         }
                         return out;
                 }
+
+                /**
+                   Constructs this configuration's entry in the settings window 
+                 */
+
                 String createListEntry() {
                         String out = "";
                         if(this->set) {
@@ -128,6 +142,11 @@ class Configuration {
                         return out;
                 }
 
+                /**
+                   Concatenates all mod folders of this configuration, with ; as seperator,
+                   as Operation Flashpoint expects it
+                 */
+
                 String createModLine () {
                         String modline = "";
                         unsigned int i = 0;
@@ -141,6 +160,10 @@ class Configuration {
                         return modline;
                 }
 
+                /**
+                   Concatenates all additional startup parameters of this configuration, with a space as seperator
+                 */
+
                 String createParameterLine() {
                         String paraline = "";
                         unsigned int j = 0;
@@ -153,6 +176,10 @@ class Configuration {
                         }
                         return paraline;
                 }
+
+                /**
+                   Creates and returns a copy of this configuration
+                 */
 
                 Configuration clone() {
                         list<String> c_mods;
@@ -258,6 +285,7 @@ list<String> findPlayerProfiles(String ofpfolder) {
         return profiles;
 }
 
+
 class Game {
         public:
                 bool set;
@@ -279,16 +307,11 @@ class Game {
                         this->fullName = "";
                         this->player = "";
                 }
-                  /*
-                Game (int gameid, String exe, String player) {
-                        this->set = true;
-                        this->exe = exe;
-                        this->folder = getFolder(this->exe);
-                        this->queryVersion();
-                        this->player = player;
-                        this->setGameId(gameid);
-                }
-                    */
+
+                /**
+                   Checks if the correct exe is set
+                 */
+
                 bool isValid() {
                         return FileExists(this->exe);
                 }
@@ -1838,6 +1861,10 @@ class MP3Job {
         }
 };
 
+/**
+   A mp3 player
+ */
+
 class MP3Player {
     public:
         MP3Job jobs[5];
@@ -1847,6 +1874,11 @@ class MP3Player {
         MP3Player() {
                 this->limit = 5;
         }
+
+        /**
+           Creates a new MP3Job for a certain notifiation @index
+           If one already exists, nothing is done
+         */
 
         void MP3add (int index) {
                 for(int i = 0; i < this->limit; i++) {
@@ -1889,6 +1921,10 @@ class MP3Player {
                 }
         }
 
+        /**
+           Stops and removes all MP3Jobs
+         */
+
         void reset() {
                 for(int i = 0; i < this->limit; i++) {
                         if(this->jobs[i].set) {
@@ -1899,6 +1935,11 @@ class MP3Player {
                         }
                 }           
         }
+
+        /**
+           Checks the status of all active MP3Jobs and removes them when ended.
+           Or repeats them, when the user has set it.
+         */
 
         bool check() {
                 bool hasJob = false;
@@ -1942,6 +1983,10 @@ class MP3Player {
                 }
                 return hasJob;
         }
+
+        /**
+           Removes the MP3Job that was created for a certain notification @index
+         */
 
         void MP3remove(int index) {
                 for(int i = 0; i < this->limit; i++) {
@@ -2327,7 +2372,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_OFPRES_BROWSEClick(TObject *Sender)
         if(!EDIT_OFPRES_EXECUTABLE->Text.IsEmpty()) {
                 OpenDialog1->InitialDir = getFolder(EDIT_OFPRES_EXECUTABLE->Text);
         }
-        OpenDialog1->Filter = "OFP:RES (FLASHPOINTRESISTANCE.EXE)|FLASHPOINTRESISTANCE.EXE";
+        OpenDialog1->Filter = "Operation Flashpoint: Resistance|FLASHPOINTRESISTANCE.EXE;FLASHPOINTBETA.EXE";
         OpenDialog1->Tag = GAMEID_OFPRES;
         OpenDialog1->Execute();
 }
@@ -2340,7 +2385,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_OFPCWC_BROWSEClick(
         if(!EDIT_OFPCWC_EXECUTABLE->Text.IsEmpty()) {
                 OpenDialog1->InitialDir = getFolder(EDIT_OFPCWC_EXECUTABLE->Text);
         }
-        OpenDialog1->Filter = "OFP:CWC (OperationFlashpoint.exe)|OperationFlashpoint.exe";
+        OpenDialog1->Filter = "Operation Flashpoint: Cold War Crisis|OperationFlashpoint.exe;OperationFlashpointbeta.exe";
         OpenDialog1->Tag = GAMEID_OFPCWC;
         OpenDialog1->Execute();
 }
@@ -2352,7 +2397,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_ARMACWA_BROWSEClick(
         if(!EDIT_ARMACWA_EXECUTABLE->Text.IsEmpty()) {
                 OpenDialog1->InitialDir = getFolder(EDIT_ARMACWA_EXECUTABLE->Text);
         }
-        OpenDialog1->Filter = "ARMA:CWA (ColdWarAssault.exe)|ColdWarAssault.exe";
+        OpenDialog1->Filter = "Armed Assault: Cold War Assault|ColdWarAssault.exe";
         OpenDialog1->Tag = GAMEID_ARMACWA;
         OpenDialog1->Execute();
 }
@@ -2360,7 +2405,30 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_ARMACWA_BROWSEClick(
 
 void __fastcall TWINDOW_SETTINGS::ComboBox2Change(TObject *Sender)
 {
-        if(ComboBox2->Text.IsEmpty()) {
+        updateConfList();
+        checkConfListState();
+        int comboindex = ComboBox2->Items->IndexOf(ComboBox2->Text);
+        if(comboindex >= 0) {
+                int gameid = (int) ComboBox2->Items->Objects[comboindex];
+                updateModFolderList(programSettings.games[gameid].folder);
+                GROUPBOX_CONFIGURATIONS->Enabled = true;
+                GROUPBOX_NEWCONFIGURATION->Enabled = true;
+                BUTTON_NEWCONFIGURATION_UP->Enabled = true;
+                BUTTON_NEWCONFIGURATION_DOWN->Enabled = true;
+                BUTTON_EDITCONFIGURATION_OK->Enabled = true;
+                BUTTON_NEWCONFIGURATION_ADD->Enabled = true;
+                BUTTON_NEWCONFIGURATION_CLEAR->Enabled = true;
+                BUTTON_EDITCONFIGURATION_CANCEL->Enabled = true;
+                BUTTON_NEWCONFIGURATION_MOVELEFT->Enabled = true;
+                BUTTON_NEWCONFIGURATION_MOVERIGHT->Enabled = true;
+                EDIT_NEWCONFIGURATION_LABEL->Enabled = true;
+                EDIT_NEWCONFIGURATION_PASSWORD->Enabled = true;
+                EDIT_NEWCONFIGURATION_PARAMETERS->Enabled = true;
+                CHECKBOX_NEWCONFIGURATION_NOSPLASH->Enabled = true;
+                CHECKBOX_NEWCONFIGURATION_NOMAP->Enabled = true;
+                LISTBOX_MODFOLDERS_ALL->Enabled = true;
+                LISTBOX_MODFOLDERS_SELECTED->Enabled = true;
+        } else {
                 GROUPBOX_CONFIGURATIONS->Enabled = false;
                 GROUPBOX_NEWCONFIGURATION->Enabled = false;
                 BUTTON_NEWCONFIGURATION_MOVELEFT->Enabled = false;
@@ -2378,30 +2446,6 @@ void __fastcall TWINDOW_SETTINGS::ComboBox2Change(TObject *Sender)
                 CHECKBOX_NEWCONFIGURATION_NOMAP->Enabled = false;
                 LISTBOX_MODFOLDERS_ALL->Enabled = false;
                 LISTBOX_MODFOLDERS_SELECTED->Enabled = false;
-        } else {
-                GROUPBOX_CONFIGURATIONS->Enabled = true;
-                GROUPBOX_NEWCONFIGURATION->Enabled = true;
-                BUTTON_NEWCONFIGURATION_UP->Enabled = true;
-                BUTTON_NEWCONFIGURATION_DOWN->Enabled = true;
-                BUTTON_EDITCONFIGURATION_OK->Enabled = true;
-                BUTTON_NEWCONFIGURATION_ADD->Enabled = true;
-                BUTTON_NEWCONFIGURATION_CLEAR->Enabled = true;
-                BUTTON_EDITCONFIGURATION_CANCEL->Enabled = true;
-                BUTTON_NEWCONFIGURATION_MOVELEFT->Enabled = false;
-                BUTTON_NEWCONFIGURATION_MOVERIGHT->Enabled = false;
-                EDIT_NEWCONFIGURATION_LABEL->Enabled = true;
-                EDIT_NEWCONFIGURATION_PASSWORD->Enabled = true;
-                EDIT_NEWCONFIGURATION_PARAMETERS->Enabled = true;
-                CHECKBOX_NEWCONFIGURATION_NOSPLASH->Enabled = true;
-                CHECKBOX_NEWCONFIGURATION_NOMAP->Enabled = true;
-                LISTBOX_MODFOLDERS_ALL->Enabled = true;
-                LISTBOX_MODFOLDERS_SELECTED->Enabled = true;
-                int comboindex = ComboBox2->Items->IndexOf(ComboBox2->Text);
-                if(comboindex >= 0) {
-                        int gameid = (int) ComboBox2->Items->Objects[comboindex];
-                        updateConfList();
-                        updateModFolderList(programSettings.games[gameid].folder);
-                }
         }
 }
 //---------------------------------------------------------------------------
@@ -2952,7 +2996,7 @@ void __fastcall TWINDOW_SETTINGS::UPDOWN_SERVERLIST_UPDATEClick(TObject *Sender,
 
 void __fastcall TWINDOW_SETTINGS::LISTBOX_CONFIGURATIONSClick(TObject *Sender)
 {
-        checkConfListState();              
+        checkConfListState();
 }
 //---------------------------------------------------------------------------
 

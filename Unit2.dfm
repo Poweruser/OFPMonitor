@@ -1,6 +1,6 @@
 object WINDOW_SETTINGS: TWINDOW_SETTINGS
-  Left = 190
-  Top = 103
+  Left = 207
+  Top = 147
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   BorderIcons = [biSystemMenu]
@@ -24,8 +24,8 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     Top = 8
     Width = 505
     Height = 473
-    ActivePage = TABSHEET_NOTIFICATIONS
-    TabIndex = 3
+    ActivePage = TABSHEET_GENERAL
+    TabIndex = 0
     TabOrder = 0
     object TABSHEET_GENERAL: TTabSheet
       Caption = 'General'
@@ -42,6 +42,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 102
           Height = 13
           Caption = 'Update-Interval (sec):'
+          Transparent = True
         end
         object EDIT_SERVERLIST_UPDATE: TEdit
           Left = 352
@@ -118,6 +119,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 61
           Height = 13
           Caption = 'Player name:'
+          Transparent = True
         end
         object EDIT_OFPCWC_EXECUTABLE: TEdit
           Left = 16
@@ -167,6 +169,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Height = 14
             Align = alRight
             Caption = 'Detected version:'
+            Transparent = True
           end
         end
       end
@@ -182,6 +185,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 61
           Height = 13
           Caption = 'Player name:'
+          Transparent = True
         end
         object BUTTON_OFPRES_BROWSE: TButton
           Left = 356
@@ -229,6 +233,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Height = 14
             Align = alLeft
             Caption = 'Executable:'
+            Transparent = True
           end
           object LABEL_OFPRES_DETECTEDVERSION: TLabel
             Left = 365
@@ -237,6 +242,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Height = 14
             Align = alRight
             Caption = 'Detected version:'
+            Transparent = True
           end
         end
       end
@@ -252,6 +258,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 61
           Height = 13
           Caption = 'Player name:'
+          Transparent = True
         end
         object EDIT_ARMACWA_EXECUTABLE: TEdit
           Left = 16
@@ -293,6 +300,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Height = 14
             Align = alLeft
             Caption = 'Executable:'
+            Transparent = True
           end
           object LABEL_ARMACWA_DETECTEDVERSION: TLabel
             Left = 365
@@ -301,6 +309,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Height = 14
             Align = alRight
             Caption = 'Detected version:'
+            Transparent = True
           end
         end
       end
@@ -418,6 +427,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 49
           Height = 13
           Caption = 'Password:'
+          Transparent = True
         end
         object LABEL_NEWCONFIGURATION_ADDITIONALPARAMETERS: TLabel
           Left = 274
@@ -425,6 +435,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 104
           Height = 13
           Caption = 'Additional parameters:'
+          Transparent = True
         end
         object LABEL_NEWCONFIGURATION_MODFOLDERS: TLabel
           Left = 8
@@ -432,6 +443,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 55
           Height = 13
           Caption = 'Modfolders:'
+          Transparent = True
         end
         object LABEL_NEWCONFIGURATION_LABEL: TLabel
           Left = 272
@@ -439,6 +451,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 29
           Height = 13
           Caption = 'Label:'
+          Transparent = True
         end
         object BUTTON_EDITCONFIGURATION_OK: TButton
           Left = 274
@@ -596,6 +609,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 75
         Height = 13
         Caption = 'Audio file (mp3):'
+        Transparent = True
       end
       object LABEL_NOTIFICATION_NAME: TLabel
         Left = 6
@@ -603,6 +617,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 31
         Height = 13
         Caption = 'Name:'
+        Transparent = True
       end
       object LabelMinutes: TLabel
         Left = 54
@@ -656,6 +671,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 67
         Height = 13
         Caption = 'Marking color:'
+        Transparent = True
       end
       object LABEL_AUDIO_TO: TLabel
         Left = 182
@@ -663,6 +679,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 16
         Height = 13
         Caption = 'To:'
+        Transparent = True
       end
       object LABEL_AUDIO_FROM: TLabel
         Left = 182
@@ -670,6 +687,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 26
         Height = 13
         Caption = 'From:'
+        Transparent = True
       end
       object BUTTON_NOTIFICATION_REMOVE: TButton
         Left = 6
@@ -1073,6 +1091,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 60
           Height = 13
           Caption = 'Servername:'
+          Transparent = True
         end
         object LABEL_FILTER_MISSIONNAME_BOX: TLabel
           Left = 152
@@ -1080,6 +1099,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 67
           Height = 13
           Caption = 'Mission name:'
+          Transparent = True
         end
         object LABEL_FILTER_PLAYERNAME_BOX: TLabel
           Left = 152
@@ -1087,6 +1107,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 58
           Height = 13
           Caption = 'Playername:'
+          Transparent = True
         end
         object LABEL_FILTER_STATUS: TLabel
           Left = 16
@@ -1094,6 +1115,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 33
           Height = 13
           Caption = 'Status:'
+          Transparent = True
         end
         object LABEL_FILTER_PASSWORD: TLabel
           Left = 16
@@ -1108,6 +1130,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 37
           Height = 13
           Caption = 'Players:'
+          Transparent = True
         end
         object CHECKBOX_FILTER_CREATING: TCheckBox
           Left = 16
@@ -1295,6 +1318,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     object TABSHEET_CHATSETTINGS: TTabSheet
       Caption = 'Chat'
       ImageIndex = 4
+      TabVisible = False
     end
   end
   object OpenDialog1: TOpenDialog
@@ -1302,15 +1326,13 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     Options = [ofPathMustExist, ofFileMustExist, ofNoNetworkButton, ofDontAddToRecent]
     OptionsEx = [ofExNoPlacesBar]
     OnCanClose = OpenDialog1CanClose
-    Left = 304
-    Top = 184
+    Left = 424
   end
   object OpenDialog2: TOpenDialog
     Filter = '*.mp3|*.mp3'
     Options = [ofReadOnly, ofHideReadOnly, ofNoNetworkButton, ofEnableSizing, ofDontAddToRecent]
     OnCanClose = OpenDialog2CanClose
-    Left = 304
-    Top = 152
+    Left = 456
   end
   object MP3Timer: TTimer
     Enabled = False

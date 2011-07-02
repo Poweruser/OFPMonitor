@@ -101,6 +101,7 @@ object Form1: TForm1
             Width = 86
             Height = 16
             Caption = 'Mission name:'
+            Transparent = True
           end
           object LABEL_FILTER_SERVERNAME: TLabel
             Left = 245
@@ -108,6 +109,7 @@ object Form1: TForm1
             Width = 80
             Height = 16
             Caption = 'Server name:'
+            Transparent = True
           end
           object LABEL_FILTER_PASSWORD: TLabel
             Left = 152
@@ -115,6 +117,7 @@ object Form1: TForm1
             Width = 63
             Height = 16
             Caption = 'Password:'
+            Transparent = True
           end
           object LABEL_FILTER_MINIMUMPLAYERS: TLabel
             Left = 152
@@ -122,6 +125,7 @@ object Form1: TForm1
             Width = 76
             Height = 16
             Caption = 'min. Players:'
+            Transparent = True
           end
           object LABEL_FILTER_PLAYERNAME: TLabel
             Left = 245
@@ -129,6 +133,7 @@ object Form1: TForm1
             Width = 79
             Height = 16
             Caption = 'Player name:'
+            Transparent = True
           end
           object LABEL_FILTER_STATUS: TLabel
             Left = 12
@@ -136,6 +141,7 @@ object Form1: TForm1
             Width = 40
             Height = 16
             Caption = 'Status:'
+            Transparent = True
           end
           object CHECKBOX_FILTER_PLAYING: TCheckBox
             Left = 12
@@ -356,7 +362,7 @@ object Form1: TForm1
           object LABEL_SERVERINFO_VERSION_VALUE: TLabel
             Left = 304
             Top = 16
-            Width = 30
+            Width = 57
             Height = 16
             Caption = '          '
             Transparent = True

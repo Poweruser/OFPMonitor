@@ -1902,9 +1902,17 @@ class MessageReader {
                         this->working = false;
                 }
 
+                /**
+                   Adds a new Message to the message queue
+                 */
+
                 void newMessage(Message m) {
                         this->messageList.push_back(m);
                 }
+
+                /**
+                   Checks for and processes messages. Only one thread does the work
+                 */
 
                 void checkForNewMessages() {
                         if(this->working) {
@@ -1970,6 +1978,10 @@ void copyToClipBoard (String msg) {
         }
         return;
 }
+
+/**
+   Object for settings concerning the chat
+ */
 
 class ChatSettings {
         public:
@@ -2041,6 +2053,10 @@ void TForm1::setChat(String host, int port, String channel, bool autoConnect) {
         chatsettings = ChatSettings(host, port, channel, autoConnect);
 }
 
+/**
+   Checks if a certain name is on the list of blocked users
+ */
+
 bool TForm1::isChatUserBlocked(String username) {
         int index;
         return blockedChatUsers->Find(username, index);
@@ -2058,6 +2074,11 @@ int TForm1::getChatPort() {
         return chatsettings.port;
 }
 
+/**
+   Does a notification because of a new chat messages.
+   If the chat window is not visible, a ballon hint will be displayed 
+ */
+
 void TForm1::ChatNotification(String msg) {
         if(!Form1->Visible || PageControl1->TabIndex != TABSHEET_CHAT->PageIndex) {
                 CoolTrayIcon1->HideBalloonHint();
@@ -2068,6 +2089,11 @@ void TForm1::ChatNotification(String msg) {
 void TForm1::ChatConnectionLost() {
         chatsettings.connectionLost = 1;
 }
+
+/**
+   Checks if a certain notification rule @index
+   is set for any server at the moment
+ */
 
 bool TForm1::isNotificationRuleActive(int index) {
         for(int i = 0; i < GetArrLength(ServerArray); i++) {
@@ -2080,6 +2106,7 @@ bool TForm1::isNotificationRuleActive(int index) {
         }
         return false;
 }
+
 
 void TForm1::resetNotifications(int notificationIndex) {
         for(int i = 0; i < GetArrLength(ServerArray); i++) {
