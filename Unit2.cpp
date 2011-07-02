@@ -323,7 +323,6 @@ class Game {
                 void autodetect(String exe, String player) {
                         String e = exe;
                         if(!FileExists(e)) {
-                                //ShowMessage("starting autodetect " + IntToStr(this->gameid) + " with " + e + " " + player);
                                 list<String> regFolder;
                                 if(this->gameid == GAMEID_OFPCWC || this->gameid == GAMEID_OFPRES) {
                                         regFolder.push_back("SOFTWARE");
@@ -862,9 +861,6 @@ void updateGames() {
                                 combobox->Text = WINDOW_SETTINGS->getGuiString("STRING_NOPROFILES");
                         }
                 } else {
-                        if(!programSettings.games[i].set) {
-                               // ShowMessage("game not set " + String(i));
-                        }
                         checkbox->Checked = false;
                 }
         }
@@ -1207,6 +1203,7 @@ list<String> readConfigFile() {
                                 String host = "irc.freenode.net";
                                 String channel = "operationflashpoint1";
                                 int port = 6666;
+                                String user = "";
                                 bool autoConnect = false;
                                 while((tmp.SubString(1,15) != "[\\ChatSettings]") && i < file->Count - 1) {
                                         if((tmp.SubString(1,11) == "AutoConnect")) {
@@ -1219,11 +1216,13 @@ list<String> readConfigFile() {
                                                 } catch (...) {}
                                         } else if((tmp.SubString(1,7) == "Channel")) {
                                                 channel = getValue(tmp);
+                                        } else if((tmp.SubString(1,8) == "UserName")) {
+                                                user = getValue(tmp);
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
-                                Form1->setChat(host, port, channel, autoConnect);
+                                Form1->setChat(host, port, channel, user, autoConnect);
                         } else if((tmp.SubString(1,16) == "[WindowSettings]")) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
@@ -1416,12 +1415,15 @@ void exitEditMode() {
         checkConfListState();
 }
 
-String TWINDOW_SETTINGS::getCurrentPlayerName() {
-        if(!WINDOW_SETTINGS->COMBOBOX_OFPRES_PROFILE->Enabled) {
-                return "";
-        } else {
-                return WINDOW_SETTINGS->COMBOBOX_OFPRES_PROFILE->Text;
+String TWINDOW_SETTINGS::getPlayerName(int actVer, int reqVer) {
+        for(int i = 0; i < GAMES_TOTAL; i++) {
+                if(programSettings.games[i].set) {
+                        if(programSettings.games[i].checkIfCorrectGame(actVer, reqVer)) {
+                                return programSettings.games[i].player;
+                        }
+                }
         }
+        return "";
 }
 
 void checkForAutoDetection(int gameid) {
@@ -1766,6 +1768,29 @@ void checkNotificationListState() {
         }
 }
 
+void updateChatSettings() {
+        WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Clear();
+        for(int i = 0; i < GAMES_TOTAL; i++) {
+                if(programSettings.games[i].set) {
+                        list<String> profiles = findPlayerProfiles(programSettings.games[i].folder);
+                        for (list<String>::iterator ci = profiles.begin(); ci != profiles.end(); ++ci) {
+                                if(WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Items->IndexOf(*ci) == -1) {
+                                        WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Items->Add(*ci);
+                                }
+                        }
+                }
+        }
+        String user = Form1->getChatUserName();
+        if(!user.IsEmpty()) {
+                WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Items->Add(user);
+        }
+        WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Text = Form1->getChatUserName();
+        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_ADDRESS->Text = Form1->getChatHost();
+        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_PORT->Text = Form1->getChatPort();
+        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_CHANNEL->Text = Form1->getChatChannel();
+        WINDOW_SETTINGS->CHECKBOX_CHAT_AUTOCONNECT->Checked = Form1->getChatAutoConnect();
+}
+
 void exitEditNotificationMode() {
         WINDOW_SETTINGS->LISTBOX_NOTIFICATIONS->Enabled = true;
         WINDOW_SETTINGS->BUTTON_EDITNOTIFICATION_OK->Enabled = false;
@@ -1825,7 +1850,6 @@ class MP3Job {
         void play() {
                 if(FileExists(this->file)) {
                         if(0 != mciSendString(("Open \"" + this->file + "\" alias " + this->alias).c_str(),0,0,0)) {
-                               // ShowMessage(this->file);
                                 this->error = true;
                         }
                         if(0 != mciSendString(("play " + this->alias + " from " + String(this->start) + " to " + String(this->end)).c_str(), 0, 0, 0)) {
@@ -2044,7 +2068,7 @@ void __fastcall TWINDOW_SETTINGS::FormCreate(TObject *Sender)
         updateConfList();
         updateGames();
         WINDOW_SETTINGS->ComboBox1->Text = programSettings.languagefile;
-        if(Form1->MENUITEM_MAINMENU_CHAT_AUTOCONNECT->Checked) {
+        if(Form1->getChatAutoConnect()) {
                 Form1->MENUITEM_MAINMENU_CHAT_CONNECT->Click();
         }
 }
@@ -2058,7 +2082,6 @@ void __fastcall TWINDOW_SETTINGS::OpenDialog1CanClose(TObject *Sender,
                 String folder = getFolder(exe);
                 programSettings.setGame(OpenDialog1->Tag, exe, "");
                 updateGames();
-                WINDOW_SETTINGS->setSettingsChanged();
                 OpenDialog1->InitialDir = "";
                 OpenDialog1->Tag = 0;
         }
@@ -2143,7 +2166,6 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_ADDClick(TObject *Send
                 Configuration newC = Configuration(gameid, EDIT_NEWCONFIGURATION_LABEL->Text, a, EDIT_NEWCONFIGURATION_PASSWORD->Text, EDIT_NEWCONFIGURATION_PARAMETERS->Text, CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked, CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
                 programSettings.pSaddConf(gameid, newC);
                 updateConfList();
-                WINDOW_SETTINGS->setSettingsChanged();
                 checkConfListState();
 }
 //---------------------------------------------------------------------------
@@ -2164,9 +2186,17 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_CLEARClick(TObject *Se
 
 void __fastcall TWINDOW_SETTINGS::FormClose(TObject *Sender, TCloseAction &Action)
 {
+        WINDOW_SETTINGS->setSettingsChanged();
         if(STOP->Visible) {
                 STOP->Click();
         }
+        try {
+                Form1->setChat(EDIT_CHAT_IRCSERVER_ADDRESS->Text,
+                StrToInt(EDIT_CHAT_IRCSERVER_PORT->Text),
+                EDIT_CHAT_IRCSERVER_CHANNEL->Text,
+                COMBOBOX_CHAT_USERNAME->Text,
+                CHECKBOX_CHAT_AUTOCONNECT->Checked);
+        } catch (...) {}
 }
 //---------------------------------------------------------------------------
 
@@ -2183,6 +2213,7 @@ void __fastcall TWINDOW_SETTINGS::FormKeyDown(TObject *Sender, WORD &Key,
 void __fastcall TWINDOW_SETTINGS::FormShow(TObject *Sender)
 {
         updateModFolderList(programSettings.folder);
+        updateChatSettings();
         exitEditMode();
 }
 //---------------------------------------------------------------------------
@@ -2289,7 +2320,6 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_OKClick(TObject *Send
                 }
         }
         updateConfList();
-        WINDOW_SETTINGS->setSettingsChanged();
         exitEditMode();
 }
 //---------------------------------------------------------------------------
@@ -2317,7 +2347,6 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_UPClick(TObject *Send
                                 TObject *t = LISTBOX_CONFIGURATIONS->Items->Objects[i];
                                 LISTBOX_CONFIGURATIONS->Items->Objects[i] = LISTBOX_CONFIGURATIONS->Items->Objects[i - 1];
                                 LISTBOX_CONFIGURATIONS->Items->Objects[i - 1] = t;
-                                WINDOW_SETTINGS->setSettingsChanged();
                                 break;
                         }
                 }
@@ -2339,7 +2368,6 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_DOWNClick(TObject *Se
                                 TObject *t = LISTBOX_CONFIGURATIONS->Items->Objects[i];
                                 LISTBOX_CONFIGURATIONS->Items->Objects[i] = LISTBOX_CONFIGURATIONS->Items->Objects[i + 1];
                                 LISTBOX_CONFIGURATIONS->Items->Objects[i + 1] = t;
-                                WINDOW_SETTINGS->setSettingsChanged();
                                 break;
                         }
                 }
@@ -2361,7 +2389,6 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_COPYClick(
                 }
         }
         updateConfList();
-        WINDOW_SETTINGS->setSettingsChanged();
         checkConfListState();
 }
 //---------------------------------------------------------------------------
@@ -2483,7 +2510,6 @@ void __fastcall TWINDOW_SETTINGS::CHECKBOX_OFPCWCClick(TObject *Sender)
         }
         GROUPBOX_OFPCWC->Visible = CHECKBOX_OFPCWC->Checked;
         GROUPBOX_OFPCWC->Enabled = CHECKBOX_OFPCWC->Checked;
-        WINDOW_SETTINGS->setSettingsChanged();
 }
 //---------------------------------------------------------------------------
 
@@ -2497,7 +2523,6 @@ void __fastcall TWINDOW_SETTINGS::CHECKBOX_OFPRESClick(TObject *Sender)
         }
         GROUPBOX_OFPRES->Visible = CHECKBOX_OFPRES->Checked;
         GROUPBOX_OFPRES->Enabled = CHECKBOX_OFPRES->Checked;
-        WINDOW_SETTINGS->setSettingsChanged();
 }
 //---------------------------------------------------------------------------
 
@@ -2722,7 +2747,6 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITNOTIFICATION_OKClick(
                 }
         }
         updateNotificationsList();
-        WINDOW_SETTINGS->setSettingsChanged();
         exitEditNotificationMode();
     }
 }
@@ -2778,7 +2802,6 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_NEWNOTIFICATION_ADDClick(
                         BUTTON_NEWNOTIFICATION_ADD->Enabled = false;
                 }
                 updateNotificationsList();
-                WINDOW_SETTINGS->setSettingsChanged();
                 checkNotificationListState();
         } else if(EDIT_NOTIFICATION_NAME->Text.Trim().IsEmpty()) {
                 EDIT_NOTIFICATION_NAME->SetFocus();
@@ -2967,7 +2990,6 @@ void __fastcall TWINDOW_SETTINGS::LISTBOX_NOTIFICATIONSClick(
 void __fastcall TWINDOW_SETTINGS::CHECKBOX_NOTIFICATIONS_ACTIVEClick(TObject *Sender)
 {
         WINDOW_SETTINGS->setCustomNotifications(CHECKBOX_NOTIFICATIONS_ACTIVE->Checked);
-        WINDOW_SETTINGS->setSettingsChanged();
         if(!CHECKBOX_NOTIFICATIONS_ACTIVE->Checked) {
                 WINDOW_SETTINGS->MP3shutdown();
         }
@@ -3021,7 +3043,28 @@ void __fastcall TWINDOW_SETTINGS::CHECKBOX_ARMACWAClick(TObject *Sender)
         }
         GROUPBOX_ARMACWA->Visible = CHECKBOX_ARMACWA->Checked;
         GROUPBOX_ARMACWA->Enabled = CHECKBOX_ARMACWA->Checked;
-        WINDOW_SETTINGS->setSettingsChanged();
+}                                                                            
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::EDIT_CHAT_IRCSERVER_PORTChange(
+      TObject *Sender)
+{
+        try {
+                int p = StrToInt(EDIT_CHAT_IRCSERVER_PORT->Text);
+        } catch (...) {
+                EDIT_CHAT_IRCSERVER_PORT->Text = Form1->getChatPort();
+        }
 }
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::BUTTON_CHAT_SETDEFAULTClick(
+      TObject *Sender)
+{
+        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_ADDRESS->Text = "irc.freenode.net";
+        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_PORT->Text = 6666;
+        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_CHANNEL->Text = "operationflashpoint1";
+        WINDOW_SETTINGS->CHECKBOX_CHAT_AUTOCONNECT->Checked = false;
+}
+//---------------------------------------------------------------------------
 
 

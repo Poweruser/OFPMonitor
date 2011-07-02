@@ -142,6 +142,18 @@ __published:	// IDE-managed Components
         TLabel *LABEL_AUDIO_FROM;
         TCheckBox *CHECKBOX_NOTIFICATIONS_ACTIVE;
         TGroupBox *GROUPBOX_NOTIFICATIONS;
+        TGroupBox *GROUPBOX_CHATSETTINGS_SERVER;
+        TGroupBox *GROUPBOX_CHATSETTINGS_GENERAL;
+        TEdit *EDIT_CHAT_IRCSERVER_ADDRESS;
+        TLabel *LABEL_CHAT_IRCSERVER_ADDRESS;
+        TLabel *LABEL_CHAT_IRCSERVER_PORT;
+        TEdit *EDIT_CHAT_IRCSERVER_PORT;
+        TLabel *LABEL_CHAT_IRCSERVER_CHANNEL;
+        TEdit *EDIT_CHAT_IRCSERVER_CHANNEL;
+        TButton *BUTTON_CHAT_SETDEFAULT;
+        TComboBox *COMBOBOX_CHAT_USERNAME;
+        TCheckBox *CHECKBOX_CHAT_AUTOCONNECT;
+        TLabel *LABEL_CHAT_USERNAME;
         void __fastcall BUTTON_OFPRES_BROWSEClick(TObject *Sender);
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialog1CanClose(TObject *Sender,
@@ -210,12 +222,14 @@ __published:	// IDE-managed Components
         void __fastcall MP3TimerTimer(TObject *Sender);
         void __fastcall LISTBOX_NOTIFICATIONSClick(TObject *Sender);
         void __fastcall CHECKBOX_NOTIFICATIONS_ACTIVEClick(TObject *Sender);
+        void __fastcall EDIT_CHAT_IRCSERVER_PORTChange(TObject *Sender);
+        void __fastcall BUTTON_CHAT_SETDEFAULTClick(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         int TWINDOW_SETTINGS::getConfAmount();
         String TWINDOW_SETTINGS::getConfListEntry(int gameid, int i);
         String TWINDOW_SETTINGS::getConfModLine(int gameid, int i);
-        String TWINDOW_SETTINGS::getCurrentPlayerName();
+        String TWINDOW_SETTINGS::getPlayerName(int actVer, int reqVer);
         boolean TWINDOW_SETTINGS::isOFPResistance();
         void TWINDOW_SETTINGS::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window, list<String> chat);
         void TWINDOW_SETTINGS::setSettingsChanged();

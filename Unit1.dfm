@@ -362,7 +362,7 @@ object Form1: TForm1
           object LABEL_SERVERINFO_VERSION_VALUE: TLabel
             Left = 304
             Top = 16
-            Width = 57
+            Width = 30
             Height = 16
             Caption = '          '
             Transparent = True
@@ -703,11 +703,6 @@ object Form1: TForm1
         Caption = 'Disconnect'
         Enabled = False
         OnClick = MENUITEM_MAINMENU_CHAT_DISCONNECTClick
-      end
-      object MENUITEM_MAINMENU_CHAT_AUTOCONNECT: TMenuItem
-        AutoCheck = True
-        Caption = 'Connect on start'
-        OnClick = MENUITEM_MAINMENU_CHAT_AUTOCONNECTClick
       end
       object MENUITEM_MAINMENU_CHAT_LOG: TMenuItem
         Caption = 'Log'

@@ -1,6 +1,6 @@
 object WINDOW_SETTINGS: TWINDOW_SETTINGS
-  Left = 228
-  Top = 149
+  Left = 324
+  Top = 98
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   AutoSize = True
@@ -25,8 +25,8 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     Top = 0
     Width = 505
     Height = 473
-    ActivePage = TABSHEET_GENERAL
-    TabIndex = 0
+    ActivePage = TABSHEET_CHATSETTINGS
+    TabIndex = 4
     TabOrder = 0
     object TABSHEET_GENERAL: TTabSheet
       Caption = 'General'
@@ -40,7 +40,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         object LABEL_SERVERLIST_INTERVAL: TLabel
           Left = 16
           Top = 20
-          Width = 102
+          Width = 361
           Height = 13
           Caption = 'Update-Interval (sec):'
           Transparent = True
@@ -97,7 +97,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         object CHECKBOX_NOTIFICATIONS_ACTIVE: TCheckBox
           Left = 16
           Top = 18
-          Width = 97
+          Width = 449
           Height = 17
           Caption = 'Active'
           TabOrder = 0
@@ -1085,9 +1085,9 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
       end
       object GROUPBOX_NOTIFICATIONS_FILTERS: TGroupBox
         Left = 184
-        Top = 16
+        Top = 8
         Width = 305
-        Height = 257
+        Height = 263
         Caption = 'Filters'
         TabOrder = 1
         object LABEL_FILTER_SERVERNAME_BOX: TLabel
@@ -1290,7 +1290,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
       end
       object LISTBOX_NOTIFICATIONS: TListBox
         Left = 6
-        Top = 16
+        Top = 13
         Width = 169
         Height = 185
         ItemHeight = 13
@@ -1319,7 +1319,102 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     object TABSHEET_CHATSETTINGS: TTabSheet
       Caption = 'Chat'
       ImageIndex = 4
-      TabVisible = False
+      object GROUPBOX_CHATSETTINGS_SERVER: TGroupBox
+        Left = 8
+        Top = 80
+        Width = 473
+        Height = 113
+        Caption = 'Chat server '
+        TabOrder = 0
+        object LABEL_CHAT_IRCSERVER_ADDRESS: TLabel
+          Left = 16
+          Top = 16
+          Width = 95
+          Height = 13
+          Caption = 'IRC Server address:'
+        end
+        object LABEL_CHAT_IRCSERVER_PORT: TLabel
+          Left = 384
+          Top = 16
+          Width = 22
+          Height = 13
+          Caption = 'Port:'
+        end
+        object LABEL_CHAT_IRCSERVER_CHANNEL: TLabel
+          Left = 16
+          Top = 60
+          Width = 42
+          Height = 13
+          Caption = 'Channel:'
+        end
+        object EDIT_CHAT_IRCSERVER_ADDRESS: TEdit
+          Left = 16
+          Top = 32
+          Width = 353
+          Height = 21
+          MaxLength = 32
+          TabOrder = 0
+        end
+        object EDIT_CHAT_IRCSERVER_PORT: TEdit
+          Left = 384
+          Top = 32
+          Width = 73
+          Height = 21
+          MaxLength = 5
+          TabOrder = 1
+          OnChange = EDIT_CHAT_IRCSERVER_PORTChange
+        end
+        object EDIT_CHAT_IRCSERVER_CHANNEL: TEdit
+          Left = 16
+          Top = 76
+          Width = 209
+          Height = 21
+          MaxLength = 32
+          TabOrder = 2
+        end
+        object BUTTON_CHAT_SETDEFAULT: TButton
+          Left = 256
+          Top = 64
+          Width = 203
+          Height = 33
+          Caption = 'Set default server'
+          TabOrder = 3
+          OnClick = BUTTON_CHAT_SETDEFAULTClick
+        end
+      end
+      object GROUPBOX_CHATSETTINGS_GENERAL: TGroupBox
+        Left = 8
+        Top = 8
+        Width = 473
+        Height = 65
+        Caption = 'General settings '
+        TabOrder = 1
+        object LABEL_CHAT_USERNAME: TLabel
+          Left = 16
+          Top = 16
+          Width = 54
+          Height = 13
+          Caption = 'User name:'
+        end
+        object COMBOBOX_CHAT_USERNAME: TComboBox
+          Left = 16
+          Top = 32
+          Width = 193
+          Height = 21
+          ItemHeight = 13
+          MaxLength = 14
+          Sorted = True
+          TabOrder = 0
+        end
+        object CHECKBOX_CHAT_AUTOCONNECT: TCheckBox
+          Left = 248
+          Top = 32
+          Width = 217
+          Height = 17
+          Caption = 'Autoconnect on startup'
+          TabOrder = 1
+        end
+      end
     end
   end
   object OpenDialog1: TOpenDialog

@@ -119,7 +119,6 @@ __published:	// IDE-managed Components
         TMenuItem *MENUITEM_MAINMENU_CHAT_SAVETOFILE;
         TMenuItem *MENUITEM_MAINMENU_CHAT_CLEARLOG;
         TSaveDialog *SaveDialog1;
-        TMenuItem *MENUITEM_MAINMENU_CHAT_AUTOCONNECT;
         TLabel *LABEL_SERVERINFO_EQMODREQ;
         TLabel *LABEL_SERVERINFO_EQMODREQ_VALUE;
         TCoolTrayIcon *CoolTrayIcon1;
@@ -182,7 +181,6 @@ __published:	// IDE-managed Components
         void __fastcall MENUITEM_MAINMENU_CHAT_SAVETOFILEClick(TObject *Sender);
         void __fastcall SaveDialog1CanClose(TObject *Sender,
           bool &CanClose);
-        void __fastcall MENUITEM_MAINMENU_CHAT_AUTOCONNECTClick(TObject *Sender);
         void __fastcall MemoChatInputChange(TObject *Sender);
         void __fastcall StringGrid3MouseDown(TObject *Sender,
           TMouseButton Button, TShiftState Shift, int X, int Y);
@@ -207,10 +205,12 @@ public:		// User declarations
                                 int devider);
         CustomStringList TForm1::splitUpMessage(String msg, String split);
         bool TForm1::doNameFilter(String c, String d);
-        void TForm1::setChat(String host, int port, String channel, bool autoConnect);
+        void TForm1::setChat(String host, int port, String channel, String user, bool autoConnect);
         String TForm1::getChatHost();
         int TForm1::getChatPort();
         String TForm1::getChatChannel();
+        String TForm1::getChatUserName();
+        bool TForm1::getChatAutoConnect();
         void TForm1::ChatNotification(String msg);
         void TForm1::ChatConnectionLost();
         bool TForm1::isChatUserBlocked(String username);

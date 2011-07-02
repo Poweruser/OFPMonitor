@@ -1157,7 +1157,6 @@ void updateServerInfoBox(int index) {
                 Form1->LABEL_SERVERINFO_IP_VALUE->Caption = ServerArray[index].ip;
                 Form1->LABEL_SERVERINFO_PORT_VALUE->Caption = ServerArray[index].gamespyport - 1;
                 Form1->LABEL_SERVERINFO_PLATFORM_VALUE->Caption = ServerArray[index].platform;
-                //Form1->Label18->Caption = ServerArray[index].impl;
                 Form1->LABEL_SERVERINFO_NAME->Caption = ServerArray[index].name;
                 Form1->BUTTON_SERVERINFO_COPYADDRESS->Enabled = true;
                 if(ServerArray[index].password) {
@@ -1180,7 +1179,6 @@ void updateServerInfoBox(int index) {
                 Form1->LABEL_SERVERINFO_PLATFORM_VALUE->Caption = " ";
                 Form1->LABEL_SERVERINFO_PASSWORD_VALUE->Caption = " ";
                 Form1->LABEL_SERVERINFO_EQMODREQ_VALUE->Caption = " ";
-                //Form1->Label18->Caption = " ";
         }
         return;
 }
@@ -1587,8 +1585,7 @@ void disableAutoJoin() {
 
 void startTheGame(String configuration, int actVer, int reqVer) {
         String exe = WINDOW_SETTINGS->getExe(actVer, reqVer);
-        if(!exe.IsEmpty()) {
-                //ShowMessage( + "\n" + configuration + "\n" +  WINDOW_SETTINGS->getExeFolder(actVer, reqVer));
+        if(FileExists(exe)) {
                 ShellExecute(NULL, "open", PChar(exe.c_str()), PChar(configuration.c_str()), PChar(WINDOW_SETTINGS->getExeFolder(actVer, reqVer).c_str()), SW_NORMAL);
         }
 }
@@ -1988,6 +1985,7 @@ class ChatSettings {
                 String host;
                 int port;
                 String channel;
+                String userName;
                 bool autoConnect;
                 int connectionLost;
                 bool doConnect;
@@ -1995,15 +1993,17 @@ class ChatSettings {
                         this->host = "irc.freenode.net";
                         this->port = 6666;
                         this->channel = "operationflashpoint1";
+                        this->userName = "";
                         this->setAutoConnect(false);
                         this->connectionLost = 0;
                         this->doConnect = false;
                 }
 
-                ChatSettings(String h, int p, String c, bool ac) {
+                ChatSettings(String h, int p, String c, String user, bool ac) {
                         this->host = h;
                         this->port = p;
                         this->channel = c;
+                        this->userName = user;
                         this->setAutoConnect(ac);
                         this->connectionLost = 0;
                         this->doConnect = false;
@@ -2011,9 +2011,6 @@ class ChatSettings {
 
                 void setAutoConnect(bool ac) {
                         this->autoConnect = ac;
-                        if(Form1 != NULL) {
-                                Form1->MENUITEM_MAINMENU_CHAT_AUTOCONNECT->Checked = ac;
-                        }
                 }
 
                 /**
@@ -2027,6 +2024,7 @@ class ChatSettings {
                         output.push_back("Host = " + this->host);
                         output.push_back("Port = " + String(this->port));
                         output.push_back("Channel = " + this->channel);
+                        output.push_back("UserName = " + this->userName);
                         output.push_back("AutoConnect = " + this->checkBool(this->autoConnect));
                         output.push_back("[\\ChatSettings]");
                         return output;
@@ -2049,8 +2047,8 @@ TStringList *blockedChatUsers = new TStringList();
    storing the chat settings
  */
 
-void TForm1::setChat(String host, int port, String channel, bool autoConnect) {
-        chatsettings = ChatSettings(host, port, channel, autoConnect);
+void TForm1::setChat(String host, int port, String channel, String user, bool autoConnect) {
+        chatsettings = ChatSettings(host, port, channel, user, autoConnect);
 }
 
 /**
@@ -2074,6 +2072,13 @@ int TForm1::getChatPort() {
         return chatsettings.port;
 }
 
+String TForm1::getChatUserName() {
+        return chatsettings.userName;
+}
+
+bool TForm1::getChatAutoConnect() {
+        return chatsettings.autoConnect;
+}
 /**
    Does a notification because of a new chat messages.
    If the chat window is not visible, a ballon hint will be displayed 
@@ -2491,25 +2496,24 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
         int index = a->Parent->Tag;
         int port = ServerArray[index].gameport;
         String ip = ServerArray[index].ip;
-        String playername = WINDOW_SETTINGS->getCurrentPlayerName();
-
-        bool found = false;
-        for (CustomPlayerList::iterator ci = ServerArray[index].playerlist.begin(); ci != ServerArray[index].playerlist.end(); ++ci) {
-                Player p = *ci;
-                if(p.name == playername) {
-                        found = true;
-                        break;
+        int gameid = WINDOW_SETTINGS->getGameId(ServerArray[index].actver, ServerArray[index].reqver);
+        if(gameid >= 0) {
+                String playername = WINDOW_SETTINGS->getPlayerName(ServerArray[index].actver, ServerArray[index].reqver);
+                bool found = false;
+                for (CustomPlayerList::iterator ci = ServerArray[index].playerlist.begin(); ci != ServerArray[index].playerlist.end(); ++ci) {
+                        Player p = *ci;
+                        if(p.name == playername) {
+                                found = true;
+                                break;
+                        }
                 }
-        }
-
-        int zz = 6;
-        if(found) {
-                zz = MessageBoxA(NULL, WINDOW_SETTINGS->getGuiString("STRING_PLAYER_ALREADY_ON_SERVER").c_str(),
+                int zz = 6;
+                if(found) {
+                        zz = MessageBoxA(NULL, WINDOW_SETTINGS->getGuiString("STRING_PLAYER_ALREADY_ON_SERVER").c_str(),
                                     "", MB_YESNO | MB_ICONQUESTION);
-        }
-        if(zz == 6) {
-                int gameid = WINDOW_SETTINGS->getGameId(ServerArray[index].actver, ServerArray[index].reqver);
-                if(gameid >= 0) {
+                }
+                if(zz == 6) {
+
                         if(a->Tag >= 0 && a->Tag < WINDOW_SETTINGS->getConfAmount()) {
                                 startTheGame(WINDOW_SETTINGS->getConfStartLine(gameid, a->Tag, ip, port), ServerArray[index].actver, ServerArray[index].reqver);
                         } else if(a->Tag == -2) {
@@ -2640,35 +2644,38 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
                 i = ServerArray[j].index;
         }
 
-        scandelay *= 1000;
-        dnsdb(NULL);
-        gslist_step_1(gamestr, filter);
-        peer.sin_addr.s_addr = msip;
-        peer.sin_port        = htons(msport);
-        peer.sin_family      = AF_INET;
+        TStringList *games = WINDOW_SETTINGS->getGameSpyGames();
+        for (int k = 0; k < games->Count; k++) {
+                scandelay *= 1000;
+                dnsdb(NULL);
+                gslist_step_1(gamestr, filter);
+                peer.sin_addr.s_addr = msip;
+                peer.sin_port        = htons(msport);
+                peer.sin_family      = AF_INET;
 
-        buff = (unsigned char *) malloc(BUFFSZ + 1);
-        if(!buff) std_err();
-        dynsz = BUFFSZ;
-        multigamename = gamestr;
-        multigamenamep = strchr((char *)gamestr, ',');
-        if(multigamenamep) {
-                *multigamenamep = 0;
+                buff = (unsigned char *) malloc(BUFFSZ + 1);
+                if(!buff) std_err();
+                dynsz = BUFFSZ;
+                multigamename = gamestr;
+                multigamenamep = strchr((char *)gamestr, ',');
+                if(multigamenamep) {
+                        *multigamenamep = 0;
+                }
+                sd = gslist_step_2(&peer, buff, secure, gamestr, validate, filter, &enctypex_data);
+                ipport = gslist_step_3(sd, validate, &enctypex_data, &len, &buff, &dynsz);
+                itsok = gslist_step_4(secure, buff, &enctypex_data, &ipport, &len);
+                ipbuffer = ipport;
+            	while(len >= 6) {
+                	ipc = myinetntoa(ipport->ip);
+                	if(!enctypex_query[0]) {
+                        	String s;
+                        	s.sprintf("%15s:%d", ipc, ntohs(ipport->port));
+                                CurrentList->Add(s.Trim());
+                	}
+                	ipport++;
+                	len -= 6;
+            	}
         }
-        sd = gslist_step_2(&peer, buff, secure, gamestr, validate, filter, &enctypex_data);
-        ipport = gslist_step_3(sd, validate, &enctypex_data, &len, &buff, &dynsz);
-        itsok = gslist_step_4(secure, buff, &enctypex_data, &ipport, &len);
-        ipbuffer = ipport;
-    	while(len >= 6) {
-        	ipc = myinetntoa(ipport->ip);
-        	if(!enctypex_query[0]) {
-                	String s;
-                	s.sprintf("%15s:%d", ipc, ntohs(ipport->port));
-                        CurrentList->Add(s.Trim());
-        	}
-        	ipport++;
-        	len -= 6;
-    	}
         CustomStringList addresses;
         while(CurrentList->Count > 0) {
                 addresses.push_back(CurrentList->Strings[0]);
@@ -2678,6 +2685,7 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
                 readServerList(addresses);
         }
         delete CurrentList;
+        delete games;
         WINDOW_SETTINGS->setSettingsChanged();
         Timer3->Enabled = true;
         Timer1->Enabled = true;
@@ -2862,12 +2870,6 @@ void __fastcall TForm1::SaveDialog1CanClose(TObject *Sender,
         delete log;
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_AUTOCONNECTClick(TObject *Sender)
-{
-        chatsettings.autoConnect = MENUITEM_MAINMENU_CHAT_AUTOCONNECT->Checked;
-        WINDOW_SETTINGS->setSettingsChanged();
-}
-//---------------------------------------------------------------------------
 
 void __fastcall TForm1::MemoChatInputChange(TObject *Sender)
 {
@@ -2957,6 +2959,7 @@ void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
         }
 }
 //---------------------------------------------------------------------------
+
 
 
 

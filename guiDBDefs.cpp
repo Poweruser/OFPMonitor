@@ -1,9 +1,9 @@
-TButton *guiButton[13];
-TCheckBox *guiCheckBox[12];
-TLabel *guiLabel[17];
-TGroupBox *guiGroupBox[9];
+TButton *guiButton[14];
+TCheckBox *guiCheckBox[13];
+TLabel *guiLabel[21];
+TGroupBox *guiGroupBox[11];
 TForm *guiForm[2];
-TMenuItem *guiMenuItem[20];
+TMenuItem *guiMenuItem[19];
 TTabSheet *guiTabSheet[7];
 
 

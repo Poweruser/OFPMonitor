@@ -266,12 +266,12 @@ void start_conversation( int sd, char * name ) {
 }
 
 void  getplayername() {
-        String currentOFPPlayer = WINDOW_SETTINGS->getCurrentPlayerName();
-        if(currentOFPPlayer.IsEmpty()) {
+        String chatName = Form1->getChatUserName();
+        if(chatName.IsEmpty()) {
                 string tmp = "Guest" + currentTimeString();
                 strcpy(playerName, tmp.c_str());
         } else {
-                strcpy(playerName, currentOFPPlayer.c_str());
+                strcpy(playerName, chatName.c_str());
         }
         return;
 }
