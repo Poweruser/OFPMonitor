@@ -25,8 +25,8 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     Top = 0
     Width = 505
     Height = 473
-    ActivePage = TABSHEET_GENERAL
-    TabIndex = 0
+    ActivePage = TABSHEET_MODS
+    TabIndex = 2
     TabOrder = 0
     object TABSHEET_GENERAL: TTabSheet
       Caption = 'General'
@@ -40,7 +40,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         object LABEL_SERVERLIST_INTERVAL: TLabel
           Left = 16
           Top = 20
-          Width = 361
+          Width = 102
           Height = 13
           Caption = 'Update-Interval (sec):'
           Transparent = True
@@ -135,7 +135,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 88
           Width = 313
           Height = 21
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 1
           OnChange = COMBOBOX_OFPCWC_PROFILEChange
         end
@@ -159,7 +159,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 0
             Top = 0
             Width = 56
-            Height = 14
+            Height = 13
             Align = alLeft
             Caption = 'Executable:'
           end
@@ -167,7 +167,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 365
             Top = 0
             Width = 84
-            Height = 14
+            Height = 13
             Align = alRight
             Caption = 'Detected version:'
             Transparent = True
@@ -216,7 +216,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
           Font.Style = []
-          ItemHeight = 13
+          ItemHeight = 0
           ParentFont = False
           TabOrder = 1
           OnChange = COMBOBOX_OFPRES_PROFILEChange
@@ -232,7 +232,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 0
             Top = 0
             Width = 56
-            Height = 14
+            Height = 13
             Align = alLeft
             Caption = 'Executable:'
             Transparent = True
@@ -241,7 +241,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 365
             Top = 0
             Width = 84
-            Height = 14
+            Height = 13
             Align = alRight
             Caption = 'Detected version:'
             Transparent = True
@@ -275,7 +275,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 88
           Width = 313
           Height = 21
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 1
           OnChange = COMBOBOX_ARMACWA_PROFILEChange
         end
@@ -299,7 +299,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 0
             Top = 0
             Width = 56
-            Height = 14
+            Height = 13
             Align = alLeft
             Caption = 'Executable:'
             Transparent = True
@@ -308,7 +308,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 365
             Top = 0
             Width = 84
-            Height = 14
+            Height = 13
             Align = alRight
             Caption = 'Detected version:'
             Transparent = True
@@ -1406,7 +1406,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 32
           Width = 209
           Height = 21
-          ItemHeight = 13
+          ItemHeight = 0
           MaxLength = 14
           Sorted = True
           TabOrder = 0

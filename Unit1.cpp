@@ -20,9 +20,7 @@
 TForm1 *Form1;
 #include "OFPMonitor.h"
 using namespace OFPMonitor_Unit1;
-
-
-
+                  
 typedef list<String> CustomStringList;
 
 /**                                                                                       

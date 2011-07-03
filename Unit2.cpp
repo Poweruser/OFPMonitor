@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 
-#include <vcl.h>                                                       
+#include <vcl.h>                                                          
 #include <list.h>
 #include <filectrl.hpp>
 #include <io.h>
@@ -619,6 +619,7 @@ class Settings {
                 }
 
                 void refreshGamesModList() {
+                        String last = WINDOW_SETTINGS->ComboBox2->Text;
                         WINDOW_SETTINGS->ComboBox2->Items->Clear();
                         for(int i = 0; i < GAMES_TOTAL; i++) {
                                 if(this->games[i].set && this->games[i].isValid()) {
@@ -626,9 +627,13 @@ class Settings {
                                 }
                         }
                         if(WINDOW_SETTINGS->ComboBox2->Items->Count > 0) {
-                                WINDOW_SETTINGS->ComboBox2->Text = WINDOW_SETTINGS->ComboBox2->Items->Strings[0];
-                                WINDOW_SETTINGS->ComboBox2Change(WINDOW_SETTINGS);
+                                if(WINDOW_SETTINGS->ComboBox2->Items->IndexOf(last) > -1) {
+                                        WINDOW_SETTINGS->ComboBox2->Text = last;
+                                } else {
+                                        WINDOW_SETTINGS->ComboBox2->Text = WINDOW_SETTINGS->ComboBox2->Items->Strings[0];
+                                }
                                 WINDOW_SETTINGS->ComboBox2->Enabled = true;
+                                WINDOW_SETTINGS->ComboBox2Change(WINDOW_SETTINGS);
                                 WINDOW_SETTINGS->GROUPBOX_NEWCONFIGURATION->Enabled = true;
                         } else {
                                 WINDOW_SETTINGS->ComboBox2->Text = "";
@@ -2212,9 +2217,8 @@ void __fastcall TWINDOW_SETTINGS::FormKeyDown(TObject *Sender, WORD &Key,
 //---------------------------------------------------------------------------
 void __fastcall TWINDOW_SETTINGS::FormShow(TObject *Sender)
 {
-        updateModFolderList(programSettings.folder);
-        updateChatSettings();
         exitEditMode();
+        updateChatSettings();
 }
 //---------------------------------------------------------------------------
 void __fastcall TWINDOW_SETTINGS::ComboBox1Change(TObject *Sender)
@@ -2432,6 +2436,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_ARMACWA_BROWSEClick(
 
 void __fastcall TWINDOW_SETTINGS::ComboBox2Change(TObject *Sender)
 {
+        exitEditMode();
         updateConfList();
         checkConfListState();
         int comboindex = ComboBox2->Items->IndexOf(ComboBox2->Text);
@@ -2528,7 +2533,7 @@ void __fastcall TWINDOW_SETTINGS::CHECKBOX_OFPRESClick(TObject *Sender)
 
 void __fastcall TWINDOW_SETTINGS::TABSHEET_MODSShow(TObject *Sender)
 {
-        programSettings.refreshGamesModList();        
+        programSettings.refreshGamesModList();
 }
 //---------------------------------------------------------------------------
 
