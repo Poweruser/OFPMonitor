@@ -2511,6 +2511,7 @@ void __fastcall TWINDOW_SETTINGS::CHECKBOX_OFPCWCClick(TObject *Sender)
                 programSettings.removeGame(GAMEID_OFPCWC);
         } else {
                 checkForAutoDetection(GAMEID_OFPCWC);
+                programSettings.games[GAMEID_OFPCWC].set = true;
                 updateGames();
         }
         GROUPBOX_OFPCWC->Visible = CHECKBOX_OFPCWC->Checked;
@@ -2524,6 +2525,7 @@ void __fastcall TWINDOW_SETTINGS::CHECKBOX_OFPRESClick(TObject *Sender)
                 programSettings.removeGame(GAMEID_OFPRES);
         } else {
                 checkForAutoDetection(GAMEID_OFPRES);
+                programSettings.games[GAMEID_OFPRES].set = true;
                 updateGames();
         }
         GROUPBOX_OFPRES->Visible = CHECKBOX_OFPRES->Checked;
