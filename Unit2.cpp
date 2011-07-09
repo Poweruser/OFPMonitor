@@ -619,28 +619,27 @@ class Settings {
                         return -1;
                 }
 
-                void refreshGamesModList() {
-                        String last = WINDOW_SETTINGS->ComboBox2->Text;
-                        WINDOW_SETTINGS->ComboBox2->Items->Clear();
+                void refreshGamesModList(TComboBox *box) {
+                        String last = box->Text;
+                        box->Items->Clear();
                         for(int i = 0; i < GAMES_TOTAL; i++) {
                                 if(this->games[i].set && this->games[i].isValid()) {
-                                        WINDOW_SETTINGS->ComboBox2->Items->AddObject(this->games[i].fullName, (TObject *)i);
+                                        box->Items->AddObject(this->games[i].fullName, (TObject *)i);
                                 }
                         }
-                        if(WINDOW_SETTINGS->ComboBox2->Items->Count > 0) {
-                                if(WINDOW_SETTINGS->ComboBox2->Items->IndexOf(last) > -1) {
-                                        WINDOW_SETTINGS->ComboBox2->Text = last;
+                        if(box->Items->Count > 0) {
+                                int index = box->Items->IndexOf(last);
+                                if(index > -1) {
+                                        box->ItemIndex = index;
                                 } else {
-                                        WINDOW_SETTINGS->ComboBox2->Text = WINDOW_SETTINGS->ComboBox2->Items->Strings[0];
+                                        box->ItemIndex = 0;
                                 }
-                                WINDOW_SETTINGS->ComboBox2->Enabled = true;
-                                WINDOW_SETTINGS->ComboBox2Change(WINDOW_SETTINGS);
+                                box->Enabled = true;
                                 WINDOW_SETTINGS->GROUPBOX_NEWCONFIGURATION->Enabled = true;
                         } else {
-                                WINDOW_SETTINGS->ComboBox2->Text = "";
-                                WINDOW_SETTINGS->ComboBox2->Enabled = false;
-                                WINDOW_SETTINGS->ComboBox2->OnChange(WINDOW_SETTINGS);
+                                box->Enabled = false;
                         }
+                        box->OnChange(WINDOW_SETTINGS);
                 }
 };
 Settings programSettings = Settings();
@@ -845,32 +844,34 @@ void updateGames() {
                         } else {
                                 label->Caption = "";
                         }
-                        combobox->Clear();
+                        combobox->Items->Clear();
                         list<String> profiles = findPlayerProfiles(programSettings.games[i].folder);
+                        String textToSet = "";
                         if(profiles.size() > 0) {
+                                combobox->Enabled = true;
                                 bool playerMatching = false;
                                 for (list<String>::iterator ci = profiles.begin(); ci != profiles.end(); ++ci) {
                                         combobox->Items->Add(*ci);
                                         if((*ci) == programSettings.games[i].player) {
-                                                combobox->Text = programSettings.games[i].player;
-                                                combobox->Enabled = true;
                                                 playerMatching = true;
                                         }
                                 }
                                 if(!playerMatching) {
                                         programSettings.games[i].detectPlayer("");
-                                        combobox->Text = programSettings.games[i].player;
                                 }
+                                textToSet = programSettings.games[i].player;
                         } else {
                                 combobox->Enabled = false;
                                 programSettings.games[i].player = "";
-                                combobox->Text = WINDOW_SETTINGS->getGuiString("STRING_NOPROFILES");
+                                textToSet = WINDOW_SETTINGS->getGuiString("STRING_NOPROFILES");
+                                combobox->Items->Add(textToSet);
                         }
+                        combobox->ItemIndex = combobox->Items->IndexOf(textToSet);
                 } else {
                         checkbox->Checked = false;
                 }
         }
-        programSettings.refreshGamesModList();
+        programSettings.refreshGamesModList(WINDOW_SETTINGS->ComboBox2);
 }
 
 
@@ -2055,6 +2056,17 @@ void TWINDOW_SETTINGS::MP3shutdown() {
         mp3p.reset();
         Form1->resetNotifications(-1);
 }
+
+void profileChanged(TComboBox *box, int gameid) {
+        if(gameid >= 0 && gameid < GAMES_TOTAL) {
+                if(box->Items->IndexOf(box->Text) == -1) {
+                        box->ItemIndex = box->Items->IndexOf(programSettings.games[gameid].player);
+                } else {
+                        programSettings.games[gameid].player = box->Text;
+                }
+        }
+}
+
 //---------------------------------------------------------------------------
 __fastcall TWINDOW_SETTINGS::TWINDOW_SETTINGS(TComponent* Owner)
         : TForm(Owner)
@@ -2073,7 +2085,7 @@ void __fastcall TWINDOW_SETTINGS::FormCreate(TObject *Sender)
         Form1->Timer3->Enabled = true;
         updateConfList();
         updateGames();
-        WINDOW_SETTINGS->ComboBox1->Text = programSettings.languagefile;
+        WINDOW_SETTINGS->ComboBox1->ItemIndex = WINDOW_SETTINGS->ComboBox1->Items->IndexOf(programSettings.languagefile);
         if(Form1->getChatAutoConnect()) {
                 Form1->MENUITEM_MAINMENU_CHAT_CONNECT->Click();
         }
@@ -2487,22 +2499,20 @@ void __fastcall TWINDOW_SETTINGS::ComboBox2Change(TObject *Sender)
 void __fastcall TWINDOW_SETTINGS::COMBOBOX_OFPCWC_PROFILEChange(
       TObject *Sender)
 {
-        if(COMBOBOX_OFPCWC_PROFILE->Items->IndexOf(COMBOBOX_OFPCWC_PROFILE->Text) == -1) {
-                COMBOBOX_OFPCWC_PROFILE->Text = programSettings.games[GAMEID_OFPCWC].player;
-        } else {
-                programSettings.games[GAMEID_OFPCWC].player = COMBOBOX_OFPCWC_PROFILE->Text;
-        }
+        profileChanged(COMBOBOX_OFPCWC_PROFILE, GAMEID_OFPCWC);
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::COMBOBOX_ARMACWA_PROFILEChange(
       TObject *Sender)
 {
-        if(COMBOBOX_OFPCWC_PROFILE->Items->IndexOf(COMBOBOX_OFPCWC_PROFILE->Text) == -1) {
-                COMBOBOX_OFPCWC_PROFILE->Text = programSettings.games[GAMEID_ARMACWA].player;
-        } else {
-                programSettings.games[GAMEID_ARMACWA].player = COMBOBOX_OFPCWC_PROFILE->Text;
-        }
+        profileChanged(COMBOBOX_ARMACWA_PROFILE, GAMEID_ARMACWA);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::COMBOBOX_OFPRES_PROFILEChange(TObject *Sender)
+{
+        profileChanged(COMBOBOX_OFPRES_PROFILE, GAMEID_OFPRES);
 }
 //---------------------------------------------------------------------------
 
@@ -2536,7 +2546,7 @@ void __fastcall TWINDOW_SETTINGS::CHECKBOX_OFPRESClick(TObject *Sender)
 
 void __fastcall TWINDOW_SETTINGS::TABSHEET_MODSShow(TObject *Sender)
 {
-        programSettings.refreshGamesModList();
+        programSettings.refreshGamesModList(ComboBox2);
 }
 //---------------------------------------------------------------------------
 
@@ -3028,16 +3038,7 @@ void __fastcall TWINDOW_SETTINGS::LISTBOX_CONFIGURATIONSClick(TObject *Sender)
 {
         checkConfListState();
 }
-//---------------------------------------------------------------------------
 
-void __fastcall TWINDOW_SETTINGS::COMBOBOX_OFPRES_PROFILEChange(TObject *Sender)
-{
-                if(COMBOBOX_OFPRES_PROFILE->Items->IndexOf(COMBOBOX_OFPRES_PROFILE->Text) == -1) {
-                COMBOBOX_OFPRES_PROFILE->Text = programSettings.games[GAMEID_OFPRES].player;
-        } else {
-                programSettings.games[GAMEID_OFPRES].player = COMBOBOX_OFPRES_PROFILE->Text;
-        }
-}
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::CHECKBOX_ARMACWAClick(TObject *Sender)

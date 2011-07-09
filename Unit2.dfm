@@ -1,6 +1,6 @@
 object WINDOW_SETTINGS: TWINDOW_SETTINGS
-  Left = 324
-  Top = 98
+  Left = 322
+  Top = 151
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   AutoSize = True
@@ -81,6 +81,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 449
           Height = 21
           AutoDropDown = True
+          Style = csDropDownList
           ImeMode = imDisable
           ItemHeight = 13
           TabOrder = 0
@@ -135,6 +136,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 88
           Width = 313
           Height = 21
+          Style = csDropDownList
           ItemHeight = 13
           TabOrder = 1
           OnChange = COMBOBOX_OFPCWC_PROFILEChange
@@ -211,6 +213,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 313
           Height = 21
           AutoDropDown = True
+          Style = csDropDownList
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
@@ -275,6 +278,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 88
           Width = 313
           Height = 21
+          Style = csDropDownList
           ItemHeight = 13
           TabOrder = 1
           OnChange = COMBOBOX_ARMACWA_PROFILEChange
@@ -596,6 +600,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Top = 12
         Width = 449
         Height = 21
+        Style = csDropDownList
         ItemHeight = 13
         TabOrder = 0
         OnChange = ComboBox2Change
