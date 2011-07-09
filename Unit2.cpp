@@ -196,6 +196,7 @@ class Configuration {
                         copy.password = this->password;
                         copy.mods = c_mods;
                         copy.addParameters = c_addParameters;
+                        copy.gameid = this->gameid;
                         return copy;
                 }
 };
