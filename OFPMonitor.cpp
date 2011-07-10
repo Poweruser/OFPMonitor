@@ -4,6 +4,7 @@
 #include <Psapi.h>
 #include <windows.h>
 #include <list.h>
+#include "FileVersion.h"
 #pragma hdrstop
 
 //---------------------------------------------------------------------------
@@ -27,7 +28,6 @@ class ProcessInfo {
 list<ProcessInfo> plist;
                               
 bool MyAppAlreadyRunning() {
-        return false;
         HANDLE hMutex = CreateMutex(NULL,true,"OFPMonitor");
         if (GetLastError() == ERROR_ALREADY_EXISTS ) {
                 CloseHandle(hMutex);
@@ -64,11 +64,13 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         if(!MyAppAlreadyRunning()) {
 	        try {
                         Application->Initialize();
-                        Application->Title = "OFPMonitor 1.53";
-                 Application->CreateForm(__classid(TForm1), &Form1);
-                 Application->CreateForm(__classid(TWINDOW_INFO), &WINDOW_INFO);
-                 Application->CreateForm(__classid(TWINDOW_SETTINGS), &WINDOW_SETTINGS);
-                 Application->Run();
+                        FileVersion *fv = new FileVersion(Application->ExeName);
+                        Application->Title = "OFPMonitor " + fv->getOFPMonitorVersion();
+                        delete fv;
+                        Application->CreateForm(__classid(TForm1), &Form1);
+                        Application->CreateForm(__classid(TWINDOW_INFO), &WINDOW_INFO);
+                        Application->CreateForm(__classid(TWINDOW_SETTINGS), &WINDOW_SETTINGS);
+                        Application->Run();
                 } catch (Exception &exception) {
                         Application->ShowException(&exception);
                 } catch (...) {

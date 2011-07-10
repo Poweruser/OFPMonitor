@@ -397,7 +397,7 @@ class Game {
                 void queryVersion() {
                         if(FileExists(this->exe)) {
                                 FileVersion *fv = new FileVersion(this->exe);
-                                this->version = fv->getVersion();
+                                this->version = fv->getOFPVersion();
                                 delete fv;
                         }
                 }

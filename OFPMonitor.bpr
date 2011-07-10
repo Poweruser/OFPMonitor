@@ -76,7 +76,7 @@ CodePage=1252
 
 [Version Info Keys]
 CompanyName=by Poweruser
-FileDescription=OFP:R Server monitoring tool
+FileDescription=OFP Server monitoring tool
 FileVersion=1.5.3.0
 InternalName=OFPMonitor
 LegalCopyright=(c) Poweruser

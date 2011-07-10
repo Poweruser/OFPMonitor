@@ -22,7 +22,23 @@ unsigned short FileVersion::majorVersion () {
 	VS_FIXEDFILEINFO *aInfo = (VS_FIXEDFILEINFO *) this->FixedInfo;
 	return (aInfo->dwFileVersionMS >> 16);
 }
-                
+
+unsigned short FileVersion::minorVersion () {
+	if (!this->FixedInfo) {
+		return 0;
+	}
+	VS_FIXEDFILEINFO *aInfo = (VS_FIXEDFILEINFO *) this->FixedInfo;
+	return (aInfo->dwFileVersionMS);
+}
+
+unsigned short FileVersion::releaseVersion () {
+	if (!this->FixedInfo) {
+		return 0;
+	}
+	VS_FIXEDFILEINFO * aInfo = (VS_FIXEDFILEINFO *) this->FixedInfo;
+	return (aInfo->dwFileVersionLS >> 16);
+}
+
 unsigned short FileVersion::buildVersion () {
 	if (!this->FixedInfo) {
 		return 0;
@@ -31,6 +47,13 @@ unsigned short FileVersion::buildVersion () {
 	return (aInfo->dwFileVersionLS);
 }
 
-int FileVersion::getVersion() {
+int FileVersion::getOFPVersion() {
 	return StrToInt((String)this->majorVersion() + (String)this->buildVersion());
+}
+
+String FileVersion::getOFPMonitorVersion() {
+        String major = (String)this->majorVersion();
+        String minor = (String)this->minorVersion();
+        String release = (String)this->releaseVersion();
+        return major + "." + minor + release;
 }

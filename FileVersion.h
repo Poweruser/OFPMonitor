@@ -14,9 +14,12 @@ class FileVersion {
                 ~FileVersion();
 
                 unsigned short majorVersion ();
+                unsigned short minorVersion ();
+                unsigned short releaseVersion ();
                 unsigned short buildVersion ();
 
-                int getVersion();
+                int getOFPVersion();
+                String getOFPMonitorVersion();
 };
 
 #endif
