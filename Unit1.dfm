@@ -688,9 +688,9 @@ object Form1: TForm1
       Caption = 'Font'
       OnClick = MENUITEM_MAINMENU_FONTClick
     end
-    object LocalGame1: TMenuItem
-      Caption = 'Local Game'
-      OnClick = LocalGame1Click
+    object MENUITEM_MAINMENU_LOCALGAME: TMenuItem
+      Caption = 'Local game'
+      OnClick = MENUITEM_MAINMENU_LOCALGAMEClick
     end
     object MENUITEM_MAINMENU_GETNEWSERVERLIST: TMenuItem
       Caption = 'Get new Server list'

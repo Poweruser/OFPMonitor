@@ -123,7 +123,7 @@ __published:	// IDE-managed Components
         TLabel *LABEL_SERVERINFO_EQMODREQ;
         TLabel *LABEL_SERVERINFO_EQMODREQ_VALUE;
         TCoolTrayIcon *CoolTrayIcon1;
-        TMenuItem *LocalGame1;
+        TMenuItem *MENUITEM_MAINMENU_LOCALGAME;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
@@ -195,7 +195,7 @@ __published:	// IDE-managed Components
           TShiftState Shift);
         void __fastcall MemoChatInputKeyUp(TObject *Sender, WORD &Key,
           TShiftState Shift);
-        void __fastcall LocalGame1Click(TObject *Sender);
+        void __fastcall MENUITEM_MAINMENU_LOCALGAMEClick(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         void TForm1::readServerList(list<String> &in);

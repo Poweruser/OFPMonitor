@@ -2958,7 +2958,7 @@ void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::LocalGame1Click(TObject *Sender)
+void __fastcall TForm1::MENUITEM_MAINMENU_LOCALGAMEClick(TObject *Sender)
 {
         WINDOW_LOCALGAME->ShowModal();        
 }
