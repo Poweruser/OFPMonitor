@@ -4,12 +4,13 @@
   <MACROS>
     <VERSION value="BCB.06.00"/>
     <PROJECT value="OFPMonitor.exe"/>
-    <OBJFILES value="OFPMonitor.obj Unit1.obj Unit2.obj Unit4.obj irc\irc.obj FileVersion.obj"/>
+    <OBJFILES value="OFPMonitor.obj Unit1.obj Unit2.obj Unit4.obj irc\irc.obj FileVersion.obj 
+      Unit3.obj"/>
     <RESFILES value="OFPMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
     <DEFFILE value=""/>
-    <RESDEPEN value="$(RESFILES) Unit1.dfm Unit2.dfm Unit4.dfm"/>
+    <RESDEPEN value="$(RESFILES) Unit1.dfm Unit2.dfm Unit4.dfm Unit3.dfm"/>
     <LIBFILES value="..\..\Lib\psapi.lib"/>
     <LIBRARIES value="CoolTrayIcon.lib bcbsmp.lib vclx.lib nmfast.lib rtl.lib vcl.lib"/>
     <SPARELIBS value="vcl.lib rtl.lib nmfast.lib vclx.lib bcbsmp.lib CoolTrayIcon.lib"/>
@@ -54,6 +55,7 @@
       <FILE FILENAME="Unit4.cpp" FORMNAME="WINDOW_INFO" UNITNAME="Unit4" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="irc\irc.cpp" FORMNAME="" UNITNAME="irc" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="FileVersion.cpp" FORMNAME="" UNITNAME="FileVersion" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Unit3.cpp" FORMNAME="WINDOW_LOCALGAME" UNITNAME="Unit3" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>

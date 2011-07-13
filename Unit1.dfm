@@ -1,7 +1,7 @@
 object Form1: TForm1
   Left = 443
   Top = 301
-  Width = 666
+  Width = 667
   Height = 500
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
@@ -27,7 +27,7 @@ object Form1: TForm1
   object Splitter1: TSplitter
     Left = 0
     Top = 263
-    Width = 658
+    Width = 659
     Height = 3
     Cursor = crVSplit
     Align = alTop
@@ -41,7 +41,7 @@ object Form1: TForm1
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 658
+    Width = 659
     Height = 263
     ActivePage = TABSHEET_SERVERINFO
     Align = alTop
@@ -53,14 +53,14 @@ object Form1: TForm1
       object Panel1: TPanel
         Left = 0
         Top = 0
-        Width = 650
+        Width = 651
         Height = 232
         Align = alClient
         BevelOuter = bvNone
         Constraints.MinHeight = 231
         TabOrder = 0
         object StringGrid2: TStringGrid
-          Left = 368
+          Left = 369
           Top = 0
           Width = 282
           Height = 232
@@ -473,7 +473,7 @@ object Form1: TForm1
   object StatusBar1: TStatusBar
     Left = 0
     Top = 420
-    Width = 658
+    Width = 659
     Height = 34
     BorderWidth = 1
     DragMode = dmAutomatic
@@ -508,7 +508,7 @@ object Form1: TForm1
   object StringGrid1: TStringGrid
     Left = 0
     Top = 266
-    Width = 658
+    Width = 659
     Height = 154
     Align = alClient
     BiDiMode = bdRightToLeft
@@ -687,6 +687,10 @@ object Form1: TForm1
     object MENUITEM_MAINMENU_FONT: TMenuItem
       Caption = 'Font'
       OnClick = MENUITEM_MAINMENU_FONTClick
+    end
+    object LocalGame1: TMenuItem
+      Caption = 'Local Game'
+      OnClick = LocalGame1Click
     end
     object MENUITEM_MAINMENU_GETNEWSERVERLIST: TMenuItem
       Caption = 'Get new Server list'

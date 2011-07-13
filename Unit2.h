@@ -2,6 +2,8 @@
 
 #ifndef Unit2H
 #define Unit2H
+
+#include <list.h>
 //---------------------------------------------------------------------------
 #include <Classes.hpp>
 #include <Controls.hpp>
@@ -226,21 +228,24 @@ __published:	// IDE-managed Components
         void __fastcall BUTTON_CHAT_SETDEFAULTClick(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
-        int TWINDOW_SETTINGS::getConfAmount();
+        int TWINDOW_SETTINGS::getConfAmount(int gameid);
         String TWINDOW_SETTINGS::getConfListEntry(int gameid, int i);
         String TWINDOW_SETTINGS::getConfModLine(int gameid, int i);
         String TWINDOW_SETTINGS::getPlayerName(int actVer, int reqVer);
-        boolean TWINDOW_SETTINGS::isOFPResistance();
+        String TWINDOW_SETTINGS::getSetGameFullName(int gameid);
+        String TWINDOW_SETTINGS::getFolder(String in);
         void TWINDOW_SETTINGS::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window, list<String> chat);
         void TWINDOW_SETTINGS::setSettingsChanged();
         void TWINDOW_SETTINGS::setCustomNotifications(bool active);
         bool TWINDOW_SETTINGS::areCustomNotificationsEnabled();
         TStringList* TWINDOW_SETTINGS::getWatchedList();
         String TWINDOW_SETTINGS::getConfStartLine(int gameid, int i, String ip, int port);
+        String TWINDOW_SETTINGS::getConfStartLineLocal(int gameid, int i, bool multiplayer);
         String TWINDOW_SETTINGS::getNoModsStartLine(int gameid, String ip, int port);
         String TWINDOW_SETTINGS::getSameModsStartLine(int gameid, String ip, int port, String servermods);
         int TWINDOW_SETTINGS::getGameId(int actVer, int reqVer);
         String TWINDOW_SETTINGS::getExe(int actVer, int reqVer);
+        String TWINDOW_SETTINGS::getExe(int gameid);
         String TWINDOW_SETTINGS::getExeFolder(int actVer, int reqVer);
         String TWINDOW_SETTINGS::getGuiString(String ident);
         TStringList* TWINDOW_SETTINGS::getGameSpyGames();
@@ -252,7 +257,6 @@ public:		// User declarations
                                 String missionname, bool passworded,
                                 list<String> playerList);
         TStringList* TWINDOW_SETTINGS::getNotificationsFileEntries();
-        void TWINDOW_SETTINGS::updateFontSettings(int charset);
         TColor TWINDOW_SETTINGS::getMarkingColor(int index);
         void TWINDOW_SETTINGS::MP3remove(int index);
         void TWINDOW_SETTINGS::MP3add(int index);

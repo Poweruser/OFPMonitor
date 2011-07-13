@@ -12,6 +12,7 @@
 
 #include "Unit2.h"
 #include "Unit1.h"
+#include "Unit3.h"
 #include "Unit4.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -37,14 +38,11 @@ int getGameId(String name) {
         return -1;
 }
 
-
-/**
-   Returns the number of game configurations the user has set
- */
-
-int TWINDOW_SETTINGS::getConfAmount() {
-        return confAmount;
+bool isValidGameID(int gameid) {
+        return (gameid >= 0 && gameid < GAMES_TOTAL);
 }
+
+
 
 /**
    Represents an game configuration, which the user can use to join an server
@@ -95,7 +93,7 @@ class Configuration {
                                 output->Add("Mods = " + this->createModLine());
                         }
                         if(this->addParameters.size() > 0) {
-                                output->Add("Parameters = " + this->createParameterLine());
+                                output->Add("Parameters = " + this->createParameterLine(false, false, false));
                         }
                         output->Add("[\\Conf]");
                         return output;
@@ -108,9 +106,28 @@ class Configuration {
 
                 String createStartLine(String ip, int port, String player) {
                         String out = "";
-                        out += " " + this->createParameterLine();
+                        out += " " + this->createParameterLine(false, true, false);
                         out += " -connect=" + ip;
                         out += " -port=" + String(port);
+                        String ml = this->createModLine();
+                        if(!player.IsEmpty()) {
+                                out += " \"-name=" + player + "\"";
+                        }
+                        if(!ml.IsEmpty()) {
+                                out += " \"-mod="+ ml +"\"";
+                        }
+                        if(!this->password.IsEmpty()) {
+                                out += " \"-password="  + this->password + "\"";
+                        }
+                        return out;
+                }
+
+                String createStartLineLocal(bool multiplayer, String player) {
+                        String out = "";
+                        out += " " + this->createParameterLine(true, true, true);
+                        if(multiplayer) {
+                                out += " -host";
+                        }
                         String ml = this->createModLine();
                         if(!player.IsEmpty()) {
                                 out += " \"-name=" + player + "\"";
@@ -164,14 +181,21 @@ class Configuration {
                    Concatenates all additional startup parameters of this configuration, with a space as seperator
                  */
 
-                String createParameterLine() {
+                String createParameterLine(bool forceNoHost, bool forceNoConnect, bool forceNoServer) {
                         String paraline = "";
                         unsigned int j = 0;
                         for (list<String>::iterator cj = this->addParameters.begin(); cj != this->addParameters.end(); ++cj) {
                                 j++;
-                                paraline += *cj;
-                                if(j < this->addParameters.size()) {
-                                        paraline += " ";
+                                String item = *cj;
+                                bool addIt = true;
+                                addIt = addIt && !(forceNoHost && item == "-host");
+                                addIt = addIt && !(forceNoConnect && item.SubString(1,8) == "-connect");
+                                addIt = addIt && !(forceNoServer && item == "-server");
+                                if(addIt) {
+                                        if(j > 1) {
+                                                paraline += " ";
+                                        }
+                                        paraline += *cj;
                                 }
                         }
                         return paraline;
@@ -248,7 +272,7 @@ String GetRegistryValue(void * root, list<String> a, String key) {
    Returns the folder of the game exe file
  */
 
-String getFolder(String in) {
+String TWINDOW_SETTINGS::getFolder(String in) {
         String out = "";
         for(int i = in.Length() - 1; i >= 0; i--) {
                 if(in.SubString(i,1) == "\\") {
@@ -339,7 +363,7 @@ class Game {
                         }
                         if(FileExists(e)) {
                                 this->exe = e;
-                                this->folder = getFolder(this->exe);
+                                this->folder = WINDOW_SETTINGS->getFolder(this->exe);
                                 this->queryVersion();
                                 this->detectPlayer(player);
                                 this->set = true;
@@ -358,7 +382,7 @@ class Game {
                                 regPlayer.push_back("ColdWarAssault");
                         }
                         String regP = GetRegistryValue(HKEY_CURRENT_USER, regPlayer, "Player Name");
-                        list<String> profiles = findPlayerProfiles(getFolder(this->exe));
+                        list<String> profiles = findPlayerProfiles(WINDOW_SETTINGS->getFolder(this->exe));
                         bool fRegPlayer = false, fSetPlayer = false;
                         for (list<String>::iterator ci = profiles.begin(); ci != profiles.end(); ++ci) {
                                 if((*ci) == setP && !setP.IsEmpty()) {
@@ -407,8 +431,20 @@ class Game {
                         return (reqVer <= this->version && this->version <= actVer && !this->player.IsEmpty());
                 }
 
-
+                int getConfigurationsCount() {
+                        int i = 0;
+                        for(int j = 0; j < confAmount; j++) {
+                                if(this->startupConfs[j].set) {
+                                        i++;
+                                } else {
+                                        break;
+                                }
+                        }
+                        return i;
+                }
 };
+
+
 
 /**
    Stores the general program settings
@@ -644,6 +680,26 @@ class Settings {
 };
 Settings programSettings = Settings();
 
+/**
+   Returns the number of game configurations the user has set
+ */
+
+int TWINDOW_SETTINGS::getConfAmount(int gameid) {
+        if(isValidGameID(gameid)) {
+                return programSettings.games[gameid].getConfigurationsCount();
+        }
+        return 0;
+}
+
+String TWINDOW_SETTINGS::getSetGameFullName(int gameid) {
+        if(     isValidGameID(gameid) &&
+                programSettings.games[gameid].set &&
+                programSettings.games[gameid].isValid()) {
+                return programSettings.games[gameid].fullName;
+        }
+        return "";
+}
+
 void TWINDOW_SETTINGS::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window, list<String> chat) {
         programSettings.writeToFile(servers, watchedServers, font, window, chat);
 }
@@ -666,6 +722,10 @@ String TWINDOW_SETTINGS::getConfListEntry(int gameid, int i) {
 
 String TWINDOW_SETTINGS::getConfStartLine(int gameid, int i, String ip, int port) {
         return programSettings.games[gameid].startupConfs[i].createStartLine(ip, port, programSettings.games[gameid].player);
+}
+
+String TWINDOW_SETTINGS::getConfStartLineLocal(int gameid, int i, bool multiplayer) {
+        return programSettings.games[gameid].startupConfs[i].createStartLineLocal(multiplayer, programSettings.games[gameid].player);
 }
 
 String TWINDOW_SETTINGS::getNoModsStartLine(int gameid, String ip, int port) {
@@ -701,6 +761,16 @@ String TWINDOW_SETTINGS::getExe(int actVer, int reqVer) {
                 }
         }
         return "";
+}
+
+String TWINDOW_SETTINGS::getExe(int gameid) {
+        String out = "";
+        if(isValidGameID(gameid)) {
+                if(programSettings.games[gameid].set) {
+                        out = programSettings.games[gameid].exe;
+                }
+        }
+        return out;
 }
 
 /**
@@ -982,7 +1052,7 @@ void updateLanguage(String languagefile) {
                                                 break;
                                         }
                                 }
-                        }
+                        } 
                 }
                 Form1->StringGrid1->Cells[0][0] = WINDOW_SETTINGS->getGuiString("STRING_ID");
                 Form1->StringGrid1->Cells[1][0] = WINDOW_SETTINGS->getGuiString("STRING_NAME");
@@ -1093,7 +1163,7 @@ list<String> readConfigFile() {
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
-                                if(gameid >= 0 && gameid < GAMES_TOTAL && !exe.IsEmpty()) {
+                                if(isValidGameID(gameid) && !exe.IsEmpty()) {
                                         programSettings.setGame(gameid, exe, player);
                                         gameSet = true;
                                 }
@@ -1812,11 +1882,6 @@ void exitEditNotificationMode() {
         checkNotificationListState();
 }
 
-      
-void TWINDOW_SETTINGS::updateFontSettings(int charset) {
-        WINDOW_SETTINGS->Font->Charset = charset;
-}
-
 class MP3Job {
     public:
         int notificationIndex;
@@ -2058,7 +2123,7 @@ void TWINDOW_SETTINGS::MP3shutdown() {
 }
 
 void profileChanged(TComboBox *box, int gameid) {
-        if(gameid >= 0 && gameid < GAMES_TOTAL) {
+        if(isValidGameID(gameid)) {
                 if(box->Items->IndexOf(box->Text) == -1) {
                         box->ItemIndex = box->Items->IndexOf(programSettings.games[gameid].player);
                 } else {

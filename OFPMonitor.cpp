@@ -11,6 +11,7 @@
 USEFORM("Unit1.cpp", Form1);
 USEFORM("Unit2.cpp", WINDOW_SETTINGS);
 USEFORM("Unit4.cpp", WINDOW_INFO);
+USEFORM("Unit3.cpp", WINDOW_LOCALGAME);
 //---------------------------------------------------------------------------
 class ProcessInfo {
         public:
@@ -28,6 +29,7 @@ class ProcessInfo {
 list<ProcessInfo> plist;
                               
 bool MyAppAlreadyRunning() {
+        return false;
         HANDLE hMutex = CreateMutex(NULL,true,"OFPMonitor");
         if (GetLastError() == ERROR_ALREADY_EXISTS ) {
                 CloseHandle(hMutex);
@@ -68,9 +70,10 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
                         Application->Title = "OFPMonitor " + fv->getOFPMonitorVersion();
                         delete fv;
                         Application->CreateForm(__classid(TForm1), &Form1);
-                        Application->CreateForm(__classid(TWINDOW_INFO), &WINDOW_INFO);
-                        Application->CreateForm(__classid(TWINDOW_SETTINGS), &WINDOW_SETTINGS);
-                        Application->Run();
+                 Application->CreateForm(__classid(TWINDOW_INFO), &WINDOW_INFO);
+                 Application->CreateForm(__classid(TWINDOW_LOCALGAME), &WINDOW_LOCALGAME);
+                 Application->CreateForm(__classid(TWINDOW_SETTINGS), &WINDOW_SETTINGS);
+                 Application->Run();
                 } catch (Exception &exception) {
                         Application->ShowException(&exception);
                 } catch (...) {

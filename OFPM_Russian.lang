@@ -45,6 +45,7 @@ GROUPBOX_NOTIFICATIONS = Уведомления
 
 WINDOW_SETTINGS = Опции
 WINDOW_INFO = Информация
+WINDOW_LOCALGAME = Местные игры
 
 MENUITEM_MAINMENU_EXIT = Выход
 MENUITEM_MAINMENU_SETTINGS = Опции
@@ -131,3 +132,8 @@ LABEL_CHAT_IRCSERVER_PORT = порт:
 LABEL_CHAT_IRCSERVER_CHANNEL = Чат канала:
 BUTTON_CHAT_SETDEFAULT = Установить сервер по умолчанию
 CHECKBOX_CHAT_AUTOCONNECT = Подключиться на старте
+
+LABEL_GAME = игра:
+LABEL_MOD = конфигурация:
+CHECKBOX_MULTIPLAYER = Мультиплеер
+BUTTON_LOCALGAME_START = начало

@@ -2,6 +2,7 @@
 
 #ifndef Unit1H
 #define Unit1H
+#include <list.h>
 //---------------------------------------------------------------------------
 #include <Classes.hpp>
 #include <Controls.hpp>
@@ -122,6 +123,7 @@ __published:	// IDE-managed Components
         TLabel *LABEL_SERVERINFO_EQMODREQ;
         TLabel *LABEL_SERVERINFO_EQMODREQ_VALUE;
         TCoolTrayIcon *CoolTrayIcon1;
+        TMenuItem *LocalGame1;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
@@ -193,17 +195,17 @@ __published:	// IDE-managed Components
           TShiftState Shift);
         void __fastcall MemoChatInputKeyUp(TObject *Sender, WORD &Key,
           TShiftState Shift);
+        void __fastcall LocalGame1Click(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
-        typedef list<String> CustomStringList;
-        void TForm1::readServerList(CustomStringList &in);
+        void TForm1::readServerList(list<String> &in);
         void TForm1::setFont(String name, int size, int charset,bool bold, bool italic);
         void TForm1::setWindowSettings(int top,int left, int height, int width, float ratioID,float ratioSN,
                                 float ratioPN,float ratioST,float ratioIS,
                                 float ratioMN,float ratioPI,float ratioPL,
                                 float ratioSC,float ratioDE,float ratioTE,
                                 int devider);
-        CustomStringList TForm1::splitUpMessage(String msg, String split);
+        list<String> TForm1::splitUpMessage(String msg, String split);
         bool TForm1::doNameFilter(String c, String d);
         void TForm1::setChat(String host, int port, String channel, String user, bool autoConnect);
         String TForm1::getChatHost();

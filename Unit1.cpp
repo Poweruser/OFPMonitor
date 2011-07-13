@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
-#include <list.h>
+#include <list.h>                                         
 #include <iostream.h>
 #include <mmsystem.h>
 #include <math.h>
@@ -9,6 +9,7 @@
 #include "irc/irc.h"
 #include "Unit1.h"
 #include "Unit2.h"
+#include "Unit3.h"
 #include "Unit4.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -20,8 +21,7 @@
 TForm1 *Form1;
 #include "OFPMonitor.h"
 using namespace OFPMonitor_Unit1;
-                  
-typedef list<String> CustomStringList;
+
 
 /**                                                                                       
    Macro to retrieve the length of an array
@@ -129,8 +129,8 @@ class FontSettings {
                    written to the configuration file of the program
                 */
 
-                CustomStringList createFileEntry() {
-                        CustomStringList output;
+                list<String> createFileEntry() {
+                        list<String> output;
                         output.push_back("[FontSettings]");
                         output.push_back("Charset = " + String(this->charset));
                         output.push_back("Name = " + this->name);
@@ -181,7 +181,7 @@ class FontSettings {
                         Form1->MemoChatInput->Constraints->MaxHeight = 3 * this->size * 2.0f;
                         Form1->MemoChatInput->Height = Form1->MemoChatInput->Constraints->MaxHeight;
                         WINDOW_SETTINGS->Font->Charset = this->charset;
-                        WINDOW_SETTINGS->updateFontSettings(this->charset);
+                        WINDOW_LOCALGAME->Font->Charset = this->charset;
                         return;
                 }
 };
@@ -322,8 +322,8 @@ class WindowSettings {
                    written to the configuration file of the program
                 */
 
-                CustomStringList createFileEntry() {
-                        CustomStringList output;
+                list<String> createFileEntry() {
+                        list<String> output;
                         String tmp;
                         output.push_back("[WindowSettings]");
                         output.push_back("Top = " + String(Form1->Top));
@@ -386,7 +386,7 @@ class QueryAnswer {
                 String id;
                 String part;
                 bool final;
-                CustomStringList content;
+                list<String> content;
 
                 /**
                    Constructor
@@ -1472,7 +1472,7 @@ Address getAddress(String address) {
    Reads an list of server internet addresses and sets up the ServerArray
  */
 
-void TForm1::readServerList(CustomStringList &servers) {
+void TForm1::readServerList(list<String> &servers) {
         Form1->StatusBar1->Panels->Items[0]->Text = "";
         Form1->StatusBar1->Panels->Items[1]->Text = "";
         TStringList *watched = WINDOW_SETTINGS->getWatchedList();
@@ -1506,8 +1506,8 @@ void TForm1::readServerList(CustomStringList &servers) {
    Converts an String into a list of Strings by using 'split' as seperator
  */
 
-CustomStringList TForm1::splitUpMessage(String msg, String split) {
-        CustomStringList a;
+list<String> TForm1::splitUpMessage(String msg, String split) {
+        list<String> a;
         int start = 1;
         if(split == "\\") {
                 start = 2;
@@ -1527,7 +1527,7 @@ CustomStringList TForm1::splitUpMessage(String msg, String split) {
    Removes all elements of list b and adds them in order to the end of list a
  */
 
-void mergeLists(CustomStringList &a, CustomStringList &b) {
+void mergeLists(list<String> &a, list<String> &b) {
         while(b.size() > 0) {
                 String tmp = b.front();
                 a.push_back(tmp);
@@ -1594,7 +1594,7 @@ void startTheGame(String configuration, int actVer, int reqVer) {
 
 bool readInfoPacket(int &i, String &msg, String ip, int &port) {
         bool out = false;
-        CustomStringList a = Form1->splitUpMessage(msg,"\\");
+        list<String> a = Form1->splitUpMessage(msg,"\\");
         if(a.size() <= 1) {
                 return false;
         }
@@ -1605,7 +1605,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
         a.pop_back();
 
         if(querystring == "queryid" && a.size()%2 == 0) {
-                CustomStringList b = Form1->splitUpMessage(idstring,".");
+                list<String> b = Form1->splitUpMessage(idstring,".");
                 if(b.size() == 2) {
                         int id = 0;
                         int part = 1;
@@ -1615,7 +1615,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                         } catch (...) {
                                 return false;
                         }
-                        CustomStringList tmp;
+                        list<String> tmp;
                         tmp.push_front(a.back());
                         a.pop_back();
                         if(a.back() == "final") {
@@ -1659,7 +1659,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                 return false;
         }
 
-        CustomStringList answer;
+        list<String> answer;
         bool success = false;
         if(final) {
                 bool correct = true;
@@ -1690,7 +1690,7 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
                 if(ServerArray[i].ip == ip && ServerArray[i].gamespyport == port && success) {
                         bool once = true;
                         int counter = answer.size();
-                        for (CustomStringList::iterator ci = answer.begin(); ci != answer.end(); ++ci) {
+                        for (list<String>::iterator ci = answer.begin(); ci != answer.end(); ++ci) {
                                 counter--;
                                 if(counter < 0) {
                                         break;
@@ -2016,8 +2016,8 @@ class ChatSettings {
                    written to the configuration file of the program
                 */
 
-                CustomStringList createFileEntry() {
-                        CustomStringList output;
+                list<String> createFileEntry() {
+                        list<String> output;
                         output.push_back("[ChatSettings]");
                         output.push_back("Host = " + this->host);
                         output.push_back("Port = " + String(this->port));
@@ -2203,8 +2203,8 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
         delete PlayerSortList;
         delete PlayerSortList2;
         delete blockedChatUsers;
-        CustomStringList servers;
-        CustomStringList watched;
+        list<String> servers;
+        list<String> watched;
         for(int i = 0; i < GetArrLength(ServerArray); i++) {
                 if(ServerArray[i].index == -1) {
                         break;
@@ -2326,7 +2326,7 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
                                 Form1->StringGrid1->Selection = myRect;
                                 processPlayerList(index);
                                 updateServerInfoBox(index);
-                                CustomStringList t = splitUpMessage(ServerArray[index].mod,";");
+                                list<String> t = splitUpMessage(ServerArray[index].mod,";");
 
                                 PopupMenu1->Items->Items[0]->Tag = index;
                                 PopupMenu1->Items->Items[1]->Tag = index;
@@ -2339,7 +2339,7 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
                                 PopupMenu1->Items->Items[4]->OnClick = ClickWatchButton;
                                 PopupMenu1->Items->Items[4]->Checked = ServerArray[index].watch;
                                 int i = 0;
-                                for (CustomStringList::iterator ci = t.begin(); ci != t.end(); ++ci) {
+                                for (list<String>::iterator ci = t.begin(); ci != t.end(); ++ci) {
                                         if(!(*ci).IsEmpty()) {
                                                 TMenuItem *m = PopupMenu1->Items->Items[3]->Items[i];
                                                 m->Caption = *ci;
@@ -2447,7 +2447,7 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
         MENUITEM_POPUP_JOIN->Enabled = (gameid >= 0);
         MENUITEM_POPUP_AUTOJOIN->Enabled = (gameid >= 0);
         MENUITEM_POPUP_AUTOJOINB->Enabled = (gameid >= 0);
-        for(i = additionalItems; i - additionalItems < WINDOW_SETTINGS->getConfAmount() || i < PopupMenu1->Items->Items[0]->Count; i++) {
+        for(i = additionalItems; i - additionalItems < WINDOW_SETTINGS->getConfAmount(gameid) || i < PopupMenu1->Items->Items[0]->Count; i++) {
                 String s = "";
                 if(gameid >= 0) {
                         s = WINDOW_SETTINGS->getConfListEntry(gameid, i - additionalItems);
@@ -2512,7 +2512,7 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
                 }
                 if(zz == 6) {
 
-                        if(a->Tag >= 0 && a->Tag < WINDOW_SETTINGS->getConfAmount()) {
+                        if(a->Tag >= 0 && a->Tag < WINDOW_SETTINGS->getConfAmount(gameid)) {
                                 startTheGame(WINDOW_SETTINGS->getConfStartLine(gameid, a->Tag, ip, port), ServerArray[index].actver, ServerArray[index].reqver);
                         } else if(a->Tag == -2) {
                                 startTheGame(WINDOW_SETTINGS->getNoModsStartLine(gameid, ip, port), ServerArray[index].actver, ServerArray[index].reqver);
@@ -2531,7 +2531,7 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
         int gameid = WINDOW_SETTINGS->getGameId(ServerArray[index].actver, ServerArray[index].reqver);
         if(gameid >= 0) {
                 ServerArray[index].autojoin = true;
-                if(a->Tag >= 0 && a->Tag < WINDOW_SETTINGS->getConfAmount()) {
+                if(a->Tag >= 0 && a->Tag < WINDOW_SETTINGS->getConfAmount(gameid)) {
                         ServerArray[index].autojoinConf = WINDOW_SETTINGS->getConfStartLine(gameid, a->Tag, ServerArray[index].ip, ServerArray[index].gameport);
                 } else if(a->Tag == -2) {
                         ServerArray[index].autojoinConf = WINDOW_SETTINGS->getNoModsStartLine(gameid, ServerArray[index].ip, ServerArray[index].gameport);
@@ -2674,7 +2674,7 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
                 	len -= 6;
             	}
         }
-        CustomStringList addresses;
+        list<String> addresses;
         while(CurrentList->Count > 0) {
                 addresses.push_back(CurrentList->Strings[0]);
                 CurrentList->Delete(0);
@@ -2958,9 +2958,9 @@ void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
 }
 //---------------------------------------------------------------------------
 
-
-
-
-
-
+void __fastcall TForm1::LocalGame1Click(TObject *Sender)
+{
+        WINDOW_LOCALGAME->ShowModal();        
+}
+//---------------------------------------------------------------------------
 
