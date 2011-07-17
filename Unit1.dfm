@@ -26,7 +26,7 @@ object Form1: TForm1
   TextHeight = 16
   object Splitter1: TSplitter
     Left = 0
-    Top = 263
+    Top = 271
     Width = 659
     Height = 3
     Cursor = crVSplit
@@ -42,7 +42,7 @@ object Form1: TForm1
     Left = 0
     Top = 0
     Width = 659
-    Height = 263
+    Height = 271
     ActivePage = TABSHEET_SERVERINFO
     Align = alTop
     Constraints.MinHeight = 263
@@ -54,16 +54,16 @@ object Form1: TForm1
         Left = 0
         Top = 0
         Width = 651
-        Height = 232
+        Height = 240
         Align = alClient
         BevelOuter = bvNone
-        Constraints.MinHeight = 231
+        Constraints.MinHeight = 240
         TabOrder = 0
         object StringGrid2: TStringGrid
           Left = 369
           Top = 0
           Width = 282
-          Height = 232
+          Height = 240
           Align = alRight
           ColCount = 4
           DefaultColWidth = 50
@@ -91,13 +91,13 @@ object Form1: TForm1
           Left = 1
           Top = 85
           Width = 368
-          Height = 146
+          Height = 155
           Align = alCustom
           Caption = '  Filters  '
           TabOrder = 1
           object LABEL_FILTER_MISSIONNAME: TLabel
             Left = 245
-            Top = 52
+            Top = 59
             Width = 86
             Height = 16
             Caption = 'Mission name:'
@@ -105,7 +105,7 @@ object Form1: TForm1
           end
           object LABEL_FILTER_SERVERNAME: TLabel
             Left = 245
-            Top = 12
+            Top = 13
             Width = 80
             Height = 16
             Caption = 'Server name:'
@@ -113,7 +113,7 @@ object Form1: TForm1
           end
           object LABEL_FILTER_PASSWORD: TLabel
             Left = 152
-            Top = 14
+            Top = 22
             Width = 63
             Height = 16
             Caption = 'Password:'
@@ -121,7 +121,7 @@ object Form1: TForm1
           end
           object LABEL_FILTER_MINIMUMPLAYERS: TLabel
             Left = 152
-            Top = 72
+            Top = 86
             Width = 76
             Height = 16
             Caption = 'min. Players:'
@@ -129,7 +129,7 @@ object Form1: TForm1
           end
           object LABEL_FILTER_PLAYERNAME: TLabel
             Left = 245
-            Top = 92
+            Top = 105
             Width = 79
             Height = 16
             Caption = 'Player name:'
@@ -137,7 +137,7 @@ object Form1: TForm1
           end
           object LABEL_FILTER_STATUS: TLabel
             Left = 12
-            Top = 14
+            Top = 22
             Width = 40
             Height = 16
             Caption = 'Status:'
@@ -145,7 +145,7 @@ object Form1: TForm1
           end
           object CHECKBOX_FILTER_PLAYING: TCheckBox
             Left = 12
-            Top = 96
+            Top = 112
             Width = 133
             Height = 17
             Caption = 'Playing'
@@ -156,7 +156,7 @@ object Form1: TForm1
           end
           object CHECKBOX_FILTER_WAITING: TCheckBox
             Left = 12
-            Top = 48
+            Top = 64
             Width = 133
             Height = 17
             Caption = 'Waiting'
@@ -167,7 +167,7 @@ object Form1: TForm1
           end
           object CHECKBOX_FILTER_CREATING: TCheckBox
             Left = 12
-            Top = 32
+            Top = 48
             Width = 133
             Height = 17
             Caption = 'Creating'
@@ -178,7 +178,7 @@ object Form1: TForm1
           end
           object CHECKBOX_FILTER_BRIEFING: TCheckBox
             Left = 12
-            Top = 80
+            Top = 96
             Width = 133
             Height = 17
             Caption = 'Briefing'
@@ -189,7 +189,7 @@ object Form1: TForm1
           end
           object CHECKBOX_FILTER_DEBRIEFING: TCheckBox
             Left = 12
-            Top = 112
+            Top = 128
             Width = 133
             Height = 17
             Caption = 'Debriefing'
@@ -200,7 +200,7 @@ object Form1: TForm1
           end
           object Edit1: TEdit
             Left = 245
-            Top = 68
+            Top = 78
             Width = 116
             Height = 24
             TabOrder = 11
@@ -208,7 +208,7 @@ object Form1: TForm1
           end
           object Edit2: TEdit
             Left = 245
-            Top = 28
+            Top = 32
             Width = 116
             Height = 24
             TabOrder = 10
@@ -216,7 +216,7 @@ object Form1: TForm1
           end
           object CHECKBOX_FILTER_WITHPASSWORD: TCheckBox
             Left = 152
-            Top = 32
+            Top = 48
             Width = 73
             Height = 17
             Caption = 'With'
@@ -225,7 +225,7 @@ object Form1: TForm1
           end
           object CHECKBOX_FILTER_WITHOUTPASSWORD: TCheckBox
             Left = 152
-            Top = 48
+            Top = 64
             Width = 65
             Height = 17
             Caption = 'Without'
@@ -236,7 +236,7 @@ object Form1: TForm1
           end
           object UpDown1: TUpDown
             Left = 209
-            Top = 94
+            Top = 112
             Width = 15
             Height = 24
             Associate = Edit3
@@ -248,7 +248,7 @@ object Form1: TForm1
           end
           object Edit3: TEdit
             Left = 152
-            Top = 94
+            Top = 112
             Width = 57
             Height = 24
             TabOrder = 8
@@ -257,7 +257,7 @@ object Form1: TForm1
           end
           object Edit4: TEdit
             Left = 245
-            Top = 108
+            Top = 124
             Width = 116
             Height = 24
             TabOrder = 12
@@ -265,7 +265,7 @@ object Form1: TForm1
           end
           object CHECKBOX_FILTER_SETTINGUP: TCheckBox
             Left = 12
-            Top = 64
+            Top = 80
             Width = 133
             Height = 17
             Caption = 'Setting up'
@@ -415,10 +415,10 @@ object Form1: TForm1
       ImageIndex = 1
       OnShow = TABSHEET_CHATShow
       object StringGrid3: TStringGrid
-        Left = 429
+        Left = 430
         Top = 0
         Width = 221
-        Height = 232
+        Height = 240
         Hint = 'ALT + LeftMouse mutes the user you click on'
         Align = alRight
         ColCount = 1
@@ -435,8 +435,8 @@ object Form1: TForm1
       object Panel2: TPanel
         Left = 0
         Top = 0
-        Width = 429
-        Height = 232
+        Width = 430
+        Height = 240
         Align = alClient
         Alignment = taLeftJustify
         BevelOuter = bvNone
@@ -446,8 +446,8 @@ object Form1: TForm1
         object MemoChatOutput: TMemo
           Left = 0
           Top = 0
-          Width = 429
-          Height = 206
+          Width = 430
+          Height = 214
           Align = alClient
           ReadOnly = True
           ScrollBars = ssVertical
@@ -456,8 +456,8 @@ object Form1: TForm1
         end
         object MemoChatInput: TMemo
           Left = 0
-          Top = 206
-          Width = 429
+          Top = 214
+          Width = 430
           Height = 26
           Align = alBottom
           Constraints.MaxHeight = 26
@@ -507,9 +507,9 @@ object Form1: TForm1
   end
   object StringGrid1: TStringGrid
     Left = 0
-    Top = 266
+    Top = 274
     Width = 659
-    Height = 154
+    Height = 146
     Align = alClient
     BiDiMode = bdRightToLeft
     ColCount = 7
