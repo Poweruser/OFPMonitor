@@ -12,9 +12,9 @@
     <DEFFILE value=""/>
     <RESDEPEN value="$(RESFILES) Unit1.dfm Unit2.dfm Unit4.dfm Unit3.dfm"/>
     <LIBFILES value="..\..\Lib\psapi.lib"/>
-    <LIBRARIES value="CoolTrayIcon.lib bcbsmp.lib vclx.lib nmfast.lib rtl.lib vcl.lib"/>
-    <SPARELIBS value="vcl.lib rtl.lib nmfast.lib vclx.lib bcbsmp.lib CoolTrayIcon.lib"/>
-    <PACKAGES value="vcl.bpi rtl.bpi visualclx.bpi nmfast.bpi vclx.bpi bcbsmp.bpi"/>
+    <LIBRARIES value="CoolTrayIcon.lib indy.lib bcbsmp.lib vclx.lib rtl.lib vcl.lib"/>
+    <SPARELIBS value="vcl.lib rtl.lib vclx.lib bcbsmp.lib indy.lib CoolTrayIcon.lib"/>
+    <PACKAGES value="vcl.bpi rtl.bpi visualclx.bpi vclx.bpi bcbsmp.bpi"/>
     <PATHCPP value=".;irc"/>
     <PATHPAS value=".;"/>
     <PATHRC value=".;"/>
@@ -33,7 +33,7 @@
   <OPTIONS>
     <IDLCFLAGS value="-Iirc -Iinclude -I.. -I$(BCB)\include -I$(BCB)\include\vcl -src_suffix cpp 
       -boa"/>
-    <CFLAG1 value="-O2 -H=$(BCB)\lib\vcl60.csm -Vx -Ve -X- -a8 -b- -k- -vi -c -tW -tWM"/>
+    <CFLAG1 value="-O2 -Vx -Ve -X- -a8 -b- -d -k -vi -c -tW -tWM"/>
     <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
     <RFLAGS value=""/>
     <AFLAGS value="/mx /w2 /zn"/>
@@ -66,7 +66,7 @@ IncludeVerInfo=1
 AutoIncBuild=0
 MajorVer=1
 MinorVer=5
-Release=3
+Release=4
 Build=0
 Debug=0
 PreRelease=0
@@ -79,7 +79,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=by Poweruser
 FileDescription=OFP Server monitoring tool
-FileVersion=1.5.3.0
+FileVersion=1.5.4.0
 InternalName=OFPMonitor
 LegalCopyright=(c) Poweruser
 LegalTrademarks=
@@ -87,6 +87,10 @@ OriginalFilename=OFPMonitor.exe
 ProductName=OFPMonitor
 ProductVersion=1.0.0.0
 Comments=
+
+[Excluded Packages]
+E:\ProgC\Borland\CBuilder6\Projects\Bpl\SUIPackC6.BPL=Sunisoft SUIPack
+E:\ProgC\Borland\CBuilder6\Projects\Bpl\winskinC6.bpl=VCLSkin C6
 
 [HistoryLists\hlIncludePath]
 Count=6

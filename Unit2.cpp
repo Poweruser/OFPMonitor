@@ -2147,7 +2147,6 @@ void __fastcall TWINDOW_SETTINGS::FormCreate(TObject *Sender)
         list<String> ipList = readConfigFile();
         updateLanguage(programSettings.languagefile);
         Form1->readServerList(ipList);
-        Form1->Timer3->Enabled = true;
         updateConfList();
         updateGames();
         WINDOW_SETTINGS->ComboBox1->ItemIndex = WINDOW_SETTINGS->ComboBox1->Items->IndexOf(programSettings.languagefile);

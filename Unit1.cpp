@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-#include <vcl.h>
+#include <vcl.h>                                                     
 #include <list.h>                                         
 #include <iostream.h>
 #include <mmsystem.h>
@@ -16,20 +16,12 @@
 #pragma link "CoolTrayIcon"
 #pragma resource "*.dfm"
 #pragma resource "wavefiles.res"
-
                 
 TForm1 *Form1;
 #include "OFPMonitor.h"
 using namespace OFPMonitor_Unit1;
 
-
-/**                                                                                       
-   Macro to retrieve the length of an array
- */
-
-TNMUDP *udpSocket;
-
-/**
+/**                                                                                          
    Represents an internet address with IP and port
  */
 
@@ -45,38 +37,6 @@ class Address {
                 Address(String ip, int port) {
                         this->ip = ip;
                         this->port = port;
-                }
-};
-
-/**
-   Each incoming answer of a server query will be first stored in a
-   Message-Object, which holds all important information about it
-   (IP, Port, Content, Time of arrival) and will be later procressed
-   by the MessageReader
- */
-
-class Message {
-        public:
-                String content;
-                String ip;
-                int port;
-                DWORD toa;
-
-                /**
-                   Constructor
-
-                   @ip  the ip the message came from
-                   @port  the port it came from
-                   @content  the message data
-                   @toa  time the message arrived at
-                         (is used to measure the ping)
-                */
-
-                Message(String ip, int port, String content, DWORD toa) {
-                        this->ip = ip;
-                        this->port = port;
-                        this->content = content;
-                        this->toa = toa;
                 }
 };
 
@@ -182,7 +142,6 @@ class FontSettings {
                         Form1->MemoChatInput->Height = Form1->MemoChatInput->Constraints->MaxHeight;
                         WINDOW_SETTINGS->Font->Charset = this->charset;
                         WINDOW_LOCALGAME->Font->Charset = this->charset;
-                        return;
                 }
 };
 
@@ -314,7 +273,6 @@ class WindowSettings {
                         Form1->StringGrid2->ColWidths[1] = (float)Form1->StringGrid2->Width * this->ratioSC;
                         Form1->StringGrid2->ColWidths[2] = (float)Form1->StringGrid2->Width * this->ratioDE;
                         Form1->StringGrid2->ColWidths[3] = (float)Form1->StringGrid2->Width * this->ratioTE;
-                        return;
                 }
 
                 /**
@@ -359,7 +317,6 @@ class WindowSettings {
                         this->ratioIS = (float)Form1->StringGrid1->ColWidths[4] / (float)Form1->StringGrid1->Width;
                         this->ratioMN = (float)Form1->StringGrid1->ColWidths[5] / (float)Form1->StringGrid1->Width;
                         this->ratioPI = (float)Form1->StringGrid1->ColWidths[6] / (float)Form1->StringGrid1->Width;
-                        return;
                 }
 
                 /**
@@ -372,7 +329,6 @@ class WindowSettings {
                         this->ratioSC = (float)Form1->StringGrid2->ColWidths[1] / (float)Form1->StringGrid2->Width;
                         this->ratioDE = (float)Form1->StringGrid2->ColWidths[2] / (float)Form1->StringGrid2->Width;
                         this->ratioTE = (float)Form1->StringGrid2->ColWidths[3] / (float)Form1->StringGrid2->Width;
-                        return;
                 }
 };
 
@@ -705,7 +661,6 @@ void addToErrorReport(String err, String msg) {
         error->Insert(0,"============================");
         error->SaveToFile("errorreport.txt");
         delete(error);
-        return;
 }
 
 /**
@@ -774,10 +729,12 @@ class Server {
                 bool watch;
                 bool autojoin;
                 String autojoinConf;
-                bool loseATurn;
                 CustomPlayerList playerlist;
                 QueryAnswer queries[queryArrayLength];
                 int notificationRuleIndex;
+                int missedQueryTurns;
+                int emptyServerCounter;
+
 
                 /**
                    Default Constructor of a blank server
@@ -801,7 +758,7 @@ class Server {
                    @ind  the server's index in the ServerArray
                  */
 
-                Server(String &i, int &p, int &ind) {
+                Server(String i, int p, int ind) {
                         this->watch = false;
                         this->clear();
                         this->index = ind;
@@ -817,7 +774,6 @@ class Server {
                  */
 
                 void clear() {
-                        this->loseATurn = false;
                         this->autojoin = false;
                         this->autojoinConf = "";
                         this->gameport = 0;
@@ -842,6 +798,8 @@ class Server {
                         this->queryid = 0;
                         this->playerlist.clear();
                         this->notificationRuleIndex = -1;
+                        this->missedQueryTurns = 0;
+                        this->emptyServerCounter = 0;
                 }
 };
 
@@ -893,7 +851,6 @@ void TForm1::setFont(String name, int size, int charset,
 
 void updateTimeoutLimit() {
         timeoutLimit = ceil(10000 / Form1->Timer1->Interval);
-        return;
 }
 
 /**
@@ -902,26 +859,18 @@ void updateTimeoutLimit() {
  */
 
 void sendUdpMessage(int index, String ip, int port, String msg) {
-        if(udpSocket != NULL) {
-                char buffer[256];
-                int len;
-                strcpy(buffer,msg.c_str());
-                len=strlen(buffer);
-                udpSocket->RemotePort = port;
-                udpSocket->RemoteHost = ip;
-                udpSocket->SendBuffer(buffer,256,len);
-                if(ServerArray[index].messageSent == 0) {
-                        ServerArray[index].messageSent = timeGetTime();
+        Form1->IdUDPServer1->Send(ip, port, msg);
+        //Form1->Memo1->Lines->Add("sende: "+ ip + ":" + String(port)); 
+        if(ServerArray[index].messageSent == 0) {
+                ServerArray[index].messageSent = timeGetTime();
+        } else {
+                int tmp = ServerArray[index].timeouts;
+                if(tmp < timeoutLimit) {
+                        ServerArray[index].timeouts = tmp + 1;
                 } else {
-                        int tmp = ServerArray[index].timeouts;
-                        if(tmp < timeoutLimit) {
-                                ServerArray[index].timeouts = tmp + 1;
-                        } else {
-                                ServerArray[index].clear();
-                        }
+                        ServerArray[index].clear();
                 }
         }
-        return;
 }
 
 /**
@@ -1030,7 +979,6 @@ void setEmptyStringGrid() {
         for(int i = 0; i < Form1->StringGrid1->ColCount; i++) {
                 Form1->StringGrid1->Cells[i][1] = "";
         }
-        return;
 }
 
 /**
@@ -1057,7 +1005,6 @@ void setEmptyPlayerList() {
         for(int i = 0; i < Form1->StringGrid2->ColCount; i++) {
                 Form1->StringGrid2->Cells[i][1] = "";
         }
-        return;
 }
 
 /**
@@ -1141,7 +1088,6 @@ void processPlayerList(int index) {
                         }
                 }
         }
-        return;
 }
 
 /**
@@ -1178,7 +1124,6 @@ void updateServerInfoBox(int index) {
                 Form1->LABEL_SERVERINFO_PASSWORD_VALUE->Caption = " ";
                 Form1->LABEL_SERVERINFO_EQMODREQ_VALUE->Caption = " ";
         }
-        return;
 }
 
 /**
@@ -1356,97 +1301,7 @@ void filterChanged(bool userinput) {
                 Form1->CoolTrayIcon1->Hint = "OFPMonitor";
         }
         filterChanging = false;
-        return;
 }
-
-/**
-   This class makes sure that the query of only one server is sent at a time, by
-   providing the index of one server and only increasing it, when the query
-   of the server before has been successfully sent.
- */
-
-class BroadcastRotation {
-        public:
-                int current;
-                bool receivingFirstTime;
-                bool loseTurnValue;
-                bool IsReady;
-                int selectedServerForDisplay;
-                BroadcastRotation() {
-                        this->reset();
-                }
-
-                /**
-                   Resets the object to its start values
-                */
-
-                void reset() {
-                        this->current = -1;
-                        this->IsReady = true;
-                        this->receivingFirstTime = true;
-                        this->loseTurnValue = false;
-                        this->selectedServerForDisplay = 0;
-                }
-
-                /**
-                   Decides which server is the next one to query
-                   @return  index of the server in the ServerArray
-                 */
-
-                int next() {
-                        bool temp = false;
-                        do {
-                                if(temp) {
-                                        ServerArray[this->current].loseATurn = false;
-                                }
-                                this->current = this->current + 1;
-                                if(this->current >= numOfServers) {
-                                        this->current = -1;
-                                        this->receivingFirstTime = false;
-                                        Form1->Timer3->Enabled = false;
-                                        Form1->Timer1->Enabled = true;
-                                        filterChanged(false);
-                                        processPlayerList(-1);
-                                        break;
-                                }
-                                temp = true;
-                        } while ( ServerArray[this->current].loseATurn );
-                        int out = this->current;
-                        return out;
-                }
-
-                /**
-                   Marks this object as Ready, meaning that the current
-                   server query has been successfully procressed
-
-                */
-
-                void setReady() {
-                        this->IsReady = true;
-                        return;
-                }
-
-                /**
-                   Used to distribute the "loseATurn" flags evenly among empty
-                   servers, when querying them the first time. Results in lower
-                   peaks of bandwidth usage
-                 */
-
-                bool loseTurn() {
-                        this->loseTurnValue = !this->loseTurnValue;
-                        return this->loseTurnValue;
-                }
-
-                /**
-                   Returns the current state of the object 
-                 */
-
-                bool isReady() {
-                        return this->IsReady;
-                }
-};
-
-BroadcastRotation serverCycle = BroadcastRotation();
 
 /**
    Reads an internet address "IP:Port" in string format
@@ -1499,7 +1354,6 @@ void TForm1::readServerList(list<String> &servers) {
         if(numOfServers == 0) {
                 MENUITEM_MAINMENU_GETNEWSERVERLIST->Click();
         }
-        return;
 }
 
 /**
@@ -1533,7 +1387,6 @@ void mergeLists(list<String> &a, list<String> &b) {
                 a.push_back(tmp);
                 b.pop_front();
         }
-        return;
 }
 
 /**
@@ -1558,7 +1411,6 @@ void playAudioServerStatus(int i, int newStatus) {
                         PlaySound(PChar(j), NULL, SND_RESOURCE | SND_ASYNC);
                 }
         }
-        return;
 }
 
 /**
@@ -1574,7 +1426,6 @@ void disableAutoJoin() {
                 ServerArray[i].autojoin = false;
                 ServerArray[i].autojoinConf = "";
         }
-        return;
 }
 
 /**
@@ -1592,7 +1443,7 @@ void startTheGame(String configuration, int actVer, int reqVer) {
    Checks a received query answer for validity and processes it then
  */
 
-bool readInfoPacket(int &i, String &msg, String ip, int &port) {
+bool readInfoPacket(int i, String msg, String ip, int port) {
         bool out = false;
         list<String> a = Form1->splitUpMessage(msg,"\\");
         if(a.size() <= 1) {
@@ -1883,82 +1734,10 @@ bool readInfoPacket(int &i, String &msg, String ip, int &port) {
 }
 
 /**
-   This MessageReader makes sure that new incoming messages are procressed
-   after each other (serial) and not at the same time (parallel). This resolves
-   some concurrent access issues on the storing data structures.
- */
-
-class MessageReader {
-        public:
-                bool working;
-                list<Message> messageList;
-
-                MessageReader() {
-                        this->working = false;
-                }
-
-                /**
-                   Adds a new Message to the message queue
-                 */
-
-                void newMessage(Message m) {
-                        this->messageList.push_back(m);
-                }
-
-                /**
-                   Checks for and processes messages. Only one thread does the work
-                 */
-
-                void checkForNewMessages() {
-                        if(this->working) {
-                                return;
-                        }
-                        this->working = true;
-                        while(this->messageList.size() > 0) {
-                                Message m = this->messageList.front();
-                                bool handled = false;
-                                for(int j = 0; j < numOfServers; j++) {
-                                        if(ServerArray[j].index == -1) {
-                                                break;
-                                        }
-                                        if(ServerArray[j].ip == m.ip && ServerArray[j].gamespyport == m.port) {
-                                                handled = true;
-                                                if(readInfoPacket(j, m.content, m.ip, m.port)) {
-                                                        if(!ServerArray[j].loseATurn && ServerArray[j].players == 0) {
-                                                                if(serverCycle.receivingFirstTime) {
-                                                                        ServerArray[j].loseATurn = serverCycle.loseTurn();
-                                                                } else {
-                                                                        ServerArray[j].loseATurn = true;
-                                                                }
-                                                        }
-                                                        if(ServerArray[j].messageSent > 1) {
-                                                                int curr = m.toa - ServerArray[j].messageSent;
-                                                                if(ServerArray[j].ping.size() > 1) {
-                                                                        ServerArray[j].ping.pop_front();
-                                                                }
-                                                                ServerArray[j].ping.push_back(curr);
-                                                                ServerArray[j].messageSent = 0;
-                                                                ServerArray[j].timeouts = 0;
-                                                        }
-                                                }
-                                                break;
-                                        }
-                                }
-                                this->messageList.pop_front();
-                                if(!handled) {
-                                        addToErrorReport("Non-handled message", String(m.ip) + ":" + String(m.port) + "   =>   " + m.content);
-                                }
-                        }
-                        this->working = false;
-                }
-};
-
-MessageReader messageReader = MessageReader();
-
-/**
    Copys a String to the clipboard of the OS
  */
 
+ 
 void copyToClipBoard (String msg) {
 	if (OpenClipboard(NULL) != 0) {
 		EmptyClipboard();
@@ -1971,7 +1750,6 @@ void copyToClipBoard (String msg) {
                 SetClipboardData(CF_TEXT,hClipboardData);
                 CloseClipboard();
         }
-        return;
 }
 
 /**
@@ -2121,6 +1899,10 @@ void TForm1::resetNotifications(int notificationIndex) {
         }
 }
 
+int getSelectedServer() {
+        return Form1->StringGrid1->Tag;
+}
+
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
@@ -2153,13 +1935,6 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         blockedChatUsers->CaseSensitive = true;
         blockedChatUsers->Duplicates = dupIgnore;
         updateTimeoutLimit();
-        udpSocket = new TNMUDP(Form1);
-        udpSocket->ReportLevel = 5;
-        udpSocket->LocalPort = 0;
-        udpSocket->RemotePort = 2303;
-        udpSocket->RemoteHost = "localhost";
-        udpSocket->OnDataReceived = UDPSocketDataReceived;
-        udpSocket->OnDataSend = UDPSocketDataSend;
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
@@ -2172,12 +1947,14 @@ void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
 {
         String z = (StringGrid1->Cells[0][ARow]).Trim();
         if(!z.IsEmpty()) {
+                int index = -1;
                 try {
-                        int index = StrToInt(z);
-                        serverCycle.selectedServerForDisplay = index;
+                        index = StrToInt(z);
+                        StringGrid1->Tag = index;
                         processPlayerList(index);
                         updateServerInfoBox(index);
-                } catch (...) { }
+                } catch (...) {
+                }
         } else {
                 setEmptyPlayerList();
         }
@@ -2185,9 +1962,11 @@ void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Timer1Timer(TObject *Sender)
 {
-        Application->ProcessMessages();
-        Timer3->Enabled = true;
         Timer1->Enabled = false;
+        Application->ProcessMessages();
+        filterChanged(false);
+        processPlayerList(-1);
+        Timer2->Enabled = true;
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
@@ -2197,8 +1976,8 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
                 MENUITEM_MAINMENU_CHAT_DISCONNECT->Click();
         }
         WINDOW_SETTINGS->MP3shutdown();
+        Timer2->Enabled = false;
         Timer1->Enabled = false;
-        Timer3->Enabled = false;
         delete ServerSortList;
         delete PlayerSortList;
         delete PlayerSortList2;
@@ -2247,23 +2026,6 @@ void __fastcall TForm1::CHECKBOX_FILTER_BRIEFINGClick(TObject *Sender)
 void __fastcall TForm1::CHECKBOX_FILTER_DEBRIEFINGClick(TObject *Sender)
 {
         filterChanged(true);
-}
-//---------------------------------------------------------------------------
-void __fastcall TForm1::Timer3Timer(TObject *Sender)
-{
-        messageReader.checkForNewMessages();
-        if(serverCycle.isReady()) {
-                int a = serverCycle.next();
-                if(a >= 0) {
-                        if(     serverCycle.selectedServerForDisplay == a ||
-                                ServerArray[a].name.IsEmpty() ||
-                                ServerArray[a].players != ServerArray[a].playerlist.size()) {
-                                sendUdpMessage(a, ServerArray[a].ip,ServerArray[a].gamespyport,"\\info\\rules\\players\\");
-                        } else {
-                                sendUdpMessage(a, ServerArray[a].ip,ServerArray[a].gamespyport,"\\info\\rules\\");
-                        }
-                }
-        }            
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CHECKBOX_FILTER_WITHPASSWORDClick(TObject *Sender)
@@ -2620,12 +2382,11 @@ void __fastcall TForm1::MENUITEM_MAINMENU_EXITClick(TObject *Sender)
 void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
 {
         MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = false;
-        Timer3->Enabled = false;
         Timer1->Enabled = false;
+        Timer2->Enabled = false;
         setEmptyStringGrid();
         setEmptyPlayerList();
         updateServerInfoBox(-1);
-        serverCycle.reset();
         tableSorter.reset();
         TStringList *CurrentList = new TStringList;
         CurrentList->Sorted = true;
@@ -2685,8 +2446,7 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
         delete CurrentList;
         delete games;
         WINDOW_SETTINGS->setSettingsChanged();
-        Timer3->Enabled = true;
-        Timer1->Enabled = true;
+        Timer2->Enabled = true;
         MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = true;
 }
 //---------------------------------------------------------------------------
@@ -2763,35 +2523,6 @@ void __fastcall TForm1::Info1Click(TObject *Sender)
         WINDOW_INFO->ShowModal();
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::UDPSocketDataReceived(TComponent *Sender,
-      int NumberBytes, AnsiString FromIP, int Port)
-{
-        const int bytes = 2048;
-        int len;
-        if(NumberBytes < bytes) {
-                DWORD i = timeGetTime();
-                char buffer[bytes];
-                udpSocket->ReadBuffer(buffer,bytes,len);
-                buffer[len] = 0;
-                String buf = String(buffer);
-                messageReader.newMessage(Message(FromIP,Port,buf,i));
-        } else {
-                addToErrorReport("Fehler 1","Receiving buffer too small. Current: 2048. Received: " + String(NumberBytes) + " Bytes");
-        }
-}
-//---------------------------------------------------------------------------
-void __fastcall TForm1::UDPSocketDataSend(TObject *Sender)
-{
-        serverCycle.setReady();
-}
-//---------------------------------------------------------------------------
-void __fastcall TForm1::FormCloseQuery(TObject *Sender, bool &CanClose)
-{
-        if(udpSocket != NULL) {
-              udpSocket->Free();
-        }
-}
-//---------------------------------------------------------------------------
 void __fastcall TForm1::TimerIrcChatTimerTimer(TObject *Sender)
 {
         if(chatsettings.connectionLost == 1) {
@@ -2835,7 +2566,9 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
 {
         MemoChatInput->Enabled = false;
         MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = false;
+        ShowMessage("vor connectionLost: " + String(chatsettings.connectionLost));
         chat_client_disconnect();
+        ShowMessage("nach connectionLost: " + String(chatsettings.connectionLost));
         TimerIrcChatTimer->Enabled = false;
         StringGrid3->RowCount = 0;
         StringGrid3->Cells[0][0] = "";
@@ -2843,6 +2576,8 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
         if(chatsettings.connectionLost == 0) {
                 MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_DISCONNECTED"));
         }
+
+        ShowMessage("xx_" + WINDOW_SETTINGS->getGuiString("STRING_CHAT_DISCONNECTED") + "_xx");
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = true;
 }
 //---------------------------------------------------------------------------
@@ -2961,6 +2696,85 @@ void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
 void __fastcall TForm1::MENUITEM_MAINMENU_LOCALGAMEClick(TObject *Sender)
 {
         WINDOW_LOCALGAME->ShowModal();        
+}
+//---------------------------------------------------------------------------
+                                  
+void __fastcall TForm1::IdUDPServer1UDPRead(TObject *Sender,
+      TStream *AData, TIdSocketHandle *ABinding)
+{
+        DWORD i = timeGetTime();
+        char buf[2048];
+        int size = AData->Size;
+        if(size < 2048) {
+                AData->ReadBuffer(buf, size);
+                buf[size] = 0;
+                String content = String(buf);
+                bool handled = false;
+                for(int j = 0; j < GetArrLength(ServerArray); j++) {
+                        if(ServerArray[j].index == -1) {
+                                break;
+                        }
+                        if(ServerArray[j].ip == ABinding->PeerIP && ServerArray[j].gamespyport == ABinding->PeerPort) {
+                                handled = true;
+                                if(readInfoPacket(j, content, ABinding->PeerIP, ABinding->PeerPort)) {
+                                        if(ServerArray[j].players > 0) {
+                                                ServerArray[j].emptyServerCounter = 0;
+                                        } else {
+                                                if(ServerArray[j].emptyServerCounter < 5) {
+                                                        ServerArray[j].emptyServerCounter++;
+                                                }
+                                        }
+                                        if(ServerArray[j].messageSent > 1) {
+                                                int curr = i - ServerArray[j].messageSent;
+                                                if(ServerArray[j].ping.size() > 1) {
+                                                        ServerArray[j].ping.pop_front();
+                                                }
+                                                ServerArray[j].ping.push_back(curr);
+                                                ServerArray[j].messageSent = 0;
+                                                ServerArray[j].timeouts = 0;
+                                        }
+                                        break;
+                                }
+                                if(!handled) {
+                                        addToErrorReport("Non-handled message", String(ABinding->PeerIP) + ":" + String(ABinding->PeerPort) + "   =>   " + content);
+                                }
+                        }
+                }
+              //  messageReader.newMessage(Message(ABinding->PeerIP,ABinding->PeerPort,buf,i));
+        } else {
+                addToErrorReport("Fehler 1","Receiving buffer too small. Current: 2048. Received: " + IntToStr(size) + " Bytes");
+        }
+        free(buf);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Timer2Timer(TObject *Sender)
+{
+        int serverIndex = Timer2->Tag;
+        serverIndex++;
+        if(ServerArray[serverIndex].ip.IsEmpty()) {
+                Timer2->Enabled = false;
+                Timer1->Enabled = true;
+                serverIndex = -1;
+                Application->ProcessMessages();
+                filterChanged(false);
+                processPlayerList(-1);
+        }
+        Timer2->Tag = serverIndex;
+        if(serverIndex >= 0) {
+                int i = serverIndex;
+                if(     ServerArray[i].missedQueryTurns >= ServerArray[i].emptyServerCounter ||
+                        ServerArray[i].players > 0) {
+                        String query = "\\info\\rules\\";
+                        if(ServerArray[i].name.IsEmpty() || ServerArray[i].players != ServerArray[i].playerlist.size() || i == getSelectedServer()) {
+                                query = "\\info\\rules\\players\\";
+                        }
+                        sendUdpMessage(i, ServerArray[i].ip, ServerArray[i].gamespyport, query);
+                        ServerArray[i].missedQueryTurns = 0;
+                } else {
+                        ServerArray[i].missedQueryTurns++;
+                }
+        }
 }
 //---------------------------------------------------------------------------
 

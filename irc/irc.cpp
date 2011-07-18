@@ -44,6 +44,7 @@ struct irc_thread__parm {
         string hoscht;
 
         int updatePlayers;
+        bool controlledShutdown;
         int sd;
         int loggedIn;
         void consume(char* c, int i);
@@ -58,6 +59,7 @@ static char playerName[1024];
 
 void chat_client_disconnect() {
         if (ircThreadInstance && ircThreadInstance->sd) {
+                ircThreadInstance->controlledShutdown = true;
                 closesocket(ircThreadInstance->sd);
                 ircThreadInstance->sd = 0;
                 ircThreadInstance->hoscht.clear();
@@ -238,7 +240,7 @@ DWORD WINAPI irc_ThreadProc (LPVOID lpdwThreadParam__ ) {
                 } while(  ircThreadInstance &&
                         ircThreadInstance->sd &&
                         (rping = ircThreadInstance->sendString("PING " + ircThreadInstance->hoscht + " \r\n")) >= 0);
-                if(ircThreadInstance && ircThreadInstance->sd) {
+                if(ircThreadInstance && ircThreadInstance->sd && !ircThreadInstance->controlledShutdown) {
                         Form1->ChatConnectionLost();
                 }
         }

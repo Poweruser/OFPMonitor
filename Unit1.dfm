@@ -18,7 +18,6 @@ object Form1: TForm1
   OldCreateOrder = False
   Position = poScreenCenter
   OnClose = FormClose
-  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   OnResize = FormResize
@@ -506,6 +505,7 @@ object Form1: TForm1
     UseSystemFont = False
   end
   object StringGrid1: TStringGrid
+    Tag = -1
     Left = 0
     Top = 274
     Width = 659
@@ -547,19 +547,12 @@ object Form1: TForm1
   object Timer1: TTimer
     Enabled = False
     OnTimer = Timer1Timer
-    Left = 448
-    Top = 160
-  end
-  object Timer3: TTimer
-    Enabled = False
-    Interval = 10
-    OnTimer = Timer3Timer
-    Left = 416
-    Top = 160
+    Left = 400
+    Top = 120
   end
   object PopupMenu1: TPopupMenu
     OnPopup = PopupMenu1Popup
-    Left = 384
+    Left = 400
     Top = 160
     object MENUITEM_POPUP_JOIN: TMenuItem
       Caption = 'Join'
@@ -674,7 +667,7 @@ object Form1: TForm1
   object MainMenu1: TMainMenu
     BiDiMode = bdLeftToRight
     ParentBiDiMode = False
-    Left = 512
+    Left = 464
     Top = 160
     object MENUITEM_MAINMENU_EXIT: TMenuItem
       Caption = 'Exit'
@@ -735,22 +728,22 @@ object Form1: TForm1
     MaxFontSize = 20
     Options = [fdForceFontExist, fdLimitSize, fdApplyButton]
     OnApply = FontDialog1Apply
-    Left = 576
-    Top = 160
+    Left = 496
+    Top = 120
   end
   object TimerIrcChatTimer: TTimer
     Enabled = False
     Interval = 100
     OnTimer = TimerIrcChatTimerTimer
-    Left = 352
-    Top = 160
+    Left = 464
+    Top = 120
   end
   object SaveDialog1: TSaveDialog
     DefaultExt = 'txt'
     Filter = 'Text file (*.txt)|*.txt'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofNoNetworkButton, ofEnableSizing]
     OnCanClose = SaveDialog1CanClose
-    Left = 480
+    Left = 432
     Top = 160
   end
   object CoolTrayIcon1: TCoolTrayIcon
@@ -861,7 +854,26 @@ object Form1: TForm1
     IconVisible = True
     IconIndex = 0
     OnClick = CoolTrayIcon1Click
-    Left = 544
+    Left = 496
     Top = 160
+  end
+  object IdUDPServer1: TIdUDPServer
+    Active = True
+    Bindings = <
+      item
+        Port = 0
+      end>
+    DefaultPort = 0
+    OnUDPRead = IdUDPServer1UDPRead
+    ThreadedEvent = True
+    Left = 528
+    Top = 120
+  end
+  object Timer2: TTimer
+    Enabled = False
+    Interval = 10
+    OnTimer = Timer2Timer
+    Left = 432
+    Top = 120
   end
 end

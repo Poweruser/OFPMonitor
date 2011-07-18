@@ -8,7 +8,6 @@
 #include <Controls.hpp>
 #include <StdCtrls.hpp>
 #include <Forms.hpp>
-#include <NMUDP.hpp>
 #include <Grids.hpp>
 #include <Menus.hpp>
 #include <ComCtrls.hpp>
@@ -16,6 +15,10 @@
 #include "trayicon.h"
 #include <Dialogs.hpp>
 #include "CoolTrayIcon.hpp"
+#include <IdBaseComponent.hpp>
+#include <IdComponent.hpp>
+#include <IdUDPBase.hpp>
+#include <IdUDPServer.hpp>
 
 //---------------------------------------------------------------------------
 
@@ -40,7 +43,6 @@ __published:	// IDE-managed Components
         TLabel *LABEL_FILTER_MISSIONNAME;
         TEdit *Edit2;
         TLabel *LABEL_FILTER_SERVERNAME;
-        TTimer *Timer3;
         TLabel *LABEL_SERVERINFO_PLATFORM;
         TLabel *LABEL_SERVERINFO_PLATFORM_VALUE;
         TLabel *LABEL_SERVERINFO_PASSWORD;
@@ -124,6 +126,8 @@ __published:	// IDE-managed Components
         TLabel *LABEL_SERVERINFO_EQMODREQ_VALUE;
         TCoolTrayIcon *CoolTrayIcon1;
         TMenuItem *MENUITEM_MAINMENU_LOCALGAME;
+        TIdUDPServer *IdUDPServer1;
+        TTimer *Timer2;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
@@ -135,7 +139,6 @@ __published:	// IDE-managed Components
         void __fastcall CHECKBOX_FILTER_CREATINGClick(TObject *Sender);
         void __fastcall CHECKBOX_FILTER_BRIEFINGClick(TObject *Sender);
         void __fastcall CHECKBOX_FILTER_DEBRIEFINGClick(TObject *Sender);
-        void __fastcall Timer3Timer(TObject *Sender);
         void __fastcall CHECKBOX_FILTER_WITHPASSWORDClick(TObject *Sender);
         void __fastcall CHECKBOX_FILTER_WITHOUTPASSWORDClick(TObject *Sender);
         void __fastcall Edit1Change(TObject *Sender);
@@ -172,10 +175,6 @@ __published:	// IDE-managed Components
           TPoint &MousePos, bool &Handled);
         void __fastcall Splitter1Moved(TObject *Sender);
         void __fastcall Info1Click(TObject *Sender);
-        void __fastcall UDPSocketDataSend(TObject *Sender);
-        void __fastcall UDPSocketDataReceived(TComponent *Sender,
-      int NumberBytes, AnsiString FromIP, int Port);
-        void __fastcall FormCloseQuery(TObject *Sender, bool &CanClose);
         void __fastcall TimerIrcChatTimerTimer(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender);
@@ -196,6 +195,9 @@ __published:	// IDE-managed Components
         void __fastcall MemoChatInputKeyUp(TObject *Sender, WORD &Key,
           TShiftState Shift);
         void __fastcall MENUITEM_MAINMENU_LOCALGAMEClick(TObject *Sender);
+        void __fastcall IdUDPServer1UDPRead(TObject *Sender,
+          TStream *AData, TIdSocketHandle *ABinding);
+        void __fastcall Timer2Timer(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         void TForm1::readServerList(list<String> &in);
