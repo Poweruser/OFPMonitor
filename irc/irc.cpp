@@ -1,18 +1,16 @@
-#include <list>
-#include <iostream.h>
 #include "Unit1.h"
-#include "Unit2.h"                                                          
+#include "Unit2.h"
 #include "irc.h"
-#include <vector.h>                                                                           
+#include <vector.h>
 #include <set.h>
 #include <time.h>
-#include <sstream>
+#include <sstream.h>
 
-//#define DEBUG_MSG
-#ifdef DEBUG_MSG
-        #define INPUTOUT 1
-#else             
-        #define INPUTOUT 0
+//#define ALVOIRC_DEBUG_MSG
+#ifdef ALVOIRC_DEBUG_MSG
+        #define ALVOIRC_INPUTOUT 1
+#else
+        #define ALVOIRC_INPUTOUT 0
 #endif
 
 extern int tcpsocket(void) ;
@@ -154,7 +152,7 @@ void chat_client_timercallback(void * t) {
                 privMsgNeedle = "PRIVMSG #" + privMsgNeedle + " :";
                 for(int i = 0; i < m.size(); i++) {
                         string& omsg = m.at(i);
-                        if (INPUTOUT) {
+                        if (ALVOIRC_INPUTOUT) {
                                 appendText(tform1, omsg);
                         }
                         string cmsg = omsg;
@@ -251,7 +249,16 @@ int irc_thread__parm::sendString(string& s) {
 }
 
 void start_conversation( int sd, char * name ) {
-        string ircName = plrname_localtoirc(name);
+        String ircName = plrname_localtoirc(name).c_str();
+        String msg =    "CAP LS\nNICK " +
+                        ircName + "\n" +
+                        "USER " + ircName + " 0 * :" + ircName + "\n" +
+                        "CAP REQ :multi-prefix\n" +
+                        "CAP END\n" +
+                        "USERHOST " +  ircName +  "\n" +
+                        "JOIN #" + Form1->getChatChannel() + "\n" +
+                        "MODE #" + Form1->getChatChannel() + "\n";
+        /*
         stringstream ss;
         ss << "CAP LS\n"
         << "NICK " << ircName << "\n"
@@ -263,7 +270,8 @@ void start_conversation( int sd, char * name ) {
         << "MODE #" << Form1->getChatChannel() << "\n";
 
         string msg = ss.str();
-        int s = send(sd, msg.c_str(), msg.length(), 0);
+        */
+        int s = send(sd, msg.c_str(), msg.Length(), 0);
         return;
 }
 
@@ -388,6 +396,7 @@ void chat_client_pressedReturnKey(void *t, const char *msg) {
                 appendText(tform1,  currentTimeString( ) +  " - " + playerName + ": " + msg);
         }
 }
+
 
 static string after(string& in, string& needle) {
         int i = in.find(needle, 0);

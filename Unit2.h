@@ -3,7 +3,6 @@
 #ifndef Unit2H
 #define Unit2H
 
-#include <list.h>
 //---------------------------------------------------------------------------
 #include <Classes.hpp>
 #include <Controls.hpp>
@@ -13,6 +12,8 @@
 #include <ComCtrls.hpp>
 #include <Buttons.hpp>
 #include <ExtCtrls.hpp>
+#include <list.h>
+#include "OFPMonitor.h"
 //---------------------------------------------------------------------------
 
 class TWINDOW_SETTINGS : public TForm
@@ -156,6 +157,12 @@ __published:	// IDE-managed Components
         TComboBox *COMBOBOX_CHAT_USERNAME;
         TCheckBox *CHECKBOX_CHAT_AUTOCONNECT;
         TLabel *LABEL_CHAT_USERNAME;
+        TTrackBar *TRACKBAR_BANDWIDTH;
+        TGroupBox *GROUPBOX_BANDWIDTHUSAGE;
+        TLabel *LABEL_VERLOW;
+        TLabel *LABEL_LOW;
+        TLabel *LABEL_MODERATE;
+        TLabel *LABEL_HIGH;
         void __fastcall BUTTON_OFPRES_BROWSEClick(TObject *Sender);
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialog1CanClose(TObject *Sender,
@@ -226,6 +233,8 @@ __published:	// IDE-managed Components
         void __fastcall CHECKBOX_NOTIFICATIONS_ACTIVEClick(TObject *Sender);
         void __fastcall EDIT_CHAT_IRCSERVER_PORTChange(TObject *Sender);
         void __fastcall BUTTON_CHAT_SETDEFAULTClick(TObject *Sender);
+        void __fastcall TRACKBAR_BANDWIDTHChange(TObject *Sender);
+        void __fastcall TABSHEET_GENERALShow(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         int TWINDOW_SETTINGS::getConfAmount(int gameid);
@@ -261,6 +270,8 @@ public:		// User declarations
         void TWINDOW_SETTINGS::MP3remove(int index);
         void TWINDOW_SETTINGS::MP3add(int index);
         void TWINDOW_SETTINGS::MP3shutdown();
+        BandwidthUsage TWINDOW_SETTINGS::getBandwidthSettings();
+        int TWINDOW_SETTINGS::getUpdateInterval();
         __fastcall TWINDOW_SETTINGS(TComponent* Owner);
 };
 //---------------------------------------------------------------------------

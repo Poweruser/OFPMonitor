@@ -29,7 +29,6 @@ class ProcessInfo {
 list<ProcessInfo> plist;
                               
 bool MyAppAlreadyRunning() {
-        return false;
         HANDLE hMutex = CreateMutex(NULL,true,"OFPMonitor");
         if (GetLastError() == ERROR_ALREADY_EXISTS ) {
                 CloseHandle(hMutex);

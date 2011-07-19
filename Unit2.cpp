@@ -1,7 +1,6 @@
 //---------------------------------------------------------------------------
 
 #include <vcl.h>                                                          
-#include <list.h>
 #include <filectrl.hpp>
 #include <io.h>
 #include <mmsystem.h>
@@ -445,7 +444,6 @@ class Game {
 };
 
 
-
 /**
    Stores the general program settings
  */
@@ -463,6 +461,7 @@ class Settings {
                 String file;
                 String languagefile;
                 TStringList *watched;
+                BandwidthUsage level;
 
                 Settings() {
                         this->watched = new TStringList;
@@ -471,6 +470,7 @@ class Settings {
                         this->workdir = GetCurrentDir();
                         this->customNotifications = false;
                         this->interval = 1;
+                        this->level = High;
                         this->file = this->workdir + "\\OFPMonitor.ini";
                         this->languagefile = "Default";
                         this->changed = false;
@@ -503,7 +503,6 @@ class Settings {
 
                 void setInterval(int i) {
                         this->interval = i;
-                        Form1->Timer1->Interval = i * 1000;
                         this->changed = true;
                 }
 
@@ -514,6 +513,7 @@ class Settings {
                                 file->Add("LangFile = " + this->languagefile);
                                 file->Add("Interval = " + String(this->interval));
                                 file->Add("customNotifications = " + checkBool(this->customNotifications));
+                                file->Add("BandwidthUsage = " + IntToStr(this->level));
                                 file->Add("[\\General]");
 
                                 for(int i = 0; i < GAMES_TOTAL; i++) {
@@ -679,6 +679,14 @@ class Settings {
                 }
 };
 Settings programSettings = Settings();
+
+BandwidthUsage TWINDOW_SETTINGS::getBandwidthSettings() {
+        return programSettings.level;
+}
+
+int TWINDOW_SETTINGS::getUpdateInterval() {
+        return programSettings.interval;
+}
 
 /**
    Returns the number of game configurations the user has set
@@ -1116,6 +1124,23 @@ void updateLanguage(String languagefile) {
         updateGames();
 }
 
+void setBandwidthUsage(int level) {
+        switch(level) {
+                case 3:
+                        programSettings.level = VeryLow;
+                        break;
+                case 2:
+                        programSettings.level = Low;
+                        break;
+                case 1:
+                        programSettings.level = Moderate;
+                        break;
+                case 0:
+                default:
+                        programSettings.level = High;
+        }
+}
+
 /**
    Reads the programs config file
  */
@@ -1124,6 +1149,7 @@ list<String> readConfigFile() {
         String interval = "";
         String langfile = "";
         String notify = "0";
+        int bandwidthUsage = 0;
         bool gameSet = false;
         list<String> ipList;
         if(FileExists(programSettings.file)) {
@@ -1141,6 +1167,10 @@ list<String> readConfigFile() {
                                                 langfile = getValue(tmp);
                                         } else if((tmp.SubString(1,19) == "customNotifications")) {
                                                 notify = getValue(tmp);
+                                        } else if((tmp.SubString(1,14) == "BandwidthUsage")) {
+                                                try {
+                                                        bandwidthUsage = StrToInt(getValue(tmp));
+                                                } catch (...) {}
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
@@ -1426,6 +1456,7 @@ list<String> readConfigFile() {
                         programSettings.languagefile = langfile;
                 }
         }
+        setBandwidthUsage(bandwidthUsage);
         try {
                 int a = StrToInt(interval);
                 programSettings.setInterval(a);
@@ -1458,7 +1489,6 @@ void findLanguageFiles() {
                                 FindClose(daten);
                         }
                 }
-                return;
 }
 
 void checkConfListState() {
@@ -3140,4 +3170,16 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_CHAT_SETDEFAULTClick(
 }
 //---------------------------------------------------------------------------
 
+
+void __fastcall TWINDOW_SETTINGS::TRACKBAR_BANDWIDTHChange(TObject *Sender)
+{
+        setBandwidthUsage(TRACKBAR_BANDWIDTH->Position);        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::TABSHEET_GENERALShow(TObject *Sender)
+{
+        TRACKBAR_BANDWIDTH->Position = programSettings.level;        
+}
+//---------------------------------------------------------------------------
 

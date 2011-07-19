@@ -17,6 +17,7 @@
 #include "CoolTrayIcon.hpp"
 #include <IdBaseComponent.hpp>
 #include <IdComponent.hpp>
+#include <IdSocketHandle.hpp>
 #include <IdUDPBase.hpp>
 #include <IdUDPServer.hpp>
 
@@ -126,8 +127,8 @@ __published:	// IDE-managed Components
         TLabel *LABEL_SERVERINFO_EQMODREQ_VALUE;
         TCoolTrayIcon *CoolTrayIcon1;
         TMenuItem *MENUITEM_MAINMENU_LOCALGAME;
-        TIdUDPServer *IdUDPServer1;
         TTimer *Timer2;
+        TIdUDPServer *IdUDPServer1;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
@@ -195,9 +196,9 @@ __published:	// IDE-managed Components
         void __fastcall MemoChatInputKeyUp(TObject *Sender, WORD &Key,
           TShiftState Shift);
         void __fastcall MENUITEM_MAINMENU_LOCALGAMEClick(TObject *Sender);
-        void __fastcall IdUDPServer1UDPRead(TObject *Sender,
-          TStream *AData, TIdSocketHandle *ABinding);
         void __fastcall Timer2Timer(TObject *Sender);
+        void __fastcall IdUDPServer1UDPRead(TIdUDPListenerThread *AThread,
+          TIdBytes AData, TIdSocketHandle *ABinding);
 private:	// User declarations
 public:		// User declarations
         void TForm1::readServerList(list<String> &in);

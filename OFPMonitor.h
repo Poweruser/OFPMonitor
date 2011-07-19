@@ -18,6 +18,7 @@ namespace OFPMonitor_Unit2 {
 	const int confAmount = 50;
 }
 
+enum BandwidthUsage {High, Moderate, Low, VeryLow};
 
 #define SERVERSTATE_CREATING 2	
 #define SERVERSTATE_WAITING 6
@@ -30,3 +31,4 @@ template<typename T, int size>
 int GetArrLength(T(&)[size]){return size;}
 
 #endif
+

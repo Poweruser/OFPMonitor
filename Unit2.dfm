@@ -1,6 +1,6 @@
 object WINDOW_SETTINGS: TWINDOW_SETTINGS
-  Left = 322
-  Top = 151
+  Left = 196
+  Top = 163
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   AutoSize = True
@@ -30,11 +30,12 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     TabOrder = 0
     object TABSHEET_GENERAL: TTabSheet
       Caption = 'General'
+      OnShow = TABSHEET_GENERALShow
       object GROUPBOX_SERVERLIST: TGroupBox
         Left = 8
-        Top = 54
-        Width = 481
-        Height = 45
+        Top = 62
+        Width = 249
+        Height = 51
         Caption = 'Server list '
         TabOrder = 1
         object LABEL_SERVERLIST_INTERVAL: TLabel
@@ -46,16 +47,16 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Transparent = True
         end
         object EDIT_SERVERLIST_UPDATE: TEdit
-          Left = 384
+          Left = 176
           Top = 15
-          Width = 65
+          Width = 41
           Height = 21
           TabOrder = 0
           Text = '2'
           OnChange = EDIT_SERVERLIST_UPDATEChange
         end
         object UPDOWN_SERVERLIST_UPDATE: TUpDown
-          Left = 449
+          Left = 217
           Top = 15
           Width = 15
           Height = 21
@@ -72,12 +73,12 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Left = 8
         Top = 6
         Width = 481
-        Height = 45
+        Height = 51
         Caption = 'Language '
         TabOrder = 0
         object ComboBox1: TComboBox
           Left = 16
-          Top = 16
+          Top = 20
           Width = 449
           Height = 21
           AutoDropDown = True
@@ -90,19 +91,72 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
       end
       object GROUPBOX_NOTIFICATIONS: TGroupBox
         Left = 8
-        Top = 104
-        Width = 481
-        Height = 45
+        Top = 120
+        Width = 249
+        Height = 49
         Caption = 'Notifications'
         TabOrder = 2
         object CHECKBOX_NOTIFICATIONS_ACTIVE: TCheckBox
           Left = 16
           Top = 18
-          Width = 449
+          Width = 185
           Height = 17
           Caption = 'Active'
           TabOrder = 0
           OnClick = CHECKBOX_NOTIFICATIONS_ACTIVEClick
+        end
+      end
+      object GROUPBOX_BANDWIDTHUSAGE: TGroupBox
+        Left = 264
+        Top = 62
+        Width = 225
+        Height = 107
+        Caption = 'Bandwidth usage'
+        TabOrder = 3
+        object LABEL_VERLOW: TLabel
+          Left = 56
+          Top = 87
+          Width = 40
+          Height = 13
+          Caption = 'Very low'
+        end
+        object LABEL_LOW: TLabel
+          Left = 56
+          Top = 65
+          Width = 20
+          Height = 13
+          Caption = 'Low'
+        end
+        object LABEL_MODERATE: TLabel
+          Left = 56
+          Top = 43
+          Width = 45
+          Height = 13
+          Caption = 'Moderate'
+        end
+        object LABEL_HIGH: TLabel
+          Left = 56
+          Top = 21
+          Width = 22
+          Height = 13
+          Caption = 'High'
+        end
+        object TRACKBAR_BANDWIDTH: TTrackBar
+          Left = 16
+          Top = 16
+          Width = 29
+          Height = 89
+          Max = 3
+          Orientation = trVertical
+          PageSize = 1
+          Frequency = 1
+          Position = 0
+          SelEnd = 0
+          SelStart = 0
+          TabOrder = 0
+          TickMarks = tmBottomRight
+          TickStyle = tsAuto
+          OnChange = TRACKBAR_BANDWIDTHChange
         end
       end
     end

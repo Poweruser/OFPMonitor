@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 443
-  Top = 301
+  Left = 432
+  Top = 306
   Width = 667
   Height = 500
   HorzScrollBar.Visible = False
@@ -545,7 +545,6 @@ object Form1: TForm1
       41)
   end
   object Timer1: TTimer
-    Enabled = False
     OnTimer = Timer1Timer
     Left = 400
     Top = 120
@@ -857,23 +856,18 @@ object Form1: TForm1
     Left = 496
     Top = 160
   end
-  object IdUDPServer1: TIdUDPServer
-    Active = True
-    Bindings = <
-      item
-        Port = 0
-      end>
-    DefaultPort = 0
-    OnUDPRead = IdUDPServer1UDPRead
-    ThreadedEvent = True
-    Left = 528
-    Top = 120
-  end
   object Timer2: TTimer
     Enabled = False
-    Interval = 10
+    Interval = 1
     OnTimer = Timer2Timer
     Left = 432
     Top = 120
+  end
+  object IdUDPServer1: TIdUDPServer
+    Bindings = <>
+    DefaultPort = 0
+    OnUDPRead = IdUDPServer1UDPRead
+    Left = 464
+    Top = 72
   end
 end

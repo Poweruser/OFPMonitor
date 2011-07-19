@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-#include <vcl.h>                                                     
+#include <vcl.h>
 #include <list.h>                                         
 #include <iostream.h>
 #include <mmsystem.h>
@@ -21,7 +21,8 @@ TForm1 *Form1;
 #include "OFPMonitor.h"
 using namespace OFPMonitor_Unit1;
 
-/**                                                                                          
+
+/**
    Represents an internet address with IP and port
  */
 
@@ -37,6 +38,38 @@ class Address {
                 Address(String ip, int port) {
                         this->ip = ip;
                         this->port = port;
+                }
+};
+
+/**
+   Each incoming answer of a server query will be first stored in a
+   Message-Object, which holds all important information about it
+   (IP, Port, Content, Time of arrival) and will be later procressed
+   by the MessageReader
+ */
+
+class Message {
+        public:
+                String content;
+                String ip;
+                int port;
+                DWORD toa;
+
+                /**
+                   Constructor
+
+                   @ip  the ip the message came from
+                   @port  the port it came from
+                   @content  the message data
+                   @toa  time the message arrived at
+                         (is used to measure the ping)
+                */
+
+                Message(String ip, int port, String content, DWORD toa) {
+                        this->ip = ip;
+                        this->port = port;
+                        this->content = content;
+                        this->toa = toa;
                 }
 };
 
@@ -798,7 +831,7 @@ class Server {
                         this->queryid = 0;
                         this->playerlist.clear();
                         this->notificationRuleIndex = -1;
-                        this->missedQueryTurns = 0;
+                        this->missedQueryTurns = 1;
                         this->emptyServerCounter = 0;
                 }
 };
@@ -850,7 +883,7 @@ void TForm1::setFont(String name, int size, int charset,
  */
 
 void updateTimeoutLimit() {
-        timeoutLimit = ceil(10000 / Form1->Timer1->Interval);
+        timeoutLimit = ceil(10 / WINDOW_SETTINGS->getUpdateInterval());
 }
 
 /**
@@ -860,7 +893,6 @@ void updateTimeoutLimit() {
 
 void sendUdpMessage(int index, String ip, int port, String msg) {
         Form1->IdUDPServer1->Send(ip, port, msg);
-        //Form1->Memo1->Lines->Add("sende: "+ ip + ":" + String(port)); 
         if(ServerArray[index].messageSent == 0) {
                 ServerArray[index].messageSent = timeGetTime();
         } else {
@@ -1354,6 +1386,7 @@ void TForm1::readServerList(list<String> &servers) {
         if(numOfServers == 0) {
                 MENUITEM_MAINMENU_GETNEWSERVERLIST->Click();
         }
+        Form1->Timer2->Enabled = true;
 }
 
 /**
@@ -1734,9 +1767,94 @@ bool readInfoPacket(int i, String msg, String ip, int port) {
 }
 
 /**
-   Copys a String to the clipboard of the OS
+   This MessageReader makes sure that new incoming messages are procressed
+   after each other (serial) and not at the same time (parallel). This resolves
+   some concurrent access issues on the storing data structures.
  */
 
+class MessageReader {
+        private:
+                bool working;
+                list<Message> messageList;
+        public:
+                MessageReader() {
+                        this->working = false;
+                }
+
+                /**
+                   Adds a new Message to the message queue
+                 */
+
+                void newMessage(Message m) {
+                        this->messageList.push_back(m);
+                }
+
+                /**
+                   Checks for and processes messages. Only one thread does the work
+                 */
+
+                void checkForNewMessages() {
+                        if(this->working) {
+                                return;
+                        }
+                        this->working = true;
+                        while(this->messageList.size() > 0) {
+                                Message m = this->messageList.front();
+                                bool handled = false;
+                                for(int j = 0; j < numOfServers; j++) {
+                                        if(ServerArray[j].index == -1) {
+                                                break;
+                                        }
+                                        if(ServerArray[j].ip == m.ip && ServerArray[j].gamespyport == m.port) {
+                                                handled = true;
+                                                if(readInfoPacket(j, m.content, m.ip, m.port)) {
+                                                        if(ServerArray[j].messageSent > 1) {
+                                                                int curr = m.toa - ServerArray[j].messageSent;
+                                                                if(ServerArray[j].ping.size() > 1) {
+                                                                        ServerArray[j].ping.pop_front();
+                                                                }
+                                                                ServerArray[j].ping.push_back(curr);
+                                                                ServerArray[j].messageSent = 0;
+                                                                ServerArray[j].timeouts = 0;
+                                                        }
+                                                        if(ServerArray[j].players > 0) {
+                                                                ServerArray[j].emptyServerCounter = 0;
+                                                        } else {
+                                                                BandwidthUsage bu = WINDOW_SETTINGS->getBandwidthSettings();
+                                                                switch(bu) {
+                                                                        case VeryLow:
+                                                                                if(ServerArray[j].emptyServerCounter < 5) {
+                                                                                        ServerArray[j].emptyServerCounter++;
+                                                                                }
+                                                                                break;
+                                                                        default:
+                                                                        case Moderate:
+                                                                        case Low:
+                                                                                ServerArray[j].emptyServerCounter = 1;
+                                                                                break;
+                                                                        case High:
+                                                                                ServerArray[j].emptyServerCounter = 0;
+                                                                                break;
+                                                                }
+                                                        }
+                                                }
+                                                break;
+                                        }
+                                }
+                                this->messageList.pop_front();
+                                if(!handled) {
+                                        addToErrorReport("Non-handled message", String(m.ip) + ":" + String(m.port) + "   =>   " + m.content);
+                                }
+                        }
+                        this->working = false;
+                }
+};
+
+MessageReader messageReader = MessageReader();
+
+/**
+   Copys a String to the clipboard of the OS
+ */
  
 void copyToClipBoard (String msg) {
 	if (OpenClipboard(NULL) != 0) {
@@ -1903,6 +2021,42 @@ int getSelectedServer() {
         return Form1->StringGrid1->Tag;
 }
 
+String decideQuery(BandwidthUsage bu, bool selected, int i) {
+        String full = "\\info\\rules\\players\\";
+        String part = "\\info\\rules\\";
+        String none = "";
+        bool someplayers = (ServerArray[i].players > 0);
+        int missLimit = 1;
+        switch(bu) {
+                case Moderate:
+                        if(someplayers || selected) {
+                                return full;
+                        } else if(ServerArray[i].missedQueryTurns >= missLimit) {
+                                return part;
+                        }
+                        break;
+                case VeryLow:
+                        missLimit = ServerArray[i].emptyServerCounter;
+                case Low:
+                        if(selected) {
+                                return full;
+                        } else if(someplayers) {
+                                if(ServerArray[i].players != ServerArray[i].playerlist.size()) {
+                                        return full;
+                                } else {
+                                        return part;
+                                }
+                        } else if(ServerArray[i].missedQueryTurns >= missLimit) {
+                                return part;
+                        }
+                        break;
+                case High:
+                default:
+                        return full;
+        }
+        return none;
+}
+
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
@@ -1953,8 +2107,7 @@ void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
                         StringGrid1->Tag = index;
                         processPlayerList(index);
                         updateServerInfoBox(index);
-                } catch (...) {
-                }
+                } catch (...) {}
         } else {
                 setEmptyPlayerList();
         }
@@ -1962,11 +2115,18 @@ void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Timer1Timer(TObject *Sender)
 {
-        Timer1->Enabled = false;
+        int i = Timer1->Tag;
+        i++;
+        if(i >= 2*WINDOW_SETTINGS->getUpdateInterval()) {
+                Timer2->Enabled = true;
+                Timer1->Tag = 0;
+        } else {
+                Timer1->Tag = i;
+        }
         Application->ProcessMessages();
+        messageReader.checkForNewMessages();
         filterChanged(false);
         processPlayerList(-1);
-        Timer2->Enabled = true;
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
@@ -2447,6 +2607,8 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
         delete games;
         WINDOW_SETTINGS->setSettingsChanged();
         Timer2->Enabled = true;
+        Timer1->Tag = 0;
+        Timer1->Enabled = true;
         MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = true;
 }
 //---------------------------------------------------------------------------
@@ -2525,6 +2687,7 @@ void __fastcall TForm1::Info1Click(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::TimerIrcChatTimerTimer(TObject *Sender)
 {
+  
         if(chatsettings.connectionLost == 1) {
                 chatsettings.connectionLost = 2;
                 MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTIONLOST"));
@@ -2545,6 +2708,7 @@ void __fastcall TForm1::TimerIrcChatTimerTimer(TObject *Sender)
                 MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = result;
                 MemoChatInput->Enabled = result;
         }
+
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
@@ -2564,11 +2728,10 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
 {
+   
         MemoChatInput->Enabled = false;
         MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = false;
-        ShowMessage("vor connectionLost: " + String(chatsettings.connectionLost));
         chat_client_disconnect();
-        ShowMessage("nach connectionLost: " + String(chatsettings.connectionLost));
         TimerIrcChatTimer->Enabled = false;
         StringGrid3->RowCount = 0;
         StringGrid3->Cells[0][0] = "";
@@ -2576,9 +2739,8 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
         if(chatsettings.connectionLost == 0) {
                 MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_DISCONNECTED"));
         }
-
-        ShowMessage("xx_" + WINDOW_SETTINGS->getGuiString("STRING_CHAT_DISCONNECTED") + "_xx");
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = true;
+
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CLEARLOGClick(TObject *Sender)
@@ -2672,6 +2834,7 @@ void __fastcall TForm1::MemoChatOutputChange(TObject *Sender)
 void __fastcall TForm1::MemoChatInputKeyDown(TObject *Sender, WORD &Key,
       TShiftState Shift)
 {
+
         if(Key == VK_RETURN) {
                 String input = "";
                 for(int i = 0; i < Form1->MemoChatInput->Lines->Count; i++) {
@@ -2682,6 +2845,7 @@ void __fastcall TForm1::MemoChatInputKeyDown(TObject *Sender, WORD &Key,
                         chat_client_pressedReturnKey(this, input.c_str());
                 }
         }
+   
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
@@ -2699,83 +2863,48 @@ void __fastcall TForm1::MENUITEM_MAINMENU_LOCALGAMEClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
                                   
-void __fastcall TForm1::IdUDPServer1UDPRead(TObject *Sender,
-      TStream *AData, TIdSocketHandle *ABinding)
-{
-        DWORD i = timeGetTime();
-        char buf[2048];
-        int size = AData->Size;
-        if(size < 2048) {
-                AData->ReadBuffer(buf, size);
-                buf[size] = 0;
-                String content = String(buf);
-                bool handled = false;
-                for(int j = 0; j < GetArrLength(ServerArray); j++) {
-                        if(ServerArray[j].index == -1) {
-                                break;
-                        }
-                        if(ServerArray[j].ip == ABinding->PeerIP && ServerArray[j].gamespyport == ABinding->PeerPort) {
-                                handled = true;
-                                if(readInfoPacket(j, content, ABinding->PeerIP, ABinding->PeerPort)) {
-                                        if(ServerArray[j].players > 0) {
-                                                ServerArray[j].emptyServerCounter = 0;
-                                        } else {
-                                                if(ServerArray[j].emptyServerCounter < 5) {
-                                                        ServerArray[j].emptyServerCounter++;
-                                                }
-                                        }
-                                        if(ServerArray[j].messageSent > 1) {
-                                                int curr = i - ServerArray[j].messageSent;
-                                                if(ServerArray[j].ping.size() > 1) {
-                                                        ServerArray[j].ping.pop_front();
-                                                }
-                                                ServerArray[j].ping.push_back(curr);
-                                                ServerArray[j].messageSent = 0;
-                                                ServerArray[j].timeouts = 0;
-                                        }
-                                        break;
-                                }
-                                if(!handled) {
-                                        addToErrorReport("Non-handled message", String(ABinding->PeerIP) + ":" + String(ABinding->PeerPort) + "   =>   " + content);
-                                }
-                        }
-                }
-              //  messageReader.newMessage(Message(ABinding->PeerIP,ABinding->PeerPort,buf,i));
-        } else {
-                addToErrorReport("Fehler 1","Receiving buffer too small. Current: 2048. Received: " + IntToStr(size) + " Bytes");
-        }
-        free(buf);
-}
-//---------------------------------------------------------------------------
 
 void __fastcall TForm1::Timer2Timer(TObject *Sender)
 {
+
         int serverIndex = Timer2->Tag;
         serverIndex++;
-        if(ServerArray[serverIndex].ip.IsEmpty()) {
+        if(serverIndex >= SERVERARRAY_LENGTH || ServerArray[serverIndex].ip.IsEmpty()) {
                 Timer2->Enabled = false;
-                Timer1->Enabled = true;
                 serverIndex = -1;
-                Application->ProcessMessages();
-                filterChanged(false);
-                processPlayerList(-1);
         }
         Timer2->Tag = serverIndex;
+        Application->ProcessMessages();
         if(serverIndex >= 0) {
-                int i = serverIndex;
-                if(     ServerArray[i].missedQueryTurns >= ServerArray[i].emptyServerCounter ||
-                        ServerArray[i].players > 0) {
-                        String query = "\\info\\rules\\";
-                        if(ServerArray[i].name.IsEmpty() || ServerArray[i].players != ServerArray[i].playerlist.size() || i == getSelectedServer()) {
-                                query = "\\info\\rules\\players\\";
-                        }
-                        sendUdpMessage(i, ServerArray[i].ip, ServerArray[i].gamespyport, query);
-                        ServerArray[i].missedQueryTurns = 0;
+                bool serverIsSelected = (serverIndex == getSelectedServer());
+                BandwidthUsage bu = WINDOW_SETTINGS->getBandwidthSettings();
+                String query = decideQuery(bu, serverIsSelected, serverIndex);
+                if(query.IsEmpty()) {
+                        ServerArray[serverIndex].missedQueryTurns++;
                 } else {
-                        ServerArray[i].missedQueryTurns++;
+                        sendUdpMessage(serverIndex, ServerArray[serverIndex].ip, ServerArray[serverIndex].gamespyport, query);
+                        //Memo1->Lines->Add("sende " + ServerArray[serverIndex].ip);
+                        ServerArray[serverIndex].missedQueryTurns = 0;
                 }
         }
 }
-//---------------------------------------------------------------------------
 
+void __fastcall TForm1::IdUDPServer1UDPRead(TIdUDPListenerThread *AThread,
+      TIdBytes AData, TIdSocketHandle *ABinding)
+{
+        DWORD i = timeGetTime();
+ //       char buf[2048];
+        int size = AData.Length;
+        if(size < 2048 && size > 0) {
+//                buf[size] = 0;
+                String content = BytesToString(AData);
+             //   String content = IdUDPServer1->ReceiveString(2);
+                messageReader.newMessage(Message(ABinding->PeerIP,ABinding->PeerPort,content,i));
+                //Form1->Memo1->Lines->Add("empfange " + ABinding->PeerIP);
+        } else {
+                addToErrorReport("IdUDPServer - OnUDPRead", " size > 2048Bytes");
+        }
+//        free(buf);
+}
+//---------------------------------------------------------------------------
 
