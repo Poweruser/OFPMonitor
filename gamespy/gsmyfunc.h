@@ -86,14 +86,14 @@ unsigned char *mychrdup(unsigned char *src) {
 
     len = max = strlen(src);
     dst = (unsigned char *) malloc(max + 1);
-    if(!dst) std_err();
-
+//    if(!dst) std_err();
+  
     max = enctypex_data_cleaner(dst, src, max);
 
         // probably useless free memory
     if(max < len) {
         dst = (unsigned char *) realloc(dst, max + 1);
-        if(!dst) std_err();
+       // if(!dst) std_err();
     }
 
     return(dst);
@@ -406,7 +406,7 @@ int gslist_step_4(unsigned char *secure, unsigned char *buff, enctypex_data_t *e
             // so if I use the same untouched buffer as input and output I overwrite its fields
             // the amount of allocated bytes wasted by this operation is enough small (for example 200k on 1megabyte of received data)
         enctypextmp = (unsigned char *) realloc(enctypextmp, (len / 5) * 6);
-        if(!enctypextmp) std_err();
+        //if(!enctypextmp) std_err();
         len = enctypex_decoder_convert_to_ipport(buff + enctypex_data->start, len - enctypex_data->start, enctypextmp, NULL, 0, 0);
         if(len < 0) {   // yeah, the handling of the master server's error doesn't look so good although all perfect, but it's a rare event and I wanted to handle it
             if(enctypex_data->offset > enctypex_data->start) {

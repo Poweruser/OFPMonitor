@@ -16,7 +16,7 @@
       rtl.lib vcl.lib"/>
     <SPARELIBS value="vcl.lib rtl.lib vclx.lib bcbsmp.lib CoolTrayIcon.lib IndyCore60.lib 
       IndySystem60.lib"/>
-    <PACKAGES value="vcl.bpi rtl.bpi visualclx.bpi vclx.bpi bcbsmp.bpi"/>
+    <PACKAGES value="vcl.bpi rtl.bpi bcbsmp.bpi"/>
     <PATHCPP value=".;irc"/>
     <PATHPAS value=".;"/>
     <PATHRC value=".;"/>

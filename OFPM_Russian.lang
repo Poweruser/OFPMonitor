@@ -138,3 +138,9 @@ LABEL_GAME = игра:
 LABEL_MOD = конфигурация:
 CHECKBOX_MULTIPLAYER = Мультиплеер
 BUTTON_LOCALGAME_START = начало
+
+GROUPBOX_BANDWIDTHCONSUMPTION = потребление пропускной способности
+LABEL_BANDWIDTH_HIGH = высокий
+LABEL_BANDWIDTH_MODERATE = умеренный
+LABEL_BANDWIDTH_LOW = низкий
+LABEL_BANDWIDTH_VERYLOW = очень низкий

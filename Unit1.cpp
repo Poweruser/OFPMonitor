@@ -1,9 +1,7 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
 #include <list.h>                                         
-#include <iostream.h>
 #include <mmsystem.h>
-#include <math.h>
 #pragma hdrstop
 #include ".\gamespy\msquery_header.h"
 #include "irc/irc.h"
@@ -16,12 +14,11 @@
 #pragma link "CoolTrayIcon"
 #pragma resource "*.dfm"
 #pragma resource "wavefiles.res"
-                
+                             
 TForm1 *Form1;
 #include "OFPMonitor.h"
 using namespace OFPMonitor_Unit1;
-
-
+                       
 /**
    Represents an internet address with IP and port
  */
@@ -883,7 +880,7 @@ void TForm1::setFont(String name, int size, int charset,
  */
 
 void updateTimeoutLimit() {
-        timeoutLimit = ceil(10 / WINDOW_SETTINGS->getUpdateInterval());
+        timeoutLimit = (int)(10 / WINDOW_SETTINGS->getUpdateInterval());
 }
 
 /**
@@ -2573,7 +2570,7 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
                 peer.sin_family      = AF_INET;
 
                 buff = (unsigned char *) malloc(BUFFSZ + 1);
-                if(!buff) std_err();
+              //  if(!buff) std_err();
                 dynsz = BUFFSZ;
                 multigamename = gamestr;
                 multigamenamep = strchr((char *)gamestr, ',');
@@ -2687,7 +2684,6 @@ void __fastcall TForm1::Info1Click(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::TimerIrcChatTimerTimer(TObject *Sender)
 {
-  
         if(chatsettings.connectionLost == 1) {
                 chatsettings.connectionLost = 2;
                 MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTIONLOST"));
@@ -2708,7 +2704,6 @@ void __fastcall TForm1::TimerIrcChatTimerTimer(TObject *Sender)
                 MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = result;
                 MemoChatInput->Enabled = result;
         }
-
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
@@ -2728,7 +2723,6 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
 {
-   
         MemoChatInput->Enabled = false;
         MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = false;
         chat_client_disconnect();
@@ -2740,7 +2734,6 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
                 MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_DISCONNECTED"));
         }
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = true;
-
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CLEARLOGClick(TObject *Sender)
@@ -2834,7 +2827,6 @@ void __fastcall TForm1::MemoChatOutputChange(TObject *Sender)
 void __fastcall TForm1::MemoChatInputKeyDown(TObject *Sender, WORD &Key,
       TShiftState Shift)
 {
-
         if(Key == VK_RETURN) {
                 String input = "";
                 for(int i = 0; i < Form1->MemoChatInput->Lines->Count; i++) {
@@ -2845,7 +2837,6 @@ void __fastcall TForm1::MemoChatInputKeyDown(TObject *Sender, WORD &Key,
                         chat_client_pressedReturnKey(this, input.c_str());
                 }
         }
-   
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,

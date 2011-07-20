@@ -158,11 +158,11 @@ __published:	// IDE-managed Components
         TCheckBox *CHECKBOX_CHAT_AUTOCONNECT;
         TLabel *LABEL_CHAT_USERNAME;
         TTrackBar *TRACKBAR_BANDWIDTH;
-        TGroupBox *GROUPBOX_BANDWIDTHUSAGE;
-        TLabel *LABEL_VERLOW;
-        TLabel *LABEL_LOW;
-        TLabel *LABEL_MODERATE;
-        TLabel *LABEL_HIGH;
+        TGroupBox *GROUPBOX_BANDWIDTHCONSUMPTION;
+        TLabel *LABEL_BANDWIDTH_VERYLOW;
+        TLabel *LABEL_BANDWIDTH_LOW;
+        TLabel *LABEL_BANDWIDTH_MODERATE;
+        TLabel *LABEL_BANDWIDTH_HIGH;
         void __fastcall BUTTON_OFPRES_BROWSEClick(TObject *Sender);
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialog1CanClose(TObject *Sender,

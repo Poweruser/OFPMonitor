@@ -1,8 +1,5 @@
 #include <winsock2.h>
 #include <windows.h>
-#include <direct.h>
-#include <io.h>
-#include "winerr.h"
 
 #pragma pack (1)
 
