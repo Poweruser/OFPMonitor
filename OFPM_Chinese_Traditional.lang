@@ -139,3 +139,15 @@ LABEL_MOD = 外掛設定:
 CHECKBOX_MULTIPLAYER = 多玩家對戰
 BUTTON_LOCALGAME_START = 開始
 
+GROUPBOX_BANDWIDTHCONSUMPTION = Bandwidth consumption
+LABEL_BANDWIDTH_HIGH = High
+LABEL_BANDWIDTH_MODERATE = Moderate
+LABEL_BANDWIDTH_LOW = Low
+LABEL_BANDWIDTH_VERYLOW = Very low
+
+WINDOW_UPDATE = OFPMonitor Updater
+BUTTON_UPDATE =	Check for updates now 
+CHECKBOX_UPDATE_CHECKATSTART = Check for updates at start
+GROUPBOX_UPDATE = Updates
+STRING_UPDATE1 = New version available:
+STRING_UPDATE2 = Do you want to update OFPMonitor now?

@@ -5,18 +5,19 @@
     <VERSION value="BCB.06.00"/>
     <PROJECT value="OFPMonitor.exe"/>
     <OBJFILES value="OFPMonitor.obj Unit1.obj Unit2.obj Unit4.obj FileVersion.obj Unit3.obj 
-      irc\irc.obj"/>
+      irc\irc.obj Unit5.obj"/>
     <RESFILES value="OFPMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
     <DEFFILE value=""/>
-    <RESDEPEN value="$(RESFILES) Unit1.dfm Unit2.dfm Unit4.dfm Unit3.dfm"/>
+    <RESDEPEN value="$(RESFILES) Unit1.dfm Unit2.dfm Unit4.dfm Unit3.dfm Unit5.dfm"/>
     <LIBFILES value="..\..\Lib\psapi.lib"/>
-    <LIBRARIES value="IndySystem60.lib IndyCore60.lib CoolTrayIcon.lib bcbsmp.lib vclx.lib 
-      rtl.lib vcl.lib"/>
+    <LIBRARIES value="IndyProtocols60.lib IndySystem60.lib IndyCore60.lib CoolTrayIcon.lib 
+      bcbsmp.lib vclx.lib rtl.lib vcl.lib"/>
     <SPARELIBS value="vcl.lib rtl.lib vclx.lib bcbsmp.lib CoolTrayIcon.lib IndyCore60.lib 
-      IndySystem60.lib"/>
-    <PACKAGES value="vcl.bpi rtl.bpi bcbsmp.bpi"/>
+      IndySystem60.lib IndyProtocols60.lib"/>
+    <PACKAGES value="vcl.bpi rtl.bpi bcbsmp.bpi IndyCore60.bpi IndyProtocols60.bpi 
+      IndySystem60.bpi CoolTrayIcon.bpi"/>
     <PATHCPP value=".;irc"/>
     <PATHPAS value=".;"/>
     <PATHRC value=".;"/>
@@ -58,6 +59,7 @@
       <FILE FILENAME="FileVersion.cpp" FORMNAME="" UNITNAME="FileVersion" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Unit3.cpp" FORMNAME="WINDOW_LOCALGAME" UNITNAME="Unit3" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="irc\irc.cpp" FORMNAME="" UNITNAME="irc" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Unit5.cpp" FORMNAME="WINDOW_UPDATE" UNITNAME="Unit5" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>
@@ -67,8 +69,8 @@
 IncludeVerInfo=1
 AutoIncBuild=0
 MajorVer=1
-MinorVer=5
-Release=4
+MinorVer=6
+Release=0
 Build=0
 Debug=0
 PreRelease=0
@@ -81,7 +83,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=by Poweruser
 FileDescription=OFP Server monitoring tool
-FileVersion=1.5.4.0
+FileVersion=1.6.0.0
 InternalName=OFPMonitor
 LegalCopyright=(c) Poweruser
 LegalTrademarks=
@@ -91,23 +93,25 @@ ProductVersion=1.0.0.0
 Comments=
 
 [HistoryLists\hlIncludePath]
-Count=6
+Count=7
 Item0=irc;include;..;$(BCB)\include;$(BCB)\include\vcl
-Item1=irc;..;$(BCB)\include;$(BCB)\include\vcl
-Item2=..;$(BCB)\include;$(BCB)\include\vcl
-Item3=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
+Item1=E:\ProgC\Borland\CBuilder6\Projects;irc;include;..;$(BCB)\include;$(BCB)\include\vcl
+Item2=irc;..;$(BCB)\include;$(BCB)\include\vcl
+Item3=..;$(BCB)\include;$(BCB)\include\vcl
 Item4=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 Item5=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
+Item6=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=7
+Count=8
 Item0=irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib
-Item1=d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item2=irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item3=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item4=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item1=E:\ProgC\Borland\CBuilder6\Projects;irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib
+Item2=d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item3=irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item4=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
 Item5=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
-Item6=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item6=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item7=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1

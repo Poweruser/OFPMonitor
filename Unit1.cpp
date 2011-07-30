@@ -9,6 +9,7 @@
 #include "Unit2.h"
 #include "Unit3.h"
 #include "Unit4.h"
+#include "Unit5.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma link "CoolTrayIcon"
@@ -172,6 +173,7 @@ class FontSettings {
                         Form1->MemoChatInput->Height = Form1->MemoChatInput->Constraints->MaxHeight;
                         WINDOW_SETTINGS->Font->Charset = this->charset;
                         WINDOW_LOCALGAME->Font->Charset = this->charset;
+                        WINDOW_UPDATE->Font->Charset = this->charset;
                 }
 };
 
@@ -2559,7 +2561,7 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
                 j++;
                 i = ServerArray[j].index;
         }
-
+        Application->ProcessMessages();
         TStringList *games = WINDOW_SETTINGS->getGameSpyGames();
         for (int k = 0; k < games->Count; k++) {
                 scandelay *= 1000;
@@ -2853,11 +2855,9 @@ void __fastcall TForm1::MENUITEM_MAINMENU_LOCALGAMEClick(TObject *Sender)
         WINDOW_LOCALGAME->ShowModal();        
 }
 //---------------------------------------------------------------------------
-                                  
 
 void __fastcall TForm1::Timer2Timer(TObject *Sender)
 {
-
         int serverIndex = Timer2->Tag;
         serverIndex++;
         if(serverIndex >= SERVERARRAY_LENGTH || ServerArray[serverIndex].ip.IsEmpty()) {
@@ -2874,28 +2874,21 @@ void __fastcall TForm1::Timer2Timer(TObject *Sender)
                         ServerArray[serverIndex].missedQueryTurns++;
                 } else {
                         sendUdpMessage(serverIndex, ServerArray[serverIndex].ip, ServerArray[serverIndex].gamespyport, query);
-                        //Memo1->Lines->Add("sende " + ServerArray[serverIndex].ip);
                         ServerArray[serverIndex].missedQueryTurns = 0;
                 }
         }
 }
+//---------------------------------------------------------------------------
 
 void __fastcall TForm1::IdUDPServer1UDPRead(TIdUDPListenerThread *AThread,
       TIdBytes AData, TIdSocketHandle *ABinding)
 {
         DWORD i = timeGetTime();
- //       char buf[2048];
-        int size = AData.Length;
-        if(size < 2048 && size > 0) {
-//                buf[size] = 0;
+        if(AData.Length > 0) {
                 String content = BytesToString(AData);
-             //   String content = IdUDPServer1->ReceiveString(2);
                 messageReader.newMessage(Message(ABinding->PeerIP,ABinding->PeerPort,content,i));
-                //Form1->Memo1->Lines->Add("empfange " + ABinding->PeerIP);
-        } else {
-                addToErrorReport("IdUDPServer - OnUDPRead", " size > 2048Bytes");
         }
-//        free(buf);
 }
 //---------------------------------------------------------------------------
+
 

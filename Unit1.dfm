@@ -1,13 +1,14 @@
 object Form1: TForm1
-  Left = 432
-  Top = 306
-  Width = 667
+  Left = 374
+  Top = 253
+  Width = 666
   Height = 500
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Color = clBtnFace
   Constraints.MinHeight = 500
   Constraints.MinWidth = 666
+  DefaultMonitor = dmDesktop
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -13
@@ -16,7 +17,7 @@ object Form1: TForm1
   KeyPreview = True
   Menu = MainMenu1
   OldCreateOrder = False
-  Position = poScreenCenter
+  Position = poDesktopCenter
   OnClose = FormClose
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
@@ -25,8 +26,8 @@ object Form1: TForm1
   TextHeight = 16
   object Splitter1: TSplitter
     Left = 0
-    Top = 271
-    Width = 659
+    Top = 276
+    Width = 658
     Height = 3
     Cursor = crVSplit
     Align = alTop
@@ -40,11 +41,11 @@ object Form1: TForm1
   object PageControl1: TPageControl
     Left = 0
     Top = 0
-    Width = 659
-    Height = 271
+    Width = 658
+    Height = 276
     ActivePage = TABSHEET_SERVERINFO
     Align = alTop
-    Constraints.MinHeight = 263
+    Constraints.MinHeight = 271
     TabIndex = 0
     TabOrder = 0
     object TABSHEET_SERVERINFO: TTabSheet
@@ -52,17 +53,16 @@ object Form1: TForm1
       object Panel1: TPanel
         Left = 0
         Top = 0
-        Width = 651
-        Height = 240
+        Width = 650
+        Height = 245
         Align = alClient
         BevelOuter = bvNone
-        Constraints.MinHeight = 240
         TabOrder = 0
         object StringGrid2: TStringGrid
-          Left = 369
+          Left = 368
           Top = 0
           Width = 282
-          Height = 240
+          Height = 245
           Align = alRight
           ColCount = 4
           DefaultColWidth = 50
@@ -472,7 +472,7 @@ object Form1: TForm1
   object StatusBar1: TStatusBar
     Left = 0
     Top = 420
-    Width = 659
+    Width = 658
     Height = 34
     BorderWidth = 1
     DragMode = dmAutomatic
@@ -507,9 +507,9 @@ object Form1: TForm1
   object StringGrid1: TStringGrid
     Tag = -1
     Left = 0
-    Top = 274
-    Width = 659
-    Height = 146
+    Top = 279
+    Width = 658
+    Height = 141
     Align = alClient
     BiDiMode = bdRightToLeft
     ColCount = 7

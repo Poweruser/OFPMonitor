@@ -1,6 +1,6 @@
 object WINDOW_INFO: TWINDOW_INFO
-  Left = 456
-  Top = 224
+  Left = 498
+  Top = 326
   AutoSize = True
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle

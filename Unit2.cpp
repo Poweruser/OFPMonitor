@@ -2,7 +2,7 @@
 
 #include <vcl.h>                                                          
 #include <filectrl.hpp>
-#include <io.h>
+#include <io.h>                                                                                                          
 #include <mmsystem.h>
 #include <windows.h>
 #include <Registry.hpp>
@@ -13,6 +13,7 @@
 #include "Unit1.h"
 #include "Unit3.h"
 #include "Unit4.h"
+#include "Unit5.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -457,6 +458,7 @@ class Settings {
                 String player;
                 int interval;
                 bool customNotifications;
+                bool checkUpdateAtStart;
                 Game games[GAMES_TOTAL];
                 String file;
                 String languagefile;
@@ -514,6 +516,7 @@ class Settings {
                                 file->Add("Interval = " + String(this->interval));
                                 file->Add("customNotifications = " + checkBool(this->customNotifications));
                                 file->Add("BandwidthUsage = " + IntToStr(this->level));
+                                file->Add("checkUpdateAtStart = " + checkBool(this->checkUpdateAtStart));
                                 file->Add("[\\General]");
 
                                 for(int i = 0; i < GAMES_TOTAL; i++) {
@@ -960,6 +963,7 @@ void updateGames() {
 void updateLanguage(String languagefile) {
         TStringList *file = new TStringList;
         String pathAndFile = programSettings.workdir + "\\" + languagefile;
+        guiStrings.clear();
         guiStrings.push_back(guiString("STRING_YES","Yes"));
         guiStrings.push_back(guiString("STRING_NO","No"));
         guiStrings.push_back(guiString("STRING_NAME","Name"));
@@ -987,6 +991,8 @@ void updateLanguage(String languagefile) {
         guiStrings.push_back(guiString("STRING_BROWSE","Browse ..."));
         guiStrings.push_back(guiString("STRING_OFPEXECUTABLE","Executable"));
         guiStrings.push_back(guiString("STRING_PROFILE","Player name:"));
+        guiStrings.push_back(guiString("STRING_UPDATE1","New version available:"));
+        guiStrings.push_back(guiString("STRING_UPDATE2","Do you want to update now?"));
 
 
         if(FileExists(pathAndFile)) {
@@ -1149,6 +1155,7 @@ list<String> readConfigFile() {
         String interval = "";
         String langfile = "";
         String notify = "0";
+        String checkUpdate = "0";
         int bandwidthUsage = 0;
         bool gameSet = false;
         list<String> ipList;
@@ -1171,6 +1178,8 @@ list<String> readConfigFile() {
                                                 try {
                                                         bandwidthUsage = StrToInt(getValue(tmp));
                                                 } catch (...) {}
+                                        } else if((tmp.SubString(1,18) == "checkUpdateAtStart")) {
+                                                checkUpdate = getValue(tmp);
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
@@ -1460,14 +1469,11 @@ list<String> readConfigFile() {
         try {
                 int a = StrToInt(interval);
                 programSettings.setInterval(a);
-                WINDOW_SETTINGS->UPDOWN_SERVERLIST_UPDATE->Position = a;
         }catch (...) {
                 programSettings.setInterval(3);
-                WINDOW_SETTINGS->UPDOWN_SERVERLIST_UPDATE->Position = 3;
         }
         programSettings.customNotifications = checkBool2(notify);
-        WINDOW_SETTINGS->CHECKBOX_NOTIFICATIONS_ACTIVE->Checked = programSettings.customNotifications;
-        WINDOW_SETTINGS->EDIT_SERVERLIST_UPDATE->Text = String(WINDOW_SETTINGS->UPDOWN_SERVERLIST_UPDATE->Position);
+        programSettings.checkUpdateAtStart = checkBool2(checkUpdate);
         programSettings.changed = false;
         return ipList;
 }
@@ -2171,7 +2177,6 @@ __fastcall TWINDOW_SETTINGS::TWINDOW_SETTINGS(TComponent* Owner)
 
 void __fastcall TWINDOW_SETTINGS::FormCreate(TObject *Sender)
 {
-
         #include "guiDB.cpp"
         findLanguageFiles();
         list<String> ipList = readConfigFile();
@@ -2182,6 +2187,10 @@ void __fastcall TWINDOW_SETTINGS::FormCreate(TObject *Sender)
         WINDOW_SETTINGS->ComboBox1->ItemIndex = WINDOW_SETTINGS->ComboBox1->Items->IndexOf(programSettings.languagefile);
         if(Form1->getChatAutoConnect()) {
                 Form1->MENUITEM_MAINMENU_CHAT_CONNECT->Click();
+        }
+
+        if(programSettings.checkUpdateAtStart) {
+                WINDOW_UPDATE->checkForNewVersion(false);
         }
 }
 //---------------------------------------------------------------------------
@@ -3179,7 +3188,24 @@ void __fastcall TWINDOW_SETTINGS::TRACKBAR_BANDWIDTHChange(TObject *Sender)
 
 void __fastcall TWINDOW_SETTINGS::TABSHEET_GENERALShow(TObject *Sender)
 {
-        TRACKBAR_BANDWIDTH->Position = programSettings.level;        
+        UPDOWN_SERVERLIST_UPDATE->Position = programSettings.interval;
+        EDIT_SERVERLIST_UPDATE->Text = String(UPDOWN_SERVERLIST_UPDATE->Position);
+        CHECKBOX_NOTIFICATIONS_ACTIVE->Checked = programSettings.customNotifications;
+        CHECKBOX_UPDATE_CHECKATSTART->Checked = programSettings.checkUpdateAtStart;
+        TRACKBAR_BANDWIDTH->Position = programSettings.level;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::CHECKBOX_UPDATE_CHECKATSTARTClick(
+      TObject *Sender)
+{
+        programSettings.checkUpdateAtStart = CHECKBOX_UPDATE_CHECKATSTART->Checked;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::BUTTON_UPDATEClick(TObject *Sender)
+{
+        WINDOW_UPDATE->checkForNewVersion(true);        
 }
 //---------------------------------------------------------------------------
 

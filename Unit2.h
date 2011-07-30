@@ -163,6 +163,9 @@ __published:	// IDE-managed Components
         TLabel *LABEL_BANDWIDTH_LOW;
         TLabel *LABEL_BANDWIDTH_MODERATE;
         TLabel *LABEL_BANDWIDTH_HIGH;
+        TGroupBox *GROUPBOX_UPDATE;
+        TCheckBox *CHECKBOX_UPDATE_CHECKATSTART;
+        TButton *BUTTON_UPDATE;
         void __fastcall BUTTON_OFPRES_BROWSEClick(TObject *Sender);
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialog1CanClose(TObject *Sender,
@@ -235,6 +238,8 @@ __published:	// IDE-managed Components
         void __fastcall BUTTON_CHAT_SETDEFAULTClick(TObject *Sender);
         void __fastcall TRACKBAR_BANDWIDTHChange(TObject *Sender);
         void __fastcall TABSHEET_GENERALShow(TObject *Sender);
+        void __fastcall CHECKBOX_UPDATE_CHECKATSTARTClick(TObject *Sender);
+        void __fastcall BUTTON_UPDATEClick(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         int TWINDOW_SETTINGS::getConfAmount(int gameid);

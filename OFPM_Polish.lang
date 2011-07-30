@@ -144,3 +144,10 @@ LABEL_BANDWIDTH_HIGH = Wysoki
 LABEL_BANDWIDTH_MODERATE = Umiarkowany
 LABEL_BANDWIDTH_LOW = Niski
 LABEL_BANDWIDTH_VERYLOW = Bardzo niskie
+
+WINDOW_UPDATE = OFPMonitor Updater
+BUTTON_UPDATE = Sprawdz aktualizacje teraz
+CHECKBOX_UPDATE_CHECKATSTART = Sprawdz aktualizacje przy starcie
+GROUPBOX_UPDATE = Aktualizacje
+STRING_UPDATE1 = Nowa wersja dostepna:
+STRING_UPDATE2 = Czy chcesz zaktualizowac OFPMonitor teraz?

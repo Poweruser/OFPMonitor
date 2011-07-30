@@ -20,6 +20,7 @@ class FileVersion {
 
                 int getOFPVersion();
                 String getOFPMonitorVersion();
+                String FileVersion::getFullVersion();
 };
 
 #endif

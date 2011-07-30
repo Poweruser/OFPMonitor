@@ -18,6 +18,8 @@ namespace OFPMonitor_Unit2 {
 	const int confAmount = 50;
 }
 
+void releaseMutex();
+
 enum BandwidthUsage {High, Moderate, Low, VeryLow};
 
 #define SERVERSTATE_CREATING 2	

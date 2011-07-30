@@ -1,6 +1,6 @@
 object WINDOW_SETTINGS: TWINDOW_SETTINGS
-  Left = 196
-  Top = 163
+  Left = 368
+  Top = 162
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   AutoSize = True
@@ -40,7 +40,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         TabOrder = 1
         object LABEL_SERVERLIST_INTERVAL: TLabel
           Left = 16
-          Top = 20
+          Top = 22
           Width = 102
           Height = 13
           Caption = 'Update-Interval (sec):'
@@ -48,7 +48,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         end
         object EDIT_SERVERLIST_UPDATE: TEdit
           Left = 176
-          Top = 15
+          Top = 17
           Width = 41
           Height = 21
           TabOrder = 0
@@ -57,7 +57,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         end
         object UPDOWN_SERVERLIST_UPDATE: TUpDown
           Left = 217
-          Top = 15
+          Top = 17
           Width = 15
           Height = 21
           Associate = EDIT_SERVERLIST_UPDATE
@@ -98,7 +98,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         TabOrder = 2
         object CHECKBOX_NOTIFICATIONS_ACTIVE: TCheckBox
           Left = 16
-          Top = 18
+          Top = 20
           Width = 185
           Height = 17
           Caption = 'Active'
@@ -119,6 +119,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 40
           Height = 13
           Caption = 'Very low'
+          Transparent = True
         end
         object LABEL_BANDWIDTH_LOW: TLabel
           Left = 56
@@ -126,6 +127,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 20
           Height = 13
           Caption = 'Low'
+          Transparent = True
         end
         object LABEL_BANDWIDTH_MODERATE: TLabel
           Left = 56
@@ -133,6 +135,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 45
           Height = 13
           Caption = 'Moderate'
+          Transparent = True
         end
         object LABEL_BANDWIDTH_HIGH: TLabel
           Left = 56
@@ -140,6 +143,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 22
           Height = 13
           Caption = 'High'
+          Transparent = True
         end
         object TRACKBAR_BANDWIDTH: TTrackBar
           Left = 16
@@ -157,6 +161,32 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           TickMarks = tmBottomRight
           TickStyle = tsAuto
           OnChange = TRACKBAR_BANDWIDTHChange
+        end
+      end
+      object GROUPBOX_UPDATE: TGroupBox
+        Left = 8
+        Top = 176
+        Width = 481
+        Height = 49
+        Caption = 'Updates '
+        TabOrder = 4
+        object CHECKBOX_UPDATE_CHECKATSTART: TCheckBox
+          Left = 16
+          Top = 20
+          Width = 233
+          Height = 17
+          Caption = 'Check for new version at start'
+          TabOrder = 0
+          OnClick = CHECKBOX_UPDATE_CHECKATSTARTClick
+        end
+        object BUTTON_UPDATE: TButton
+          Left = 256
+          Top = 16
+          Width = 217
+          Height = 25
+          Caption = 'Check for updates now'
+          TabOrder = 1
+          OnClick = BUTTON_UPDATEClick
         end
       end
     end
@@ -191,7 +221,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 313
           Height = 21
           Style = csDropDownList
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 1
           OnChange = COMBOBOX_OFPCWC_PROFILEChange
         end
@@ -273,7 +303,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
           Font.Style = []
-          ItemHeight = 13
+          ItemHeight = 0
           ParentFont = False
           TabOrder = 1
           OnChange = COMBOBOX_OFPRES_PROFILEChange
@@ -333,7 +363,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 313
           Height = 21
           Style = csDropDownList
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 1
           OnChange = COMBOBOX_ARMACWA_PROFILEChange
         end
@@ -655,7 +685,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 449
         Height = 21
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         OnChange = ComboBox2Change
       end
@@ -1465,7 +1495,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 32
           Width = 209
           Height = 21
-          ItemHeight = 13
+          ItemHeight = 0
           MaxLength = 14
           Sorted = True
           TabOrder = 0

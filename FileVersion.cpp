@@ -57,3 +57,11 @@ String FileVersion::getOFPMonitorVersion() {
         String release = (String)this->releaseVersion();
         return major + "." + minor + release;
 }
+
+String FileVersion::getFullVersion() {
+        String major = (String)this->majorVersion();
+        String minor = (String)this->minorVersion();
+        String release = (String)this->releaseVersion();
+        String build = (String)this->buildVersion();
+        return (major + "." + minor + "." + release + "." + build);
+}

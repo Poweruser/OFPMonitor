@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <list.h>
 #include "FileVersion.h"
+#include "OFPMonitor.h"
 #pragma hdrstop
 
 //---------------------------------------------------------------------------
@@ -12,6 +13,7 @@ USEFORM("Unit1.cpp", Form1);
 USEFORM("Unit2.cpp", WINDOW_SETTINGS);
 USEFORM("Unit4.cpp", WINDOW_INFO);
 USEFORM("Unit3.cpp", WINDOW_LOCALGAME);
+USEFORM("Unit5.cpp", WINDOW_UPDATE);
 //---------------------------------------------------------------------------
 class ProcessInfo {
         public:
@@ -27,15 +29,20 @@ class ProcessInfo {
 };
 
 list<ProcessInfo> plist;
+HANDLE hMutex;
                               
 bool MyAppAlreadyRunning() {
-        HANDLE hMutex = CreateMutex(NULL,true,"OFPMonitor");
+        hMutex = CreateMutex(NULL,true,"OFPMonitor");
         if (GetLastError() == ERROR_ALREADY_EXISTS ) {
                 CloseHandle(hMutex);
                 return true; // Already running
         } else {
                 return false; // First instance
         }
+}
+
+void releaseMutex() {
+        CloseHandle(hMutex);
 }
 
 bool CALLBACK MyEnumWindowsProc(HWND hWnd, LPARAM lParam) {
@@ -66,9 +73,10 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	        try {
                         Application->Initialize();
                         FileVersion *fv = new FileVersion(Application->ExeName);
-                        Application->Title = "OFPMonitor " + fv->getOFPMonitorVersion();
+                        Application->Title = "OFPMonitor " + fv->getFullVersion();
                         delete fv;
                         Application->CreateForm(__classid(TForm1), &Form1);
+                 Application->CreateForm(__classid(TWINDOW_UPDATE), &WINDOW_UPDATE);
                  Application->CreateForm(__classid(TWINDOW_INFO), &WINDOW_INFO);
                  Application->CreateForm(__classid(TWINDOW_LOCALGAME), &WINDOW_LOCALGAME);
                  Application->CreateForm(__classid(TWINDOW_SETTINGS), &WINDOW_SETTINGS);
