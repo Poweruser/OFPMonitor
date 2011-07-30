@@ -2,7 +2,6 @@
 
 #include <vcl.h>
 #include <list.h>
-#include <winuser.h>
 #include "FileVersion.h"
 #pragma hdrstop
 
@@ -32,6 +31,7 @@ String getValue(String in) {
 }
 
 bool doingUpdate = false;
+String updateLocation = "https://raw.github.com/wiki/Poweruser/OFPMonitor/";
 
 void TWINDOW_UPDATE::checkForNewVersion (bool userTriggered) {
         WINDOW_UPDATE->Timer1->Tag = userTriggered;
@@ -57,7 +57,7 @@ void checkForUpdate(bool userTriggered) {
 	TMemoryStream *ms = new TMemoryStream;
        	TStringList *stringList = new TStringList;
         try {
-                http->Get("https://raw.github.com/wiki/Poweruser/OFPMonitor/update.txt", ms);
+                http->Get(updateLocation + "update.txt", ms);
         } catch (...) {
                 ms->Clear();
         }
@@ -96,7 +96,7 @@ void checkForUpdate(bool userTriggered) {
                                 mtConfirmation, TMsgDlgButtons() << mbYes << mbNo, 0);
         } else {
                 if(userTriggered) {
-                        ShowMessage("You already have the latest version");
+                        ShowMessage(WINDOW_SETTINGS->getGuiString("STRING_UPDATE_ALREADYLATEST"));
                 }
         }
         if(newVersion && answer == mrYes) {
@@ -123,11 +123,11 @@ void checkForUpdate(bool userTriggered) {
                         list<String> item = Form1->splitUpMessage(stringList->Strings[i].Trim(), ":");
                         String file = item.front();
                         String fileSize = item.back();
-                        String target = "https://raw.github.com/wiki/Poweruser/OFPMonitor/" + file;
+                        String target = updateLocation + file;
                         TMemoryStream *fs = new TMemoryStream;
                         WINDOW_UPDATE->LABEL_UPDATE_CURRENTFILE->Caption = file;
                         try {
-                                http->Get("https://raw.github.com/wiki/Poweruser/OFPMonitor/" + file, fs);
+                                http->Get(target, fs);
                                 Application->ProcessMessages();
                                 if(String(fs->Size) == fileSize) {
 

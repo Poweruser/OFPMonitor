@@ -151,3 +151,4 @@ CHECKBOX_UPDATE_CHECKATSTART = Kontrola aktualizací pri spuštení
 GROUPBOX_UPDATE = aktualizace
 STRING_UPDATE1 = Nová verze k dispozici:
 STRING_UPDATE2 = Chcete nyní provést OFPMonitor aktualizaci?
+STRING_UPDATE_ALREADYLATEST = Vy již máte nejnovejší verzi.

@@ -2,7 +2,6 @@
 
 #include <vcl.h>                                                          
 #include <filectrl.hpp>
-#include <io.h>                                                                                                          
 #include <mmsystem.h>
 #include <windows.h>
 #include <Registry.hpp>
@@ -993,6 +992,8 @@ void updateLanguage(String languagefile) {
         guiStrings.push_back(guiString("STRING_PROFILE","Player name:"));
         guiStrings.push_back(guiString("STRING_UPDATE1","New version available:"));
         guiStrings.push_back(guiString("STRING_UPDATE2","Do you want to update now?"));
+        guiStrings.push_back(guiString("STRING_UPDATE_ALREADYLATEST","You already have the latest version"));
+
 
 
         if(FileExists(pathAndFile)) {
