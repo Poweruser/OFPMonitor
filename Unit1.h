@@ -218,6 +218,7 @@ public:		// User declarations
         bool TForm1::getChatAutoConnect();
         void TForm1::ChatNotification(String msg);
         void TForm1::ChatConnectionLost();
+        void TForm1::ChatConnected(bool success);
         bool TForm1::isChatUserBlocked(String username);
         bool TForm1::isNotificationRuleActive(int index);
         void TForm1::resetNotifications(int notificationIndex);

@@ -14,11 +14,12 @@
 #endif
 
 extern int tcpsocket(void) ;
+extern int timeout(int sock, int sec);
 extern unsigned long dnsdb(char *host);
 
 static DWORD WINAPI irc_ThreadProc( LPVOID lpThreadParameter );
 static struct irc_thread__parm * ircThreadInstance;
-static void getplayername( ); 
+static void getplayername(bool connectionFailedBefore ); 
 static void start_conversation( int sd, char * name ); 
 static void sendMessage(const char * xmsg);
 
@@ -43,12 +44,15 @@ struct irc_thread__parm {
 
         int updatePlayers;
         bool controlledShutdown;
+        bool connectionLost;
         int sd;
         int loggedIn;
         void consume(char* c, int i);
         int sentVersion;
+        int timeouts;
         public:
-                irc_thread__parm():sentVersion(0),updatePlayers(0){
+                irc_thread__parm():sentVersion(0),updatePlayers(0),timeouts(0),
+                controlledShutdown(false),connectionLost(false){
                 }
                 int sendString(string&);
 };
@@ -68,34 +72,22 @@ void chat_client_disconnect() {
         }
 }
 
-bool chat_client_connect() {
-        getplayername();
+void chat_client_connect() {
+        bool connectionFailedBefore = false;
         if (ircThreadInstance) {
-             delete ircThreadInstance;   
+                connectionFailedBefore = ircThreadInstance->connectionLost;
+                delete ircThreadInstance;
         }
+        getplayername(connectionFailedBefore);
         ircThreadInstance = new irc_thread__parm();
-        
         int sd = tcpsocket();
-        int length = 360000;
-        int re = setsockopt(sd,SOL_SOCKET,SO_RCVTIMEO,(const char *)&length,sizeof(length));
-
-        struct sockaddr_in addr;
-
         ircThreadInstance->sd = sd;
-        memset(&addr, 0, sizeof(addr));
-        int ip = resolv(Form1->getChatHost().c_str());
-        addr.sin_addr.s_addr = ip;
-        addr.sin_port        = htons(Form1->getChatPort());
-        addr.sin_family      = AF_INET;
-
-        int connectRes = connect(sd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
-        if( connectRes >= 0 && ircThreadInstance->sd) {
+        if(ircThreadInstance->sd) {
                 CreateThread(0, 0, irc_ThreadProc, ircThreadInstance, 0, 0);
-                return true;
         } else {
-            closesocket(sd);
+                closesocket(sd);
+                Form1->ChatConnected(false);
         }
-        return false;
 }
 static string name_irctolocal(string& n) {
         string playername = n;
@@ -112,7 +104,7 @@ static string name_irctolocal(string& n) {
 
 string plrname_localtoirc(  char * name  ) {
         string n ( name );
-        for(int i = 0; i < n.size(); i++){
+        for(unsigned int i = 0; i < n.size(); i++){
                 char c = n.at(i);
                 int isSmall = c >= 'a' && c <= 'z';
                 int isBig   = c >= 'A' && c <= 'Z';
@@ -150,7 +142,7 @@ void chat_client_timercallback(void * t) {
                 //string privMsgNeedle = "PRIVMSG #" + channelname_operationflashpoint1 + " :";
                 string privMsgNeedle = Form1->getChatChannel().c_str();
                 privMsgNeedle = "PRIVMSG #" + privMsgNeedle + " :";
-                for(int i = 0; i < m.size(); i++) {
+                for(unsigned int i = 0; i < m.size(); i++) {
                         string& omsg = m.at(i);
                         if (ALVOIRC_INPUTOUT) {
                                 appendText(tform1, omsg);
@@ -178,7 +170,7 @@ void chat_client_timercallback(void * t) {
         if (0 && ircThreadInstance && ircThreadInstance->userz.size() > 0) {
                 vector<string> m  (ircThreadInstance->userz);
                 ircThreadInstance->userz.clear();
-                for(int i = 0; i < m.size(); i++) {
+                for(unsigned int i = 0; i < m.size(); i++) {
                         TStringGrid *tssg = tform1->StringGrid3;
                         int rc =  tssg->RowCount;
                         tssg->RowCount = rc + 1;
@@ -196,7 +188,7 @@ void chat_client_timercallback(void * t) {
 
                 // convert to vector
                 vector<string> ulist(userzSortedCopy.begin(), userzSortedCopy.end());
-                for(int i = 0; i < ulist.size(); i++) {
+                for(unsigned int i = 0; i < ulist.size(); i++) {
                         tssg->Cells[0][i] = ulist[i].c_str();
                 }
         }
@@ -204,7 +196,7 @@ void chat_client_timercallback(void * t) {
         if (ircThreadInstance->playersParted.size() > 0) {
                 vector<string> pp =  vector<string>(ircThreadInstance->playersParted);
                 ircThreadInstance->playersParted.clear();
-                for(int i = 0; i < pp.size(); i++) {
+                for(unsigned int i = 0; i < pp.size(); i++) {
                         //p->sendString
                         string text = currentTimeString() + "      *******    "  + pp.at(i) + " ";
                         text += WINDOW_SETTINGS->getGuiString("STRING_CHAT_LEFT").c_str();
@@ -215,7 +207,7 @@ void chat_client_timercallback(void * t) {
         if (ircThreadInstance->playersJoined.size() > 0) {
                 vector<string> pp =  vector<string>(ircThreadInstance->playersJoined);
                 ircThreadInstance->playersJoined.clear();
-                for(int i = 0; i < pp.size(); i++) {
+                for(unsigned int i = 0; i < pp.size(); i++) {
                         //p->sendString
                         string text = currentTimeString() + "      *******    "  + pp.at(i) + " ";
                         text += WINDOW_SETTINGS->getGuiString("STRING_CHAT_JOINED").c_str();
@@ -227,7 +219,17 @@ void chat_client_timercallback(void * t) {
 
 DWORD WINAPI irc_ThreadProc (LPVOID lpdwThreadParam__ ) {
         struct irc_thread__parm * p_parm = (struct irc_thread__parm *) lpdwThreadParam__;
-        if(p_parm->sd) {
+        struct sockaddr_in addr;
+        memset(&addr, 0, sizeof(addr));
+        int ip = resolv(Form1->getChatHost().c_str());
+        addr.sin_addr.s_addr = ip;
+        addr.sin_port        = htons(Form1->getChatPort());
+        addr.sin_family      = AF_INET;
+        int connectRes = connect(p_parm->sd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
+        Form1->ChatConnected(!connectRes);
+        if(p_parm->sd && !connectRes) {
+                int length = 10000;
+                int re = setsockopt(p_parm->sd,SOL_SOCKET,SO_RCVTIMEO,(const char *)&length,sizeof(length));
                 start_conversation(p_parm->sd, playerName);
                 char buff [1<<10];
                 int r, rping;
@@ -235,13 +237,19 @@ DWORD WINAPI irc_ThreadProc (LPVOID lpdwThreadParam__ ) {
                         while(p_parm->sd && (r = recv(p_parm->sd, buff, sizeof(buff), 0)) > 0){
                                 p_parm->consume(buff, r);
                         }
+                        p_parm->timeouts++;
+                        if(p_parm->timeouts > 2) {
+                                closesocket(p_parm->sd);
+                        }
                 } while(  ircThreadInstance &&
                         ircThreadInstance->sd &&
                         (rping = ircThreadInstance->sendString("PING " + ircThreadInstance->hoscht + " \r\n")) >= 0);
-                if(ircThreadInstance && ircThreadInstance->sd && !ircThreadInstance->controlledShutdown) {
+                if(!ircThreadInstance->controlledShutdown) {
+                        ircThreadInstance->connectionLost = true;
                         Form1->ChatConnectionLost();
                 }
         }
+        return 0;
 }
 
 int irc_thread__parm::sendString(string& s) {
@@ -275,12 +283,28 @@ void start_conversation( int sd, char * name ) {
         return;
 }
 
-void  getplayername() {
+void  getplayername(bool previousConnectionFailed) {
         String chatName = Form1->getChatUserName();
         if(chatName.IsEmpty()) {
                 string tmp = "Guest" + currentTimeString();
                 strcpy(playerName, tmp.c_str());
         } else {
+                if(previousConnectionFailed) {
+                        String oldName = playerName;
+                        if(oldName == chatName) {
+                                if(chatName.Length() > 11) {
+                                        chatName = chatName.SubString(1,11);
+                                }
+                                String test = "";
+                                for(int i = 2; i < 10; i++) {
+                                        test = chatName + "[" + IntToStr(i) + "]";
+                                        if(test != oldName) {
+                                                chatName = test;
+                                                break;
+                                        }
+                                }
+                        }
+                }
                 strcpy(playerName, chatName.c_str());
         }
         return;
@@ -312,7 +336,7 @@ static string readPlayerFromLine(string& s){
 
 void irc_thread__parm::consume(char* c2, int i2) {
         vector<string> msgs = explode( string(c2, i2) );
-        int it = 0;
+        unsigned int it = 0;
         for(;it < msgs.size(); it++ ){
                 string& s = msgs.at(it);
 
@@ -356,11 +380,16 @@ void irc_thread__parm::consume(char* c2, int i2) {
                 }
             
                 int pingFind = s.find("PING " + hoscht, 0) ;
+                int pongFind = s.find(" PONG ", 0);
                 int joinFind = s.find(" JOIN ", 0) ;
                 int partFind = s.find(" PART ", 0) ;
                 int endNameListFind = s.find("End of /NAMES list.",0);
-            
+
+                if(pongFind >= 0) {
+                        ircThreadInstance->timeouts = 0;
+                }    
                 if (pingFind == 0) {
+                        ircThreadInstance->timeouts = 0;
                         // sending pong
                         string pong ("PONG " + hoscht + "\r\n");
                         send(sd, pong.c_str(), pong.length(), 0);

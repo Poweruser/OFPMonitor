@@ -1,7 +1,7 @@
 
 #define ofpprefix "OM"
 
-bool chat_client_connect();
+void chat_client_connect();
 void chat_client_disconnect( );
 
 void chat_client_timercallback(  void * tform1 );

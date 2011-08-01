@@ -3210,3 +3210,6 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_UPDATEClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+                                                                  
+                              
+

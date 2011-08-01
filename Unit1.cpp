@@ -18,27 +18,9 @@
                              
 TForm1 *Form1;
 #include "OFPMonitor.h"
+#include "Address.h"
 using namespace OFPMonitor_Unit1;
                        
-/**
-   Represents an internet address with IP and port
- */
-
-class Address {
-        public:
-                String ip;
-                int port;
-                Address() {
-                        this->ip = "";
-                        this->port = 0;
-                }
-
-                Address(String ip, int port) {
-                        this->ip = ip;
-                        this->port = port;
-                }
-};
-
 /**
    Each incoming answer of a server query will be first stored in a
    Message-Object, which holds all important information about it
@@ -675,7 +657,7 @@ int errorreports = 0;
  */
 
 void addToErrorReport(String err, String msg) {
-        if(err.SubString(1,6)== "Fehler" || err == "Exception InvalidInteger") {
+        if(err.SubString(1,5)== "Error") {
                 errorreports++;
                 Form1->StatusBar1->Panels->Items[2]->Text = WINDOW_SETTINGS->getGuiString("STRING_ERRORS") + " " + String(errorreports);
         }
@@ -891,16 +873,20 @@ void updateTimeoutLimit() {
  */
 
 void sendUdpMessage(int index, String ip, int port, String msg) {
-        Form1->IdUDPServer1->Send(ip, port, msg);
-        if(ServerArray[index].messageSent == 0) {
-                ServerArray[index].messageSent = timeGetTime();
-        } else {
-                int tmp = ServerArray[index].timeouts;
-                if(tmp < timeoutLimit) {
-                        ServerArray[index].timeouts = tmp + 1;
+        try {
+                Form1->IdUDPServer1->Send(ip, port, msg);
+                if(ServerArray[index].messageSent == 0) {
+                        ServerArray[index].messageSent = timeGetTime();
                 } else {
-                        ServerArray[index].clear();
+                        int tmp = ServerArray[index].timeouts;
+                        if(tmp < timeoutLimit) {
+                                ServerArray[index].timeouts = tmp + 1;
+                        } else {
+                                ServerArray[index].clear();
+                        }
                 }
+        } catch (...) {
+                addToErrorReport("Error while sending a UDP packet", "Address:  " + ip + ":" + IntToStr(port));
         }
 }
 
@@ -1335,26 +1321,6 @@ void filterChanged(bool userinput) {
 }
 
 /**
-   Reads an internet address "IP:Port" in string format
-   and returns an Address object
- */
-
-Address getAddress(String address) {
-        for(int i = 0; i < address.Length(); i++) {
-                if(address.SubString(i,1) == ":") {
-                        try {
-                                String ip = address.SubString(0,i - 1);
-                                int port = StrToInt(address.SubString(i + 1, address.Length() - i));
-                                return Address(ip, port);
-                        } catch (...) {
-                                break;
-                        }
-                }
-        }
-        return Address();
-}
-
-/**
    Reads an list of server internet addresses and sets up the ServerArray
  */
 
@@ -1366,8 +1332,8 @@ void TForm1::readServerList(list<String> &servers) {
         while (servers.size() > 0) {
                 String tmp = servers.front();
                 if(tmp.Length() > 8) {
-                        Address a = getAddress(tmp);
-                        if(!a.ip.IsEmpty()) {
+                        Address a = Address();
+                        if(a.getAddress(tmp, 2303)) {
                                 ServerArray[numOfServers] = Server(a.ip, a.port, numOfServers);
                                 ServerArray[numOfServers].watch = (watched->IndexOf(a.ip+ ":" + String(a.port)) > -1);
                                 numOfServers++;
@@ -1842,7 +1808,7 @@ class MessageReader {
                                 }
                                 this->messageList.pop_front();
                                 if(!handled) {
-                                        addToErrorReport("Non-handled message", String(m.ip) + ":" + String(m.port) + "   =>   " + m.content);
+                                        addToErrorReport("Warning: Non-handled message", String(m.ip) + ":" + String(m.port) + "   =>   " + m.content);
                                 }
                         }
                         this->working = false;
@@ -1988,6 +1954,17 @@ void TForm1::ChatConnectionLost() {
         chatsettings.connectionLost = 1;
 }
 
+void TForm1::ChatConnected(bool success) {
+        if(!success) {
+                MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTINGFAILED"));
+        } else {
+                MemoChatInput->Clear();
+        }
+        MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = !success;
+        MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = success;
+        MemoChatInput->Enabled = success;
+}
+
 /**
    Checks if a certain notification rule @index
    is set for any server at the moment
@@ -2126,6 +2103,8 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
         messageReader.checkForNewMessages();
         filterChanged(false);
         processPlayerList(-1);
+
+
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
@@ -2530,37 +2509,21 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_SETTINGSClick(TObject *Sender)
 {
-        WINDOW_SETTINGS->ShowModal();        
+        WINDOW_SETTINGS->ShowModal();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_EXITClick(TObject *Sender)
 {
-        Form1->Close();        
+        Form1->Close();
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
-{
-        MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = false;
-        Timer1->Enabled = false;
-        Timer2->Enabled = false;
-        setEmptyStringGrid();
-        setEmptyPlayerList();
-        updateServerInfoBox(-1);
-        tableSorter.reset();
+
+DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
+        Form1->Timer1->Enabled = false;
+        Form1->Timer2->Enabled = false;
         TStringList *CurrentList = new TStringList;
         CurrentList->Sorted = true;
         CurrentList->Duplicates = dupIgnore;
-        int j = 0;
-        numOfServers = 0;
-        int i = ServerArray[j].index;
-        while(i > -1) {
-                if(ServerArray[j].name.Length() > 0) {
-                        CurrentList->Add((ServerArray[j].ip + ":" + String(ServerArray[j].gamespyport)).Trim());
-                }
-                ServerArray[j] = Server();
-                j++;
-                i = ServerArray[j].index;
-        }
         Application->ProcessMessages();
         TStringList *games = WINDOW_SETTINGS->getGameSpyGames();
         for (int k = 0; k < games->Count; k++) {
@@ -2580,19 +2543,21 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
                         *multigamenamep = 0;
                 }
                 sd = gslist_step_2(&peer, buff, secure, gamestr, validate, filter, &enctypex_data);
-                ipport = gslist_step_3(sd, validate, &enctypex_data, &len, &buff, &dynsz);
-                itsok = gslist_step_4(secure, buff, &enctypex_data, &ipport, &len);
-                ipbuffer = ipport;
-            	while(len >= 6) {
-                	ipc = myinetntoa(ipport->ip);
-                	if(!enctypex_query[0]) {
-                        	String s;
-                        	s.sprintf("%15s:%d", ipc, ntohs(ipport->port));
-                                CurrentList->Add(s.Trim());
-                	}
-                	ipport++;
-                	len -= 6;
-            	}
+                if(sd != -1) {
+                        ipport = gslist_step_3(sd, validate, &enctypex_data, &len, &buff, &dynsz);
+                        itsok = gslist_step_4(secure, buff, &enctypex_data, &ipport, &len);
+                        ipbuffer = ipport;
+                        while(len >= 6) {
+                                ipc = myinetntoa(ipport->ip);
+                                if(!enctypex_query[0]) {
+                                        String s;
+                                        s.sprintf("%15s:%d", ipc, ntohs(ipport->port));
+                                        CurrentList->Add(s.Trim());
+                                }
+                                ipport++;
+                                len -= 6;
+                        }
+                }
         }
         list<String> addresses;
         while(CurrentList->Count > 0) {
@@ -2600,15 +2565,38 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
                 CurrentList->Delete(0);
         }
         if(addresses.size() > 0) {
-                readServerList(addresses);
+                setEmptyStringGrid();
+                setEmptyPlayerList();
+                updateServerInfoBox(-1);
+                tableSorter.reset();
+                numOfServers = 0;
+                int j = 0;
+                int i = ServerArray[j].index;
+                while(i > -1) {
+                        if(ServerArray[j].name.Length() > 0) {
+                                CurrentList->Add((ServerArray[j].ip + ":" + String(ServerArray[j].gamespyport)).Trim());
+                        }
+                        ServerArray[j] = Server();
+                        j++;
+                        i = ServerArray[j].index;
+                }
+                Form1->readServerList(addresses);
         }
         delete CurrentList;
         delete games;
         WINDOW_SETTINGS->setSettingsChanged();
-        Timer2->Enabled = true;
-        Timer1->Tag = 0;
-        Timer1->Enabled = true;
-        MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = true;
+        Form1->Timer2->Enabled = true;
+        Form1->Timer1->Tag = 0;
+        Form1->Timer1->Enabled = true;
+        Form1->MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = true;
+        return 0;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
+{
+        MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = false;
+        CreateThread(0, 0, gamespyQuery_ThreadProc, 0, 0, 0);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_FONTClick(TObject *Sender)
@@ -2696,15 +2684,7 @@ void __fastcall TForm1::TimerIrcChatTimerTimer(TObject *Sender)
         }
         if(chatsettings.doConnect) {
                 chatsettings.doConnect = false;
-                bool result = chat_client_connect();
-                if(!result) {
-                        MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTINGFAILED"));
-                } else {
-                        MemoChatInput->Clear();
-                }
-                MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = !result;
-                MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = result;
-                MemoChatInput->Enabled = result;
+                chat_client_connect();
         }
 }
 //---------------------------------------------------------------------------
@@ -2890,5 +2870,6 @@ void __fastcall TForm1::IdUDPServer1UDPRead(TIdUDPListenerThread *AThread,
         }
 }
 //---------------------------------------------------------------------------
+
 
 
