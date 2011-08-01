@@ -58,6 +58,7 @@ struct irc_thread__parm {
 };
 
 static char playerName[1024];
+HANDLE chatListener;
 
 void chat_client_disconnect() {
         if (ircThreadInstance && ircThreadInstance->sd) {
@@ -69,12 +70,14 @@ void chat_client_disconnect() {
                 ircThreadInstance->playersParted.clear();
                 ircThreadInstance->playersJoined.clear();
  	        ircThreadInstance->userzSorted.clear();
+                TerminateThread(chatListener, 0);
         }
 }
 
 void chat_client_connect() {
         bool connectionFailedBefore = false;
         if (ircThreadInstance) {
+                TerminateThread(chatListener, 0);
                 connectionFailedBefore = ircThreadInstance->connectionLost;
                 delete ircThreadInstance;
         }
@@ -83,7 +86,7 @@ void chat_client_connect() {
         int sd = tcpsocket();
         ircThreadInstance->sd = sd;
         if(ircThreadInstance->sd) {
-                CreateThread(0, 0, irc_ThreadProc, ircThreadInstance, 0, 0);
+                chatListener = CreateThread(0, 0, irc_ThreadProc, ircThreadInstance, 0, 0);
         } else {
                 closesocket(sd);
                 Form1->ChatConnected(false);

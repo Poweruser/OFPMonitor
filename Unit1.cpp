@@ -20,7 +20,9 @@ TForm1 *Form1;
 #include "OFPMonitor.h"
 #include "Address.h"
 using namespace OFPMonitor_Unit1;
-                       
+
+HANDLE getServerListThread;
+
 /**
    Each incoming answer of a server query will be first stored in a
    Message-Object, which holds all important information about it
@@ -2109,10 +2111,9 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
 {
+        TerminateThread(getServerListThread,0);
         Form1->Enabled = false;
-        if(MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled) {
-                MENUITEM_MAINMENU_CHAT_DISCONNECT->Click();
-        }
+        chat_client_disconnect();
         WINDOW_SETTINGS->MP3shutdown();
         Timer2->Enabled = false;
         Timer1->Enabled = false;
@@ -2596,7 +2597,7 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
 void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
 {
         MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = false;
-        CreateThread(0, 0, gamespyQuery_ThreadProc, 0, 0, 0);
+        getServerListThread = CreateThread(0, 0, gamespyQuery_ThreadProc, 0, 0, 0);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_FONTClick(TObject *Sender)
