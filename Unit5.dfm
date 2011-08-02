@@ -14,6 +14,7 @@ object WINDOW_UPDATE: TWINDOW_UPDATE
   Font.Style = []
   OldCreateOrder = False
   Position = poScreenCenter
+  OnClose = FormClose
   PixelsPerInch = 96
   TextHeight = 16
   object LABEL_UPDATE_CURRENTFILE: TLabel
@@ -56,6 +57,7 @@ object WINDOW_UPDATE: TWINDOW_UPDATE
   end
   object Timer1: TTimer
     Enabled = False
+    Interval = 2000
     OnTimer = Timer1Timer
     Left = 376
   end

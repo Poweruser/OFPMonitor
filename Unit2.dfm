@@ -1495,7 +1495,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 32
           Width = 209
           Height = 21
-          ItemHeight = 13
+          ItemHeight = 0
           MaxLength = 14
           Sorted = True
           TabOrder = 0

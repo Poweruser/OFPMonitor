@@ -33,6 +33,7 @@ __published:	// IDE-managed Components
         void __fastcall IdHTTPWork(TObject *ASender, TWorkMode AWorkMode,
           __int64 AWorkCount);
         void __fastcall Timer1Timer(TObject *Sender);
+        void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 private:	// User declarations
 public:		// User declarations
         void TWINDOW_UPDATE::checkForNewVersion(bool userTriggered);

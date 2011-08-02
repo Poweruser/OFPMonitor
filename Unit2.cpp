@@ -981,7 +981,7 @@ void updateLanguage(String languagefile) {
         guiStrings.push_back(guiString("STRING_CHAT_CONNECTINGTO","Connecting to:"));
         guiStrings.push_back(guiString("STRING_CHAT_CHANNEL","Channel:"));
         guiStrings.push_back(guiString("STRING_CHAT_DISCONNECTED","Disconnected."));
-        guiStrings.push_back(guiString("STRING_CHAT_CONNECTING FAILED","Connecting failed."));
+        guiStrings.push_back(guiString("STRING_CHAT_CONNECTING_FAILED","Connecting failed."));
         guiStrings.push_back(guiString("STRING_CHAT_JOINED","joined"));
         guiStrings.push_back(guiString("STRING_CHAT_LEFT","left"));
         guiStrings.push_back(guiString("STRING_CHAT_CONNECTIONLOST","Connection lost. Reconnecting ..."));
@@ -2169,6 +2169,8 @@ void profileChanged(TComboBox *box, int gameid) {
         }
 }
 
+
+
 //---------------------------------------------------------------------------
 __fastcall TWINDOW_SETTINGS::TWINDOW_SETTINGS(TComponent* Owner)
         : TForm(Owner)
@@ -3206,10 +3208,11 @@ void __fastcall TWINDOW_SETTINGS::CHECKBOX_UPDATE_CHECKATSTARTClick(
 
 void __fastcall TWINDOW_SETTINGS::BUTTON_UPDATEClick(TObject *Sender)
 {
-        WINDOW_UPDATE->checkForNewVersion(true);        
+        WINDOW_UPDATE->checkForNewVersion(true);
 }
 //---------------------------------------------------------------------------
 
                                                                   
                               
+
 
