@@ -48,6 +48,7 @@ void __fastcall TWINDOW_LOCALGAME::FormShow(TObject *Sender)
                 COMBOBOX_LOCALGAMES->Enabled = false;
                 BUTTON_LOCALGAME_START->Enabled = false;
         }
+        COMBOBOX_LOCALGAMES->OnChange(this);
 }
 //---------------------------------------------------------------------------
 
@@ -55,19 +56,23 @@ void __fastcall TWINDOW_LOCALGAME::COMBOBOX_LOCALGAMESChange(
       TObject *Sender)
 {
         int index = COMBOBOX_LOCALGAMES->ItemIndex;
-        int gameid = (int) COMBOBOX_LOCALGAMES->Items->Objects[index];
-        int confNum = WINDOW_SETTINGS->getConfAmount(gameid);
-        COMBOBOX_LOCALMODS->Items->Clear();
-        for(int i = 0; i < confNum; i++) {
-                String entry = WINDOW_SETTINGS->getConfListEntry(gameid, i);
-                COMBOBOX_LOCALMODS->Items->AddObject(entry, (TObject *)i);
-        }
-        if(COMBOBOX_LOCALMODS->Items->Count > 0) {
-                COMBOBOX_LOCALMODS->Enabled = true;
-                COMBOBOX_LOCALMODS->ItemIndex = 0;    
+        if(index >= 0) {
+                int gameid = (int) COMBOBOX_LOCALGAMES->Items->Objects[index];
+                int confNum = WINDOW_SETTINGS->getConfAmount(gameid);
+                COMBOBOX_LOCALMODS->Items->Clear();
+                for(int i = 0; i < confNum; i++) {
+                        String entry = WINDOW_SETTINGS->getConfListEntry(gameid, i);
+                        COMBOBOX_LOCALMODS->Items->AddObject(entry, (TObject *)i);
+                }
+                if(COMBOBOX_LOCALMODS->Items->Count > 0) {
+                        COMBOBOX_LOCALMODS->Enabled = true;
+                        COMBOBOX_LOCALMODS->ItemIndex = 0;
+                } else {
+                        COMBOBOX_LOCALMODS->Enabled = false;
+                        COMBOBOX_LOCALMODS->ItemIndex = -1;
+                }
         } else {
                 COMBOBOX_LOCALMODS->Enabled = false;
-                COMBOBOX_LOCALMODS->ItemIndex = -1;
         }
 }
 //---------------------------------------------------------------------------

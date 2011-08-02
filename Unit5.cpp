@@ -319,3 +319,4 @@ void __fastcall TWINDOW_UPDATE::FormClose(TObject *Sender,
 }
 //---------------------------------------------------------------------------
 
+

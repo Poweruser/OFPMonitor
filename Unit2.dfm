@@ -221,7 +221,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 313
           Height = 21
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 1
           OnChange = COMBOBOX_OFPCWC_PROFILEChange
         end
@@ -303,7 +303,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
           Font.Style = []
-          ItemHeight = 0
+          ItemHeight = 13
           ParentFont = False
           TabOrder = 1
           OnChange = COMBOBOX_OFPRES_PROFILEChange
@@ -363,7 +363,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 313
           Height = 21
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 1
           OnChange = COMBOBOX_ARMACWA_PROFILEChange
         end
@@ -685,7 +685,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 449
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         OnChange = ComboBox2Change
       end
@@ -1495,7 +1495,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 32
           Width = 209
           Height = 21
-          ItemHeight = 0
+          ItemHeight = 13
           MaxLength = 14
           Sorted = True
           TabOrder = 0

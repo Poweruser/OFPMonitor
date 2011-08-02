@@ -676,10 +676,6 @@ object Form1: TForm1
       Caption = 'Settings'
       OnClick = MENUITEM_MAINMENU_SETTINGSClick
     end
-    object MENUITEM_MAINMENU_FONT: TMenuItem
-      Caption = 'Font'
-      OnClick = MENUITEM_MAINMENU_FONTClick
-    end
     object MENUITEM_MAINMENU_LOCALGAME: TMenuItem
       Caption = 'Local game'
       OnClick = MENUITEM_MAINMENU_LOCALGAMEClick
@@ -711,6 +707,10 @@ object Form1: TForm1
           OnClick = MENUITEM_MAINMENU_CHAT_CLEARLOGClick
         end
       end
+    end
+    object MENUITEM_MAINMENU_FONT: TMenuItem
+      Caption = 'Font'
+      OnClick = MENUITEM_MAINMENU_FONTClick
     end
     object Info1: TMenuItem
       Caption = 'Info'
