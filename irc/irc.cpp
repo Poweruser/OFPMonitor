@@ -379,7 +379,7 @@ void irc_thread__parm::consume(char* c2, int i2) {
                 } else if ( starts(body , "433 ")) {
                         string ps2 = after( body , ":" );
                         appendText(Form1, ps2);
-                        Form1->MENUITEM_MAINMENU_CHAT_DISCONNECT->Click();
+                        Form1->ChatConnected(false);
                 }
             
                 int pingFind = s.find("PING " + hoscht, 0) ;
