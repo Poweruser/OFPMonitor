@@ -379,6 +379,7 @@ void irc_thread__parm::consume(char* c2, int i2) {
                 } else if ( starts(body , "433 ")) {
                         string ps2 = after( body , ":" );
                         appendText(Form1, ps2);
+                        ircThreadInstance->controlledShutdown = true;
                         Form1->ChatConnected(false);
                 }
             
