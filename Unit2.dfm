@@ -53,7 +53,6 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Height = 21
           TabOrder = 0
           Text = '2'
-          OnChange = EDIT_SERVERLIST_UPDATEChange
         end
         object UPDOWN_SERVERLIST_UPDATE: TUpDown
           Left = 217

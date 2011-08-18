@@ -176,7 +176,6 @@ __published:	// IDE-managed Components
         void __fastcall BUTTON_NEWCONFIGURATION_DOWNClick(TObject *Sender);
         void __fastcall BUTTON_CONFIGURATION_REMOVEClick(TObject *Sender);
         void __fastcall BUTTON_NEWCONFIGURATION_ADDClick(TObject *Sender);
-        void __fastcall EDIT_SERVERLIST_UPDATEChange(TObject *Sender);
         void __fastcall UPDOWN_SERVERLIST_UPDATEClick(TObject *Sender, TUDBtnType Button);
         void __fastcall BUTTON_NEWCONFIGURATION_CLEARClick(TObject *Sender);
         void __fastcall FormClose(TObject *Sender, TCloseAction &Action);

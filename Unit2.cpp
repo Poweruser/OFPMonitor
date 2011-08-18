@@ -512,7 +512,7 @@ class Settings {
                                 TStringList *file = new TStringList;
                                 file->Add("[General]");
                                 file->Add("LangFile = " + this->languagefile);
-                                file->Add("Interval = " + String(this->interval));
+                                file->Add("Interval = " + IntToStr(this->interval));
                                 file->Add("customNotifications = " + checkBool(this->customNotifications));
                                 file->Add("BandwidthUsage = " + IntToStr(this->level));
                                 file->Add("checkUpdateAtStart = " + checkBool(this->checkUpdateAtStart));
@@ -3119,21 +3119,6 @@ void __fastcall TWINDOW_SETTINGS::CHECKBOX_NOTIFICATIONS_ACTIVEClick(TObject *Se
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TWINDOW_SETTINGS::EDIT_SERVERLIST_UPDATEChange(TObject *Sender)
-{
-        try {
-                int a = StrToInt(EDIT_SERVERLIST_UPDATE->Text);
-                if(a < UPDOWN_SERVERLIST_UPDATE->Min) {
-                        EDIT_SERVERLIST_UPDATE->Text = UPDOWN_SERVERLIST_UPDATE->Position;
-                } else if(a > UPDOWN_SERVERLIST_UPDATE->Max) {
-                        EDIT_SERVERLIST_UPDATE->Text = UPDOWN_SERVERLIST_UPDATE->Position;
-                }
-        } catch (...) {
-                EDIT_SERVERLIST_UPDATE->Text = UPDOWN_SERVERLIST_UPDATE->Position;
-        }
-        programSettings.setInterval(UPDOWN_SERVERLIST_UPDATE->Position);
-}
-
 void __fastcall TWINDOW_SETTINGS::UPDOWN_SERVERLIST_UPDATEClick(TObject *Sender, TUDBtnType Button)
 {
         programSettings.setInterval(UPDOWN_SERVERLIST_UPDATE->Position);
@@ -3144,7 +3129,6 @@ void __fastcall TWINDOW_SETTINGS::LISTBOX_CONFIGURATIONSClick(TObject *Sender)
 {
         checkConfListState();
 }
-
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::CHECKBOX_ARMACWAClick(TObject *Sender)
@@ -3192,7 +3176,6 @@ void __fastcall TWINDOW_SETTINGS::TRACKBAR_BANDWIDTHChange(TObject *Sender)
 void __fastcall TWINDOW_SETTINGS::TABSHEET_GENERALShow(TObject *Sender)
 {
         UPDOWN_SERVERLIST_UPDATE->Position = programSettings.interval;
-        EDIT_SERVERLIST_UPDATE->Text = String(UPDOWN_SERVERLIST_UPDATE->Position);
         CHECKBOX_NOTIFICATIONS_ACTIVE->Checked = programSettings.customNotifications;
         CHECKBOX_UPDATE_CHECKATSTART->Checked = programSettings.checkUpdateAtStart;
         TRACKBAR_BANDWIDTH->Position = programSettings.level;
@@ -3212,7 +3195,5 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_UPDATEClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-                                                                  
-                              
 
 
