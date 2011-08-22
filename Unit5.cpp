@@ -2,6 +2,7 @@
 
 #include <vcl.h>
 #include <list.h>
+#include <unrar.h>
 #include "FileVersion.h"
 #pragma hdrstop
 
@@ -18,7 +19,8 @@
 #pragma resource "*.dfm"
 TWINDOW_UPDATE *WINDOW_UPDATE;
 
-String updateLocation = "https://raw.github.com/wiki/Poweruser/OFPMonitor/";
+String updateInformation = "https://raw.github.com/wiki/poweruser/ofpmonitor/update.txt";
+String updateLocation = "https://github.com/downloads/poweruser/ofpmonitor/";
 
 class UpdateTracker {
   public:
@@ -38,6 +40,8 @@ class UpdateTracker {
         String localVersion;
         String remoteVersion;
         bool newVersion;
+        bool error;
+        String errorMsg;
         int answer;
         String applicationExe;
         String mainDir;
@@ -121,8 +125,10 @@ UpdateTracker *uT;
 DWORD WINAPI UpdaterThread_Step1 (LPVOID lpdwThreadParam__ ) {
                 UpdateTracker *uTracker = (UpdateTracker*) lpdwThreadParam__;
                 try {
-                        uTracker->http->Get(updateLocation + "update.txt", uTracker->ms);
-                } catch (...) {
+                        uTracker->http->Get(updateInformation, uTracker->ms);
+                } catch (EIdException &E) {
+                        uTracker->error = true;
+                        uTracker->errorMsg = E.Message;
                         uTracker->newVersion = false;
                         uTracker->step++;
                         uTracker->working = false;
@@ -181,17 +187,52 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                 String target = updateLocation + file;
                                 uT->fs->Clear();
                                 WINDOW_UPDATE->LABEL_UPDATE_CURRENTFILE->Caption = file;
+                                bool success = false;
                                 try {
                                         uT->http->Get(target, uT->fs);
+                                        success = true;
+                                } catch (EIdException &E) {
+                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   Could not download: " + file + " - Reason: " + E.Message);
+                                }
+                                if(success) {
                                         if(String(uT->fs->Size) == fileSize) {
                                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + file);
-                                                uT->filesToInstall->Add(file);
-                                                uT->fs->SaveToFile(uT->updateDir + "\\" + file);
+                                                String fileOnDisk = uT->updateDir + "\\" + file;
+                                                uT->fs->SaveToFile(fileOnDisk);
+                                                if(fileOnDisk.SubString(fileOnDisk.Length() - 3, 4) == ".rar") {
+                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   Extracting " + file + " ...");
+
+                                                        RAROpenArchiveDataEx rarArchive;
+                                                        memset(&rarArchive, 0, sizeof(rarArchive));
+                                                        rarArchive.ArcName = fileOnDisk.c_str();
+                                                        rarArchive.OpenMode = RAR_OM_EXTRACT;
+                                                        rarArchive.CmtBuf = NULL;
+                                                        rarArchive.CmtBufSize = 0;
+                                                        rarArchive.CmtSize = 0;
+                                                        rarArchive.Callback = NULL;
+
+                                                        HANDLE rarHandle = RAROpenArchiveEx(&rarArchive);
+                                                        RARHeaderDataEx rarHeader;
+                                                        int retHeader = -1;
+                                                        while((retHeader = RARReadHeaderEx(rarHandle, &rarHeader)) == 0) {
+                                                                RARProcessFile(rarHandle,RAR_EXTRACT,uT->updateDir.c_str(),NULL);
+                                                                uT->filesToInstall->Add(rarHeader.FileName);
+                                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("      " + String(rarHeader.FileName));
+                                                        }
+                                                        if(retHeader == ERAR_BAD_DATA) {
+                                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("      " + String(rarHeader.FileName) + " - archive damaged, extraction aborted");
+                                                        }
+                                                        int ret = RARCloseArchive(rarHandle);
+                                                        if(ret != 0) {
+                                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("close error");
+                                                        }
+                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   ... done.");
+                                                } else {
+                                                        uT->filesToInstall->Add(file);
+                                                }
                                         } else {
                                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + file + " - invalid file size: " + String(uT->fs->Size) + " expected: " + fileSize);
                                         }
-                                } catch (...) {
-                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   Could not download: " + file);
                                 }
                                 int t = WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Position;
                                 WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Position = t + 1;
@@ -291,7 +332,11 @@ void __fastcall TWINDOW_UPDATE::Timer1Timer(TObject *Sender)
                                 }
                         } else {
                                 if(uT->userTriggered) {
-                                        ShowMessage(WINDOW_SETTINGS->getGuiString("STRING_UPDATE_ALREADYLATEST"));
+                                        if(uT->error) {
+                                                ShowMessage(uT->errorMsg);
+                                        } else {
+                                                ShowMessage(WINDOW_SETTINGS->getGuiString("STRING_UPDATE_ALREADYLATEST"));
+                                        }
                                 }
                                 WINDOW_SETTINGS->BUTTON_UPDATE->Enabled = true;
                         }
