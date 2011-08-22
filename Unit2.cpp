@@ -1558,6 +1558,13 @@ TStringList* TWINDOW_SETTINGS::getGameSpyGames() {
                         out->Add(programSettings.games[i].gamespyToken);
                 }
         }
+        if(out->Count == 0) {
+                Game temp;
+                for(int i = 0; i < GAMES_TOTAL; i++) {
+                        temp.setGameId(i);
+                        out->Add(temp.gamespyToken);
+                }
+        }
         return out;
 }
 
