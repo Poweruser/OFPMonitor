@@ -61,6 +61,8 @@ class UpdateTracker {
                 this->newVersion = false;
                 this->answer = mrNo;
                 this->step = 1;
+                this->error = false;
+                this->errorMsg = "default";
                 this->http = new TIdHTTP(WINDOW_UPDATE);
                 this->ssl = new TIdSSLIOHandlerSocketOpenSSL(WINDOW_UPDATE);
                 this->http->HandleRedirects = true;
@@ -333,7 +335,8 @@ void __fastcall TWINDOW_UPDATE::Timer1Timer(TObject *Sender)
                         } else {
                                 if(uT->userTriggered) {
                                         if(uT->error) {
-                                                ShowMessage(uT->errorMsg);
+                                                ShowMessage("Error: " + uT->errorMsg);
+                                                uT->error = false;
                                         } else {
                                                 ShowMessage(WINDOW_SETTINGS->getGuiString("STRING_UPDATE_ALREADYLATEST"));
                                         }
