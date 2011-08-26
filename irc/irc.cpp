@@ -231,7 +231,7 @@ DWORD WINAPI irc_ThreadProc (LPVOID lpdwThreadParam__ ) {
         int connectRes = connect(p_parm->sd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in));
         Form1->ChatConnected(!connectRes);
         if(p_parm->sd && !connectRes) {
-                int length = 10000;
+                int length = 30000;
                 int re = setsockopt(p_parm->sd,SOL_SOCKET,SO_RCVTIMEO,(const char *)&length,sizeof(length));
                 start_conversation(p_parm->sd, playerName);
                 char buff [1<<10];
@@ -241,8 +241,15 @@ DWORD WINAPI irc_ThreadProc (LPVOID lpdwThreadParam__ ) {
                                 p_parm->consume(buff, r);
                         }
                         p_parm->timeouts++;
-                        if(p_parm->timeouts > 2) {
+                        if (ALVOIRC_INPUTOUT) {
+                                appendText(Form1, "  receiving timed out");
+                        }
+                        if(p_parm->timeouts > 4) {
                                 closesocket(p_parm->sd);
+                        } else {
+                                if (ALVOIRC_INPUTOUT) {
+                                        appendText(Form1, "  sending ping");
+                                }
                         }
                 } while(  ircThreadInstance &&
                         ircThreadInstance->sd &&
@@ -391,6 +398,9 @@ void irc_thread__parm::consume(char* c2, int i2) {
 
                 if(pongFind >= 0) {
                         ircThreadInstance->timeouts = 0;
+                                if (ALVOIRC_INPUTOUT) {
+                                        appendText(Form1, "  pong received");
+                                }
                 }    
                 if (pingFind == 0) {
                         ircThreadInstance->timeouts = 0;
