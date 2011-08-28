@@ -1971,7 +1971,7 @@ class MP3Job {
                         if(0 != mciSendString(("play " + this->alias + " from " + String(this->start) + " to " + String(this->end)).c_str(), 0, 0, 0)) {
                                 this->error = true;
                         }
-                        if(0 != mciSendString(("setaudio " + this->alias + " volume to " + String(this->volume)).c_str(), 0, 0, 0)) {
+                        if(0 != mciSendString(("setaudio " + this->alias + " volume to " + String(this->volume*10)).c_str(), 0, 0, 0)) {
                                 this->error = true;
                         }
                         this->started = true;
@@ -2040,7 +2040,7 @@ class MP3Player {
                 MP3Job p = MP3Job(-1);
                 p.alias = "OFPM_MP3PREVIEW";
                 p.file = WINDOW_SETTINGS->EDIT_NOTIFICATION_FILE->Text;
-                p.volume = WINDOW_SETTINGS->TrackBar1->Position*10;
+                p.volume = WINDOW_SETTINGS->TrackBar1->Position;
                 p.start = StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_MIN->Text)*60000 +
                         StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_SEC->Text)*1000 +
                         StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_MILL->Text);
@@ -3201,6 +3201,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_UPDATEClick(TObject *Sender)
         WINDOW_UPDATE->checkForNewVersion(true);
 }
 //---------------------------------------------------------------------------
+
 
 
 
