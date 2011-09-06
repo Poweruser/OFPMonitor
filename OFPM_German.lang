@@ -119,6 +119,8 @@ STRING_CHAT_CONNECTINGFAILED = Verbindung fehlgeschlagen.
 STRING_CHAT_CONNECTIONLOST = Verbindung verloren. Verbinde erneut ...
 STRING_CHAT_JOINED = ist beigetreten
 STRING_CHAT_LEFT = trennte
+STRING_CHAT_CLOSE = Schlieﬂen
+STRING_CHAT_CHATWITH = Mit ... chatten
 
 STRING_BROWSE = Durchsuchen ...
 STRING_OFPEXECUTABLE = Anwendungsdatei

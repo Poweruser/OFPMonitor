@@ -21,7 +21,7 @@ static DWORD WINAPI irc_ThreadProc( LPVOID lpThreadParameter );
 static struct irc_thread__parm * ircThreadInstance;
 static void getplayername(bool connectionFailedBefore ); 
 static void start_conversation( int sd, char * name ); 
-static void sendMessage(const char * xmsg);
+static void sendMessage(const char * receiver, const char * xmsg);
 
 static string after(string& in, string& needle);
 static string before(string& in, string& needle);
@@ -31,7 +31,7 @@ static string currentTimeString();
 static string plrname_localtoirc(  char * name  );
 static string name_irctolocal(string& n);
 
-static string allowedExtraCharacters = "_-[]^";
+static string allowedExtraCharacters = "_-[]^|";
 
 struct irc_thread__parm {
         TForm1 * tform1 ;
@@ -63,6 +63,7 @@ HANDLE chatListener;
 void chat_client_disconnect() {
         if (ircThreadInstance && ircThreadInstance->sd) {
                 ircThreadInstance->controlledShutdown = true;
+                ircThreadInstance->sendString("QUIT : \r\n");
                 closesocket(ircThreadInstance->sd);
                 ircThreadInstance->sd = 0;
                 ircThreadInstance->hoscht.clear();
@@ -120,9 +121,8 @@ string plrname_localtoirc(  char * name  ) {
         return ofpprefix + n;
 }
 
-void appendText( TForm1 * tform1, string& msg ) {
-        TMemo *tr = tform1->MemoChatOutput;
-        tr->Lines->Add(msg.c_str());
+void appendText( TForm1 * tform1, string& chan, string& msg, bool controlMsg ) {
+        tform1->incomingChatMessage(chan.c_str(), msg.c_str(), controlMsg);
 }
 
 static string currentTimeString() {
@@ -142,30 +142,44 @@ void chat_client_timercallback(void * t) {
         if (ircThreadInstance && ircThreadInstance->messages.size() > 0) {
                 vector<string> m  (ircThreadInstance->messages);
                 ircThreadInstance->messages.clear();
-                //string privMsgNeedle = "PRIVMSG #" + channelname_operationflashpoint1 + " :";
-                string privMsgNeedle = Form1->getChatChannel().c_str();
-                privMsgNeedle = "PRIVMSG #" + privMsgNeedle + " :";
+                string chanMsgNeedle = Form1->getChatChannel().c_str();
+                chanMsgNeedle = "PRIVMSG " + chanMsgNeedle + " :";
+                string privMsgNeedle = plrname_localtoirc(playerName);
+                privMsgNeedle = "PRIVMSG " + privMsgNeedle + " :";
                 for(unsigned int i = 0; i < m.size(); i++) {
                         string& omsg = m.at(i);
                         if (ALVOIRC_INPUTOUT) {
-                                appendText(tform1, omsg);
+                                appendText(tform1, Form1->getChatChannel().c_str(), omsg, true);
                         }
                         string cmsg = omsg;
-                        string playername;
-                        int fnd = 0;
-                        if ((fnd = cmsg.find(privMsgNeedle,0)) >= 0) {
-                                cmsg = string(cmsg, fnd + privMsgNeedle.size());
+
+                        int privFnd = -1;
+                        int chanFnd = -1;
+                        bool priv = (privFnd = cmsg.find(privMsgNeedle, 0)) >= 0;
+                        if(priv) {
+                                cmsg = string(cmsg, privFnd + privMsgNeedle.size());
+                        }
+                        bool chan = (chanFnd = cmsg.find(chanMsgNeedle, 0)) >= 0;
+                        if(chan) {
+                                cmsg = string(cmsg, chanFnd + chanMsgNeedle.size());
+                        }
+                        if (priv || chan) {
+                                string playername;
                                 int emp = omsg.find("!", 1);
                                 playername = string(omsg, 1, emp - 1);
                                 playername = name_irctolocal(playername);
-				if(!Form1->isChatUserBlocked(playername.c_str())) {                                
-					cmsg = currentTimeString() + " - " + playername + ": " + cmsg;
-                                	appendText(tform1, cmsg);
-                                        if(Form1->doNameFilter(cmsg.c_str(), playerName) ||
-                                           Form1->doNameFilter(cmsg.c_str(), (ofpprefix + plrname_localtoirc(playerName)).c_str())) {
-                                               tform1->ChatNotification(cmsg.c_str());
+                                if(!Form1->isChatUserBlocked(playername.c_str())) {
+                                        cmsg = currentTimeString() + " - " + playername + ": " + cmsg;
+                                        if(chan) {
+                                                appendText(tform1, Form1->getChatChannel().c_str(), cmsg, false);
+                                        } else {
+                                                appendText(tform1, playername, cmsg, false);
                                         }
-				}
+                                        if(Form1->doNameFilter(cmsg.c_str(), playerName) ||
+                                                Form1->doNameFilter(cmsg.c_str(), (ofpprefix + plrname_localtoirc(playerName)).c_str())) {
+                                                tform1->ChatNotification(cmsg.c_str());
+                                        }
+                                }
                         }
                 }
         }
@@ -200,22 +214,24 @@ void chat_client_timercallback(void * t) {
                 vector<string> pp =  vector<string>(ircThreadInstance->playersParted);
                 ircThreadInstance->playersParted.clear();
                 for(unsigned int i = 0; i < pp.size(); i++) {
-                        //p->sendString
-                        string text = currentTimeString() + "      *******    "  + pp.at(i) + " ";
+                        string player = pp.at(i);
+                        string text = currentTimeString() + "      *******    "  + player + " ";
                         text += WINDOW_SETTINGS->getGuiString("STRING_CHAT_LEFT").c_str();
                         text += "    ******";
-                        appendText(tform1, text);
+                        appendText(tform1, player, text, true);
+                        appendText(tform1, Form1->getChatChannel().c_str(), text, true);
                 }
         }
         if (ircThreadInstance->playersJoined.size() > 0) {
                 vector<string> pp =  vector<string>(ircThreadInstance->playersJoined);
                 ircThreadInstance->playersJoined.clear();
                 for(unsigned int i = 0; i < pp.size(); i++) {
-                        //p->sendString
-                        string text = currentTimeString() + "      *******    "  + pp.at(i) + " ";
+                        string player = pp.at(i);
+                        string text = currentTimeString() + "      *******    "  + player + " ";
                         text += WINDOW_SETTINGS->getGuiString("STRING_CHAT_JOINED").c_str();
                         text += "    ******";
-                        appendText(tform1, text);
+                        appendText(tform1, player, text, true);
+                        appendText(tform1, Form1->getChatChannel().c_str(), text, true);
                 }
         }
 }
@@ -242,13 +258,13 @@ DWORD WINAPI irc_ThreadProc (LPVOID lpdwThreadParam__ ) {
                         }
                         p_parm->timeouts++;
                         if (ALVOIRC_INPUTOUT) {
-                                appendText(Form1, "  receiving timed out");
+                                appendText(Form1, Form1->getChatChannel().c_str(),"  receiving timed out", true);
                         }
                         if(p_parm->timeouts > 4) {
                                 closesocket(p_parm->sd);
                         } else {
                                 if (ALVOIRC_INPUTOUT) {
-                                        appendText(Form1, "  sending ping");
+                                        appendText(Form1, Form1->getChatChannel().c_str(),"  sending ping", true);
                                 }
                         }
                 } while(  ircThreadInstance &&
@@ -274,21 +290,9 @@ void start_conversation( int sd, char * name ) {
                         "CAP REQ :multi-prefix\n" +
                         "CAP END\n" +
                         "USERHOST " +  ircName +  "\n" +
-                        "JOIN #" + Form1->getChatChannel() + "\n" +
-                        "MODE #" + Form1->getChatChannel() + "\n";
-        /*
-        stringstream ss;
-        ss << "CAP LS\n"
-        << "NICK " << ircName << "\n"
-        << "USER " << ircName << " 0 * :" << ircName << "\n"
-        << "CAP REQ :multi-prefix\n"
-        << "CAP END\n"
-        << "USERHOST "<<  ircName <<  "\n"
-        << "JOIN #" << Form1->getChatChannel() << "\n"
-        << "MODE #" << Form1->getChatChannel() << "\n";
+                        "JOIN " + Form1->getChatChannel() + "\n" +
+                        "MODE " + Form1->getChatChannel() + "\n";
 
-        string msg = ss.str();
-        */
         int s = send(sd, msg.c_str(), msg.Length(), 0);
         return;
 }
@@ -385,7 +389,7 @@ void irc_thread__parm::consume(char* c2, int i2) {
                         updatePlayers = 1;
                 } else if ( starts(body , "433 ")) {
                         string ps2 = after( body , ":" );
-                        appendText(Form1, ps2);
+                        appendText(Form1, Form1->getChatChannel().c_str(), ps2, true);
                         ircThreadInstance->controlledShutdown = true;
                         Form1->ChatConnected(false);
                 }
@@ -399,7 +403,7 @@ void irc_thread__parm::consume(char* c2, int i2) {
                 if(pongFind >= 0) {
                         ircThreadInstance->timeouts = 0;
                                 if (ALVOIRC_INPUTOUT) {
-                                        appendText(Form1, "  pong received");
+                                        appendText(Form1, Form1->getChatChannel().c_str(), "  pong received", true);
                                 }
                 }    
                 if (pingFind == 0) {
@@ -409,7 +413,7 @@ void irc_thread__parm::consume(char* c2, int i2) {
                         send(sd, pong.c_str(), pong.length(), 0);
                 } else if (!sentVersion && endNameListFind >= 0) {
                         sentVersion = 1;
-                        sendMessage( ("Logged in with " + Application->Title).c_str());
+                        sendMessage(Form1->getChatChannel().c_str(), ("Logged in with " + Application->Title).c_str());
                 } else if (joinFind > 0) {
                         string name = readPlayerFromLine(s);
                         playersJoined.push_back(name);
@@ -425,18 +429,18 @@ void irc_thread__parm::consume(char* c2, int i2) {
         }
 }
 
-void sendMessage(const char *xmsg) {
+void sendMessage(const char* receiver, const char *xmsg) {
         string msg( xmsg );
-        string channel = Form1->getChatChannel().c_str();
-        msg = "PRIVMSG #" + channel + " :" + msg + "\r\n";
+        string channel( receiver );
+        msg = "PRIVMSG " + channel + " :" + msg + "\r\n";
         send(ircThreadInstance->sd, msg.c_str(), msg.length(), 0);
 }
 
-void chat_client_pressedReturnKey(void *t, const char *msg) {
+void chat_client_pressedReturnKey(void *t, const char *receiver, const char *msg) {
         TForm1 *tform1 = (TForm1 *) t;
         if (ircThreadInstance && ircThreadInstance->sd) {
-                sendMessage(msg);
-                appendText(tform1,  currentTimeString( ) +  " - " + playerName + ": " + msg);
+                sendMessage(receiver, msg);
+                appendText(tform1,  receiver, currentTimeString( ) +  " - " + playerName + ": " + msg, false);
         }
 }
 
@@ -460,3 +464,4 @@ static string before(string& in, string& needle) {
 static int starts(string& in, string& needle) {
         return in.find(needle, 0) == 0;
 }
+

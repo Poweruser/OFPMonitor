@@ -984,6 +984,8 @@ void updateLanguage(String languagefile) {
         guiStrings.push_back(guiString("STRING_CHAT_CONNECTING_FAILED","Connecting failed."));
         guiStrings.push_back(guiString("STRING_CHAT_JOINED","joined"));
         guiStrings.push_back(guiString("STRING_CHAT_LEFT","left"));
+        guiStrings.push_back(guiString("STRING_CHAT_CLOSE","Close"));
+        guiStrings.push_back(guiString("STRING_CHAT_CHATWITH","Chat with ..."));        
         guiStrings.push_back(guiString("STRING_CHAT_CONNECTIONLOST","Connection lost. Reconnecting ..."));
         guiStrings.push_back(guiString("STRING_DETECTEDVERSION","Detected file version: "));
         guiStrings.push_back(guiString("STRING_CHAT_LEFT","left"));

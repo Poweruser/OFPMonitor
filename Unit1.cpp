@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
-#include <list.h>                                         
+#include <list.h>
 #include <mmsystem.h>
 #pragma hdrstop
 #include ".\gamespy\msquery_header.h"
@@ -1837,6 +1837,58 @@ void copyToClipBoard (String msg) {
         }
 }
 
+class Chat {
+        public:
+                String name;
+                bool changed;
+                TStringList *output;
+                TStringList *input;
+                TRect rect;
+                Chat(String name) {
+                        this->changed = false;
+                        this->name = name;
+                        this->output = new TStringList();
+                        this->input = new TStringList();
+                }
+
+                void saveCurrentInput() {
+                        this->input->Clear();
+                        for(int i = 0; i < Form1->MemoChatInput->Lines->Count; i++) {
+                                this->input->Add(Form1->MemoChatInput->Lines->Strings[i]);
+                        }
+                }
+
+                void loadThisChat() {
+                        Form1->MemoChatOutput->Lines->Clear();
+                        Form1->MemoChatInput->Lines->Clear();
+                        for(int i = 0; i < this->output->Count; i++) {
+                                Form1->MemoChatOutput->Lines->Add(this->output->Strings[i]);
+                        }
+                        for(int i = 0; i < this->input->Count; i++) {
+                                Form1->MemoChatInput->Lines->Add(this->input->Strings[i]);
+                        }
+                        this->changed = false;
+                }
+
+                bool incomingMessage(String name, String msg) {
+                        if(name == this->name) {
+                                this->output->Add(msg);
+                                if(Form1->TabControl1->TabIndex == -1 || Form1->TabControl1->Tabs->Strings[Form1->TabControl1->TabIndex] == this->name) {
+                                        Form1->MemoChatOutput->Lines->Add(msg);
+                                } else {
+                                        this->changed = true;
+                                }
+                                Form1->TabControl1->Repaint();
+                                return true;
+                        }
+                        return false;
+                }
+};
+
+TStringList *activeChats = new TStringList();
+TStringList *blockedChatUsers = new TStringList();
+
+
 /**
    Object for settings concerning the chat
  */
@@ -1853,11 +1905,10 @@ class ChatSettings {
                 ChatSettings() {
                         this->host = "irc.freenode.net";
                         this->port = 6666;
-                        this->channel = "operationflashpoint1";
+                        this->channel = "#operationflashpoint1";
                         this->userName = "";
                         this->setAutoConnect(false);
-                        this->connectionLost = 0;
-                        this->doConnect = false;
+                        this->init();
                 }
 
                 ChatSettings(String h, int p, String c, String user, bool ac) {
@@ -1866,8 +1917,33 @@ class ChatSettings {
                         this->channel = c;
                         this->userName = user;
                         this->setAutoConnect(ac);
-                        this->connectionLost = 0;
-                        this->doConnect = false;
+                        this->init();
+                }
+
+                void closeChats() {
+                        Form1->TabControl1->Tabs->Clear();
+                        for(int i = 0; i < activeChats->Count; i++) {
+                                Chat *c = (Chat*) activeChats->Objects[i];
+                                if(c != NULL) {
+                                        delete c;
+                                }
+                        }
+                        activeChats->Clear();
+                }
+
+                void incomingMsg(String chan, String msg, bool controlMsg) {
+                        bool found = false;
+                        for(int i = 0; i < activeChats->Count && !found; i++) {
+                                Chat *c = (Chat*)(activeChats->Objects[i]);
+                                found = c->incomingMessage(chan, msg);
+                        }
+                        if(!found && !controlMsg) {
+                                Form1->TabControl1->Tabs->Add(chan);
+                                Chat *n = new Chat(chan);
+                                n->incomingMessage(chan, msg);
+                                activeChats->AddObject(chan, (TObject*)n);
+                        }
+                        Form1->TabControl1->Repaint();
                 }
 
                 void setAutoConnect(bool ac) {
@@ -1891,6 +1967,11 @@ class ChatSettings {
                         return output;
                 }
         private:
+                void init() {
+                        this->connectionLost = 0;
+                        this->doConnect = false;
+                }
+
                 String checkBool(bool in) {
                         if(in) {
                                 return "1";
@@ -1901,7 +1982,10 @@ class ChatSettings {
 };
 
 ChatSettings chatsettings;
-TStringList *blockedChatUsers = new TStringList();
+
+void TForm1::incomingChatMessage(String chan, String msg, bool controlMsg) {
+        chatsettings.incomingMsg(chan, msg, controlMsg);
+}
 
 /**
    Gives Unit2, which loades the config file, access to the object
@@ -1958,7 +2042,7 @@ void TForm1::ChatConnectionLost() {
 
 void TForm1::ChatConnected(bool success) {
         if(!success) {
-                MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTINGFAILED"));
+                Form1->incomingChatMessage(Form1->getChatChannel(),WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTINGFAILED"), false);
         } else {
                 MemoChatInput->Clear();
         }
@@ -2120,9 +2204,11 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
         delete ServerSortList;
         delete PlayerSortList;
         delete PlayerSortList2;
-        delete blockedChatUsers;
         list<String> servers;
         list<String> watched;
+        chatsettings.closeChats();
+        delete blockedChatUsers;
+        delete activeChats;
         for(int i = 0; i < GetArrLength(ServerArray); i++) {
                 if(ServerArray[i].index == -1) {
                         break;
@@ -2677,7 +2763,7 @@ void __fastcall TForm1::TimerIrcChatTimerTimer(TObject *Sender)
 {
         if(chatsettings.connectionLost == 1) {
                 chatsettings.connectionLost = 2;
-                MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTIONLOST"));
+                Form1->incomingChatMessage(Form1->getChatChannel(), WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTIONLOST"), false);
                 MENUITEM_MAINMENU_CHAT_DISCONNECT->Click();
                 MENUITEM_MAINMENU_CHAT_CONNECT->Click();
         } else {
@@ -2694,10 +2780,10 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = false;
         Form1->PageControl1->ActivePage = Form1->TABSHEET_CHAT;
         if(chatsettings.connectionLost == 0) {
-                MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTINGTO") +
-                        "  " + Form1->getChatHost() + ":" + String(Form1->getChatPort()));
-                MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_CHANNEL") +
-                        "  " + Form1->getChatChannel());
+                Form1->incomingChatMessage(Form1->getChatChannel(), WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTINGTO") +
+                        "  " + Form1->getChatHost() + ":" + String(Form1->getChatPort()), false);
+                Form1->incomingChatMessage(Form1->getChatChannel(), WINDOW_SETTINGS->getGuiString("STRING_CHAT_CHANNEL") +
+                        "  " + Form1->getChatChannel(), false);
         }
         chatsettings.doConnect = true;
         TimerIrcChatTimer->Enabled = true;
@@ -2714,31 +2800,49 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
         StringGrid3->Cells[0][0] = "";
         StringGrid3->Cells[0][1] = "";
         if(chatsettings.connectionLost == 0) {
-                MemoChatOutput->Lines->Add(WINDOW_SETTINGS->getGuiString("STRING_CHAT_DISCONNECTED"));
+                Form1->incomingChatMessage(Form1->getChatChannel(), WINDOW_SETTINGS->getGuiString("STRING_CHAT_DISCONNECTED"), false);
         }
+        int i = activeChats->IndexOf(Form1->getChatChannel());
+        if(i >= 0) {
+                Chat *c = (Chat*) activeChats->Objects[i];
+                c->loadThisChat();
+        }
+        chatsettings.closeChats();
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = true;
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CLEARLOGClick(TObject *Sender)
 {
-        MemoChatOutput->Clear();        
+        int i = TabControl1->TabIndex;
+        if(i >= 0) {
+                String caption = TabControl1->Tabs->Strings[i];
+                int j = activeChats->IndexOf(caption);
+                if(j >= 0) {
+                        Chat *c = (Chat*) activeChats->Objects[j];
+                        c->output->Clear();
+                        c->input->Clear();
+                        c->loadThisChat();
+                }
+        }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_SAVETOFILEClick(TObject *Sender)
 {
-        SaveDialog1->Execute();        
+        SaveDialog1->Execute();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::SaveDialog1CanClose(TObject *Sender,
       bool &CanClose)
 {
-        TStringList *log = new TStringList;
-        for(int i = 0; i < MemoChatOutput->Lines->Count; i++) {
-                log->Add(MemoChatOutput->Lines->Strings[i]);
+        int i = TabControl1->TabIndex;
+        if(i >= 0) {
+                String caption = TabControl1->Tabs->Strings[i];
+                int j = activeChats->IndexOf(caption);
+                if(j >= 0) {
+                        Chat *c = (Chat*) activeChats->Objects[j];
+                        c->output->SaveToFile(SaveDialog1->FileName);
+                }
         }
-        log->SaveToFile(SaveDialog1->FileName);
-        log->Clear();
-        delete log;
 }
 //---------------------------------------------------------------------------
 
@@ -2817,7 +2921,13 @@ void __fastcall TForm1::MemoChatInputKeyDown(TObject *Sender, WORD &Key,
                 }
                 MemoChatInput->Clear();
                 if(!input.Trim().IsEmpty()) {
-                        chat_client_pressedReturnKey(this, input.c_str());
+                        String caption;
+                        if(TabControl1->TabIndex == -1) {
+                                caption = Form1->getChatChannel();
+                        } else {
+                                caption = TabControl1->Tabs->Strings[TabControl1->TabIndex];
+                        }
+                        chat_client_pressedReturnKey(this, caption.c_str(), input.c_str());
                 }
         }
 }
@@ -2871,6 +2981,146 @@ void __fastcall TForm1::IdUDPServer1UDPRead(TIdUDPListenerThread *AThread,
         }
 }
 //---------------------------------------------------------------------------
+                          
+void __fastcall TForm1::TabControl1DrawTab(TCustomTabControl *Control,
+      int TabIndex, const TRect &Rect, bool Active)
+{
+        TRect r = Rect;
+        r.Left += 4;
+        String caption = TabControl1->Tabs->Strings[TabIndex];
+        int i = activeChats->IndexOf(caption);
+        if(i >= 0) {
+                Chat *c = (Chat*) activeChats->Objects[i];
+                c->rect.Top = Rect.Top;
+                c->rect.Bottom = Rect.Bottom;
+                c->rect.Left = Rect.Left;
+                c->rect.Right = Rect.Right;
+                if(TabIndex != TabControl1->TabIndex) {
+                        if(c->changed) {
+                                Control->Canvas->Font->Color = clWhite;
+                                Control->Canvas->Brush->Color = clBlue;
+                                Control->Canvas->FillRect(Rect);
+                        }
+                }
+        }
+        DrawText(Control->Canvas->Handle, caption.c_str(),
+                -1, &r, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::TabControl1Change(TObject *Sender)
+{
+        if(TabControl1->Tabs->Count == 1) {
+                TabControl1->TabIndex = 0;
+        }
+        int ind = TabControl1->TabIndex;
+        if(ind > -1) {
+                String caption = TabControl1->Tabs->Strings[ind];
+                int i = activeChats->IndexOf(caption);
+                if(i >= 0) {
+                        Chat *c = (Chat*) activeChats->Objects[i];
+                        c->loadThisChat();
+                }
+        }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::TabControl1Changing(TObject *Sender,
+      bool &AllowChange)
+{
+        if(TabControl1->Tabs->Count == 1) {
+                TabControl1->TabIndex = 0;
+        }
+        int ind = TabControl1->TabIndex;
+        if(ind > -1) {
+                String caption = TabControl1->Tabs->Strings[ind];
+                int i = activeChats->IndexOf(caption);
+                if(i >= 0) {
+                        Chat *c = (Chat*) activeChats->Objects[i];
+                        c->saveCurrentInput();
+                }
+        }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::StringGrid3ContextPopup(TObject *Sender,
+      TPoint &MousePos, bool &Handled)
+{
+        int col = -1, row = -1;
+        StringGrid3->MouseToCell(MousePos.x, MousePos.y, col, row);
+        bool success = false;
+        if(col >= 0 && row >= 0) {
+                String name = StringGrid3->Cells[0][row];
+                if(!name.IsEmpty()) {
+                        success = true;
+                        int i = activeChats->IndexOf(name);
+                        Openchat1->Tag = i;
+                        Openchat1->Hint = name;
+                }
+        }
+        Openchat1->Caption = WINDOW_SETTINGS->getGuiString("STRING_CHAT_CHATWITH");
+        Openchat1->Visible = success;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Openchat1Click(TObject *Sender)
+{
+        int i = Openchat1->Tag;
+        String name = Openchat1->Hint;
+        if(i < 0) {
+                Form1->incomingChatMessage(name, "Chat with " + name +" opened.", false);
+                i = activeChats->IndexOf(name);
+        }
+        if(i >= 0) {
+                for(int j = 0; j < TabControl1->Tabs->Count; j++) {
+                        if(TabControl1->Tabs->Strings[j] == name) {
+                                TabControl1->TabIndex = j;
+                                TabControl1Change(this);
+                                break;
+                        }
+                }
+        }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::TabControl1ContextPopup(TObject *Sender,
+      TPoint &MousePos, bool &Handled)
+{
+        Close1->Visible = false;
+        for(int i = 0; i < activeChats->Count; i++) {
+                Chat *c = (Chat*) activeChats->Objects[i];
+                if(     c->rect.Left < MousePos.x &&
+                        c->rect.Right > MousePos.x &&
+                        c->rect.Top < MousePos.y &&
+                        c->rect.Bottom > MousePos.y &&
+                        c->name != Form1->getChatChannel()) {
+                        Close1->Hint = c->name;
+                        Close1->Caption = WINDOW_SETTINGS->getGuiString("STRING_CHAT_CLOSE");
+                        Close1->Visible = true;
+                        break;
+                }
+        }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Close1Click(TObject *Sender)
+{
+        String name = Close1->Hint;
+        int j = TabControl1->Tabs->IndexOf(name);
+        if(j >= 0) {
+                TabControl1->Tabs->Delete(j);
+        }
+        int i = activeChats->IndexOf(name);
+        if(i >= 0) {
+                Chat *c = (Chat*) activeChats->Objects[i];
+                delete c;
+                activeChats->Delete(i);
+        }
+        TabControl1Change(Sender);
+}
+//---------------------------------------------------------------------------
+
+
 
 
 

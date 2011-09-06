@@ -129,6 +129,11 @@ __published:	// IDE-managed Components
         TMenuItem *MENUITEM_MAINMENU_LOCALGAME;
         TTimer *Timer2;
         TIdUDPServer *IdUDPServer1;
+        TTabControl *TabControl1;
+        TPopupMenu *PopupMenuChat;
+        TMenuItem *Openchat1;
+        TPopupMenu *PopupMenuChat2;
+        TMenuItem *Close1;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
@@ -199,6 +204,17 @@ __published:	// IDE-managed Components
         void __fastcall Timer2Timer(TObject *Sender);
         void __fastcall IdUDPServer1UDPRead(TIdUDPListenerThread *AThread,
           TIdBytes AData, TIdSocketHandle *ABinding);
+        void __fastcall TabControl1DrawTab(TCustomTabControl *Control,
+          int TabIndex, const TRect &Rect, bool Active);
+        void __fastcall TabControl1Change(TObject *Sender);
+        void __fastcall TabControl1Changing(TObject *Sender,
+          bool &AllowChange);
+        void __fastcall StringGrid3ContextPopup(TObject *Sender,
+          TPoint &MousePos, bool &Handled);
+        void __fastcall Openchat1Click(TObject *Sender);
+        void __fastcall TabControl1ContextPopup(TObject *Sender,
+          TPoint &MousePos, bool &Handled);
+        void __fastcall Close1Click(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         void TForm1::readServerList(list<String> &in);
@@ -210,6 +226,7 @@ public:		// User declarations
                                 int devider);
         list<String> TForm1::splitUpMessage(String msg, String split);
         bool TForm1::doNameFilter(String c, String d);
+        void TForm1::incomingChatMessage(String chan, String msg, bool controlMsg);
         void TForm1::setChat(String host, int port, String channel, String user, bool autoConnect);
         String TForm1::getChatHost();
         int TForm1::getChatPort();

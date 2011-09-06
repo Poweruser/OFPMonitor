@@ -119,6 +119,8 @@ STRING_CHAT_CONNECTINGFAILED = Подключение не удалось.
 STRING_CHAT_CONNECTIONLOST = Соединение потеряно. Повторное подключение ...
 STRING_CHAT_JOINED = вступил
 STRING_CHAT_LEFT = оставил
+STRING_CHAT_CLOSE = Закрыть
+STRING_CHAT_CHATWITH = Чат с ...
 
 STRING_BROWSE = Обзор
 STRING_OFPEXECUTABLE = Путь к EXE-файлу

@@ -26,7 +26,7 @@ object Form1: TForm1
   TextHeight = 16
   object Splitter1: TSplitter
     Left = 0
-    Top = 276
+    Top = 303
     Width = 658
     Height = 3
     Cursor = crVSplit
@@ -42,7 +42,7 @@ object Form1: TForm1
     Left = 0
     Top = 0
     Width = 658
-    Height = 276
+    Height = 303
     ActivePage = TABSHEET_SERVERINFO
     Align = alTop
     Constraints.MinHeight = 271
@@ -54,7 +54,7 @@ object Form1: TForm1
         Left = 0
         Top = 0
         Width = 650
-        Height = 245
+        Height = 272
         Align = alClient
         BevelOuter = bvNone
         TabOrder = 0
@@ -62,7 +62,7 @@ object Form1: TForm1
           Left = 368
           Top = 0
           Width = 282
-          Height = 245
+          Height = 272
           Align = alRight
           ColCount = 4
           DefaultColWidth = 50
@@ -413,59 +413,77 @@ object Form1: TForm1
       Caption = 'Chat'
       ImageIndex = 1
       OnShow = TABSHEET_CHATShow
-      object StringGrid3: TStringGrid
-        Left = 430
-        Top = 0
-        Width = 221
-        Height = 240
-        Hint = 'ALT + LeftMouse mutes the user you click on'
-        Align = alRight
-        ColCount = 1
-        DefaultColWidth = 200
-        FixedCols = 0
-        RowCount = 1
-        FixedRows = 0
-        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine]
-        ScrollBars = ssVertical
-        TabOrder = 0
-        OnDrawCell = StringGrid3DrawCell
-        OnMouseDown = StringGrid3MouseDown
-      end
       object Panel2: TPanel
         Left = 0
         Top = 0
-        Width = 430
-        Height = 240
+        Width = 490
+        Height = 272
         Align = alClient
         Alignment = taLeftJustify
         BevelOuter = bvNone
-        Caption = 'Panel2'
         Constraints.MinHeight = 231
-        TabOrder = 1
-        object MemoChatOutput: TMemo
+        TabOrder = 0
+        object TabControl1: TTabControl
           Left = 0
           Top = 0
-          Width = 430
-          Height = 214
+          Width = 490
+          Height = 272
           Align = alClient
-          ReadOnly = True
-          ScrollBars = ssVertical
+          MultiLine = True
+          OwnerDraw = True
+          PopupMenu = PopupMenuChat2
           TabOrder = 0
-          OnChange = MemoChatOutputChange
+          OnChange = TabControl1Change
+          OnChanging = TabControl1Changing
+          OnContextPopup = TabControl1ContextPopup
+          OnDrawTab = TabControl1DrawTab
+          object MemoChatInput: TMemo
+            Left = 4
+            Top = 242
+            Width = 482
+            Height = 26
+            Align = alBottom
+            Constraints.MaxHeight = 26
+            Enabled = False
+            TabOrder = 0
+            OnChange = MemoChatInputChange
+            OnKeyDown = MemoChatInputKeyDown
+            OnKeyUp = MemoChatInputKeyUp
+          end
+          object MemoChatOutput: TMemo
+            Left = 4
+            Top = 6
+            Width = 482
+            Height = 236
+            Align = alClient
+            ReadOnly = True
+            ScrollBars = ssVertical
+            TabOrder = 1
+            OnChange = MemoChatOutputChange
+          end
         end
-        object MemoChatInput: TMemo
-          Left = 0
-          Top = 214
-          Width = 430
-          Height = 26
-          Align = alBottom
-          Constraints.MaxHeight = 26
-          Enabled = False
-          TabOrder = 1
-          OnChange = MemoChatInputChange
-          OnKeyDown = MemoChatInputKeyDown
-          OnKeyUp = MemoChatInputKeyUp
-        end
+      end
+      object StringGrid3: TStringGrid
+        Left = 490
+        Top = 0
+        Width = 160
+        Height = 272
+        Hint = 'ALT + LeftMouse mutes the user you click on'
+        Align = alRight
+        ColCount = 1
+        Constraints.MaxWidth = 160
+        Constraints.MinWidth = 160
+        DefaultColWidth = 140
+        FixedCols = 0
+        RowCount = 1
+        FixedRows = 0
+        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
+        PopupMenu = PopupMenuChat
+        ScrollBars = ssVertical
+        TabOrder = 1
+        OnContextPopup = StringGrid3ContextPopup
+        OnDrawCell = StringGrid3DrawCell
+        OnMouseDown = StringGrid3MouseDown
       end
     end
   end
@@ -507,9 +525,9 @@ object Form1: TForm1
   object StringGrid1: TStringGrid
     Tag = -1
     Left = 0
-    Top = 279
+    Top = 306
     Width = 658
-    Height = 141
+    Height = 114
     Align = alClient
     BiDiMode = bdRightToLeft
     ColCount = 7
@@ -869,5 +887,21 @@ object Form1: TForm1
     OnUDPRead = IdUDPServer1UDPRead
     Left = 464
     Top = 72
+  end
+  object PopupMenuChat: TPopupMenu
+    Left = 400
+    Top = 88
+    object Openchat1: TMenuItem
+      Caption = 'Chat with...'
+      OnClick = Openchat1Click
+    end
+  end
+  object PopupMenuChat2: TPopupMenu
+    Left = 432
+    Top = 88
+    object Close1: TMenuItem
+      Caption = 'Close'
+      OnClick = Close1Click
+    end
   end
 end

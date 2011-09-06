@@ -6,5 +6,4 @@ void chat_client_disconnect( );
 
 void chat_client_timercallback(  void * tform1 );
 
-void chat_client_pressedReturnKey(  void * tform1, const char *msg );
-
+void chat_client_pressedReturnKey(void *t, const char *receiver, const char *msg);

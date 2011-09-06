@@ -40,7 +40,7 @@ object WINDOW_INFO: TWINDOW_INFO
       
         'The source code and latest downloads of this program are availab' +
         'le at'
-      'http://github.com/Poweruser/OFPMonitor'
+      'https://github.com/Poweruser/OFPMonitor/'
       ''
       
         'This program is using excerpts from the source code of the progr' +
