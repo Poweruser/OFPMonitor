@@ -3049,16 +3049,17 @@ void __fastcall TForm1::StringGrid3ContextPopup(TObject *Sender,
         int col = -1, row = -1;
         StringGrid3->MouseToCell(MousePos.x, MousePos.y, col, row);
         bool success = false;
+        String ownName = getOwnIrcName();
         if(col >= 0 && row >= 0) {
                 String name = StringGrid3->Cells[0][row];
-                if(!name.IsEmpty()) {
+                if(!name.IsEmpty() && name != ownName) {
                         success = true;
                         int i = activeChats->IndexOf(name);
                         Openchat1->Tag = i;
                         Openchat1->Hint = name;
                 }
         }
-        Openchat1->Caption = WINDOW_SETTINGS->getGuiString("STRING_CHAT_CHATWITH");
+        Openchat1->Caption = WINDOW_SETTINGS->getGuiString("STRING_CHAT_CHATWITH"); 
         Openchat1->Visible = success;
 }
 //---------------------------------------------------------------------------

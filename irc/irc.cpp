@@ -60,6 +60,11 @@ struct irc_thread__parm {
 static char playerName[1024];
 HANDLE chatListener;
 
+String getOwnIrcName() {
+        String n = plrname_localtoirc(playerName).c_str();
+        return n;
+}
+
 void chat_client_disconnect() {
         if (ircThreadInstance && ircThreadInstance->sd) {
                 ircThreadInstance->controlledShutdown = true;
@@ -98,11 +103,6 @@ static string name_irctolocal(string& n) {
         if (starts(playername , "@")){
                 playername = after(playername , "@");
         }
-        string k(ofpprefix);
-        int p = playername.find(k, 0);
-        if (p >= 0) {
-                return string(playername, p + k.size());
-        }
         return playername;
 }              
 
@@ -118,7 +118,7 @@ string plrname_localtoirc(  char * name  ) {
                         n[i] = '_';
                 }
         }
-        return ofpprefix + n;
+        return n;
 }
 
 void appendText( TForm1 * tform1, string& chan, string& msg, bool controlMsg ) {
@@ -176,7 +176,7 @@ void chat_client_timercallback(void * t) {
                                                 appendText(tform1, playername, cmsg, false);
                                         }
                                         if(Form1->doNameFilter(cmsg.c_str(), playerName) ||
-                                                Form1->doNameFilter(cmsg.c_str(), (ofpprefix + plrname_localtoirc(playerName)).c_str())) {
+                                                Form1->doNameFilter(cmsg.c_str(), (plrname_localtoirc(playerName)).c_str())) {
                                                 tform1->ChatNotification(cmsg.c_str());
                                         }
                                 }
