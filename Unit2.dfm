@@ -690,7 +690,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
       end
     end
     object TABSHEET_SERVERS: TTabSheet
-      Caption = 'TABSHEET_SERVERS'
+      Caption = 'Servers'
       ImageIndex = 5
       OnShow = TABSHEET_SERVERSShow
       object ListBox1: TListBox

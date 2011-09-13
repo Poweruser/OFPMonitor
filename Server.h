@@ -33,7 +33,7 @@ class Server {
                 int index;
                 int gamespyport;
                 int gameport;
-                list<int> ping;
+                int ping;
                 DWORD messageSent;
                 int timeouts;
                 String ip;

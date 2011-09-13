@@ -34,7 +34,7 @@
                         this->ip = "";
                         this->gamespyport = 0;
                         this->timeouts = 0;
-                        this->ping.clear();
+                        this->ping = 0;
                         this->clear();
                 }
 
@@ -47,7 +47,7 @@
                         this->index = ind;
                         this->ip = i;
                         this->timeouts = 0;
-                        this->ping.clear();
+                        this->ping = 0;
                         this->gamespyport = p;
                 }
 

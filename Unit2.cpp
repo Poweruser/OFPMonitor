@@ -3358,6 +3358,7 @@ void __fastcall TWINDOW_SETTINGS::TreeView1ContextPopup(TObject *Sender,
                         success = true;
                 }
         }
+        MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE->OnClick = MENUITEM_POPUP_SERVERLISTEDITOR_REMOVEClick;
         MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE->Visible = success;
 }
 //---------------------------------------------------------------------------
@@ -3392,7 +3393,6 @@ void __fastcall TWINDOW_SETTINGS::MENUITEM_POPUP_SERVERLISTEDITOR_REMOVEClick(
         updateServerEditorList(false);
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_ADDClick(TObject *Sender)
 {
         int defaultGameport = 2302;
@@ -3424,9 +3424,6 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_ADDClick(TObject *Sender)
         updateServerEditorList(true);
 }
 //---------------------------------------------------------------------------
-
-
-
 
 
 

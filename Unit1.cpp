@@ -749,27 +749,6 @@ void updateServerInfoBox(int index) {
 }
 
 /**
-   Calculates the average over a number of recorded pings
-
-   @pings  list containing the pings
-   @return  the average over all listed pings
- */
-
-int averagePing(list<int> &pings) {
-        int sum = 0;
-        int i = 0;
-        for (list<int>::iterator ci = pings.begin(); ci != pings.end(); ++ci) {
-                sum += *ci;
-                i++;
-        }
-        if(i == 0) {
-                return 0;
-        } else {
-                return (sum / i);
-        }
-}
-
-/**
    Returns the time differents between two timestamps (in seconds)
    Return format h:mm:ss
 
@@ -847,7 +826,7 @@ void filterChanged(bool userinput) {
                         } else if(tableSorter.mission) {
                                 slist->AddObject(ServerArray[j].mission, (TObject *) j);
                         } else if(tableSorter.ping) {
-                                slist->AddObject(addLeadingZeros(averagePing(ServerArray[j].ping)), (TObject *) j);
+                                slist->AddObject(addLeadingZeros(ServerArray[j].ping), (TObject *) j);
                         }
                         inList++;
                 } else if(abc == 3) {
@@ -894,7 +873,7 @@ void filterChanged(bool userinput) {
                         Form1->StringGrid1->Cells[3][rowIndex] = gs;
                         Form1->StringGrid1->Cells[4][rowIndex] = ServerArray[j].island;
                         Form1->StringGrid1->Cells[5][rowIndex] = ServerArray[j].mission;
-                        Form1->StringGrid1->Cells[6][rowIndex] = String(averagePing(ServerArray[j].ping));
+                        Form1->StringGrid1->Cells[6][rowIndex] = IntToStr(ServerArray[j].ping);
                         if(autojoin < 0) {
                                 if(!tableSorter.normal) {
                                         slist->Delete(slist->Count - 1);
@@ -1393,11 +1372,7 @@ class MessageReader {
                                                 handled = true;
                                                 if(readInfoPacket(j, m->content, m->ip, m->port)) {
                                                         if(ServerArray[j].messageSent > 1) {
-                                                                int curr = m->toa - ServerArray[j].messageSent;
-                                                                if(ServerArray[j].ping.size() > 0) {
-                                                                        ServerArray[j].ping.pop_front();
-                                                                }
-                                                                ServerArray[j].ping.push_back(curr);
+                                                                ServerArray[j].ping = m->toa - ServerArray[j].messageSent;
                                                                 ServerArray[j].messageSent = 1;
                                                                 ServerArray[j].timeouts = 0;
                                                         }
@@ -2413,6 +2388,8 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
                         "  " + Form1->getChatHost() + ":" + String(Form1->getChatPort()), false);
                 Form1->incomingChatMessage(Form1->getChatChannel(), WINDOW_SETTINGS->getGuiString("STRING_CHAT_CHANNEL") +
                         "  " + Form1->getChatChannel(), false);
+        } else {
+                Form1->incomingChatMessage(Form1->getChatChannel(), "", false);
         }
         chatsettings.doConnect = true;
         TimerIrcChatTimer->Enabled = true;
@@ -2698,7 +2675,6 @@ void __fastcall TForm1::Openchat1Click(TObject *Sender)
         if(i < 0) {
                 Form1->incomingChatMessage(name, "", false);
                 i = activeChats->IndexOf(name);
-                ShowMessage("testing: " + name + "  " + IntToStr(i));
         }
         if(i >= 0) {
                 for(int j = 0; j < TabControl1->Tabs->Count; j++) {
