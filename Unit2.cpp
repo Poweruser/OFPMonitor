@@ -3395,33 +3395,35 @@ void __fastcall TWINDOW_SETTINGS::MENUITEM_POPUP_SERVERLISTEDITOR_REMOVEClick(
 //---------------------------------------------------------------------------
 void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_ADDClick(TObject *Sender)
 {
-        int defaultGameport = 2302;
-        Address *add = new Address();
-        if(add->getAddress(Edit1->Text, defaultGameport)) {
-                Form1->addServer(add->ip, add->port);
-        } else {
-                int success = false;
-                struct in_addr addr;
-                list<String> url = Form1->splitUpMessage(Edit1->Text, ":");
-                if(url.size() == 1) {
-                        url.push_back(IntToStr(defaultGameport));
-                }
-                String ip = url.front();
-                addr.s_addr = resolv(ip.c_str());
-                if(addr.s_addr != INADDR_NONE) {
-                        ip = inet_ntoa(addr);
-                        if(ip != "62.157.140.133" && ip != "80.156.86.78") {
-                                success = true;
-                        }
-                }
-                if(success && add->getAddress(ip + ":" + url.back(), defaultGameport)) {
+        if(!Edit1->Text.IsEmpty()) {
+                int defaultGameport = 2302;
+                Address *add = new Address();
+                if(add->getAddress(Edit1->Text, defaultGameport)) {
                         Form1->addServer(add->ip, add->port);
                 } else {
-                        ShowMessage(WINDOW_SETTINGS->getGuiString("STRING_SERVERS_ADDERROR") + "  " + url.back());
+                        int success = false;
+                        struct in_addr addr;
+                        list<String> url = Form1->splitUpMessage(Edit1->Text, ":");
+                        if(url.size() == 1) {
+                                url.push_back(IntToStr(defaultGameport));
+                        }
+                        String ip = url.front();
+                        addr.s_addr = resolv(ip.c_str());
+                        if(addr.s_addr != INADDR_NONE) {
+                                ip = inet_ntoa(addr);
+                                if(ip != "62.157.140.133" && ip != "80.156.86.78") {
+                                        success = true;
+                                }
+                        }
+                        if(success && add->getAddress(ip + ":" + url.back(), defaultGameport)) {
+                                Form1->addServer(add->ip, add->port);
+                        } else {
+                                ShowMessage(WINDOW_SETTINGS->getGuiString("STRING_SERVERS_ADDERROR") + "  " + url.back());
+                        }
                 }
+                delete add;
+                updateServerEditorList(true);
         }
-        delete add;
-        updateServerEditorList(true);
 }
 //---------------------------------------------------------------------------
 

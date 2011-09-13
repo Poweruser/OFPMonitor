@@ -22,6 +22,7 @@
                 }
 
                 bool Address::getAddress(String address, int defaultPort) {
+                        if(address.IsEmpty()) { return false; }
                         list<String> ipAndPort = Form1->splitUpMessage(address,":");
                         if(ipAndPort.size() > 2 || ipAndPort.size() == 0) { return false; }
                         String ip = ipAndPort.front();
