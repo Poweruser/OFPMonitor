@@ -1,10 +1,20 @@
 //---------------------------------------------------------------------------
+
+#include "QueryAnswer.h"
+#include "OFPMonitor.h"
+#include "Address.h"
+#include "Player.h"
+#include "Server.h"
+#include "Message.h"
+#include "Sorter.h"
+#include "irc/irc.h"
+
+#include ".\gamespy\msquery_header.h"
 #include <vcl.h>
 #include <list.h>
 #include <mmsystem.h>
 #pragma hdrstop
-#include ".\gamespy\msquery_header.h"
-#include "irc/irc.h"
+
 #include "Unit1.h"
 #include "Unit2.h"
 #include "Unit3.h"
@@ -15,45 +25,14 @@
 #pragma link "CoolTrayIcon"
 #pragma resource "*.dfm"
 #pragma resource "wavefiles.res"
-                             
+
 TForm1 *Form1;
-#include "OFPMonitor.h"
-#include "Address.h"
+
 using namespace OFPMonitor_Unit1;
 
 HANDLE getServerListThread;
 
-/**
-   Each incoming answer of a server query will be first stored in a
-   Message-Object, which holds all important information about it
-   (IP, Port, Content, Time of arrival) and will be later procressed
-   by the MessageReader
- */
 
-class Message {
-        public:
-                String content;
-                String ip;
-                int port;
-                DWORD toa;
-
-                /**
-                   Constructor
-
-                   @ip  the ip the message came from
-                   @port  the port it came from
-                   @content  the message data
-                   @toa  time the message arrived at
-                         (is used to measure the ping)
-                */
-
-                Message(String ip, int port, String content, DWORD toa) {
-                        this->ip = ip;
-                        this->port = port;
-                        this->content = content;
-                        this->toa = toa;
-                }
-};
 
 /**
    Stores the current Font configuration
@@ -348,304 +327,11 @@ class WindowSettings {
                 }
 };
 
-/**
-   After a query answer has been validated, its query details are read
-   and stored in this object
-*/
 
-class QueryAnswer {
-        public:
-                String id;
-                String part;
-                bool final;
-                list<String> content;
 
-                /**
-                   Constructor
-                 */
 
-                QueryAnswer () {
-                        this->clear();
-                }
 
-                /**
-                   Clears all object attributes
-                 */
 
-                void clear() {
-                        this->id = "";
-                        this->part = "";
-                        this->final = false;
-                        this->content.clear();
-                }
-};
-
-/**
-   This object keeps track of how the Server table is currently sorted
- */
-
-class Sorter {
-        public:
-                bool normal;
-                bool id;
-                bool name;
-                bool players;
-                bool status;
-                bool island;
-                bool mission;
-                bool ping;
-
-                /**
-                   Constructor
-                 */
-
-                Sorter() {
-                        disableAll();
-                        setPlayers();
-                        normal = false;
-                }
-
-                /**
-                   resets the attributes to default
-                 */
-
-                void reset() {
-                        disableAll();
-                        setPlayers();
-                        normal = false;
-                }
-
-                /**
-                   Sets all attributes false
-                   'false' means that the table is not sorted after this column
-                   'true' means that it is sorted after this column
-                 */
-
-                void disableAll() {
-                        id = false;
-                        name = false;
-                        players = false;
-                        ping = false;
-                        status = false;
-                        island = false;
-                        mission = false;
-                        normal = true;
-                }
-
-                /**
-                   The table will be sorted after IDs
-                 */
-
-                void setId() {
-                        if(id) {
-                                normal = !normal;
-                        } else {
-                                disableAll();
-                                id = true;
-                        }
-                }
-
-                /**
-                   The table will be sorted alphabetically after Server names
-                 */
-
-                void setName() {
-                        if(name) {
-                                normal = !normal;
-                        } else {
-                                disableAll();
-                                name = true;
-                        }
-                }
-
-                /**
-                   The table will be sorted after the number of players
-                 */
-
-                void setPlayers() {
-                        if(players) {
-                                normal = !normal;
-                        } else {
-                                disableAll();
-                                players = true;
-                        }
-                }
-
-                /**
-                   The table will be sorted alphabetically after the server status
-                 */
-
-                void setStatus() {
-                        if(status) {
-                                normal = !normal;
-                        } else {
-                                disableAll();
-                                status = true;
-                        }
-                }
-
-                /**
-                   The table will be sorted alphabetically after island names
-                 */
-
-                void setIsland() {
-                        if(island) {
-                                normal = !normal;
-                        } else {
-                                disableAll();
-                                island = true;
-                        }
-                }
-
-                /**
-                   The table will be sorted alphabetically after mission names
-                 */
-
-                void setMission() {
-                        if(mission) {
-                                normal = !normal;
-                        } else {
-                                disableAll();
-                                mission = true;
-                        }
-                }
-
-                /**
-                   The table will be sorted after pings
-                 */
-
-                void setPing() {
-                        if(ping) {
-                                normal = !normal;
-                        } else {
-                                disableAll();
-                                ping = true;
-                        }
-                }
-};
-
-/**
-   This object keeps track of how the Player table is currently sorted
- */
-
-class Sorter2 {
-        public:
-                bool normal;
-                bool name;
-                bool score;
-                bool deaths;
-                bool team;
-
-                Sorter2() {
-                        disableAll();
-                        setName();
-                }
-
-                /**
-                   Sets all attributes false
-                   'false' means that the table is not sorted after this column
-                   'true' means that it is sorted after this column
-                 */
-
-                void disableAll() {
-                        normal = true;
-                        name = false;
-                        score = false;
-                        deaths = false;
-                        team = false;
-                }
-
-                /**
-                   The table will be sorted alphabetically after Player names
-                 */
-
-                void setName() {
-                        if(name) {
-                                normal = !normal;
-                        } else {
-                                disableAll();
-                                name = true;
-                        }
-                }
-
-                /**
-                   The table will be sorted after scores
-                 */
-
-                void setScore() {
-                        if(score) {
-                                normal = !normal;
-                        } else {
-                                disableAll();
-                                score = true;
-                        }
-                }
-
-                /**
-                   The table will be sorted after deaths
-                 */
-
-                void setDeaths() {
-                        if(deaths) {
-                                normal = !normal;
-                        } else {
-                                disableAll();
-                                deaths = true;
-                        }
-                }
-
-                /**
-                   The table will be sorted alphabetically after Team names
-                 */
-
-                void setTeam() {
-                        if(team) {
-                                normal = !normal;
-                        } else {
-                                disableAll();
-                                team = true;
-                        }
-                }
-};
-
-/**
-   Object which holds all data of one player on a server
- */
-
-class Player {
-        public:
-                String name;
-                String team;
-                int deaths;
-                int score;
-
-                /**
-                   Default Constructor of a blank Player object
-                 */
-
-                Player() {
-                        this->deaths = 0;
-                        this->score = 0;
-                        this->team = "";
-                        this->name = "";
-                }
-
-                /**
-                   Constructor
-
-                   @n  player name
-                   @t  team name
-                   @s  score
-                   @d  deaths
-
-                 */
-                Player(String &n, String &t, int &s, int &d) {
-                        this->name = n;
-                        this->team = t;
-                        this->score = s;
-                        this->deaths = d;
-                }
-};
 
 typedef list<Player> CustomPlayerList;
 
@@ -710,127 +396,41 @@ String getGameState (int i) {
 }
 
 
-/**
-   Representation of one server
 
- */
-
-class Server {
-        public:
-                int index;
-                int gamespyport;
-                int gameport;
-                list<int> ping;
-                DWORD messageSent;
-                int timeouts;
-                String ip;
-                String timeleft;
-                long gametime;
-                int players;
-                int maxplayers;
-                String mission;
-                String name;
-                int gamestate;
-                String island;
-                String platform;
-                String param1;
-                String param2;
-                String mod;
-                int queryid;
-                String impl;
-                int password;
-                int actver;
-                int reqver;
-                int equalMod;
-                bool watch;
-                bool autojoin;
-                String autojoinConf;
-                CustomPlayerList playerlist;
-                QueryAnswer queries[queryArrayLength];
-                int notificationRuleIndex;
-                int missedQueryTurns;
-                int emptyServerCounter;
-
-
-                /**
-                   Default Constructor of a blank server
-                 */
-
-                Server() {
-                        this->watch = false;
-                        this->index = -1;
-                        this->ip = "";
-                        this->gamespyport = 0;
-                        this->timeouts = 0;
-                        this->ping.clear();
-                        this->clear();
-                }
-
-                /**
-                   Constructor
-
-                   @i  the server's ip
-                   @p  the server's gamespy port
-                   @ind  the server's index in the ServerArray
-                 */
-
-                Server(String i, int p, int ind) {
-                        this->watch = false;
-                        this->clear();
-                        this->index = ind;
-                        this->ip = i;
-                        this->timeouts = 0;
-                        this->ping.clear();
-                        this->gamespyport = p;
-                }
-
-                /**
-                   Clears all attributes, used to make servers invalid.
-                   e.g. when they go offline
-                 */
-
-                void clear() {
-                        this->autojoin = false;
-                        this->autojoinConf = "";
-                        this->gameport = 0;
-                        this->timeleft = "";
-                        this->gametime = 0;
-                        this->players = 0;
-                        this->maxplayers = 0;
-                        this->mission = "";
-                        this->name = "";
-                        this->gamestate = 0;
-                        this->impl = "";
-                        this->param1 = "";
-                        this->param2 = "";
-                        this->island = "";
-                        this->actver = 0;
-                        this->reqver = 0;
-                        this->platform = "";
-                        this->password = -1;
-                        this->mod = "";
-                        this->equalMod = 0;
-                        this->messageSent = 0;
-                        this->queryid = 0;
-                        this->playerlist.clear();
-                        this->notificationRuleIndex = -1;
-                        this->missedQueryTurns = 1;
-                        this->emptyServerCounter = 0;
-                }
-};
 
 
 Server ServerArray[SERVERARRAY_LENGTH];
 int numOfServers = 0;
 
-Sorter tableSorter = Sorter();
-Sorter2 playerListSorter = Sorter2();
+ServerSorter tableSorter = ServerSorter();
+PlayerSorter playerListSorter = PlayerSorter();
 WindowSettings windowsettings;
 FontSettings fontsettings;
 int timeoutLimit = 10;
 TStringList *ServerSortList = new TStringList;
+TStringList *ServerFavoriteSortList = new TStringList;
 TStringList *PlayerSortList = new TStringList;
 TStringList *PlayerSortList2 = new TStringList;
+
+Server* TForm1::getServer(int i) {
+        if(i >= 0 && i < SERVERARRAY_LENGTH) {
+                return &(ServerArray[i]);
+        }
+        return NULL;
+}
+
+bool TForm1::addServer(String ip, int gameport) {
+        bool added = false;
+        for(int i = 0; i < SERVERARRAY_LENGTH; i++) {
+                if(ServerArray[i].ip.IsEmpty() ) {
+                        ServerArray[i] = Server(ip, gameport + 1, numOfServers);
+                        numOfServers++;
+                        added = true;
+                        break;
+                }
+        }
+        return added;
+}
 
 /**
    Gives Unit2, which loades the config file, access to the object
@@ -877,7 +477,7 @@ void updateTimeoutLimit() {
 void sendUdpMessage(int index, String ip, int port, String msg) {
         try {
                 Form1->IdUDPServer1->Send(ip, port, msg);
-                if(ServerArray[index].messageSent == 0) {
+                if(ServerArray[index].messageSent <= 1) {
                         ServerArray[index].messageSent = timeGetTime();
                 } else {
                         int tmp = ServerArray[index].timeouts;
@@ -936,21 +536,24 @@ bool doPlayerFilter(CustomPlayerList l, String s) {
 
    @j  index of the server to check
    @return  number coded result of the check
-            0 means: Server is offline/not set
-            1 means: Server is online but does not pass the filter check
+            0 means: Server is offline/not set/blocked
+            1 means: Server is online and does not pass the filter check
             2 means: Server is online and passes the filter check
-            3 means: Server is marked for autojoin when game ends
-
+            3 means: Server is online and marked for autojoin when game ends
+            4 means: Server is online and favorited     
  */
 
 int checkFilters(int j) {
         int out = 0;
-        if(ServerArray[j].autojoin) {
-                out = 3;
+        if(ServerArray[j].blocked) {
+                out = 0;
         } else if(ServerArray[j].name.Length() > 0 && ServerArray[j].timeouts < timeoutLimit) {
                 out = 1;
-                if(ServerArray[j].players >= Form1->UpDown1->Position) {
-                          
+                if(ServerArray[j].autojoin) {
+                        out = 3;
+                } else if(ServerArray[j].favorite) {
+                        out = 4;
+                } else if(ServerArray[j].players >= Form1->UpDown1->Position) {   
                         if(
                                 (
                                         (ServerArray[j].gamestate == SERVERSTATE_PLAYING && Form1->CHECKBOX_FILTER_PLAYING->Checked) ||
@@ -1220,26 +823,31 @@ void filterChanged(bool userinput) {
                 selectedIndex = -1;
         }
         ServerSortList->Clear();
+        ServerFavoriteSortList->Clear();
         int inList = 1;
         int hasNoName = 0;
         int autojoin = -1;
         for (int j = 0; j < numOfServers; j++) {
                 int abc = checkFilters(j);
-                if(abc == 2) {
+                if(abc == 2 || abc == 4) {
+                        TStringList *slist = ServerSortList;
+                        if(abc == 4) {
+                                slist = ServerFavoriteSortList;
+                        }
                         if(tableSorter.id) {
-                                ServerSortList->AddObject(addLeadingZeros(ServerArray[j].index),(TObject *) j);
+                                slist->AddObject(addLeadingZeros(ServerArray[j].index),(TObject *) j);
                         } else if(tableSorter.name) {
-                                ServerSortList->AddObject(ServerArray[j].name,(TObject *) j);
+                                slist->AddObject(ServerArray[j].name,(TObject *) j);
                         } else if(tableSorter.players) {
-                                ServerSortList->AddObject(addLeadingZeros(ServerArray[j].players),(TObject *) j);
+                                slist->AddObject(addLeadingZeros(ServerArray[j].players),(TObject *) j);
                         } else if(tableSorter.status) {
-                                ServerSortList->AddObject(ServerArray[j].gamestate, (TObject *) j);
+                                slist->AddObject(ServerArray[j].gamestate, (TObject *) j);
                         } else if(tableSorter.island) {
-                                ServerSortList->AddObject(ServerArray[j].island, (TObject *) j);
+                                slist->AddObject(ServerArray[j].island, (TObject *) j);
                         } else if(tableSorter.mission) {
-                                ServerSortList->AddObject(ServerArray[j].mission, (TObject *) j);
+                                slist->AddObject(ServerArray[j].mission, (TObject *) j);
                         } else if(tableSorter.ping) {
-                                ServerSortList->AddObject(addLeadingZeros(averagePing(ServerArray[j].ping)), (TObject *) j);
+                                slist->AddObject(addLeadingZeros(averagePing(ServerArray[j].ping)), (TObject *) j);
                         }
                         inList++;
                 } else if(abc == 3) {
@@ -1258,36 +866,41 @@ void filterChanged(bool userinput) {
                 updateServerInfoBox(-1);
         } else {
                 for(int i = 1; i < inList; i++) {
-                        int k = i;
-                        int j = 0;
-                        if(autojoin < 0) {
-                                TObject *t = ServerSortList->Objects[0];
-                                j = (int)t;
-                                if(!tableSorter.normal) {
-                                        if(autojoin < -1) {
-                                                k = abs(inList - i + 1);
-                                        } else {
-                                                k = abs(inList - i);
-                                        }
-                                }
-                        } else {
-                                j = autojoin;
+                        bool favorites = (ServerFavoriteSortList->Count > 0);
+                        TStringList *slist = ServerSortList;
+                        if(favorites) {
+                                slist = ServerFavoriteSortList;
                         }
-                        Form1->StringGrid1->Cells[0][k] = " " + String(ServerArray[j].index);
-                        Form1->StringGrid1->Cells[1][k] = ServerArray[j].name;
-                        Form1->StringGrid1->Cells[2][k] = String(ServerArray[j].players) + " / " + String(ServerArray[j].maxplayers);
+                        int rowIndex = i;
+                        int j = 0;
+                        if(autojoin >= 0) {
+                                j = autojoin;
+                        } else {
+                                TObject *t = slist->Objects[0];
+                                if(!tableSorter.normal) {
+                                        t = slist->Objects[slist->Count - 1];
+                                }
+                                j = (int)t;
+                        }
+                        Form1->StringGrid1->Cells[0][rowIndex] = " " + String(ServerArray[j].index);
+                        Form1->StringGrid1->Cells[1][rowIndex] = ServerArray[j].name;
+                        Form1->StringGrid1->Cells[2][rowIndex] = String(ServerArray[j].players) + " / " + String(ServerArray[j].maxplayers);
                         String gs = getGameState(ServerArray[j].gamestate);
 
                         if(ServerArray[j].gametime > 0) {
                                 gs += " " + calcElapsedTime(ServerArray[j].gametime, time(0));
                         }
 
-                        Form1->StringGrid1->Cells[3][k] = gs;
-                        Form1->StringGrid1->Cells[4][k] = ServerArray[j].island;
-                        Form1->StringGrid1->Cells[5][k] = ServerArray[j].mission;
-                        Form1->StringGrid1->Cells[6][k] = String(averagePing(ServerArray[j].ping));
+                        Form1->StringGrid1->Cells[3][rowIndex] = gs;
+                        Form1->StringGrid1->Cells[4][rowIndex] = ServerArray[j].island;
+                        Form1->StringGrid1->Cells[5][rowIndex] = ServerArray[j].mission;
+                        Form1->StringGrid1->Cells[6][rowIndex] = String(averagePing(ServerArray[j].ping));
                         if(autojoin < 0) {
-                                ServerSortList->Delete(0);
+                                if(!tableSorter.normal) {
+                                        slist->Delete(slist->Count - 1);
+                                } else {
+                                        slist->Delete(0);
+                                }
                         } else {
                                 autojoin = -2;
                         }
@@ -1295,14 +908,14 @@ void filterChanged(bool userinput) {
                 Form1->StringGrid1->RowCount = inList;
 
                 if(selectedIndex > -1) {
-                        for(int k = 1; k < Form1->StringGrid1->RowCount; k++) {
-                                if((Form1->StringGrid1->Cells[0][k]).Trim() == String(selectedIndex).Trim()) {
+                        for(int rowIndex = 1; rowIndex < Form1->StringGrid1->RowCount; rowIndex++) {
+                                if((Form1->StringGrid1->Cells[0][rowIndex]).Trim() == String(selectedIndex).Trim()) {
                                         found = true;
                                         TGridRect myRect;
                                         myRect.Left = 0;
-                                        myRect.Top = k;
+                                        myRect.Top = rowIndex;
                                         myRect.Right = 6;
-                                        myRect.Bottom = k;
+                                        myRect.Bottom = rowIndex;
                                         Form1->StringGrid1->Selection = myRect;
                                         break;
                                 }
@@ -1315,7 +928,7 @@ void filterChanged(bool userinput) {
 
         }
         if(found) {
-                Form1->CoolTrayIcon1->Hint = ServerArray[selectedIndex].name + "     " + getGameState(ServerArray[selectedIndex].gamestate) + "     " +  String(ServerArray[selectedIndex].players) + " Players";
+                Form1->CoolTrayIcon1->Hint = ServerArray[selectedIndex].name + "     " + getGameState(ServerArray[selectedIndex].gamestate) + "     " +  String(ServerArray[selectedIndex].players) + " " + WINDOW_SETTINGS->getGuiString("STRING_PLAYERS");
         } else {
                 Form1->CoolTrayIcon1->Hint = "OFPMonitor";
         }
@@ -1326,21 +939,25 @@ void filterChanged(bool userinput) {
    Reads an list of server internet addresses and sets up the ServerArray
  */
 
-void TForm1::readServerList(list<String> &servers) {
+void TForm1::readServerList(list<ServerItem> &servers) {
         Form1->StatusBar1->Panels->Items[0]->Text = "";
         Form1->StatusBar1->Panels->Items[1]->Text = "";
-        TStringList *watched = WINDOW_SETTINGS->getWatchedList();
         numOfServers = 0;
         while (servers.size() > 0) {
-                String tmp = servers.front();
-                if(tmp.Length() > 8) {
-                        Address a = Address();
-                        if(a.getAddress(tmp, 2303)) {
-                                ServerArray[numOfServers] = Server(a.ip, a.port, numOfServers);
-                                ServerArray[numOfServers].watch = (watched->IndexOf(a.ip+ ":" + String(a.port)) > -1);
+                ServerItem tmp = servers.front();
+                if(tmp.address.Length() > 8) {
+                        Address *a = new Address();
+                        if(a->getAddress(tmp.address, 2303)) {
+                                ServerArray[numOfServers] = Server(a->ip, a->port, numOfServers);
+                                ServerArray[numOfServers].watch = tmp.watch;
+                                ServerArray[numOfServers].favorite = tmp.favorite;
+                                ServerArray[numOfServers].persistent = tmp.persistent;
+                                ServerArray[numOfServers].blocked = tmp.blocked;
                                 numOfServers++;
                         }
+                        delete a;
                 }
+                delete (&(servers.front()));
                 servers.pop_front();
         }
         for(int i = numOfServers; i < GetArrLength(ServerArray); i++) {
@@ -1742,7 +1359,7 @@ bool readInfoPacket(int i, String msg, String ip, int port) {
 class MessageReader {
         private:
                 bool working;
-                list<Message> messageList;
+                list<Message*> messageList;
         public:
                 MessageReader() {
                         this->working = false;
@@ -1752,7 +1369,7 @@ class MessageReader {
                    Adds a new Message to the message queue
                  */
 
-                void newMessage(Message m) {
+                void newMessage(Message *m) {
                         this->messageList.push_back(m);
                 }
 
@@ -1766,22 +1383,22 @@ class MessageReader {
                         }
                         this->working = true;
                         while(this->messageList.size() > 0) {
-                                Message m = this->messageList.front();
+                                Message *m = this->messageList.front();
                                 bool handled = false;
                                 for(int j = 0; j < numOfServers; j++) {
                                         if(ServerArray[j].index == -1) {
                                                 break;
                                         }
-                                        if(ServerArray[j].ip == m.ip && ServerArray[j].gamespyport == m.port) {
+                                        if(ServerArray[j].ip == m->ip && ServerArray[j].gamespyport == m->port) {
                                                 handled = true;
-                                                if(readInfoPacket(j, m.content, m.ip, m.port)) {
+                                                if(readInfoPacket(j, m->content, m->ip, m->port)) {
                                                         if(ServerArray[j].messageSent > 1) {
-                                                                int curr = m.toa - ServerArray[j].messageSent;
-                                                                if(ServerArray[j].ping.size() > 1) {
+                                                                int curr = m->toa - ServerArray[j].messageSent;
+                                                                if(ServerArray[j].ping.size() > 0) {
                                                                         ServerArray[j].ping.pop_front();
                                                                 }
                                                                 ServerArray[j].ping.push_back(curr);
-                                                                ServerArray[j].messageSent = 0;
+                                                                ServerArray[j].messageSent = 1;
                                                                 ServerArray[j].timeouts = 0;
                                                         }
                                                         if(ServerArray[j].players > 0) {
@@ -1808,9 +1425,10 @@ class MessageReader {
                                                 break;
                                         }
                                 }
+                                delete m;
                                 this->messageList.pop_front();
                                 if(!handled) {
-                                        addToErrorReport("Warning: Non-handled message", String(m.ip) + ":" + String(m.port) + "   =>   " + m.content);
+                                        addToErrorReport("Warning: Non-handled message", String(m->ip) + ":" + String(m->port) + "   =>   " + m->content);
                                 }
                         }
                         this->working = false;
@@ -1844,6 +1462,7 @@ class Chat {
                 TStringList *output;
                 TStringList *input;
                 TRect rect;
+
                 Chat(String name) {
                         this->changed = false;
                         this->name = name;
@@ -1872,11 +1491,13 @@ class Chat {
 
                 bool incomingMessage(String name, String msg) {
                         if(name == this->name) {
-                                this->output->Add(msg);
-                                if(Form1->TabControl1->TabIndex == -1 || Form1->TabControl1->Tabs->Strings[Form1->TabControl1->TabIndex] == this->name) {
-                                        Form1->MemoChatOutput->Lines->Add(msg);
-                                } else {
-                                        this->changed = true;
+                                if(!msg.IsEmpty()) {
+                                        this->output->Add(msg);
+                                        if(Form1->TabControl1->TabIndex == -1 || Form1->TabControl1->Tabs->Strings[Form1->TabControl1->TabIndex] == this->name) {
+                                                Form1->MemoChatOutput->Lines->Add(msg);
+                                        } else {
+                                                this->changed = true;
+                                        }
                                 }
                                 Form1->TabControl1->Repaint();
                                 return true;
@@ -2026,7 +1647,7 @@ bool TForm1::getChatAutoConnect() {
 }
 /**
    Does a notification because of a new chat messages.
-   If the chat window is not visible, a ballon hint will be displayed 
+   If the chat window is not visible, a ballon hint will be displayed
  */
 
 void TForm1::ChatNotification(String msg) {
@@ -2094,7 +1715,11 @@ String decideQuery(BandwidthUsage bu, bool selected, int i) {
                         if(someplayers || selected) {
                                 return full;
                         } else if(ServerArray[i].missedQueryTurns >= missLimit) {
-                                return part;
+                                if(ServerArray[i].messageSent == 0) {
+                                        return full;
+                                } else {
+                                        return part;
+                                }
                         }
                         break;
                 case VeryLow:
@@ -2109,7 +1734,11 @@ String decideQuery(BandwidthUsage bu, bool selected, int i) {
                                         return part;
                                 }
                         } else if(ServerArray[i].missedQueryTurns >= missLimit) {
-                                return part;
+                                if(ServerArray[i].messageSent == 0) {
+                                        return full;
+                                } else {
+                                        return part;
+                                }
                         }
                         break;
                 case High:
@@ -2141,6 +1770,9 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         ServerSortList->Sorted = true;
         ServerSortList->CaseSensitive = true;
         ServerSortList->Duplicates = dupAccept;
+        ServerFavoriteSortList->Sorted = true;
+        ServerFavoriteSortList->CaseSensitive = true;
+        ServerFavoriteSortList->Duplicates = dupAccept;
         PlayerSortList->Sorted = true;
         PlayerSortList->CaseSensitive = true;
         PlayerSortList->Duplicates = dupAccept;
@@ -2189,8 +1821,6 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
         messageReader.checkForNewMessages();
         filterChanged(false);
         processPlayerList(-1);
-
-
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
@@ -2202,25 +1832,18 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
         Timer2->Enabled = false;
         Timer1->Enabled = false;
         delete ServerSortList;
+        delete ServerFavoriteSortList;
         delete PlayerSortList;
         delete PlayerSortList2;
-        list<String> servers;
-        list<String> watched;
+        list<ServerItem> servers;
         chatsettings.closeChats();
         delete blockedChatUsers;
         delete activeChats;
-        for(int i = 0; i < GetArrLength(ServerArray); i++) {
-                if(ServerArray[i].index == -1) {
-                        break;
-                }
-                String tmp = ServerArray[i].ip + ":" + String(ServerArray[i].gamespyport);
-                if(ServerArray[i].watch) {
-                        watched.push_back(tmp);
-                } else {
-                        servers.push_back(tmp);
-                }
+        for(int i = 0; i < GetArrLength(ServerArray) && ServerArray[i].index == i; i++) {
+                ServerItem *sI = ServerArray[i].createServerItem();
+                servers.push_back((*sI));
         }
-        WINDOW_SETTINGS->writeSettingToFile(servers, watched, fontsettings.createFileEntry(), windowsettings.createFileEntry(), chatsettings.createFileEntry());
+        WINDOW_SETTINGS->writeSettingToFile(servers, fontsettings.createFileEntry(), windowsettings.createFileEntry(), chatsettings.createFileEntry());
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::BUTTON_SERVERINFO_COPYADDRESSClick(TObject *Sender)
@@ -2322,9 +1945,9 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
                                 PopupMenu1->Items->Items[2]->Checked = ServerArray[index].autojoin;
                                 PopupMenu1->Items->Items[2]->Tag = index;
                                 PopupMenu1->Items->Items[3]->Tag = index;
-                                PopupMenu1->Items->Items[4]->Tag = index;
-                                PopupMenu1->Items->Items[4]->OnClick = ClickWatchButton;
-                                PopupMenu1->Items->Items[4]->Checked = ServerArray[index].watch;
+                                MENUITEM_POPUP_WATCH->Tag = index;
+                                MENUITEM_POPUP_WATCH->Checked = ServerArray[index].watch;
+
                                 int i = 0;
                                 for (list<String>::iterator ci = t.begin(); ci != t.end(); ++ci) {
                                         if(!(*ci).IsEmpty()) {
@@ -2536,20 +2159,10 @@ void __fastcall TForm1::ClickWatchButton(TObject *Sender)
         int index = a->Tag;
         a->Checked = !(a->Checked);
         ServerArray[index].watch = a->Checked;
-        TStringList *watched = WINDOW_SETTINGS->getWatchedList();
-        if(ServerArray[index].watch) {
-                watched->Add(ServerArray[index].ip + ":" + String(ServerArray[index].gamespyport));
-        } else {
-                int i = watched->IndexOf(ServerArray[index].ip + ":" + String(ServerArray[index].gamespyport));
-                if(i > -1) {
-                        watched->Delete(i);
-                }
-        }
         StringGrid1->Refresh();
         playAudioServerStatus(index, ServerArray[index].gamestate);
         WINDOW_SETTINGS->setSettingsChanged();
 }
-
 //---------------------------------------------------------------------------
 void __fastcall TForm1::CHECKBOX_FILTER_SETTINGUPClick(TObject *Sender)
 {
@@ -2576,7 +2189,10 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
                 try {
                         int index = StrToInt((StringGrid1->Cells[0][zelle]).Trim());
                         TColor mark = WINDOW_SETTINGS->getMarkingColor(ServerArray[index].notificationRuleIndex);
-                        if(mark != NULL || ServerArray[index].watch || ServerArray[index].autojoin) {
+                        if(     mark != NULL ||
+                                ServerArray[index].watch ||
+                                ServerArray[index].autojoin ||
+                                ServerArray[index].favorite) {
                                 StringGrid1->Canvas->Font->Color = clWhite;
                                 if(mark != NULL) {
                                         StringGrid1->Canvas->Brush->Color = mark;
@@ -2584,6 +2200,9 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
                                         StringGrid1->Canvas->Brush->Color = clBlue;
                                 } else if(ServerArray[index].autojoin) {
                                         StringGrid1->Canvas->Brush->Color = clRed;
+                                } else if(ServerArray[index].favorite) {
+                                        StringGrid1->Canvas->Font->Color = clBlack;
+                                        StringGrid1->Canvas->Brush->Color = clYellow;
                                 }
                                 StringGrid1->Canvas->FillRect(Rect);
                                 Rect.Left = Rect.Left + 2;
@@ -2611,6 +2230,20 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
         TStringList *CurrentList = new TStringList;
         CurrentList->Sorted = true;
         CurrentList->Duplicates = dupIgnore;
+
+        for(int si = 0; si < SERVERARRAY_LENGTH; si++) {
+                if(ServerArray[si].index == si && ServerArray[si].persistent) {
+                        ServerItem *scfi = ServerArray[si].createServerItem();
+                        CurrentList->AddObject(scfi->address, (TObject*) scfi);
+                }
+        }
+        for(int si = 0; si < SERVERARRAY_LENGTH; si++) {
+                if(ServerArray[si].index == si && ServerArray[si].name.Length() > 0) {
+                        ServerItem *scfi = ServerArray[si].createServerItem();
+                        CurrentList->AddObject(scfi->address, (TObject*) scfi);
+                }
+        }
+
         Application->ProcessMessages();
         TStringList *games = WINDOW_SETTINGS->getGameSpyGames();
         for (int k = 0; k < games->Count; k++) {
@@ -2639,34 +2272,30 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
                                 if(!enctypex_query[0]) {
                                         String s;
                                         s.sprintf("%15s:%d", ipc, ntohs(ipport->port));
-                                        CurrentList->Add(s.Trim());
+                                        ServerItem *seI = new ServerItem(s.Trim());
+                                        CurrentList->AddObject(s.Trim(), (TObject*) seI);
                                 }
                                 ipport++;
                                 len -= 6;
                         }
                 }
         }
-        list<String> addresses;
+                       
+        list<ServerItem> addresses;
         while(CurrentList->Count > 0) {
-                addresses.push_back(CurrentList->Strings[0]);
+                ServerItem *p = (ServerItem*) (CurrentList->Objects[0]);
+                addresses.push_back((*p));
                 CurrentList->Delete(0);
         }
         if(addresses.size() > 0) {
+                ServerItem si = addresses.front();
+
+/*
                 setEmptyStringGrid();
                 setEmptyPlayerList();
                 updateServerInfoBox(-1);
                 tableSorter.reset();
-                numOfServers = 0;
-                int j = 0;
-                int i = ServerArray[j].index;
-                while(i > -1) {
-                        if(ServerArray[j].name.Length() > 0) {
-                                CurrentList->Add((ServerArray[j].ip + ":" + String(ServerArray[j].gamespyport)).Trim());
-                        }
-                        ServerArray[j] = Server();
-                        j++;
-                        i = ServerArray[j].index;
-                }
+*/
                 Form1->readServerList(addresses);
         }
         delete CurrentList;
@@ -2974,10 +2603,8 @@ void __fastcall TForm1::Timer2Timer(TObject *Sender)
 void __fastcall TForm1::IdUDPServer1UDPRead(TIdUDPListenerThread *AThread,
       TIdBytes AData, TIdSocketHandle *ABinding)
 {
-        DWORD i = timeGetTime();
         if(AData.Length > 0) {
-                String content = BytesToString(AData);
-                messageReader.newMessage(Message(ABinding->PeerIP,ABinding->PeerPort,content,i));
+                messageReader.newMessage(new Message(ABinding->PeerIP, ABinding->PeerPort, BytesToString(AData), timeGetTime()));
         }
 }
 //---------------------------------------------------------------------------
@@ -3069,8 +2696,9 @@ void __fastcall TForm1::Openchat1Click(TObject *Sender)
         int i = Openchat1->Tag;
         String name = Openchat1->Hint;
         if(i < 0) {
-                Form1->incomingChatMessage(name, "Chat with " + name +" opened.", false);
+                Form1->incomingChatMessage(name, "", false);
                 i = activeChats->IndexOf(name);
+                ShowMessage("testing: " + name + "  " + IntToStr(i));
         }
         if(i >= 0) {
                 for(int j = 0; j < TabControl1->Tabs->Count; j++) {
@@ -3120,6 +2748,10 @@ void __fastcall TForm1::Close1Click(TObject *Sender)
         TabControl1Change(Sender);
 }
 //---------------------------------------------------------------------------
+
+
+
+
 
 
 

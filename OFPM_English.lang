@@ -154,3 +154,9 @@ GROUPBOX_UPDATE = Updates
 STRING_UPDATE1 = New version available:
 STRING_UPDATE2 = Do you want to update OFPMonitor now?
 STRING_UPDATE_ALREADYLATEST = You already have the latest version
+
+TABSHEET_SERVEREDITOR = Server list editor
+STRING_SERVEREDITOR_FAVORITE = Favorites
+STRING_SERVEREDITOR_WATCHED = Watched
+STRING_SERVEREDITOR_PERSISTENT = Persistent
+STRING_SERVEREDITOR_BLOCKED = Blocked

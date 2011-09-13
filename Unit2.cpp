@@ -1,5 +1,6 @@
 //---------------------------------------------------------------------------
 
+#include "Server.h"
 #include <vcl.h>                                                          
 #include <filectrl.hpp>
 #include <mmsystem.h>
@@ -461,13 +462,9 @@ class Settings {
                 Game games[GAMES_TOTAL];
                 String file;
                 String languagefile;
-                TStringList *watched;
                 BandwidthUsage level;
 
                 Settings() {
-                        this->watched = new TStringList;
-                        this->watched->Sorted = true;
-                        this->watched->Duplicates = dupIgnore;
                         this->workdir = GetCurrentDir();
                         this->customNotifications = false;
                         this->interval = 1;
@@ -507,7 +504,7 @@ class Settings {
                         this->changed = true;
                 }
 
-                void writeToFile(list<String> &servers, list<String> &watchedServers, list<String> &font, list<String> &window, list<String> &chat) {
+                void writeToFile(list<ServerItem> &servers, list<String> &font, list<String> &window, list<String> &chat) {
                         if(this->changed) {
                                 TStringList *file = new TStringList;
                                 file->Add("[General]");
@@ -576,18 +573,17 @@ class Settings {
 
                                 if (servers.size() > 0) {
                                         file->Add("[Servers]");
-                                        if(watchedServers.size() > 0) {
-                                                file->Add("[Watch]");
-                                                while(watchedServers.size() > 0) {
-                                                        tmp = watchedServers.front();
-                                                        file->Add(tmp);
-                                                        watchedServers.pop_front();
-                                                }
-                                                file->Add("[\\Watch]");
-                                        }
                                         while(servers.size() > 0) {
-                                                tmp = servers.front();
-                                                file->Add(tmp);
+                                                ServerItem sI = servers.front();
+                                                String entry = sI.address;
+                                                String att = "";
+                                                if(sI.watch) { att += "W"; }
+                                                if(sI.favorite) { att += "F"; }
+                                                if(sI.persistent) { att += "P"; }
+                                                if(sI.blocked) { att += "B"; }
+                                                if(!att.IsEmpty()) { entry += ";" + att; }
+                                                file->Add(entry);
+                                                delete (&(servers.front()));
                                                 servers.pop_front();
                                         }
                                         file->Add("[\\Servers]");
@@ -710,8 +706,8 @@ String TWINDOW_SETTINGS::getSetGameFullName(int gameid) {
         return "";
 }
 
-void TWINDOW_SETTINGS::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window, list<String> chat) {
-        programSettings.writeToFile(servers, watchedServers, font, window, chat);
+void TWINDOW_SETTINGS::writeSettingToFile(list<ServerItem> servers, list<String> font, list<String> window, list<String> chat) {
+        programSettings.writeToFile(servers, font, window, chat);
 }
 
 void TWINDOW_SETTINGS::setCustomNotifications(bool active) {
@@ -748,10 +744,6 @@ String TWINDOW_SETTINGS::getSameModsStartLine(int gameid, String ip, int port, S
 
 String TWINDOW_SETTINGS::getConfModLine(int gameid, int i) {
         return programSettings.games[gameid].startupConfs[i].createModLine();
-}
-
-TStringList* TWINDOW_SETTINGS::getWatchedList() {
-        return programSettings.watched;
 }
 
 int TWINDOW_SETTINGS::getGameId(int actVer, int reqVer) {
@@ -995,6 +987,10 @@ void updateLanguage(String languagefile) {
         guiStrings.push_back(guiString("STRING_UPDATE1","New version available:"));
         guiStrings.push_back(guiString("STRING_UPDATE2","Do you want to update now?"));
         guiStrings.push_back(guiString("STRING_UPDATE_ALREADYLATEST","You already have the latest version"));
+        guiStrings.push_back(guiString("STRING_SERVEREDITOR_FAVORITE","Favorites"));
+        guiStrings.push_back(guiString("STRING_SERVEREDITOR_WATCHED","Watched"));
+        guiStrings.push_back(guiString("STRING_SERVEREDITOR_PERSISTENT","Persistent"));
+        guiStrings.push_back(guiString("STRING_SERVEREDITOR_BLOCKED","Blocked"));
 
 
 
@@ -1154,14 +1150,14 @@ void setBandwidthUsage(int level) {
    Reads the programs config file
  */
 
-list<String> readConfigFile() {
+list<ServerItem> readConfigFile() {
         String interval = "";
         String langfile = "";
         String notify = "0";
         String checkUpdate = "0";
         int bandwidthUsage = 0;
         bool gameSet = false;
-        list<String> ipList;
+        list<ServerItem> ipList;
         if(FileExists(programSettings.file)) {
                 TStringList *file = new TStringList;
                 file->LoadFromFile(programSettings.file);
@@ -1236,20 +1232,17 @@ list<String> readConfigFile() {
                                 i++;
                                 tmp = file->Strings[i].Trim();
                                 while((tmp.SubString(1,10) != "[\\Servers]") && i < file->Count - 1) {
-                                        if(tmp.SubString(1,7) == "[Watch]") {
-                                                i++;
-                                                tmp = file->Strings[i].Trim();
-                                                programSettings.watched->Clear();
-                                                while(tmp.SubString(1,8) != "[\\Watch]" && i < file->Count -1 ) {
-                                                        if(tmp.Length() > 8) {
-                                                                programSettings.watched->Add(tmp.Trim());
-                                                                ipList.push_back(tmp.Trim());
-                                                        }
-                                                        i++;
-                                                        tmp = file->Strings[i].Trim();
+                                        if(tmp.Length() > 8) {
+                                                list<String> z = Form1->splitUpMessage(tmp, ";");
+                                                ServerItem *sI = new ServerItem(z.front());
+                                                if(z.size() > 1) {
+                                                        String att = z.back();
+                                                        sI->watch = (att.AnsiPos("W") > 0);
+                                                        sI->favorite = (att.AnsiPos("F") > 0);
+                                                        sI->persistent = (att.AnsiPos("P") > 0);
+                                                        sI->blocked = (att.AnsiPos("B") > 0);
                                                 }
-                                        } else if(tmp.Length() > 8) {
-                                                ipList.push_back(tmp.Trim());
+                                                ipList.push_back((*sI));
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
@@ -2178,7 +2171,54 @@ void profileChanged(TComboBox *box, int gameid) {
         }
 }
 
+void updateServerEditorList(bool all) {
+        if(all) {
+                WINDOW_SETTINGS->ListBox1->Clear();
+        }
+        TTreeView *tree = WINDOW_SETTINGS->TreeView1;
+        tree->Items->Clear();
+        TTreeNode *sections[4];
+        sections[0] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVEREDITOR_FAVORITE"));
+        sections[1] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVEREDITOR_WATCHED"));
+        sections[2] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVEREDITOR_PERSISTENT"));
+        sections[3] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVEREDITOR_BLOCKED"));
+        int i = 0;
+        Server *s;
+        while((s = Form1->getServer(i)) != NULL) {
+                if(s->index == i) {
+                        String showName = s->name;
+                        if(showName.IsEmpty() || WINDOW_SETTINGS->RADIOBUTTON_SERVERS_SHOW_ADDRESS->Checked) {
+                                int p = s->gameport;
+                                if(p == 0) {
+                                        p = s->gamespyport - 1;
+                                }
+                                showName = s->ip + ":" + IntToStr(p);
+                        }
+                        if(all) {
+                                WINDOW_SETTINGS->ListBox1->Items->AddObject(showName, (TObject*)s);
+                        }
 
+                        if(s->favorite) {
+                                tree->Items->AddChildObject(sections[0], showName, (TObject*)s);
+                        }
+                        if(s->watch) {
+                                tree->Items->AddChildObject(sections[1], showName, (TObject*)s);
+                        }
+                        if(s->persistent) {
+                                tree->Items->AddChildObject(sections[2], showName, (TObject*)s);
+                        }
+                        if(s->blocked) {
+                                tree->Items->AddChildObject(sections[3], showName, (TObject*)s);
+                        }
+                }
+                i++;
+        }
+        for(int j = 0; j < 4; j++) {
+                sections[j]->SelectedIndex = j + 1;
+                sections[j]->ImageIndex = j + 1;
+                sections[j]->Expand(true);                
+        }
+}
 
 //---------------------------------------------------------------------------
 __fastcall TWINDOW_SETTINGS::TWINDOW_SETTINGS(TComponent* Owner)
@@ -2191,7 +2231,7 @@ void __fastcall TWINDOW_SETTINGS::FormCreate(TObject *Sender)
 {
         #include "guiDB.cpp"
         findLanguageFiles();
-        list<String> ipList = readConfigFile();
+        list<ServerItem> ipList = readConfigFile();
         updateLanguage(programSettings.languagefile);
         Form1->readServerList(ipList);
         updateConfList();
@@ -2347,6 +2387,7 @@ void __fastcall TWINDOW_SETTINGS::FormShow(TObject *Sender)
 {
         exitEditMode();
         updateChatSettings();
+        updateServerEditorList(true);
 }
 //---------------------------------------------------------------------------
 void __fastcall TWINDOW_SETTINGS::ComboBox1Change(TObject *Sender)
@@ -3204,6 +3245,136 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_UPDATEClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TWINDOW_SETTINGS::TreeView1DragOver(TObject *Sender,
+      TObject *Source, int X, int Y, TDragState State, bool &Accept)
+{
+        TTreeView *tree = (TTreeView *)Sender;
+        TTreeNode *node = tree->GetNodeAt(X,Y);
+        if(node == NULL) {
+                Accept = false;
+        } else {
+                Accept = Source->ClassNameIs("TListBox") && node->Parent == NULL;
+        }
+}
+//---------------------------------------------------------------------------
 
+void __fastcall TWINDOW_SETTINGS::TreeView1DragDrop(TObject *Sender,
+      TObject *Source, int X, int Y)
+{
+        if (Sender->ClassNameIs("TTreeView") && Source->ClassNameIs("TListBox")) {
+                TTreeView *tree = (TTreeView *)Sender;
+                TListBox *list = (TListBox *)Source;
+                TTreeNode *node = tree->GetNodeAt(X,Y);
+                String showName = list->Items->Strings[list->ItemIndex];
+                Server* server = (Server*) list->Items->Objects[list->ItemIndex];
+
+                bool alreadyIn = false;
+                TTreeNode *ch = node->getFirstChild();
+                while(ch != NULL) {
+                        if(ch->Text == showName) {
+                                Server *serv = (Server*) (ch->Data);
+                                if(serv->ip == server->ip && serv->gamespyport == server->gamespyport) {
+                                        alreadyIn = true;
+                                        break;
+                                }
+                        }
+                        ch = node->GetNextChild(ch);
+                }
+                
+                if(!alreadyIn) {
+                        tree->Items->AddChildObject(node, showName, (void*) server);
+                        switch(node->SelectedIndex) {
+                                case 1:
+                                        // favorites
+                                        server->favorite = true;
+                                        break;
+                                case 2:
+                                        // watched
+                                        server->watch = true;
+                                        break;
+                                case 3:
+                                        // persistent
+                                        server->persistent = true;
+                                        break;
+                                case 4:
+                                        // blocked
+                                        server->blocked = true;
+                                        break;
+                        }
+                }
+        }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::TABSHEET_SERVEREDITORShow(TObject *Sender)
+{
+        updateServerEditorList(true);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::RADIOBUTTON_SERVERS_SHOW_NAMEClick(
+      TObject *Sender)
+{
+        updateServerEditorList(true);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::RADIOBUTTON_SERVERS_SHOW_ADDRESSClick(
+      TObject *Sender)
+{
+        updateServerEditorList(true);
+}
+//---------------------------------------------------------------------------
+
+
+
+void __fastcall TWINDOW_SETTINGS::TreeView1ContextPopup(TObject *Sender,
+      TPoint &MousePos, bool &Handled)
+{
+        bool success = false;
+        TTreeNode *n = TreeView1->GetNodeAt(MousePos.x, MousePos.y);
+        if(n != NULL) {
+                if(n->SelectedIndex == 0 && !(n->HasChildren)) {
+                        Server *s = (Server*) (n->Data);
+                        POPUPMENU_SERVERLISTEDITOR->Tag = s->index;
+                        TTreeNode *parent = n->Parent;
+                        MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE->Tag = parent->SelectedIndex;
+                        success = true;
+                }
+        }
+        MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE->Visible = success;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::MENUITEM_POPUP_SERVERLISTEDITOR_REMOVEClick(
+      TObject *Sender)
+{
+        if(MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE->Visible) {
+                int serverId = POPUPMENU_SERVERLISTEDITOR->Tag;
+                int sectionId = MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE->Tag;
+                Server *s = Form1->getServer(serverId);
+                switch(sectionId) {
+                        case 1:
+                                // favorites
+                                s->favorite = false;
+                                break;
+                        case 2:
+                                // watched
+                                s->watch = false;
+                                break;
+                        case 3:
+                                // persistent
+                                s->persistent = false;
+                                break;
+                        case 4:
+                                // blocked
+                                s->blocked = false;
+                                break;
+                        
+                }
+        }
+        updateServerEditorList(false);
+}
+//---------------------------------------------------------------------------
 
 

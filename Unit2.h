@@ -14,6 +14,9 @@
 #include <ExtCtrls.hpp>
 #include <list.h>
 #include "OFPMonitor.h"
+#include "Server.h"
+#include <ImgList.hpp>
+#include <Menus.hpp>
 //---------------------------------------------------------------------------
 
 class TWINDOW_SETTINGS : public TForm
@@ -166,6 +169,17 @@ __published:	// IDE-managed Components
         TGroupBox *GROUPBOX_UPDATE;
         TCheckBox *CHECKBOX_UPDATE_CHECKATSTART;
         TButton *BUTTON_UPDATE;
+        TTabSheet *TABSHEET_SERVEREDITOR;
+        TListBox *ListBox1;
+        TRadioButton *RADIOBUTTON_SERVERS_SHOW_ADDRESS;
+        TRadioButton *RADIOBUTTON_SERVERS_SHOW_NAME;
+        TTreeView *TreeView1;
+        TGroupBox *GroupBox1;
+        TEdit *Edit1;
+        TButton *Button1;
+        TImageList *ImageList1;
+        TPopupMenu *POPUPMENU_SERVERLISTEDITOR;
+        TMenuItem *MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE;
         void __fastcall BUTTON_OFPRES_BROWSEClick(TObject *Sender);
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialog1CanClose(TObject *Sender,
@@ -239,6 +253,19 @@ __published:	// IDE-managed Components
         void __fastcall TABSHEET_GENERALShow(TObject *Sender);
         void __fastcall CHECKBOX_UPDATE_CHECKATSTARTClick(TObject *Sender);
         void __fastcall BUTTON_UPDATEClick(TObject *Sender);
+        void __fastcall TreeView1DragOver(TObject *Sender, TObject *Source,
+          int X, int Y, TDragState State, bool &Accept);
+        void __fastcall TreeView1DragDrop(TObject *Sender, TObject *Source,
+          int X, int Y);
+        void __fastcall TABSHEET_SERVEREDITORShow(TObject *Sender);
+        void __fastcall RADIOBUTTON_SERVERS_SHOW_NAMEClick(
+          TObject *Sender);
+        void __fastcall RADIOBUTTON_SERVERS_SHOW_ADDRESSClick(
+          TObject *Sender);
+        void __fastcall TreeView1ContextPopup(TObject *Sender,
+          TPoint &MousePos, bool &Handled);
+        void __fastcall MENUITEM_POPUP_SERVERLISTEDITOR_REMOVEClick(
+          TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         int TWINDOW_SETTINGS::getConfAmount(int gameid);
@@ -247,11 +274,10 @@ public:		// User declarations
         String TWINDOW_SETTINGS::getPlayerName(int actVer, int reqVer);
         String TWINDOW_SETTINGS::getSetGameFullName(int gameid);
         String TWINDOW_SETTINGS::getFolder(String in);
-        void TWINDOW_SETTINGS::writeSettingToFile(list<String> servers, list<String> watchedServers, list<String> font, list<String> window, list<String> chat);
+        void TWINDOW_SETTINGS::writeSettingToFile(list<ServerItem> servers, list<String> font, list<String> window, list<String> chat);
         void TWINDOW_SETTINGS::setSettingsChanged();
         void TWINDOW_SETTINGS::setCustomNotifications(bool active);
         bool TWINDOW_SETTINGS::areCustomNotificationsEnabled();
-        TStringList* TWINDOW_SETTINGS::getWatchedList();
         String TWINDOW_SETTINGS::getConfStartLine(int gameid, int i, String ip, int port);
         String TWINDOW_SETTINGS::getConfStartLineLocal(int gameid, int i, bool multiplayer);
         String TWINDOW_SETTINGS::getNoModsStartLine(int gameid, String ip, int port);

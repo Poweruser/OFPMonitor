@@ -2,7 +2,11 @@
 
 #ifndef Unit1H
 #define Unit1H
+
+#include "Server.h"
+
 #include <list.h>
+
 //---------------------------------------------------------------------------
 #include <Classes.hpp>
 #include <Controls.hpp>
@@ -217,7 +221,7 @@ __published:	// IDE-managed Components
         void __fastcall Close1Click(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
-        void TForm1::readServerList(list<String> &in);
+        void TForm1::readServerList(list<ServerItem> &in);
         void TForm1::setFont(String name, int size, int charset,bool bold, bool italic);
         void TForm1::setWindowSettings(int top,int left, int height, int width, float ratioID,float ratioSN,
                                 float ratioPN,float ratioST,float ratioIS,
@@ -239,6 +243,8 @@ public:		// User declarations
         bool TForm1::isChatUserBlocked(String username);
         bool TForm1::isNotificationRuleActive(int index);
         void TForm1::resetNotifications(int notificationIndex);
+        Server* TForm1::getServer(int i);
+        bool TForm1::addServer(String ip, int gameport);
         __fastcall TForm1(TComponent* Owner);
 
 };

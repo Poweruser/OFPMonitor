@@ -679,6 +679,7 @@ object Form1: TForm1
     end
     object MENUITEM_POPUP_WATCH: TMenuItem
       Caption = 'Watch'
+      OnClick = ClickWatchButton
     end
   end
   object MainMenu1: TMainMenu
@@ -876,7 +877,7 @@ object Form1: TForm1
   end
   object Timer2: TTimer
     Enabled = False
-    Interval = 1
+    Interval = 10
     OnTimer = Timer2Timer
     Left = 432
     Top = 120
