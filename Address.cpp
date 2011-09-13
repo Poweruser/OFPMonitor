@@ -23,7 +23,7 @@
 
                 bool Address::getAddress(String address, int defaultPort) {
                         list<String> ipAndPort = Form1->splitUpMessage(address,":");
-                        if(ipAndPort.size() > 2) { return false; }
+                        if(ipAndPort.size() > 2 || ipAndPort.size() == 0) { return false; }
                         String ip = ipAndPort.front();
                         int port = defaultPort;
                         if(ipAndPort.size() == 2) {

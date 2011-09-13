@@ -749,7 +749,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Top = 368
         Width = 233
         Height = 73
-        Caption = 'Add Server '
+        Caption = 'Add Server  IP[:Port]'
         TabOrder = 4
         object Edit1: TEdit
           Left = 8
@@ -763,7 +763,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 40
           Width = 217
           Height = 25
-          Caption = 'BUTTON_SERVERS_ADD'
+          Caption = 'Add'
           TabOrder = 1
           OnClick = BUTTON_SERVERS_ADDClick
         end
