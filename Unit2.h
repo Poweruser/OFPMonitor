@@ -169,14 +169,14 @@ __published:	// IDE-managed Components
         TGroupBox *GROUPBOX_UPDATE;
         TCheckBox *CHECKBOX_UPDATE_CHECKATSTART;
         TButton *BUTTON_UPDATE;
-        TTabSheet *TABSHEET_SERVEREDITOR;
+        TTabSheet *TABSHEET_SERVERS;
         TListBox *ListBox1;
         TRadioButton *RADIOBUTTON_SERVERS_SHOW_ADDRESS;
         TRadioButton *RADIOBUTTON_SERVERS_SHOW_NAME;
         TTreeView *TreeView1;
-        TGroupBox *GroupBox1;
+        TGroupBox *GROUPBOX_SERVERS_ADD;
         TEdit *Edit1;
-        TButton *Button1;
+        TButton *BUTTON_SERVERS_ADD;
         TImageList *ImageList1;
         TPopupMenu *POPUPMENU_SERVERLISTEDITOR;
         TMenuItem *MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE;
@@ -257,7 +257,7 @@ __published:	// IDE-managed Components
           int X, int Y, TDragState State, bool &Accept);
         void __fastcall TreeView1DragDrop(TObject *Sender, TObject *Source,
           int X, int Y);
-        void __fastcall TABSHEET_SERVEREDITORShow(TObject *Sender);
+        void __fastcall TABSHEET_SERVERSShow(TObject *Sender);
         void __fastcall RADIOBUTTON_SERVERS_SHOW_NAMEClick(
           TObject *Sender);
         void __fastcall RADIOBUTTON_SERVERS_SHOW_ADDRESSClick(
@@ -266,6 +266,7 @@ __published:	// IDE-managed Components
           TPoint &MousePos, bool &Handled);
         void __fastcall MENUITEM_POPUP_SERVERLISTEDITOR_REMOVEClick(
           TObject *Sender);
+        void __fastcall BUTTON_SERVERS_ADDClick(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         int TWINDOW_SETTINGS::getConfAmount(int gameid);

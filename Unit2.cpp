@@ -1,6 +1,7 @@
 //---------------------------------------------------------------------------
 
 #include "Server.h"
+#include "Address.h"
 #include <vcl.h>                                                          
 #include <filectrl.hpp>
 #include <mmsystem.h>
@@ -23,6 +24,8 @@ TWINDOW_SETTINGS *WINDOW_SETTINGS;
 #include "FileVersion.h"
 #include "OFPMonitor.h"
 using namespace OFPMonitor_Unit2;
+
+extern unsigned long resolv(char *host) ; 
 
 String getGameName(int gameid) {
         if(gameid == GAMEID_OFPCWC) { return "OFP:CWC"; }
@@ -987,11 +990,11 @@ void updateLanguage(String languagefile) {
         guiStrings.push_back(guiString("STRING_UPDATE1","New version available:"));
         guiStrings.push_back(guiString("STRING_UPDATE2","Do you want to update now?"));
         guiStrings.push_back(guiString("STRING_UPDATE_ALREADYLATEST","You already have the latest version"));
-        guiStrings.push_back(guiString("STRING_SERVEREDITOR_FAVORITE","Favorites"));
-        guiStrings.push_back(guiString("STRING_SERVEREDITOR_WATCHED","Watched"));
-        guiStrings.push_back(guiString("STRING_SERVEREDITOR_PERSISTENT","Persistent"));
-        guiStrings.push_back(guiString("STRING_SERVEREDITOR_BLOCKED","Blocked"));
-
+        guiStrings.push_back(guiString("STRING_SERVERS_FAVORITE","Favorites"));
+        guiStrings.push_back(guiString("STRING_SERVERS_WATCHED","Watched"));
+        guiStrings.push_back(guiString("STRING_SERVERS_PERSISTENT","Persistent"));
+        guiStrings.push_back(guiString("STRING_SERVERS_BLOCKED","Blocked"));
+        guiStrings.push_back(guiString("STRING_SERVERS_ADDERROR","Could not resolve:"));
 
 
         if(FileExists(pathAndFile)) {
@@ -1049,6 +1052,14 @@ void updateLanguage(String languagefile) {
                                 for(int j = 0; j < GetArrLength(guiForm); j++) {
                                         if(guiForm[j]->Name == val.front()) {
                                                 guiForm[j]->Caption = val.back();
+                                                break;
+                                        }
+                                }
+                        } else if(tmp.SubString(1,11) == "RADIOBUTTON") {
+                                val = getVarAndValue(tmp, "=");
+                                for(int j = 0; j < GetArrLength(guiRadioButton); j++) {
+                                        if(guiRadioButton[j]->Name == val.front()) {
+                                                guiRadioButton[j]->Caption = val.back();
                                                 break;
                                         }
                                 }
@@ -1125,6 +1136,7 @@ void updateLanguage(String languagefile) {
                 WINDOW_SETTINGS->LABEL_OFPCWC_PLAYERNAME->Caption = WINDOW_SETTINGS->getGuiString("STRING_PROFILE");
                 WINDOW_SETTINGS->LABEL_OFPRES_PLAYERNAME->Caption = WINDOW_SETTINGS->getGuiString("STRING_PROFILE");
                 WINDOW_SETTINGS->LABEL_ARMACWA_PLAYERNAME->Caption = WINDOW_SETTINGS->getGuiString("STRING_PROFILE");
+
         }
         updateGames();
 }
@@ -2178,10 +2190,10 @@ void updateServerEditorList(bool all) {
         TTreeView *tree = WINDOW_SETTINGS->TreeView1;
         tree->Items->Clear();
         TTreeNode *sections[4];
-        sections[0] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVEREDITOR_FAVORITE"));
-        sections[1] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVEREDITOR_WATCHED"));
-        sections[2] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVEREDITOR_PERSISTENT"));
-        sections[3] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVEREDITOR_BLOCKED"));
+        sections[0] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVERS_FAVORITE"));
+        sections[1] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVERS_WATCHED"));
+        sections[2] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVERS_PERSISTENT"));
+        sections[3] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVERS_BLOCKED"));
         int i = 0;
         Server *s;
         while((s = Form1->getServer(i)) != NULL) {
@@ -3265,48 +3277,52 @@ void __fastcall TWINDOW_SETTINGS::TreeView1DragDrop(TObject *Sender,
                 TTreeView *tree = (TTreeView *)Sender;
                 TListBox *list = (TListBox *)Source;
                 TTreeNode *node = tree->GetNodeAt(X,Y);
-                String showName = list->Items->Strings[list->ItemIndex];
-                Server* server = (Server*) list->Items->Objects[list->ItemIndex];
 
-                bool alreadyIn = false;
-                TTreeNode *ch = node->getFirstChild();
-                while(ch != NULL) {
-                        if(ch->Text == showName) {
-                                Server *serv = (Server*) (ch->Data);
-                                if(serv->ip == server->ip && serv->gamespyport == server->gamespyport) {
-                                        alreadyIn = true;
-                                        break;
+                for(int i = 0; i < list->Count; i++) {
+                        if(list->Selected[i]) {
+                                String showName = list->Items->Strings[i];
+                                Server* server = (Server*) list->Items->Objects[i];
+                                bool alreadyIn = false;
+                                TTreeNode *ch = node->getFirstChild();
+                                while(ch != NULL) {
+                                        if(ch->Text == showName) {
+                                                Server *serv = (Server*) (ch->Data);
+                                                if(serv->ip == server->ip && serv->gamespyport == server->gamespyport) {
+                                                        alreadyIn = true;
+                                                        break;
+                                                }
+                                        }
+                                        ch = node->GetNextChild(ch);
                                 }
-                        }
-                        ch = node->GetNextChild(ch);
-                }
-                
-                if(!alreadyIn) {
-                        tree->Items->AddChildObject(node, showName, (void*) server);
-                        switch(node->SelectedIndex) {
-                                case 1:
-                                        // favorites
-                                        server->favorite = true;
-                                        break;
-                                case 2:
-                                        // watched
-                                        server->watch = true;
-                                        break;
-                                case 3:
-                                        // persistent
-                                        server->persistent = true;
-                                        break;
-                                case 4:
-                                        // blocked
-                                        server->blocked = true;
-                                        break;
+
+                                if(!alreadyIn) {
+                                        tree->Items->AddChildObject(node, showName, (void*) server);
+                                        switch(node->SelectedIndex) {
+                                                case 1:
+                                                        // favorites
+                                                        server->favorite = true;
+                                                        break;
+                                                case 2:
+                                                        // watched
+                                                        server->watch = true;
+                                                        break;
+                                                case 3:
+                                                        // persistent
+                                                        server->persistent = true;
+                                                        break;
+                                                case 4:
+                                                        // blocked
+                                                        server->blocked = true;
+                                                        break;
+                                        }
+                                }
                         }
                 }
         }
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TWINDOW_SETTINGS::TABSHEET_SERVEREDITORShow(TObject *Sender)
+void __fastcall TWINDOW_SETTINGS::TABSHEET_SERVERSShow(TObject *Sender)
 {
         updateServerEditorList(true);
 }
@@ -3370,11 +3386,47 @@ void __fastcall TWINDOW_SETTINGS::MENUITEM_POPUP_SERVERLISTEDITOR_REMOVEClick(
                                 // blocked
                                 s->blocked = false;
                                 break;
-                        
+
                 }
         }
         updateServerEditorList(false);
 }
 //---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_ADDClick(TObject *Sender)
+{
+        int defaultGameport = 2302;
+        Address *add = new Address();
+        if(add->getAddress(Edit1->Text, defaultGameport)) {
+                Form1->addServer(add->ip, add->port);
+        } else {
+                int success = false;
+                struct in_addr addr;
+                list<String> url = Form1->splitUpMessage(Edit1->Text, ":");
+                if(url.size() == 1) {
+                        url.push_back(IntToStr(defaultGameport));
+                }
+                String ip = url.front();
+                addr.s_addr = resolv(ip.c_str());
+                if(addr.s_addr != INADDR_NONE) {
+                        ip = inet_ntoa(addr);
+                        if(ip != "62.157.140.133" && ip != "80.156.86.78") {
+                                success = true;
+                        }
+                }
+                if(success && add->getAddress(ip + ":" + url.back(), defaultGameport)) {
+                        Form1->addServer(add->ip, add->port);
+                } else {
+                        ShowMessage(WINDOW_SETTINGS->getGuiString("STRING_SERVERS_ADDERROR") + "  " + url.back());
+                }
+        }
+        delete add;
+        updateServerEditorList(true);
+}
+//---------------------------------------------------------------------------
+
+
+
+
 
 

@@ -487,8 +487,8 @@ void sendUdpMessage(int index, String ip, int port, String msg) {
                                 ServerArray[index].clear();
                         }
                 }
-        } catch (...) {
-                addToErrorReport("Error while sending a UDP packet", "Address:  " + ip + ":" + IntToStr(port));
+        } catch (EIdException &E) {
+                addToErrorReport("Error while sending a UDP packet", E.Message + "   Address:  " + ip + ":" + IntToStr(port));
         }
 }
 

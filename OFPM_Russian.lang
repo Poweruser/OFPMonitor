@@ -154,3 +154,14 @@ GROUPBOX_UPDATE = Обновления
 STRING_UPDATE1 = Доступна новая версия:
 STRING_UPDATE2 = Вы хотите обновить OFPMonitor сейчас?
 STRING_UPDATE_ALREADYLATEST = вас уже есть последняя версия
+
+TABSHEET_SERVERS = Серверы
+GROUPBOX_SERVERS_ADD = Новый сервер IP[:порт]
+BUTTON_SERVERS_ADD = добавлять
+RADIOBUTTON_SERVERS_SHOW_ADDRESS = Показать адреса
+RADIOBUTTON_SERVERS_SHOW_NAME = Показать имена
+STRING_SERVERS_FAVORITE = Избранное
+STRING_SERVERS_WATCHED = мониторинг
+STRING_SERVERS_PERSISTENT = настойчивый
+STRING_SERVERS_BLOCKED = блокированный
+STRING_SERVERS_ADDERROR = могли удается решать не адрес: 

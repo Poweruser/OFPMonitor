@@ -220,7 +220,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 313
           Height = 21
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 1
           OnChange = COMBOBOX_OFPCWC_PROFILEChange
         end
@@ -302,7 +302,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
           Font.Style = []
-          ItemHeight = 0
+          ItemHeight = 13
           ParentFont = False
           TabOrder = 1
           OnChange = COMBOBOX_OFPRES_PROFILEChange
@@ -362,7 +362,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 313
           Height = 21
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 1
           OnChange = COMBOBOX_ARMACWA_PROFILEChange
         end
@@ -684,16 +684,15 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 449
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         OnChange = ComboBox2Change
       end
     end
-    object TABSHEET_SERVEREDITOR: TTabSheet
-      Caption = 'TABSHEET_SERVEREDITOR'
+    object TABSHEET_SERVERS: TTabSheet
+      Caption = 'TABSHEET_SERVERS'
       ImageIndex = 5
-      OnResize = BUTTON_ARMACWA_BROWSEClick
-      OnShow = TABSHEET_SERVEREDITORShow
+      OnShow = TABSHEET_SERVERSShow
       object ListBox1: TListBox
         Left = 8
         Top = 8
@@ -701,6 +700,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Height = 353
         DragMode = dmAutomatic
         ItemHeight = 13
+        MultiSelect = True
         TabOrder = 0
       end
       object RADIOBUTTON_SERVERS_SHOW_ADDRESS: TRadioButton
@@ -744,7 +744,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           FFFF00000000000000000A50657273697374656E742000000004000000040000
           0000000000FFFFFFFF000000000000000007426C6F636B6564}
       end
-      object GroupBox1: TGroupBox
+      object GROUPBOX_SERVERS_ADD: TGroupBox
         Left = 8
         Top = 368
         Width = 233
@@ -757,15 +757,15 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 217
           Height = 21
           TabOrder = 0
-          Text = 'Edit1'
         end
-        object Button1: TButton
+        object BUTTON_SERVERS_ADD: TButton
           Left = 8
           Top = 40
           Width = 217
           Height = 25
-          Caption = 'Button1'
+          Caption = 'BUTTON_SERVERS_ADD'
           TabOrder = 1
+          OnClick = BUTTON_SERVERS_ADDClick
         end
       end
     end
@@ -1574,7 +1574,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 32
           Width = 209
           Height = 21
-          ItemHeight = 0
+          ItemHeight = 13
           MaxLength = 14
           Sorted = True
           TabOrder = 0

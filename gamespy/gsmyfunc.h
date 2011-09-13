@@ -58,9 +58,11 @@ unsigned long resolv(char *host) {
     host_ip = inet_addr(host);
     if(host_ip == htonl(INADDR_NONE)) {
         hp = gethostbyname(host);
-        if(!hp) {   // I prefer to exit instead of returning INADDR_NONE
-//            fprintf(stderr, "\nError: Unable to resolv hostname (%s)\n\n", host);
-           //  exit(1);
+        if(!hp) {   
+		return INADDR_NONE;
+		// I prefer to exit instead of returning INADDR_NONE
+		//            fprintf(stderr, "\nError: Unable to resolv hostname (%s)\n\n", host);
+           	//  exit(1);
         } else host_ip = *(unsigned long *)(hp->h_addr);
     }
     return(host_ip);

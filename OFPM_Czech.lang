@@ -154,3 +154,14 @@ GROUPBOX_UPDATE = aktualizace
 STRING_UPDATE1 = Nová verze k dispozici:
 STRING_UPDATE2 = Chcete nyní provést OFPMonitor aktualizaci?
 STRING_UPDATE_ALREADYLATEST = Vy již máte nejnovejší verzi.
+
+TABSHEET_SERVERS = Servery
+GROUPBOX_SERVERS_ADD = Nový server IP[:Port]
+BUTTON_SERVERS_ADD = Pridat
+RADIOBUTTON_SERVERS_SHOW_ADDRESS = Zobrazit adresy
+RADIOBUTTON_SERVERS_SHOW_NAME = Zobrazit jména
+STRING_SERVERS_FAVORITE = Oblíbené
+STRING_SERVERS_WATCHED = Sledované
+STRING_SERVERS_PERSISTENT = Trvalý
+STRING_SERVERS_BLOCKED = Blokované
+STRING_SERVERS_ADDERROR = Nelze rešit: 
