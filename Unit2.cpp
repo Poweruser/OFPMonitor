@@ -1325,7 +1325,7 @@ list<ServerItem> readConfigFile() {
                                 i++;
                                 tmp = file->Strings[i].Trim();
                                 String host = "irc.freenode.net";
-                                String channel = "operationflashpoint1";
+                                String channel = "#operationflashpoint1";
                                 int port = 6666;
                                 String user = "";
                                 bool autoConnect = false;
@@ -1340,6 +1340,9 @@ list<ServerItem> readConfigFile() {
                                                 } catch (...) {}
                                         } else if((tmp.SubString(1,7) == "Channel")) {
                                                 channel = getValue(tmp);
+                                                if(channel.SubString(1,1) != "#") {
+                                                        channel = "#" + channel;
+                                                }
                                         } else if((tmp.SubString(1,8) == "UserName")) {
                                                 user = getValue(tmp);
                                         }
