@@ -1251,7 +1251,17 @@ bool readInfoPacket(int i, String msg, String ip, int port) {
                                                         int newStatus = StrToInt(*ci);
                                                         if(ServerArray[i].gamestate != newStatus) {
                                                                 playAudioServerStatus(i, newStatus);
-                                                                if(oldStatus == SERVERSTATE_BRIEFING && newStatus == SERVERSTATE_PLAYING) {
+                                                                if(     ((oldStatus == SERVERSTATE_WAITING ||
+                                                                         oldStatus == SERVERSTATE_SETTINGUP ||
+                                                                         oldStatus == SERVERSTATE_BRIEFING
+                                                                        ) && newStatus == SERVERSTATE_PLAYING) ||
+                                                                        ((oldStatus == SERVERSTATE_WAITING ||
+                                                                         oldStatus == SERVERSTATE_SETTINGUP
+                                                                        ) && newStatus == SERVERSTATE_BRIEFING) ||
+                                                                        ((oldStatus != SERVERSTATE_WAITING
+                                                                        ) && newStatus == SERVERSTATE_WAITING) ||
+                                                                        ((oldStatus == SERVERSTATE_PLAYING
+                                                                        ) && newStatus == SERVERSTATE_DEBRIEFING)) {
                                                                         ServerArray[i].gametime = time(0);
                                                                 } else {
                                                                         ServerArray[i].gametime = 0;

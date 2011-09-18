@@ -1,11 +1,11 @@
 //---------------------------------------------------------------------------
 
 #include <vcl.h>
-#include <Psapi.h>
 #include <windows.h>
 #include <list.h>
 #include "FileVersion.h"
 #include "OFPMonitor.h"
+#include "ProcessFinder.h"
 #pragma hdrstop
 
 //---------------------------------------------------------------------------
@@ -15,22 +15,9 @@ USEFORM("Unit4.cpp", WINDOW_INFO);
 USEFORM("Unit3.cpp", WINDOW_LOCALGAME);
 USEFORM("Unit5.cpp", WINDOW_UPDATE);
 //---------------------------------------------------------------------------
-class ProcessInfo {
-        public:
-                DWORD pid;
-                HWND hWindow;
 
-                ProcessInfo(DWORD pid, HWND hWindow) {
-                        this->pid = pid;
-                        this->hWindow = hWindow;
-                }
-                ProcessInfo() {
-                }
-};
-
-list<ProcessInfo> plist;
 HANDLE hMutex;
-                              
+
 bool MyAppAlreadyRunning() {
         hMutex = CreateMutex(NULL,true,"OFPMonitor");
         if (GetLastError() == ERROR_ALREADY_EXISTS ) {
@@ -43,17 +30,6 @@ bool MyAppAlreadyRunning() {
 
 void releaseMutex() {
         CloseHandle(hMutex);
-}
-
-bool CALLBACK MyEnumWindowsProc(HWND hWnd, LPARAM lParam) {
-        DWORD PID = 0;
-        GetWindowThreadProcessId(hWnd, &PID);
-        char *title = new char[11];
-        GetWindowText(hWnd, title, 11);
-        if(AnsiString(title) == "OFPMonitor") {
-                plist.push_back(ProcessInfo(PID,hWnd));
-        }
-        return true;
 }
 
 String getExeFromFullPath(String in) {
@@ -91,29 +67,15 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
                         }
                 }
 	} else {
-                EnumWindows((WNDENUMPROC)MyEnumWindowsProc,(LPARAM) 0);
-                for (list<ProcessInfo>::iterator ci = plist.begin(); ci != plist.end(); ++ci) {
-                        HMODULE hMods[1024];
-                        DWORD cbNeeded;
-                        unsigned int i;
-                        HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, (*ci).pid);
-                        if( EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded)) {
-                                for ( i = 0; i < (cbNeeded / sizeof(HMODULE)); i++ ) {
-                                        TCHAR szModName[MAX_PATH];
-                                        if ( GetModuleFileNameExA( hProcess, hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR))) {
-                                                AnsiString str = AnsiString(szModName);
-                                                if(getExeFromFullPath(str) == getExeFromFullPath(Application->ExeName)) {
-                                                        SendMessage((*ci).hWindow,WM_KEYDOWN,VK_F13, NULL);
-                                                        SendMessage((*ci).hWindow,WM_KEYUP,VK_F13, NULL);
-                                                        SetForegroundWindow((*ci).hWindow);
-                                                        return 0;
-                                                }
-                                        }
-                                }
-                        }
+                ProcessFinder *finder = new ProcessFinder();
+                if(finder->enumerate("OFPMonitor", getExeFromFullPath(Application->ExeName))) {
+                        ProcessInfo p = finder->output.front();
+                        SendMessage(p.hWindow, WM_KEYDOWN, VK_F13, NULL);
+                        SendMessage(p.hWindow, WM_KEYUP,   VK_F13, NULL);
+                        SetForegroundWindow(p.hWindow);
                 }
+                delete finder;
         }
-        plist.clear();
         return 0;
 }
 //---------------------------------------------------------------------------

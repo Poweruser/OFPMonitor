@@ -6,7 +6,7 @@
     <PROJECT value="OFPMonitor.exe"/>
     <OBJFILES value="OFPMonitor.obj Unit1.obj Unit2.obj Unit4.obj FileVersion.obj Unit3.obj 
       irc\irc.obj Unit5.obj Address.obj QueryAnswer.obj Server.obj Player.obj 
-      Message.obj Sorter.obj"/>
+      Message.obj Sorter.obj ProcessFinder.obj"/>
     <RESFILES value="OFPMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
@@ -68,6 +68,7 @@
       <FILE FILENAME="Player.cpp" FORMNAME="" UNITNAME="Player" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Message.cpp" FORMNAME="" UNITNAME="Message" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Sorter.cpp" FORMNAME="" UNITNAME="Sorter" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="ProcessFinder.cpp" FORMNAME="" UNITNAME="ProcessFinder" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>
@@ -112,17 +113,18 @@ Item6=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 Item7=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=10
+Count=11
 Item0=irc;lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item1=D:\Programme\BCB6\Projects;irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib
-Item2=irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib
-Item3=E:\ProgC\Borland\CBuilder6\Projects;irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib
-Item4=d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item5=irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item6=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item7=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item1=D:\Programme\BCB6\Projects;irc;lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item2=D:\Programme\BCB6\Projects;irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib
+Item3=irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib
+Item4=E:\ProgC\Borland\CBuilder6\Projects;irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib
+Item5=d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item6=irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item7=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
 Item8=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
-Item9=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item9=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item10=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1
