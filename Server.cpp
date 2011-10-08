@@ -15,6 +15,8 @@
                         this->favorite = false;
                         this->persistent = false;
                         this->blocked = false;
+                        this->gamestate = 0;
+                        this->gametime = 0;
                 }
 
                 ServerItem::ServerItem(String address) {
@@ -23,6 +25,8 @@
                         this->favorite = false;
                         this->persistent = false;
                         this->blocked = false;
+                        this->gamestate = 0;
+                        this->gametime = 0;
                 }
 
                 Server::Server() {
@@ -101,6 +105,8 @@
                         sI->favorite = this->favorite;
                         sI->persistent = this->persistent;
                         sI->blocked = this->blocked;
+                        sI->gamestate = this->gamestate;
+                        sI->gametime = this->gametime;
                         return sI;
                 }
 

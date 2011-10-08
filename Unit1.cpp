@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 
-#include "QueryAnswer.h"
+#include "QueryAnswer.h"                                                                    
 #include "OFPMonitor.h"
 #include "Address.h"
 #include "Player.h"
@@ -8,6 +8,7 @@
 #include "Message.h"
 #include "Sorter.h"
 #include "irc/irc.h"
+#include "ProcessFinder.h"
 
 #include ".\gamespy\msquery_header.h"
 #include <vcl.h>
@@ -20,6 +21,7 @@
 #include "Unit3.h"
 #include "Unit4.h"
 #include "Unit5.h"
+#include "Unit6.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma link "CoolTrayIcon"
@@ -328,13 +330,7 @@ class WindowSettings {
 };
 
 
-
-
-
-
-
 typedef list<Player> CustomPlayerList;
-
 int errorreports = 0;
 
 /**
@@ -379,33 +375,200 @@ void addToErrorReport(String err, String msg) {
 
 String getGameState (int i) {
         String out = IntToStr(i);
-        if(i == SERVERSTATE_CREATING) {
-                out = Form1->CHECKBOX_FILTER_CREATING->Caption;
-        } else if(i == SERVERSTATE_WAITING) {
-                out = Form1->CHECKBOX_FILTER_WAITING->Caption;
-        } else if(i == SERVERSTATE_DEBRIEFING) {
-                out = Form1->CHECKBOX_FILTER_DEBRIEFING->Caption;
-        } else if(i == SERVERSTATE_SETTINGUP) {
-                out = Form1->CHECKBOX_FILTER_SETTINGUP->Caption;
-        } else if(i == SERVERSTATE_BRIEFING) {
-                out = Form1->CHECKBOX_FILTER_BRIEFING->Caption;
-        } else if(i == SERVERSTATE_PLAYING) {
-                out = Form1->CHECKBOX_FILTER_PLAYING->Caption;
+        switch (i) {
+                case SERVERSTATE_CREATING:
+                        out = Form1->CHECKBOX_FILTER_CREATING->Caption;
+                        break;
+                case SERVERSTATE_WAITING:
+                        out = Form1->CHECKBOX_FILTER_WAITING->Caption;
+                        break;
+                case SERVERSTATE_DEBRIEFING:
+                        out = Form1->CHECKBOX_FILTER_DEBRIEFING->Caption;
+                        break;
+                case SERVERSTATE_SETTINGUP:
+                        out = Form1->CHECKBOX_FILTER_SETTINGUP->Caption;
+                        break;
+                case SERVERSTATE_BRIEFING:
+                        out = Form1->CHECKBOX_FILTER_BRIEFING->Caption;
+                        break;
+                case SERVERSTATE_PLAYING:
+                        out = Form1->CHECKBOX_FILTER_PLAYING->Caption;
+                        break;
         }
         return out;
 }
 
-
-
-
-
 Server ServerArray[SERVERARRAY_LENGTH];
 int numOfServers = 0;
+
+class GameControl {
+        private:
+                ProcessInfo *proc;
+                int serverIndex;
+                String serverIP;
+                int serverPort;
+                bool autoGreenUp;
+                int greenUpDelay;
+                bool greenUpRepeat;
+
+        public:
+
+                bool restoreGame;
+                bool restoreOnCreating;
+                bool restoreOnWaiting;
+                bool restoreOnBriefing;
+                bool restoreOnPlaying;
+                bool restoreOnDebriefing;
+
+                GameControl() {
+                        this->autoGreenUp = false;
+                        this->restoreGame = false;
+                        this->serverPort = 0;
+                        this->serverIP = "";
+                        this->serverIndex = -1;
+                        this->proc = NULL;
+                        this->greenUpDelay = 10;
+                        this->restoreOnCreating = false;
+                        this->restoreOnWaiting = false;
+                        this->restoreOnBriefing = false;
+                        this->restoreOnPlaying = false;
+                        this->restoreOnDebriefing = false;
+                }
+                void setProcess(ProcessInfo *p) {
+                        this->proc = p;
+                }
+
+                void setServer(int id, String ip, int port) {
+                        this->serverIndex = id;
+                        this->serverIP = ip;
+                        this->serverPort = port;
+                }
+
+                bool verifyProcess() {
+                        bool out = false;
+                        if(this->proc != NULL) {
+                                ProcessFinder *pf = new ProcessFinder();
+                                TStringList *startsWith = new TStringList();
+                                startsWith->Add(this->proc->title);
+                                TStringList *modules = new TStringList();
+                                modules->Add(this->proc->moduleName);
+                                pf->enumerate(startsWith, modules);
+                                for (list<ProcessInfo>::iterator ci = pf->output.begin(); ci != pf->output.end(); ++ci) {
+                                        if((*ci).pid == this->proc->pid &&
+                                           (*ci).title == this->proc->title &&
+                                           (*ci).moduleName == this->proc->moduleName) {
+                                                out = true;
+                                        }                  
+                                }
+                                delete pf;
+                                delete startsWith;
+                                delete modules;
+                                if(!out) {
+                                        Form1->BUTTON_GAMECONTROL_REFRESH->Click();        
+                                }
+                        }
+                        return out;
+                }
+
+                bool verifyServer(int serverId) {
+                        bool out = false;
+                        if(         serverId >= 0 &&          serverId < SERVERARRAY_LENGTH &&
+                           this->serverIndex >= 0 && this->serverIndex < SERVERARRAY_LENGTH) {
+                                if(ServerArray[serverId].ip == this->serverIP &&
+                                   ServerArray[serverId].gamespyport == this->serverPort) {
+                                        out = true;
+                                }
+                        }
+                        return out;
+                }
+
+                void statusChange(int serverId, int oldStatus, int newStatus) {
+                        if(this->verifyProcess() && this->verifyServer(serverId)) {
+                                if(this->autoGreenUp) {
+                                        if(newStatus == SERVERSTATE_BRIEFING) {
+                                                if(!Form1->TimerAutoGreenUp->Enabled) {
+                                                        Form1->TimerAutoGreenUp->Interval = this->greenUpDelay * 1000;
+                                                        Form1->TimerAutoGreenUp->Tag = serverId;
+                                                        Form1->TimerAutoGreenUp->Enabled = true;
+                                                }
+                                        } else {
+                                                Form1->TimerAutoGreenUp->Enabled = false;
+                                                Form1->TimerAutoGreenUp->Tag = -1;
+                                        }
+                                }
+                                if(this->restoreGame) {
+                                        if((oldStatus != SERVERSTATE_CREATING &&
+                                                newStatus == SERVERSTATE_CREATING &&
+                                                this->restoreOnCreating) ||
+                                                (oldStatus != SERVERSTATE_WAITING &&
+                                                newStatus == SERVERSTATE_WAITING &&
+                                                this->restoreOnWaiting) ||
+                                                (oldStatus != SERVERSTATE_BRIEFING &&
+                                                newStatus == SERVERSTATE_BRIEFING &&
+                                                this->restoreOnBriefing) ||
+                                                (oldStatus != SERVERSTATE_PLAYING &&
+                                                newStatus == SERVERSTATE_PLAYING &&
+                                                this->restoreOnPlaying) ||
+                                                (oldStatus != SERVERSTATE_DEBRIEFING &&
+                                                newStatus == SERVERSTATE_DEBRIEFING &&
+                                                this->restoreOnDebriefing)) {
+                                                        ShowWindowAsync(this->proc->hWindow, SW_RESTORE);
+                                        }
+                                }
+                        }
+                }
+
+                void setGreenUpRepeat(bool enabled) {
+                        this->greenUpRepeat = enabled;
+                }
+
+                bool getGreenUpRepeat() {
+                        return this->greenUpRepeat;
+                }
+
+                void enableAutoGreenUp(bool enabled) {
+                        this->autoGreenUp = enabled;
+                }
+
+                void enableRestoreGame(bool enabled) {
+                        this->restoreGame = enabled;
+                }
+
+                void setGreenUpDelay(int delay) {
+                        this->greenUpDelay = delay;
+                }
+
+                void sendGreenUpMessage(int serverId) {
+                        if(this->verifyProcess() && this->verifyServer(serverId)) {
+                                if(ServerArray[serverId].gamestate == SERVERSTATE_BRIEFING) {
+                                        SendMessage(this->proc->hWindow, WM_KEYDOWN, VK_RETURN, NULL);
+                                        SendMessage(this->proc->hWindow, WM_KEYUP  , VK_RETURN, NULL);
+                                }
+                        }
+                }
+
+                ProcessInfo* getCurrentProcess() {
+                        return this->proc;
+                }
+
+                bool matchesProcess(ProcessInfo *p) {
+                        bool out = false;
+                        if(this->proc != NULL) {
+                                if(this->proc->pid == p->pid &&
+                                   this->proc->title == p->title &&
+                                   this->proc->moduleName == p->moduleName) {
+                                        out = true;
+                                }
+                        }
+                        return out;
+                }
+};
 
 ServerSorter tableSorter = ServerSorter();
 PlayerSorter playerListSorter = PlayerSorter();
 WindowSettings windowsettings;
 FontSettings fontsettings;
+GameControl gameControl = GameControl();
 int timeoutLimit = 10;
 TStringList *ServerSortList = new TStringList;
 TStringList *ServerFavoriteSortList = new TStringList;
@@ -427,7 +590,11 @@ bool TForm1::addServer(String ip, int gameport) {
                         numOfServers++;
                         added = true;
                         break;
+                } else if(ServerArray[i].ip == ip && ServerArray[i].gameport == gameport) {
+                        added = true;
+                        break;
                 }
+
         }
         return added;
 }
@@ -932,6 +1099,8 @@ void TForm1::readServerList(list<ServerItem> &servers) {
                                 ServerArray[numOfServers].favorite = tmp.favorite;
                                 ServerArray[numOfServers].persistent = tmp.persistent;
                                 ServerArray[numOfServers].blocked = tmp.blocked;
+                                ServerArray[numOfServers].gamestate = tmp.gamestate;
+                                ServerArray[numOfServers].gametime = tmp.gametime;
                                 numOfServers++;
                         }
                         delete a;
@@ -1247,8 +1416,13 @@ bool readInfoPacket(int i, String msg, String ip, int port) {
                                                 ++ci;
                                                 counter--;
                                                 int oldStatus = ServerArray[i].gamestate;
+                                                int newStatus = 0;
                                                 try {
-                                                        int newStatus = StrToInt(*ci);
+                                                        newStatus = StrToInt(*ci);
+                                                } catch (...) {
+                                                        newStatus = 1;
+                                                }
+                                                if(newStatus > 0) {
                                                         if(ServerArray[i].gamestate != newStatus) {
                                                                 playAudioServerStatus(i, newStatus);
                                                                 if(     ((oldStatus == SERVERSTATE_WAITING ||
@@ -1273,9 +1447,10 @@ bool readInfoPacket(int i, String msg, String ip, int port) {
                                                                         startTheGame(ServerArray[i].autojoinConf, ServerArray[i].actver, ServerArray[i].reqver);
                                                                         disableAutoJoin();
                                                                 }
+                                                                gameControl.statusChange(i, oldStatus, newStatus);
                                                         }
-                                                        ServerArray[i].gamestate = newStatus;
-                                                } catch (...) {}
+                                                }
+                                                ServerArray[i].gamestate = newStatus;
                                         } else if (tmp == "platform") {
                                                 ++ci;
                                                 counter--;
@@ -1383,6 +1558,9 @@ class MessageReader {
                                                 if(readInfoPacket(j, m->content, m->ip, m->port)) {
                                                         if(ServerArray[j].messageSent > 1) {
                                                                 ServerArray[j].ping = m->toa - ServerArray[j].messageSent;
+                                                                if(ServerArray[j].ping < 0) {
+                                                                        ServerArray[j].ping *= -1;
+                                                                }
                                                                 ServerArray[j].messageSent = 1;
                                                                 ServerArray[j].timeouts = 0;
                                                         }
@@ -1733,6 +1911,29 @@ String decideQuery(BandwidthUsage bu, bool selected, int i) {
         return none;
 }
 
+void updateGameControlGui() {
+        bool selected = (Form1->ComboBox1->ItemIndex > -1) && (Form1->ComboBox2->ItemIndex > -1);
+        if(!selected) {
+                Form1->CHECKBOX_GAMECONTROL_AUTOGREENUP->Checked = false;
+                gameControl.enableAutoGreenUp(false);
+                Form1->CHECKBOX_GAMECONTROL_RESTORE->Checked = false;
+                gameControl.enableRestoreGame(false);
+        }
+        Form1->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE->Enabled = selected;
+        Form1->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT->Enabled = selected;
+        Form1->CHECKBOX_GAMECONTROL_RESTORE_CREATING->Enabled = selected;
+        Form1->CHECKBOX_GAMECONTROL_RESTORE_WAITING->Enabled = selected;
+        Form1->CHECKBOX_GAMECONTROL_RESTORE_BRIEFING->Enabled = selected;
+        Form1->CHECKBOX_GAMECONTROL_RESTORE_PLAYING->Enabled = selected;
+        Form1->CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Enabled = selected;
+        Form1->CHECKBOX_GAMECONTROL_AUTOGREENUP->Enabled = selected;
+        Form1->CHECKBOX_GAMECONTROL_RESTORE->Enabled = selected;
+        Form1->UpDown2->Enabled = selected;
+        Form1->Edit5->Enabled = selected;
+        Form1->ComboBox1->Enabled = !(Form1->ComboBox1->Items->Count == 0);
+        Form1->ComboBox2->Enabled = !(Form1->ComboBox2->Items->Count == 0);
+}
+
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
@@ -1923,28 +2124,28 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
                                 updateServerInfoBox(index);
                                 list<String> t = splitUpMessage(ServerArray[index].mod,";");
 
-                                PopupMenu1->Items->Items[0]->Tag = index;
-                                PopupMenu1->Items->Items[1]->Tag = index;
-                                PopupMenu1->Items->Items[1]->Visible = (ServerArray[index].gamestate == SERVERSTATE_PLAYING) && !ServerArray[index].autojoin;
-                                PopupMenu1->Items->Items[2]->Visible = ServerArray[index].autojoin;
-                                PopupMenu1->Items->Items[2]->Checked = ServerArray[index].autojoin;
-                                PopupMenu1->Items->Items[2]->Tag = index;
-                                PopupMenu1->Items->Items[3]->Tag = index;
+                                MENUITEM_POPUP_JOIN->Tag = index;
+                                MENUITEM_POPUP_AUTOJOIN->Tag = index;
+                                MENUITEM_POPUP_AUTOJOIN->Visible = (ServerArray[index].gamestate == SERVERSTATE_PLAYING) && !ServerArray[index].autojoin;
+                                MENUITEM_POPUP_AUTOJOINB->Visible = ServerArray[index].autojoin;
+                                MENUITEM_POPUP_AUTOJOINB->Checked = ServerArray[index].autojoin;
+                                MENUITEM_POPUP_AUTOJOINB->Tag = index;
+                                MENUITEM_POPUP_MODS->Tag = index;
                                 MENUITEM_POPUP_WATCH->Tag = index;
                                 MENUITEM_POPUP_WATCH->Checked = ServerArray[index].watch;
 
                                 int i = 0;
                                 for (list<String>::iterator ci = t.begin(); ci != t.end(); ++ci) {
                                         if(!(*ci).IsEmpty()) {
-                                                TMenuItem *m = PopupMenu1->Items->Items[3]->Items[i];
+                                                TMenuItem *m = MENUITEM_POPUP_MODS->Items[i];
                                                 m->Caption = *ci;
                                                 m->Visible = true;
                                                 i++;
                                         }
                                 }
-                                PopupMenu1->Items->Items[3]->Enabled = (i > 0);
-                                for(; i < PopupMenu1->Items->Items[3]->Count; i++) {
-                                        TMenuItem *m = PopupMenu1->Items->Items[3]->Items[i];
+                                MENUITEM_POPUP_MODS->Enabled = (i > 0);
+                                for(; i < MENUITEM_POPUP_MODS->Count; i++) {
+                                        TMenuItem *m = MENUITEM_POPUP_MODS->Items[i];
                                         m->Visible = false;
                                 }
                                 PopupMenu1->Tag = index;
@@ -2020,8 +2221,8 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
 
         int i = 0;
         for(i = 0; i < additionalItems; i++) {
-                join = PopupMenu1->Items->Items[0]->Items[i];
-                autojoin = PopupMenu1->Items->Items[1]->Items[i];
+                join = MENUITEM_POPUP_JOIN->Items[i];
+                autojoin = MENUITEM_POPUP_AUTOJOIN->Items[i];
                 join->Tag = i - additionalItems;
                 autojoin->Tag = i - additionalItems;
                 if(i == 0) {
@@ -2042,23 +2243,23 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
         MENUITEM_POPUP_JOIN->Enabled = (gameid >= 0);
         MENUITEM_POPUP_AUTOJOIN->Enabled = (gameid >= 0);
         MENUITEM_POPUP_AUTOJOINB->Enabled = (gameid >= 0);
-        for(i = additionalItems; i - additionalItems < WINDOW_SETTINGS->getConfAmount(gameid) || i < PopupMenu1->Items->Items[0]->Count; i++) {
+        for(i = additionalItems; i - additionalItems < WINDOW_SETTINGS->getConfAmount(gameid) || i < MENUITEM_POPUP_JOIN->Count; i++) {
                 String s = "";
                 if(gameid >= 0) {
                         s = WINDOW_SETTINGS->getConfListEntry(gameid, i - additionalItems);
                 }
                 if(!s.IsEmpty()) {
-                        if(i < PopupMenu1->Items->Items[0]->Count) {
-                                join = PopupMenu1->Items->Items[0]->Items[i];
+                        if(i < MENUITEM_POPUP_JOIN->Count) {
+                                join = MENUITEM_POPUP_JOIN->Items[i];
                         } else {
                                 join = new TMenuItem(this);
-                                PopupMenu1->Items->Items[0]->Add(join);
+                                MENUITEM_POPUP_JOIN->Add(join);
                         }
-                        if(i < PopupMenu1->Items->Items[1]->Count) {
-                                autojoin = PopupMenu1->Items->Items[1]->Items[i];
+                        if(i < MENUITEM_POPUP_AUTOJOIN->Count) {
+                                autojoin = MENUITEM_POPUP_AUTOJOIN->Items[i];
                         } else {
                                 autojoin = new TMenuItem(this);
-                                PopupMenu1->Items->Items[1]->Add(autojoin);
+                                MENUITEM_POPUP_AUTOJOIN->Add(autojoin);
                         }
                         join->Tag = i - additionalItems;
                         join->Caption = s;
@@ -2074,9 +2275,9 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
                         join->Enabled = !(ServerArray[index].equalMod == 1 && modline != ServerArray[index].mod);
                         autojoin->Enabled = join->Enabled;
                 } else {
-                        if(i < PopupMenu1->Items->Items[0]->Count) {
-                                PopupMenu1->Items->Items[0]->Items[i]->Visible = false;
-                                PopupMenu1->Items->Items[1]->Items[i]->Visible = false;
+                        if(i < MENUITEM_POPUP_JOIN->Count) {
+                                MENUITEM_POPUP_JOIN->Items[i]->Visible = false;
+                                MENUITEM_POPUP_AUTOJOIN->Items[i]->Visible = false;
                         }
                 }
         }
@@ -2735,8 +2936,156 @@ void __fastcall TForm1::Close1Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TForm1::RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCEClick(TObject *Sender)
+{
+        gameControl.setGreenUpRepeat(RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE->Checked);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEATClick(TObject *Sender)
+{
+        gameControl.setGreenUpRepeat(RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT->Checked);        
+}
+//---------------------------------------------------------------------------
+                   
+void __fastcall TForm1::CHECKBOX_GAMECONTROL_AUTOGREENUPClick(TObject *Sender)
+{
+        gameControl.enableAutoGreenUp(CHECKBOX_GAMECONTROL_AUTOGREENUP->Checked);        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::CHECKBOX_GAMECONTROL_RESTOREClick(TObject *Sender)
+{
+        gameControl.enableRestoreGame(CHECKBOX_GAMECONTROL_RESTORE->Checked);        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::TimerAutoGreenUpTimer(TObject *Sender)
+{
+        TimerAutoGreenUp->Enabled = gameControl.getGreenUpRepeat();
+        int serverId = TimerAutoGreenUp->Tag;
+        gameControl.sendGreenUpMessage(serverId);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
+{
+        for(int i = 0; i < ComboBox1->Items->Count; i++) {
+                ProcessInfo *pi = (ProcessInfo*) ComboBox1->Items->Objects[i];
+                delete pi;
+        }
+        ComboBox1->Clear();
+        ProcessFinder *pf = new ProcessFinder();
+        TStringList *s = new TStringList();
+        s->Add("Operation Flashpoint");
+        s->Add("Cold War Assault");
+        TStringList *m = new TStringList();
+        m->Add("OperationFlashpoint.exe");
+        m->Add("OperationFlashpointbeta.exe");
+        m->Add("FLASHPOINTRESISTANCE.EXE");
+        m->Add("FLASHPOINTBETA.EXE");
+        m->Add("ColdWarAssault.exe");
+
+        if(pf->enumerate(s, m)) {
+                for (list<ProcessInfo>::iterator proc = pf->output.begin(); proc != pf->output.end(); ++proc) {
+                        ProcessInfo *p = new ProcessInfo((*proc).pid, (*proc).hWindow, (*proc).title, (*proc).moduleName);
+                        ComboBox1->Items->AddObject(p->title, (TObject*) p);
+                        if(gameControl.matchesProcess(p)) {
+                                ComboBox1->ItemIndex = ComboBox1->Items->Count;
+                                ComboBox1Change(ComboBox1);
+                        }
+                }
+        }
+        delete pf;
+        delete s;
+        delete m;
+        ComboBox1->ItemIndex = -1;
+        ComboBox2->Clear();
+        for(int i = 0; i < SERVERARRAY_LENGTH; i++) {
+                if(ServerArray[i].ip.IsEmpty()) {
+                        break;
+                }
+                if(!ServerArray[i].name.IsEmpty()) {
+                        ComboBox2->Items->AddObject(ServerArray[i].name, (TObject*) i);
+                        if(gameControl.verifyServer(i)) {
+                                ComboBox2->ItemIndex = ComboBox2->Items->Count;
+                                ComboBox2Change(ComboBox2);
+                        }
+                }
+        }
+        ComboBox2->ItemIndex = -1;
+        updateGameControlGui();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::ComboBox1Change(TObject *Sender)
+{
+        if(ComboBox1->ItemIndex > -1) {
+                ProcessInfo *p = (ProcessInfo*) ComboBox1->Items->Objects[ComboBox1->ItemIndex];
+                if(p != NULL) {
+                        Label6->Caption = IntToStr(p->pid);
+                        Label9->Caption = p->moduleName;
+                }
+                gameControl.setProcess(p);
+        }
+        updateGameControlGui();
+}
+//---------------------------------------------------------------------------
+      
+void __fastcall TForm1::ComboBox2Change(TObject *Sender)
+{
+        if(ComboBox2->ItemIndex > -1) {
+                int id = (int) ComboBox2->Items->Objects[ComboBox2->ItemIndex];
+                if(id >= 0 && id < SERVERARRAY_LENGTH) {
+                        gameControl.setServer(id, ServerArray[id].ip, ServerArray[id].gamespyport);
+                }
+        }
+        updateGameControlGui();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::TABSHEET_GAMECONTROLShow(TObject *Sender)
+{
+        BUTTON_GAMECONTROL_REFRESH->Click();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::CHECKBOX_GAMECONTROL_RESTORE_CREATINGClick(TObject *Sender)
+{
+        gameControl.restoreOnCreating = CHECKBOX_GAMECONTROL_RESTORE_CREATING->Checked;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::CHECKBOX_GAMECONTROL_RESTORE_WAITINGClick(TObject *Sender)
+{
+        gameControl.restoreOnWaiting = CHECKBOX_GAMECONTROL_RESTORE_WAITING->Checked;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::CHECKBOX_GAMECONTROL_RESTORE_BRIEFINGClick(TObject *Sender)
+{
+        gameControl.restoreOnBriefing = CHECKBOX_GAMECONTROL_RESTORE_BRIEFING->Checked;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::CHECKBOX_GAMECONTROL_RESTORE_PLAYINGClick(TObject *Sender)
+{
+        gameControl.restoreOnPlaying = CHECKBOX_GAMECONTROL_RESTORE_PLAYING->Checked;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFINGClick(TObject *Sender)
+{
+        gameControl.restoreOnDebriefing = CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Checked;        
+}
+//---------------------------------------------------------------------------
 
 
+void __fastcall TForm1::UpDown2Changing(TObject *Sender, bool &AllowChange)
+{
+        gameControl.setGreenUpDelay(UpDown2->Position);        
+}
+//---------------------------------------------------------------------------
 
 
 

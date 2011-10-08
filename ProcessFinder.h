@@ -19,11 +19,12 @@ class ProcessInfo {
 
 class ProcessFinder {
         public:
-        String titleStartsWith;
+        TStringList *titleStartsWith;
         list<ProcessInfo> output;
         ProcessFinder();
+        ~ProcessFinder();
         list<ProcessInfo> matchingProcesses;
-        bool ProcessFinder::enumerate(String titleStartsWith, String moduleIncludes);
+        bool ProcessFinder::enumerate(TStringList *titleStartsWith, TStringList *moduleIncludes);
         private:
 
 };

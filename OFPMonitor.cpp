@@ -15,7 +15,6 @@ USEFORM("Unit4.cpp", WINDOW_INFO);
 USEFORM("Unit3.cpp", WINDOW_LOCALGAME);
 USEFORM("Unit5.cpp", WINDOW_UPDATE);
 //---------------------------------------------------------------------------
-
 HANDLE hMutex;
 
 bool MyAppAlreadyRunning() {
@@ -68,13 +67,19 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
                 }
 	} else {
                 ProcessFinder *finder = new ProcessFinder();
-                if(finder->enumerate("OFPMonitor", getExeFromFullPath(Application->ExeName))) {
+                TStringList *startsWith = new TStringList();
+                startsWith->Add("OFPMonitor");
+                TStringList *moduleIncludes = new TStringList();
+                moduleIncludes->Add(getExeFromFullPath(Application->ExeName));
+                if(finder->enumerate(startsWith, moduleIncludes)) {
                         ProcessInfo p = finder->output.front();
                         SendMessage(p.hWindow, WM_KEYDOWN, VK_F13, NULL);
                         SendMessage(p.hWindow, WM_KEYUP,   VK_F13, NULL);
                         SetForegroundWindow(p.hWindow);
                 }
                 delete finder;
+                delete startsWith;
+                delete moduleIncludes;
         }
         return 0;
 }

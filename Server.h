@@ -14,6 +14,8 @@ using namespace OFPMonitor_Unit1;
 class ServerItem {
         public:
         	String address;
+                int gamestate;
+                long gametime;
         	bool watch;
         	bool favorite;
         	bool persistent;

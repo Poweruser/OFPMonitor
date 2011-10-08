@@ -22,20 +22,27 @@ bool CALLBACK MyEnumWindowsProc(HWND hWnd, LPARAM lParam) {
         DWORD PID = 0;
         ProcessFinder *pf = (ProcessFinder*) lParam;
         GetWindowThreadProcessId(hWnd, &PID);
-        int len = pf->titleStartsWith.Length() + 1;
-        if(len > 2047) { len = 2048; }
-        char *title = new char[len];
-        GetWindowText(hWnd, title, len);
-        AnsiString t = AnsiString(title);
-        delete[] title;
-        if(t.AnsiPos(pf->titleStartsWith) == 1) {
-                pf->matchingProcesses.push_back(ProcessInfo(PID, hWnd, t, ""));
+        for(int i = 0; i < pf->titleStartsWith->Count; i++) {
+                int len = pf->titleStartsWith->Strings[i].Length() + 1;
+                if(len > 2047) { len = 2048; }
+                char *title = new char[len];
+                GetWindowText(hWnd, title, len);
+                AnsiString t = AnsiString(title);
+                delete[] title;
+                if(t.AnsiPos(pf->titleStartsWith->Strings[i]) == 1) {
+                        pf->matchingProcesses.push_back(ProcessInfo(PID, hWnd, t, ""));
+                }
         }
         return true;
 }
 
 ProcessFinder::ProcessFinder() { }
-bool ProcessFinder::enumerate(String titleStartsWith, String moduleIncludes) {
+ProcessFinder::~ProcessFinder() {
+        this->output.clear();
+        this->matchingProcesses.clear();
+}
+
+bool ProcessFinder::enumerate(TStringList *titleStartsWith, TStringList *moduleIncludes) {
         this->output.clear();
         this->matchingProcesses.clear();
         this->titleStartsWith = titleStartsWith;
@@ -50,14 +57,17 @@ bool ProcessFinder::enumerate(String titleStartsWith, String moduleIncludes) {
                                 TCHAR szModName[MAX_PATH];
                                 if( GetModuleFileNameExA(hProcess, hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR)) ) {
                                         AnsiString str = AnsiString(szModName);
-                                        if(str.AnsiPos(moduleIncludes) > 0) {
-                                                (*ci).moduleName = str;
-                                                this->output.push_back(*ci);
-                                                break;
+                                        for(int j = 0; j < moduleIncludes->Count; j++) {
+                                                if(str.AnsiPos(moduleIncludes->Strings[j]) > 0) {
+                                                        (*ci).moduleName = str;
+                                                        this->output.push_back(*ci);
+                                                        break;
+                                                }
                                         }
                                 }
                         }
                 }
+                CloseHandle(hProcess);
         }
         return (this->output.size() > 0);
 }

@@ -138,6 +138,32 @@ __published:	// IDE-managed Components
         TMenuItem *Openchat1;
         TPopupMenu *PopupMenuChat2;
         TMenuItem *Close1;
+        TTabSheet *TABSHEET_GAMECONTROL;
+        TComboBox *ComboBox1;
+        TComboBox *ComboBox2;
+        TGroupBox *GROUPBOX_GAMECONTROL_PROCESS;
+        TLabel *LABEL_GAMECONTROL_PROCESSID;
+        TGroupBox *GROUPBOX_GAMECONTROL_AUTOGREENUP;
+        TRadioButton *RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE;
+        TRadioButton *RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT;
+        TLabel *LABEL_GAMECONTROL_AUTOGREENUP_DELAY;
+        TEdit *Edit5;
+        TUpDown *UpDown2;
+        TGroupBox *GROUPBOX_GAMECONTROL_RESTORE;
+        TCheckBox *CHECKBOX_GAMECONTROL_RESTORE_CREATING;
+        TCheckBox *CHECKBOX_GAMECONTROL_RESTORE_WAITING;
+        TCheckBox *CHECKBOX_GAMECONTROL_RESTORE_BRIEFING;
+        TCheckBox *CHECKBOX_GAMECONTROL_RESTORE_PLAYING;
+        TCheckBox *CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING;
+        TCheckBox *CHECKBOX_GAMECONTROL_AUTOGREENUP;
+        TCheckBox *CHECKBOX_GAMECONTROL_RESTORE;
+        TTimer *TimerAutoGreenUp;
+        TButton *BUTTON_GAMECONTROL_REFRESH;
+        TLabel *LABEL_GAMECONTROL_PROCESS;
+        TLabel *LABEL_GAMECONTROL_SERVER;
+        TLabel *Label6;
+        TLabel *LABEL_GAMECONTROL_EXE;
+        TLabel *Label9;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
@@ -219,6 +245,22 @@ __published:	// IDE-managed Components
         void __fastcall TabControl1ContextPopup(TObject *Sender,
           TPoint &MousePos, bool &Handled);
         void __fastcall Close1Click(TObject *Sender);
+        void __fastcall RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCEClick(TObject *Sender);
+        void __fastcall RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEATClick(TObject *Sender);
+        void __fastcall CHECKBOX_GAMECONTROL_AUTOGREENUPClick(TObject *Sender);
+        void __fastcall CHECKBOX_GAMECONTROL_RESTOREClick(TObject *Sender);
+        void __fastcall TimerAutoGreenUpTimer(TObject *Sender);
+        void __fastcall BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender);
+        void __fastcall ComboBox1Change(TObject *Sender);
+        void __fastcall ComboBox2Change(TObject *Sender);
+        void __fastcall TABSHEET_GAMECONTROLShow(TObject *Sender);
+        void __fastcall CHECKBOX_GAMECONTROL_RESTORE_CREATINGClick(TObject *Sender);
+        void __fastcall CHECKBOX_GAMECONTROL_RESTORE_WAITINGClick(TObject *Sender);
+        void __fastcall CHECKBOX_GAMECONTROL_RESTORE_BRIEFINGClick(TObject *Sender);
+        void __fastcall CHECKBOX_GAMECONTROL_RESTORE_PLAYINGClick(TObject *Sender);
+        void __fastcall CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFINGClick(TObject *Sender);
+        void __fastcall UpDown2Changing(TObject *Sender,
+          bool &AllowChange);
 private:	// User declarations
 public:		// User declarations
         void TForm1::readServerList(list<ServerItem> &in);

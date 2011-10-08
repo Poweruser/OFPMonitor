@@ -87,9 +87,9 @@ object Form1: TForm1
             75)
         end
         object GROUPBOX_FILTERS: TGroupBox
-          Left = 1
+          Left = 3
           Top = 85
-          Width = 368
+          Width = 366
           Height = 155
           Align = alCustom
           Caption = '  Filters  '
@@ -409,6 +409,220 @@ object Form1: TForm1
         end
       end
     end
+    object TABSHEET_GAMECONTROL: TTabSheet
+      Caption = 'Game control'
+      ImageIndex = 2
+      OnShow = TABSHEET_GAMECONTROLShow
+      object GROUPBOX_GAMECONTROL_PROCESS: TGroupBox
+        Left = 3
+        Top = 8
+        Width = 644
+        Height = 113
+        Caption = 'OFP Process and Server '
+        TabOrder = 0
+        object LABEL_GAMECONTROL_PROCESSID: TLabel
+          Left = 16
+          Top = 72
+          Width = 69
+          Height = 16
+          Caption = 'Process ID:'
+        end
+        object LABEL_GAMECONTROL_PROCESS: TLabel
+          Left = 16
+          Top = 22
+          Width = 92
+          Height = 16
+          Caption = 'Game process:'
+        end
+        object LABEL_GAMECONTROL_SERVER: TLabel
+          Left = 16
+          Top = 46
+          Width = 40
+          Height = 16
+          Caption = 'Server'
+        end
+        object Label6: TLabel
+          Left = 104
+          Top = 72
+          Width = 30
+          Height = 16
+          Caption = '          '
+        end
+        object LABEL_GAMECONTROL_EXE: TLabel
+          Left = 16
+          Top = 88
+          Width = 70
+          Height = 16
+          Caption = 'Executable:'
+        end
+        object Label9: TLabel
+          Left = 104
+          Top = 88
+          Width = 30
+          Height = 16
+          Caption = '          '
+        end
+        object ComboBox1: TComboBox
+          Left = 136
+          Top = 16
+          Width = 345
+          Height = 24
+          Style = csDropDownList
+          ItemHeight = 16
+          TabOrder = 0
+          OnChange = ComboBox1Change
+        end
+        object BUTTON_GAMECONTROL_REFRESH: TButton
+          Left = 488
+          Top = 16
+          Width = 145
+          Height = 49
+          Caption = 'Refresh Lists'
+          TabOrder = 1
+          OnClick = BUTTON_GAMECONTROL_REFRESHClick
+        end
+        object ComboBox2: TComboBox
+          Left = 136
+          Top = 41
+          Width = 345
+          Height = 24
+          Style = csDropDownList
+          ItemHeight = 16
+          TabOrder = 2
+          OnChange = ComboBox2Change
+        end
+      end
+      object GROUPBOX_GAMECONTROL_AUTOGREENUP: TGroupBox
+        Left = 3
+        Top = 124
+        Width = 209
+        Height = 117
+        Caption = '    Auto green-up in Briefing '
+        TabOrder = 1
+        object LABEL_GAMECONTROL_AUTOGREENUP_DELAY: TLabel
+          Left = 16
+          Top = 24
+          Width = 102
+          Height = 16
+          Caption = 'Delay (seconds):'
+        end
+        object RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE: TRadioButton
+          Left = 16
+          Top = 48
+          Width = 113
+          Height = 17
+          Caption = 'Only once'
+          TabOrder = 0
+          OnClick = RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCEClick
+        end
+        object RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT: TRadioButton
+          Left = 16
+          Top = 64
+          Width = 169
+          Height = 17
+          Caption = 'Repeat until game start'
+          Checked = True
+          TabOrder = 1
+          TabStop = True
+          OnClick = RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEATClick
+        end
+        object Edit5: TEdit
+          Left = 144
+          Top = 20
+          Width = 33
+          Height = 24
+          ReadOnly = True
+          TabOrder = 2
+          Text = '10'
+        end
+        object UpDown2: TUpDown
+          Left = 177
+          Top = 20
+          Width = 16
+          Height = 24
+          Associate = Edit5
+          Min = 10
+          Max = 360
+          Increment = 10
+          Position = 10
+          TabOrder = 3
+          Thousands = False
+          Wrap = False
+          OnChanging = UpDown2Changing
+        end
+        object CHECKBOX_GAMECONTROL_AUTOGREENUP: TCheckBox
+          Left = 0
+          Top = 0
+          Width = 15
+          Height = 17
+          TabOrder = 4
+          OnClick = CHECKBOX_GAMECONTROL_AUTOGREENUPClick
+        end
+      end
+      object GROUPBOX_GAMECONTROL_RESTORE: TGroupBox
+        Left = 222
+        Top = 124
+        Width = 209
+        Height = 117
+        BiDiMode = bdLeftToRight
+        Caption = '    Restore OFP'
+        ParentBiDiMode = False
+        TabOrder = 2
+        object CHECKBOX_GAMECONTROL_RESTORE_CREATING: TCheckBox
+          Left = 16
+          Top = 24
+          Width = 97
+          Height = 17
+          Caption = 'Creating'
+          TabOrder = 0
+          OnClick = CHECKBOX_GAMECONTROL_RESTORE_CREATINGClick
+        end
+        object CHECKBOX_GAMECONTROL_RESTORE_WAITING: TCheckBox
+          Left = 16
+          Top = 40
+          Width = 97
+          Height = 17
+          Caption = 'Waiting'
+          TabOrder = 1
+          OnClick = CHECKBOX_GAMECONTROL_RESTORE_WAITINGClick
+        end
+        object CHECKBOX_GAMECONTROL_RESTORE_BRIEFING: TCheckBox
+          Left = 16
+          Top = 56
+          Width = 97
+          Height = 17
+          Caption = 'Briefing'
+          TabOrder = 2
+          OnClick = CHECKBOX_GAMECONTROL_RESTORE_BRIEFINGClick
+        end
+        object CHECKBOX_GAMECONTROL_RESTORE_PLAYING: TCheckBox
+          Left = 16
+          Top = 72
+          Width = 97
+          Height = 17
+          Caption = 'Playing'
+          TabOrder = 3
+          OnClick = CHECKBOX_GAMECONTROL_RESTORE_PLAYINGClick
+        end
+        object CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING: TCheckBox
+          Left = 16
+          Top = 88
+          Width = 97
+          Height = 17
+          Caption = 'Debriefing'
+          TabOrder = 4
+          OnClick = CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFINGClick
+        end
+        object CHECKBOX_GAMECONTROL_RESTORE: TCheckBox
+          Left = 0
+          Top = 0
+          Width = 15
+          Height = 17
+          TabOrder = 5
+          OnClick = CHECKBOX_GAMECONTROL_RESTOREClick
+        end
+      end
+    end
     object TABSHEET_CHAT: TTabSheet
       Caption = 'Chat'
       ImageIndex = 1
@@ -536,7 +750,7 @@ object Form1: TForm1
     DefaultColWidth = 101
     DefaultRowHeight = 18
     FixedCols = 0
-    RowCount = 20
+    RowCount = 2
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -13
@@ -564,13 +778,13 @@ object Form1: TForm1
   end
   object Timer1: TTimer
     OnTimer = Timer1Timer
-    Left = 400
-    Top = 120
+    Left = 504
+    Top = 192
   end
   object PopupMenu1: TPopupMenu
     OnPopup = PopupMenu1Popup
-    Left = 400
-    Top = 160
+    Left = 504
+    Top = 224
     object MENUITEM_POPUP_JOIN: TMenuItem
       Caption = 'Join'
       Enabled = False
@@ -685,8 +899,8 @@ object Form1: TForm1
   object MainMenu1: TMainMenu
     BiDiMode = bdLeftToRight
     ParentBiDiMode = False
-    Left = 464
-    Top = 160
+    Left = 568
+    Top = 224
     object MENUITEM_MAINMENU_EXIT: TMenuItem
       Caption = 'Exit'
       OnClick = MENUITEM_MAINMENU_EXITClick
@@ -746,23 +960,23 @@ object Form1: TForm1
     MaxFontSize = 20
     Options = [fdForceFontExist, fdLimitSize, fdApplyButton]
     OnApply = FontDialog1Apply
-    Left = 496
-    Top = 120
+    Left = 600
+    Top = 192
   end
   object TimerIrcChatTimer: TTimer
     Enabled = False
     Interval = 100
     OnTimer = TimerIrcChatTimerTimer
-    Left = 464
-    Top = 120
+    Left = 568
+    Top = 192
   end
   object SaveDialog1: TSaveDialog
     DefaultExt = 'txt'
     Filter = 'Text file (*.txt)|*.txt'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofNoNetworkButton, ofEnableSizing]
     OnCanClose = SaveDialog1CanClose
-    Left = 432
-    Top = 160
+    Left = 536
+    Top = 224
   end
   object CoolTrayIcon1: TCoolTrayIcon
     CycleInterval = 0
@@ -872,37 +1086,43 @@ object Form1: TForm1
     IconVisible = True
     IconIndex = 0
     OnClick = CoolTrayIcon1Click
-    Left = 496
-    Top = 160
+    Left = 600
+    Top = 224
   end
   object Timer2: TTimer
     Enabled = False
     Interval = 10
     OnTimer = Timer2Timer
-    Left = 432
-    Top = 120
+    Left = 536
+    Top = 192
   end
   object IdUDPServer1: TIdUDPServer
     Bindings = <>
     DefaultPort = 0
     OnUDPRead = IdUDPServer1UDPRead
-    Left = 464
-    Top = 72
+    Left = 600
+    Top = 160
   end
   object PopupMenuChat: TPopupMenu
-    Left = 400
-    Top = 88
+    Left = 536
+    Top = 160
     object Openchat1: TMenuItem
       Caption = 'Chat with...'
       OnClick = Openchat1Click
     end
   end
   object PopupMenuChat2: TPopupMenu
-    Left = 432
-    Top = 88
+    Left = 568
+    Top = 160
     object Close1: TMenuItem
       Caption = 'Close'
       OnClick = Close1Click
     end
+  end
+  object TimerAutoGreenUp: TTimer
+    Enabled = False
+    OnTimer = TimerAutoGreenUpTimer
+    Left = 504
+    Top = 160
   end
 end
