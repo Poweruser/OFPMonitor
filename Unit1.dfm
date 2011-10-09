@@ -410,12 +410,12 @@ object Form1: TForm1
       end
     end
     object TABSHEET_GAMECONTROL: TTabSheet
-      Caption = 'Game control'
+      Caption = 'Automation'
       ImageIndex = 2
       OnShow = TABSHEET_GAMECONTROLShow
       object GROUPBOX_GAMECONTROL_PROCESS: TGroupBox
         Left = 3
-        Top = 8
+        Top = 0
         Width = 644
         Height = 113
         Caption = 'OFP Process and Server '
@@ -494,9 +494,9 @@ object Form1: TForm1
       end
       object GROUPBOX_GAMECONTROL_AUTOGREENUP: TGroupBox
         Left = 3
-        Top = 124
+        Top = 116
         Width = 318
-        Height = 117
+        Height = 124
         TabOrder = 1
         object LABEL_GAMECONTROL_AUTOGREENUP_DELAY: TLabel
           Left = 16
@@ -561,9 +561,9 @@ object Form1: TForm1
       end
       object GROUPBOX_GAMECONTROL_RESTORE: TGroupBox
         Left = 326
-        Top = 124
+        Top = 116
         Width = 323
-        Height = 117
+        Height = 124
         BiDiMode = bdLeftToRight
         ParentBiDiMode = False
         TabOrder = 2
