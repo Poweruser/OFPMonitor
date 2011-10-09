@@ -244,7 +244,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 0
             Top = 0
             Width = 56
-            Height = 13
+            Height = 14
             Align = alLeft
             Caption = 'Executable:'
           end
@@ -252,7 +252,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 365
             Top = 0
             Width = 84
-            Height = 13
+            Height = 14
             Align = alRight
             Caption = 'Detected version:'
             Transparent = True
@@ -318,7 +318,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 0
             Top = 0
             Width = 56
-            Height = 13
+            Height = 14
             Align = alLeft
             Caption = 'Executable:'
             Transparent = True
@@ -327,7 +327,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 365
             Top = 0
             Width = 84
-            Height = 13
+            Height = 14
             Align = alRight
             Caption = 'Detected version:'
             Transparent = True
@@ -386,7 +386,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 0
             Top = 0
             Width = 56
-            Height = 13
+            Height = 14
             Align = alLeft
             Caption = 'Executable:'
             Transparent = True
@@ -395,7 +395,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 365
             Top = 0
             Width = 84
-            Height = 13
+            Height = 14
             Align = alRight
             Caption = 'Detected version:'
             Transparent = True

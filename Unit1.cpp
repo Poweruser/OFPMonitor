@@ -1944,6 +1944,7 @@ void updateGameControlGui() {
         Form1->CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Enabled = selected;
         Form1->CHECKBOX_GAMECONTROL_AUTOGREENUP->Enabled = selected;
         Form1->CHECKBOX_GAMECONTROL_RESTORE->Enabled = selected;
+        Form1->LABEL_GAMECONTROL_AUTOGREENUP_DELAY->Enabled = selected;
         Form1->UpDown2->Enabled = selected;
         Form1->Edit5->Enabled = selected;
         Form1->ComboBox1->Enabled = !(Form1->ComboBox1->Items->Count == 0);
@@ -3102,6 +3103,8 @@ void __fastcall TForm1::UpDown2Changing(TObject *Sender, bool &AllowChange)
         gameControl.setGreenUpDelay(UpDown2->Position);        
 }
 //---------------------------------------------------------------------------
+
+
 
 
 

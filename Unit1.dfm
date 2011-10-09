@@ -442,7 +442,7 @@ object Form1: TForm1
           Caption = 'Server'
         end
         object Label6: TLabel
-          Left = 104
+          Left = 136
           Top = 72
           Width = 30
           Height = 16
@@ -456,7 +456,7 @@ object Form1: TForm1
           Caption = 'Executable:'
         end
         object Label9: TLabel
-          Left = 104
+          Left = 136
           Top = 88
           Width = 30
           Height = 16
@@ -495,20 +495,19 @@ object Form1: TForm1
       object GROUPBOX_GAMECONTROL_AUTOGREENUP: TGroupBox
         Left = 3
         Top = 124
-        Width = 209
+        Width = 318
         Height = 117
-        Caption = '    Auto green-up in Briefing '
         TabOrder = 1
         object LABEL_GAMECONTROL_AUTOGREENUP_DELAY: TLabel
           Left = 16
-          Top = 24
+          Top = 40
           Width = 102
           Height = 16
           Caption = 'Delay (seconds):'
         end
         object RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE: TRadioButton
           Left = 16
-          Top = 48
+          Top = 72
           Width = 113
           Height = 17
           Caption = 'Only once'
@@ -517,7 +516,7 @@ object Form1: TForm1
         end
         object RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT: TRadioButton
           Left = 16
-          Top = 64
+          Top = 88
           Width = 169
           Height = 17
           Caption = 'Repeat until game start'
@@ -527,8 +526,8 @@ object Form1: TForm1
           OnClick = RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEATClick
         end
         object Edit5: TEdit
-          Left = 144
-          Top = 20
+          Left = 224
+          Top = 36
           Width = 33
           Height = 24
           ReadOnly = True
@@ -536,8 +535,8 @@ object Form1: TForm1
           Text = '10'
         end
         object UpDown2: TUpDown
-          Left = 177
-          Top = 20
+          Left = 257
+          Top = 36
           Width = 16
           Height = 24
           Associate = Edit5
@@ -551,73 +550,74 @@ object Form1: TForm1
           OnChanging = UpDown2Changing
         end
         object CHECKBOX_GAMECONTROL_AUTOGREENUP: TCheckBox
-          Left = 0
-          Top = 0
-          Width = 15
+          Left = 4
+          Top = 10
+          Width = 301
           Height = 17
+          Caption = 'Automatic confirmation in briefing'
           TabOrder = 4
           OnClick = CHECKBOX_GAMECONTROL_AUTOGREENUPClick
         end
       end
       object GROUPBOX_GAMECONTROL_RESTORE: TGroupBox
-        Left = 222
+        Left = 326
         Top = 124
-        Width = 209
+        Width = 323
         Height = 117
         BiDiMode = bdLeftToRight
-        Caption = '    Restore OFP'
         ParentBiDiMode = False
         TabOrder = 2
         object CHECKBOX_GAMECONTROL_RESTORE_CREATING: TCheckBox
-          Left = 16
-          Top = 24
-          Width = 97
+          Left = 24
+          Top = 32
+          Width = 169
           Height = 17
           Caption = 'Creating'
           TabOrder = 0
           OnClick = CHECKBOX_GAMECONTROL_RESTORE_CREATINGClick
         end
         object CHECKBOX_GAMECONTROL_RESTORE_WAITING: TCheckBox
-          Left = 16
-          Top = 40
-          Width = 97
+          Left = 24
+          Top = 48
+          Width = 169
           Height = 17
           Caption = 'Waiting'
           TabOrder = 1
           OnClick = CHECKBOX_GAMECONTROL_RESTORE_WAITINGClick
         end
         object CHECKBOX_GAMECONTROL_RESTORE_BRIEFING: TCheckBox
-          Left = 16
-          Top = 56
-          Width = 97
+          Left = 24
+          Top = 64
+          Width = 169
           Height = 17
           Caption = 'Briefing'
           TabOrder = 2
           OnClick = CHECKBOX_GAMECONTROL_RESTORE_BRIEFINGClick
         end
         object CHECKBOX_GAMECONTROL_RESTORE_PLAYING: TCheckBox
-          Left = 16
-          Top = 72
-          Width = 97
+          Left = 24
+          Top = 80
+          Width = 169
           Height = 17
           Caption = 'Playing'
           TabOrder = 3
           OnClick = CHECKBOX_GAMECONTROL_RESTORE_PLAYINGClick
         end
         object CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING: TCheckBox
-          Left = 16
-          Top = 88
-          Width = 97
+          Left = 24
+          Top = 96
+          Width = 169
           Height = 17
           Caption = 'Debriefing'
           TabOrder = 4
           OnClick = CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFINGClick
         end
         object CHECKBOX_GAMECONTROL_RESTORE: TCheckBox
-          Left = 0
-          Top = 0
-          Width = 15
+          Left = 4
+          Top = 10
+          Width = 309
           Height = 17
+          Caption = 'Restore game on'
           TabOrder = 5
           OnClick = CHECKBOX_GAMECONTROL_RESTOREClick
         end
