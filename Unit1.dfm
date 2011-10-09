@@ -418,7 +418,7 @@ object Form1: TForm1
         Top = 0
         Width = 644
         Height = 113
-        Caption = 'OFP Process and Server '
+        Caption = 'Game process and Server '
         TabOrder = 0
         object LABEL_GAMECONTROL_PROCESSID: TLabel
           Left = 16
@@ -437,16 +437,15 @@ object Form1: TForm1
         object LABEL_GAMECONTROL_SERVER: TLabel
           Left = 16
           Top = 46
-          Width = 40
+          Width = 43
           Height = 16
-          Caption = 'Server'
+          Caption = 'Server:'
         end
         object Label6: TLabel
           Left = 152
           Top = 72
-          Width = 49
+          Width = 3
           Height = 16
-          Caption = '          '
         end
         object LABEL_GAMECONTROL_EXE: TLabel
           Left = 16
@@ -458,9 +457,8 @@ object Form1: TForm1
         object Label9: TLabel
           Left = 152
           Top = 88
-          Width = 30
+          Width = 3
           Height = 16
-          Caption = '          '
         end
         object ComboBox1: TComboBox
           Left = 136
