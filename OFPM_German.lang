@@ -168,8 +168,8 @@ STRING_SERVERS_ADDERROR = Die Adresse konnte nicht aufgelöst werden:
 
 TABSHEET_GAMECONTROL = Automatisierung
 GROUPBOX_GAMECONTROL_PROCESS = Spielprozess und Server
-LABEL_GAMECONTROL_PROCESS = Spielprozess
-LABEL_GAMECONTROL_SERVER = Server
+LABEL_GAMECONTROL_PROCESS = Spielprozess:
+LABEL_GAMECONTROL_SERVER = Server:
 LABEL_GAMECONTROL_PROCESSID = Prozess ID:
 LABEL_GAMECONTROL_EXE = Anwendungsdatei:
 CHECKBOX_GAMECONTROL_AUTOGREENUP = Automatische Bestätigung in der Besprechung

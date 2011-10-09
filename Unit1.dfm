@@ -442,9 +442,9 @@ object Form1: TForm1
           Caption = 'Server'
         end
         object Label6: TLabel
-          Left = 136
+          Left = 152
           Top = 72
-          Width = 30
+          Width = 49
           Height = 16
           Caption = '          '
         end
@@ -456,7 +456,7 @@ object Form1: TForm1
           Caption = 'Executable:'
         end
         object Label9: TLabel
-          Left = 136
+          Left = 152
           Top = 88
           Width = 30
           Height = 16
