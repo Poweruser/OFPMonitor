@@ -15,6 +15,7 @@ class ProcessInfo {
 
                 ProcessInfo(DWORD pid, HWND hWindow, String title, String moduleName);
                 ProcessInfo();
+                clear();
 };
 
 class ProcessFinder {

@@ -403,7 +403,7 @@ int numOfServers = 0;
 
 class GameControl {
         private:
-                ProcessInfo *proc;
+                ProcessInfo proc;
                 int serverIndex;
                 String serverIP;
                 int serverPort;
@@ -426,7 +426,6 @@ class GameControl {
                         this->serverPort = 0;
                         this->serverIP = "";
                         this->serverIndex = -1;
-                        this->proc = NULL;
                         this->greenUpDelay = 10;
                         this->restoreOnCreating = false;
                         this->restoreOnWaiting = false;
@@ -435,7 +434,10 @@ class GameControl {
                         this->restoreOnDebriefing = false;
                 }
                 void setProcess(ProcessInfo *p) {
-                        this->proc = p;
+                        this->proc.pid = p->pid;
+                        this->proc.hWindow = p->hWindow;
+                        this->proc.title = p->title;
+                        this->proc.moduleName = p->moduleName;
                 }
 
                 void setServer(int id, String ip, int port) {
@@ -446,17 +448,19 @@ class GameControl {
 
                 bool verifyProcess() {
                         bool out = false;
-                        if(this->proc != NULL) {
+                        if(this->proc.pid > 0 &&
+                           !this->proc.title.IsEmpty() &&
+                           !this->proc.moduleName.IsEmpty()) {
                                 ProcessFinder *pf = new ProcessFinder();
                                 TStringList *startsWith = new TStringList();
-                                startsWith->Add(this->proc->title);
+                                startsWith->Add(this->proc.title);
                                 TStringList *modules = new TStringList();
-                                modules->Add(this->proc->moduleName);
+                                modules->Add(this->proc.moduleName);
                                 pf->enumerate(startsWith, modules);
                                 for (list<ProcessInfo>::iterator ci = pf->output.begin(); ci != pf->output.end(); ++ci) {
-                                        if((*ci).pid == this->proc->pid &&
-                                           (*ci).title == this->proc->title &&
-                                           (*ci).moduleName == this->proc->moduleName) {
+                                        if((*ci).pid == this->proc.pid &&
+                                           (*ci).title == this->proc.title &&
+                                           (*ci).moduleName == this->proc.moduleName) {
                                                 out = true;
                                         }                  
                                 }
@@ -464,55 +468,57 @@ class GameControl {
                                 delete startsWith;
                                 delete modules;
                                 if(!out) {
-                                        Form1->BUTTON_GAMECONTROL_REFRESH->Click();        
+                                        this->proc.clear();
+                                        Form1->BUTTON_GAMECONTROL_REFRESH->Click();
                                 }
                         }
                         return out;
                 }
 
                 bool verifyServer(int serverId) {
-                        bool out = false;
-                        if(         serverId >= 0 &&          serverId < SERVERARRAY_LENGTH &&
-                           this->serverIndex >= 0 && this->serverIndex < SERVERARRAY_LENGTH) {
-                                if(ServerArray[serverId].ip == this->serverIP &&
-                                   ServerArray[serverId].gamespyport == this->serverPort) {
-                                        out = true;
-                                }
+                        bool out = this->matchesServer(serverId);
+                        if(!out) {
+                                this->serverIndex = -1;
+                                this->serverPort = 0;
+                                this->serverIP = "";
+                                Form1->BUTTON_GAMECONTROL_REFRESH->Click();
                         }
                         return out;
                 }
 
                 void statusChange(int serverId, int oldStatus, int newStatus) {
-                        if(this->verifyProcess() && this->verifyServer(serverId)) {
-                                if(this->autoGreenUp) {
-                                        if(newStatus == SERVERSTATE_BRIEFING) {
-                                                if(!Form1->TimerAutoGreenUp->Enabled) {
-                                                        Form1->TimerAutoGreenUp->Interval = this->greenUpDelay * 1000;
-                                                        Form1->TimerAutoGreenUp->Tag = serverId;
-                                                        Form1->TimerAutoGreenUp->Enabled = true;
+                        if(this->matchesServer(serverId)) {
+                                if(this->verifyProcess() && this->verifyServer(serverId)) {
+                                        if(this->autoGreenUp) {
+                                                if(newStatus == SERVERSTATE_BRIEFING) {
+                                                        if(!Form1->TimerAutoGreenUp->Enabled) {
+                                                                Form1->TimerAutoGreenUp->Interval = this->greenUpDelay * 1000;
+                                                                Form1->TimerAutoGreenUp->Tag = serverId;
+                                                                Form1->TimerAutoGreenUp->Enabled = true;
+                                                        }
+                                                } else {
+                                                        Form1->TimerAutoGreenUp->Enabled = false;
+                                                        Form1->TimerAutoGreenUp->Tag = -1;
                                                 }
-                                        } else {
-                                                Form1->TimerAutoGreenUp->Enabled = false;
-                                                Form1->TimerAutoGreenUp->Tag = -1;
                                         }
-                                }
-                                if(this->restoreGame) {
-                                        if((oldStatus != SERVERSTATE_CREATING &&
-                                                newStatus == SERVERSTATE_CREATING &&
-                                                this->restoreOnCreating) ||
-                                                (oldStatus != SERVERSTATE_WAITING &&
-                                                newStatus == SERVERSTATE_WAITING &&
-                                                this->restoreOnWaiting) ||
-                                                (oldStatus != SERVERSTATE_BRIEFING &&
-                                                newStatus == SERVERSTATE_BRIEFING &&
-                                                this->restoreOnBriefing) ||
-                                                (oldStatus != SERVERSTATE_PLAYING &&
-                                                newStatus == SERVERSTATE_PLAYING &&
-                                                this->restoreOnPlaying) ||
-                                                (oldStatus != SERVERSTATE_DEBRIEFING &&
-                                                newStatus == SERVERSTATE_DEBRIEFING &&
-                                                this->restoreOnDebriefing)) {
-                                                        ShowWindowAsync(this->proc->hWindow, SW_RESTORE);
+                                        if(this->restoreGame) {
+                                                if((oldStatus != SERVERSTATE_CREATING &&
+                                                        newStatus == SERVERSTATE_CREATING &&
+                                                        this->restoreOnCreating) ||
+                                                        (oldStatus != SERVERSTATE_WAITING &&
+                                                        newStatus == SERVERSTATE_WAITING &&
+                                                        this->restoreOnWaiting) ||
+                                                        (oldStatus != SERVERSTATE_BRIEFING &&
+                                                        newStatus == SERVERSTATE_BRIEFING &&
+                                                        this->restoreOnBriefing) ||
+                                                        (oldStatus != SERVERSTATE_PLAYING &&
+                                                        newStatus == SERVERSTATE_PLAYING &&
+                                                        this->restoreOnPlaying) ||
+                                                        (oldStatus != SERVERSTATE_DEBRIEFING &&
+                                                        newStatus == SERVERSTATE_DEBRIEFING &&
+                                                        this->restoreOnDebriefing)) {
+                                                                ShowWindowAsync(this->proc.hWindow, SW_RESTORE);
+                                                }
                                         }
                                 }
                         }
@@ -541,22 +547,32 @@ class GameControl {
                 void sendGreenUpMessage(int serverId) {
                         if(this->verifyProcess() && this->verifyServer(serverId)) {
                                 if(ServerArray[serverId].gamestate == SERVERSTATE_BRIEFING) {
-                                        SendMessage(this->proc->hWindow, WM_KEYDOWN, VK_RETURN, NULL);
-                                        SendMessage(this->proc->hWindow, WM_KEYUP  , VK_RETURN, NULL);
+                                        SendMessage(this->proc.hWindow, WM_KEYDOWN, VK_RETURN, NULL);
+                                        SendMessage(this->proc.hWindow, WM_KEYUP  , VK_RETURN, NULL);
                                 }
                         }
                 }
 
-                ProcessInfo* getCurrentProcess() {
-                        return this->proc;
-                }
-
                 bool matchesProcess(ProcessInfo *p) {
                         bool out = false;
-                        if(this->proc != NULL) {
-                                if(this->proc->pid == p->pid &&
-                                   this->proc->title == p->title &&
-                                   this->proc->moduleName == p->moduleName) {
+                        if(this->proc.pid > 0 &&
+                           !this->proc.title.IsEmpty() &&
+                           !this->proc.moduleName.IsEmpty()) {
+                                if(this->proc.pid == p->pid &&
+                                   this->proc.title == p->title &&
+                                   this->proc.moduleName == p->moduleName) {
+                                        out = true;
+                                }
+                        }
+                        return out;
+                }
+
+                bool matchesServer(int serverId) {
+                        bool out = false;
+                        if(         serverId >= 0 &&          serverId < SERVERARRAY_LENGTH &&
+                           this->serverIndex >= 0 && this->serverIndex < SERVERARRAY_LENGTH) {
+                                if(ServerArray[serverId].ip == this->serverIP &&
+                                   ServerArray[serverId].gamespyport == this->serverPort) {
                                         out = true;
                                 }
                         }
@@ -2970,6 +2986,8 @@ void __fastcall TForm1::TimerAutoGreenUpTimer(TObject *Sender)
 
 void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
 {
+        Label6->Caption = "";
+        Label9->Caption = "";
         for(int i = 0; i < ComboBox1->Items->Count; i++) {
                 ProcessInfo *pi = (ProcessInfo*) ComboBox1->Items->Objects[i];
                 delete pi;
@@ -2991,7 +3009,7 @@ void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
                         ProcessInfo *p = new ProcessInfo((*proc).pid, (*proc).hWindow, (*proc).title, (*proc).moduleName);
                         ComboBox1->Items->AddObject(p->title, (TObject*) p);
                         if(gameControl.matchesProcess(p)) {
-                                ComboBox1->ItemIndex = ComboBox1->Items->Count;
+                                ComboBox1->ItemIndex = ComboBox1->Items->Count - 1;
                                 ComboBox1Change(ComboBox1);
                         }
                 }
@@ -2999,7 +3017,6 @@ void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
         delete pf;
         delete s;
         delete m;
-        ComboBox1->ItemIndex = -1;
         ComboBox2->Clear();
         for(int i = 0; i < SERVERARRAY_LENGTH; i++) {
                 if(ServerArray[i].ip.IsEmpty()) {
@@ -3007,13 +3024,12 @@ void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
                 }
                 if(!ServerArray[i].name.IsEmpty()) {
                         ComboBox2->Items->AddObject(ServerArray[i].name, (TObject*) i);
-                        if(gameControl.verifyServer(i)) {
-                                ComboBox2->ItemIndex = ComboBox2->Items->Count;
+                        if(gameControl.matchesServer(i)) {
+                                ComboBox2->ItemIndex = ComboBox2->Items->Count - 1;
                                 ComboBox2Change(ComboBox2);
                         }
                 }
         }
-        ComboBox2->ItemIndex = -1;
         updateGameControlGui();
 }
 //---------------------------------------------------------------------------
@@ -3025,8 +3041,8 @@ void __fastcall TForm1::ComboBox1Change(TObject *Sender)
                 if(p != NULL) {
                         Label6->Caption = IntToStr(p->pid);
                         Label9->Caption = p->moduleName;
+                        gameControl.setProcess(p);
                 }
-                gameControl.setProcess(p);
         }
         updateGameControlGui();
 }
@@ -3035,7 +3051,7 @@ void __fastcall TForm1::ComboBox1Change(TObject *Sender)
 void __fastcall TForm1::ComboBox2Change(TObject *Sender)
 {
         if(ComboBox2->ItemIndex > -1) {
-                int id = (int) ComboBox2->Items->Objects[ComboBox2->ItemIndex];
+                int id = (int) (ComboBox2->Items->Objects[ComboBox2->ItemIndex]);
                 if(id >= 0 && id < SERVERARRAY_LENGTH) {
                         gameControl.setServer(id, ServerArray[id].ip, ServerArray[id].gamespyport);
                 }

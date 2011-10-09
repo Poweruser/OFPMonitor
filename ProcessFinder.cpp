@@ -16,7 +16,16 @@ ProcessInfo::ProcessInfo(DWORD pid, HWND hWindow, String title, String moduleNam
         this->moduleName = moduleName;
 }
 
-ProcessInfo::ProcessInfo() { }
+ProcessInfo::ProcessInfo() {
+        this->clear();
+}
+
+ProcessInfo::clear() {
+        this->pid = 0;
+        this->hWindow = 0;
+        this->title = "";
+        this->moduleName = "";
+}
 
 bool CALLBACK MyEnumWindowsProc(HWND hWnd, LPARAM lParam) {
         DWORD PID = 0;
