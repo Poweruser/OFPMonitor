@@ -427,6 +427,7 @@ class GameControl {
                         this->serverIP = "";
                         this->serverIndex = -1;
                         this->greenUpDelay = 10;
+                        this->greenUpRepeat = true;
                         this->restoreOnCreating = false;
                         this->restoreOnWaiting = false;
                         this->restoreOnBriefing = false;
