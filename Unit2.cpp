@@ -507,7 +507,7 @@ class Settings {
                         this->changed = true;
                 }
 
-                void writeToFile(list<ServerItem> &servers, list<String> &font, list<String> &window, list<String> &chat) {
+                void writeToFile(list<ServerItem> &servers, list<String> &otherSettings) {
                         if(this->changed) {
                                 TStringList *file = new TStringList;
                                 file->Add("[General]");
@@ -525,7 +525,14 @@ class Settings {
                                                 if(i == GAMEID_OFPRES) { file->Add("Name = OFP:RES"); }
                                                 if(i == GAMEID_ARMACWA) { file->Add("Name = ARMA:CWA"); }
                                                 file->Add("Exe = " + this->games[i].exe);
-                                                if(!this->games[i].player.IsEmpty()) { file->Add("LastPlayer = " + this->games[i].player); }
+                                                if(!this->games[i].player.IsEmpty()) {
+                                                        String lp = this->games[i].player;
+                                                        if(lp.SubString(1          , 1) == " " ||
+                                                           lp.SubString(lp.Length(), 1) == " ") {
+                                                                lp = "\"" + lp + "\"";
+                                                        }
+                                                        file->Add("LastPlayer = " + lp);
+                                                }
                                                 file->Add("[\\Game]");
                                         }
                                 }
@@ -557,21 +564,10 @@ class Settings {
                                 file->Add("PlayerName = " + Form1->Edit4->Text);
                                 file->Add("[\\Filters]");
                                 String tmp;
-                                while(font.size() > 0) {
-                                        tmp = font.front();
+                                while(otherSettings.size() > 0) {
+                                        tmp = otherSettings.front();
                                         file->Add(tmp);
-                                        font.pop_front();
-                                }
-                                while(window.size() > 0) {
-                                        tmp = window.front();
-                                        file->Add(tmp);
-                                        window.pop_front();
-                                }
-
-                                while(chat.size() > 0) {
-                                        tmp = chat.front();
-                                        file->Add(tmp);
-                                        chat.pop_front();
+                                        otherSettings.pop_front();
                                 }
 
                                 if (servers.size() > 0) {
@@ -709,8 +705,8 @@ String TWINDOW_SETTINGS::getSetGameFullName(int gameid) {
         return "";
 }
 
-void TWINDOW_SETTINGS::writeSettingToFile(list<ServerItem> servers, list<String> font, list<String> window, list<String> chat) {
-        programSettings.writeToFile(servers, font, window, chat);
+void TWINDOW_SETTINGS::writeSettingToFile(list<ServerItem> servers, list<String> otherSettings) {
+        programSettings.writeToFile(servers, otherSettings);
 }
 
 void TWINDOW_SETTINGS::setCustomNotifications(bool active) {
@@ -824,6 +820,27 @@ String getValue(String in) {
                 }
         }
         return out;
+}
+
+String extractNameFromValue(String in) {
+        int start = 0;
+        int end = 0;
+        for(int i = 1; i < in.Length(); i++) {
+                if(in.SubString(i, 1) == "\"") {
+                        start = i;
+                        break;
+                }
+        }
+        for(int i = in.Length(); i > start; i--) {
+                if(in.SubString(i, 1) == "\"") {
+                        end = i;
+                        break;
+                }
+        }
+        if(end && start) {
+                return in.SubString(start + 1, end - (start + 1));
+        }
+        return in;
 }
 
 /**
@@ -1175,38 +1192,38 @@ list<ServerItem> readConfigFile() {
                 file->LoadFromFile(programSettings.file);
                 for(int i = 0; i < file->Count; i++) {
                         String tmp = file->Strings[i].Trim();
-                        if(tmp.SubString(1,9) == "[General]") {
+                        if(tmp.AnsiPos("[General]") == 1) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
-                                while(tmp.SubString(1,10) != "[\\General]" && i < file->Count - 1) {
-                                        if((tmp.SubString(1,8) == "Interval")) {
+                                while(tmp.AnsiPos("[\\General]") != 1 && i < file->Count - 1) {
+                                        if(tmp.AnsiPos("Interval") == 1) {
                                                 interval = getValue(tmp);
-                                        } else if((tmp.SubString(1,8) == "LangFile")) {
+                                        } else if(tmp.AnsiPos("LangFile") == 1) {
                                                 langfile = getValue(tmp);
-                                        } else if((tmp.SubString(1,19) == "customNotifications")) {
+                                        } else if(tmp.AnsiPos("customNotifications") == 1) {
                                                 notify = getValue(tmp);
-                                        } else if((tmp.SubString(1,14) == "BandwidthUsage")) {
+                                        } else if(tmp.AnsiPos("BandwidthUsage") == 1) {
                                                 try {
                                                         bandwidthUsage = StrToInt(getValue(tmp));
                                                 } catch (...) {}
-                                        } else if((tmp.SubString(1,18) == "checkUpdateAtStart")) {
+                                        } else if(tmp.AnsiPos("checkUpdateAtStart") == 1) {
                                                 checkUpdate = getValue(tmp);
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
-                        } else if((tmp.SubString(1,6) == "[Game]")) {
+                        } else if(tmp.AnsiPos("[Game]") == 1) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
                                 int gameid = -1;
                                 String player = "", exe;
 
-                                while(tmp.SubString(1,7) != "[\\Game]" && i < file->Count -1) {
-                                        if(tmp.SubString(1,3) == "Exe") {
+                                while(tmp.AnsiPos("[\\Game]") != 1 && i < file->Count -1) {
+                                        if(tmp.AnsiPos("Exe") == 1) {
                                                 exe = getValue(tmp);
-                                        } else if(tmp.SubString(1,10) == "LastPlayer") {
-                                                player = getValue(tmp);
-                                        } else if(tmp.SubString(1,4) == "Name") {
+                                        } else if(tmp.AnsiPos("LastPlayer") == 1) {
+                                                player = extractNameFromValue(getValue(tmp));
+                                        } else if(tmp.AnsiPos("Name") == 1) {
                                                 String n = getValue(tmp);
                                                 gameid = getGameId(n);
                                         }
@@ -1217,22 +1234,22 @@ list<ServerItem> readConfigFile() {
                                         programSettings.setGame(gameid, exe, player);
                                         gameSet = true;
                                 }
-                        } else if((tmp.SubString(1,6) == "[Conf]")) {
+                        } else if(tmp.AnsiPos("[Conf]") == 1) {
                                 Configuration c = Configuration();
                                 c.set = true;
                                 i++;
                                 tmp = file->Strings[i].Trim();
                                 int gameid = 1;
-                                while((tmp.SubString(1,7) != "[\\Conf]") && i < file->Count - 1) {
-                                        if((tmp.SubString(1,8) == "Password")) {
+                                while(tmp.AnsiPos("[\\Conf]") != 1 && i < file->Count - 1) {
+                                        if(tmp.AnsiPos("Password") == 1) {
                                                 c.password = getValue(tmp);
-                                        } else if((tmp.SubString(1,4) == "Mods")) {
+                                        } else if(tmp.AnsiPos("Mods") == 1) {
                                                 c.mods = Form1->splitUpMessage(getValue(tmp), ";");
-                                        } else if((tmp.SubString(1,10) == "Parameters")) {
+                                        } else if(tmp.AnsiPos("Parameters") == 1) {
                                                 c.addParameters = Form1->splitUpMessage(getValue(tmp), " ");
-                                        } else if((tmp.SubString(1,5) == "Label")) {
+                                        } else if(tmp.AnsiPos("Label") == 1) {
                                                 c.label = getValue(tmp);
-                                        } else if((tmp.SubString(1,4) == "Game")) {
+                                        } else if(tmp.AnsiPos("Game") == 1) {
                                                 gameid = getGameId(getValue(tmp));
                                         }
                                         i++;
@@ -1240,10 +1257,10 @@ list<ServerItem> readConfigFile() {
                                 }
                                 c.gameid = gameid;
                                 programSettings.pSaddConf(gameid, c);
-                        } else if((tmp.SubString(1,9) == "[Servers]")) {
+                        } else if(tmp.AnsiPos("[Servers]") == 1) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
-                                while((tmp.SubString(1,10) != "[\\Servers]") && i < file->Count - 1) {
+                                while(tmp.AnsiPos("[\\Servers]") != 1 && i < file->Count - 1) {
                                         if(tmp.Length() > 8) {
                                                 list<String> z = Form1->splitUpMessage(tmp, ";");
                                                 ServerItem *sI = new ServerItem(z.front());
@@ -1259,69 +1276,69 @@ list<ServerItem> readConfigFile() {
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
-                        } else if((tmp.SubString(1,9) == "[Filters]")) {
+                        } else if(tmp.AnsiPos("[Filters]") == 1) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
-                                while((tmp.SubString(1,10) != "[\\Filters]") && i < file->Count - 1) {
-                                        if((tmp.SubString(1,7) == "Playing")) {
+                                while(tmp.AnsiPos("[\\Filters]") != 1 && i < file->Count - 1) {
+                                        if(tmp.AnsiPos("Playing") == 1) {
                                                 Form1->CHECKBOX_FILTER_PLAYING->Checked = checkBool2(getValue(tmp));
-                                        } else if((tmp.SubString(1,7) == "Waiting")) {
+                                        } else if(tmp.AnsiPos("Waiting") == 1) {
                                                 Form1->CHECKBOX_FILTER_WAITING->Checked = checkBool2(getValue(tmp));
-                                        } else if((tmp.SubString(1,8) == "Creating")) {
+                                        } else if(tmp.AnsiPos("Creating") == 1) {
                                                 Form1->CHECKBOX_FILTER_CREATING->Checked = checkBool2(getValue(tmp));
-                                        } else if((tmp.SubString(1,9) == "Settingup")) {
+                                        } else if(tmp.AnsiPos("Settingup") == 1) {
                                                 Form1->CHECKBOX_FILTER_SETTINGUP->Checked = checkBool2(getValue(tmp));
-                                        } else if((tmp.SubString(1,8) == "Briefing")) {
+                                        } else if(tmp.AnsiPos("Briefing") == 1) {
                                                 Form1->CHECKBOX_FILTER_BRIEFING->Checked = checkBool2(getValue(tmp));
-                                        } else if((tmp.SubString(1,10) == "Debriefing")) {
+                                        } else if(tmp.AnsiPos("Debriefing") == 1) {
                                                 Form1->CHECKBOX_FILTER_DEBRIEFING->Checked = checkBool2(getValue(tmp));
-                                        } else if((tmp.SubString(1,6) == "WithPW")) {
+                                        } else if(tmp.AnsiPos("WithPW") == 1) {
                                                 Form1->CHECKBOX_FILTER_WITHPASSWORD->Checked = checkBool2(getValue(tmp));
-                                        } else if((tmp.SubString(1,9) == "WithoutPW")) {
+                                        } else if(tmp.AnsiPos("WithoutPW") == 1) {
                                                 Form1->CHECKBOX_FILTER_WITHOUTPASSWORD->Checked = checkBool2(getValue(tmp));
-                                        } else if((tmp.SubString(1,10) == "minPlayers")) {
+                                        } else if(tmp.AnsiPos("minPlayers") == 1) {
                                                 try {
                                                         int i = StrToInt(getValue(tmp));
                                                         Form1->UpDown1->Position = i;
                                                 } catch (...) {}
-                                        } else if((tmp.SubString(1,10) == "ServerName")) {
+                                        } else if(tmp.AnsiPos("ServerName") == 1) {
                                                 Form1->Edit2->Text = getValue(tmp);
-                                        } else if((tmp.SubString(1,11) == "MissionName")) {
+                                        } else if(tmp.AnsiPos("MissionName") == 1) {
                                                 Form1->Edit1->Text = getValue(tmp);
-                                        } else if((tmp.SubString(1,10) == "PlayerName")) {
+                                        } else if(tmp.AnsiPos("PlayerName") == 1) {
                                                 Form1->Edit4->Text = getValue(tmp);
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
-                        } else if((tmp.SubString(1,14) == "[FontSettings]")) {
+                        } else if(tmp.AnsiPos("[FontSettings]") == 1) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
                                 int charset = 0;
                                 String name = "";
                                 int size = 0;
                                 bool bold = false, italic = false;
-                                while((tmp.SubString(1,15) != "[\\FontSettings]") && i < file->Count - 1) {
-                                        if((tmp.SubString(1,4) == "Name")) {
+                                while(tmp.AnsiPos("[\\FontSettings]") != 1 && i < file->Count - 1) {
+                                        if(tmp.AnsiPos("Name")) {
                                                 name = getValue(tmp);
-                                        } else if((tmp.SubString(1,7) == "Charset")) {
+                                        } else if(tmp.AnsiPos("Charset") == 1) {
                                                 try {
                                                         charset = StrToInt(getValue(tmp));
                                                 } catch (...) {}
-                                        } else if((tmp.SubString(1,4) == "Size")) {
+                                        } else if(tmp.AnsiPos("Size") == 1) {
                                                 try {
                                                         size = StrToInt(getValue(tmp));
                                                 } catch (...) {}
-                                        } else if((tmp.SubString(1,4) == "Bold")) {
+                                        } else if(tmp.AnsiPos("Bold") == 1) {
                                                 bold = checkBool2(getValue(tmp));
-                                        } else if((tmp.SubString(1,6) == "Italic")) {
+                                        } else if(tmp.AnsiPos("Italic") == 1) {
                                                 italic = checkBool2(getValue(tmp));
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
                                 Form1->setFont(name, size, charset,bold,italic);
-                        } else if((tmp.SubString(1,14) == "[ChatSettings]")) {
+                        } else if(tmp.AnsiPos("[ChatSettings]") == 1) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
                                 String host = "irc.freenode.net";
@@ -1329,28 +1346,28 @@ list<ServerItem> readConfigFile() {
                                 int port = 6666;
                                 String user = "";
                                 bool autoConnect = false;
-                                while((tmp.SubString(1,15) != "[\\ChatSettings]") && i < file->Count - 1) {
-                                        if((tmp.SubString(1,11) == "AutoConnect")) {
+                                while(tmp.AnsiPos("[\\ChatSettings]") != 1 && i < file->Count - 1) {
+                                        if(tmp.AnsiPos("AutoConnect") == 1) {
                                                 autoConnect = checkBool2(getValue(tmp));
-                                        } else if((tmp.SubString(1,4) == "Host")) {
+                                        } else if(tmp.AnsiPos("Host") == 1) {
                                                 host = getValue(tmp);
-                                        } else if((tmp.SubString(1,4) == "Port")) {
+                                        } else if(tmp.AnsiPos("Port") == 1) {
                                                 try {
                                                         port = StrToInt(getValue(tmp));
                                                 } catch (...) {}
-                                        } else if((tmp.SubString(1,7) == "Channel")) {
+                                        } else if(tmp.AnsiPos("Channel") == 1) {
                                                 channel = getValue(tmp);
                                                 if(channel.SubString(1,1) != "#") {
                                                         channel = "#" + channel;
                                                 }
-                                        } else if((tmp.SubString(1,8) == "UserName")) {
-                                                user = getValue(tmp);
+                                        } else if(tmp.AnsiPos("UserName") == 1) {
+                                                user = extractNameFromValue(getValue(tmp));
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
                                 Form1->setChat(host, port, channel, user, autoConnect);
-                        } else if((tmp.SubString(1,16) == "[WindowSettings]")) {
+                        } else if(tmp.AnsiPos("[WindowSettings]") == 1) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
                                 int     top = 0,
@@ -1370,38 +1387,38 @@ list<ServerItem> readConfigFile() {
                                         ratioDE = 0.0f,
                                         ratioTE = 0.0f;
                                         
-                                while((tmp.SubString(1,17) != "[\\WindowSettings]") && i < file->Count - 1) {
-                                        if((tmp.SubString(1,4) == "Left")) {
+                                while(tmp.AnsiPos("[\\WindowSettings]") != 1 && i < file->Count - 1) {
+                                        if(tmp.AnsiPos("Left") == 1) {
                                                 try {   left = StrToInt(getValue(tmp));  }catch(...) {}
-                                        } else if((tmp.SubString(1,3) == "Top")) {
+                                        } else if(tmp.AnsiPos("Top") == 1) {
                                                 try {   top = StrToInt(getValue(tmp));  }catch(...) {}
-                                        } else if((tmp.SubString(1,5) == "Width")) {
+                                        } else if(tmp.AnsiPos("Width") == 1) {
                                                 try {   width = StrToInt(getValue(tmp));  }catch(...) {}
-                                        } else if((tmp.SubString(1,6) == "Height")) {
+                                        } else if(tmp.AnsiPos("Height") == 1) {
                                                 try {   height = StrToInt(getValue(tmp));  }catch(...) {}
-                                        } else if((tmp.SubString(1,7) == "ratioID")) {
+                                        } else if(tmp.AnsiPos("ratioID") == 1) {
                                                 try {   ratioID = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if((tmp.SubString(1,7) == "ratioSN")) {
+                                        } else if(tmp.AnsiPos("ratioSN") == 1) {
                                                 try {   ratioSN = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if((tmp.SubString(1,7) == "ratioPN")) {
+                                        } else if(tmp.AnsiPos("ratioPN") == 1) {
                                                 try {   ratioPN = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if((tmp.SubString(1,7) == "ratioST")) {
+                                        } else if(tmp.AnsiPos("ratioST") == 1) {
                                                 try {   ratioST = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if((tmp.SubString(1,7) == "ratioIS")) {
+                                        } else if(tmp.AnsiPos("ratioIS") == 1) {
                                                 try {   ratioIS = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.SubString(1,7) == "ratioMN") {
+                                        } else if(tmp.AnsiPos("ratioMN") == 1) {
                                                 try {   ratioMN = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.SubString(1,7) == "ratioPI") {
+                                        } else if(tmp.AnsiPos("ratioPI") == 1) {
                                                 try {   ratioPI = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.SubString(1,7) == "ratioPL") {
+                                        } else if(tmp.AnsiPos("ratioPL") == 1) {
                                                 try {   ratioPL = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.SubString(1,7) == "ratioSC") {
+                                        } else if(tmp.AnsiPos("ratioSC") == 1) {
                                                 try {   ratioSC = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.SubString(1,7) == "ratioDE") {
+                                        } else if(tmp.AnsiPos("ratioDE") == 1) {
                                                 try {   ratioDE = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.SubString(1,7) == "ratioTE") {
+                                        } else if(tmp.AnsiPos("ratioTE") == 1) {
                                                 try {   ratioTE = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.SubString(1,7) == "devider") {
+                                        } else if(tmp.AnsiPos("devider") == 1) {
                                                 try {   devider = atof(getValue(tmp).c_str());  }catch(...) {}
                                         }
                                         i++;
@@ -1422,46 +1439,71 @@ list<ServerItem> readConfigFile() {
                                         ratioTE,
                                         devider);
 
-                        } else if((tmp.SubString(1,20) == "[CustomNotification]")) {
+                        } else if(tmp.AnsiPos("[CustomNotification]") == 1) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
                                 list<String> mission, server, player;
                                 String name = "Unnamed", soundFile = "", color = clWindow;
                                 int statusFilter = 0, volume = 100, minPlayers = -1, maxPlayers = -1, start = 0, end = -1, repeat = 0;
-                                while((tmp.SubString(1,21) != "[\\CustomNotification]") && i < file->Count - 1) {
-                                        if((tmp.SubString(1,4) == "name")) {
+                                while(tmp.AnsiPos("[\\CustomNotification]") != 1 && i < file->Count - 1) {
+                                        if(tmp.AnsiPos("name") == 1) {
                                                 name = getValue(tmp);
-                                        } else if((tmp.SubString(1,13) == "missionFilter")) {
+                                        } else if(tmp.AnsiPos("missionFilter") == 1) {
                                                 mission = Form1->splitUpMessage(getValue(tmp),";");
-                                        } else if((tmp.SubString(1,12) == "serverFilter")) {
+                                        } else if(tmp.AnsiPos("serverFilter") == 1) {
                                                 server = Form1->splitUpMessage(getValue(tmp),";");
-                                        } else if((tmp.SubString(1,12) == "playerFilter")) {
+                                        } else if(tmp.AnsiPos("playerFilter") == 1) {
                                                 player = Form1->splitUpMessage(getValue(tmp),";");
-                                        } else if((tmp.SubString(1,12) == "statusFilter")) {
+                                        } else if(tmp.AnsiPos("statusFilter") == 1) {
                                                 try {   statusFilter = StrToInt(getValue(tmp));  }catch(...) {}
-                                        } else if((tmp.SubString(1,9) == "soundFile")) {
+                                        } else if(tmp.AnsiPos("soundFile") == 1) {
                                                 soundFile = getValue(tmp);
-                                        } else if((tmp.SubString(1,14) == "playbackVolume")) {
+                                        } else if(tmp.AnsiPos("playbackVolume") == 1) {
                                                 try { volume = StrToInt(getValue(tmp)); } catch (...) {}
-                                        } else if((tmp.SubString(1,13) == "playbackStart")) {
+                                        } else if(tmp.AnsiPos("playbackStart") == 1) {
                                                 try { start = StrToInt(getValue(tmp)); } catch (...) {}
-                                        } else if((tmp.SubString(1,11) == "playbackEnd")) {
+                                        } else if(tmp.AnsiPos("playbackEnd") == 1) {
                                                 try { end = StrToInt(getValue(tmp)); } catch (...) {}
-                                        } else if((tmp.SubString(1,12) == "markingColor")) {
+                                        } else if(tmp.AnsiPos("markingColor") == 1) {
                                                 color = getValue(tmp);
-                                        } else if((tmp.SubString(1,14) == "minimumPlayers")) {
+                                        } else if(tmp.AnsiPos("minimumPlayers") == 1) {
                                                 try { minPlayers = StrToInt(getValue(tmp)); } catch (...) {}
-                                        } else if((tmp.SubString(1,14) == "maximumPlayers")) {
+                                        } else if(tmp.AnsiPos("maximumPlayers") == 1) {
                                                 try { maxPlayers = StrToInt(getValue(tmp)); } catch (...) {}
-                                        } else if((tmp.SubString(1,6) == "repeat")) {
+                                        } else if(tmp.AnsiPos("repeat") == 1) {
                                                 try { repeat = StrToInt(getValue(tmp)); } catch (...) {}
                                         }
                                         i++;
                                         tmp = file->Strings[i].Trim();
                                 }
                                 WINDOW_SETTINGS->addCustomNotification(name, statusFilter, mission, server, player,
-                                        minPlayers, maxPlayers, soundFile, volume, start, end, color, repeat);                                  
+                                        minPlayers, maxPlayers, soundFile, volume, start, end, color, repeat);
 
+                        } else if(tmp.AnsiPos("[Automation]") == 1) {
+                                i++;
+                                tmp = file->Strings[i].Trim();
+                                int delay = 10;
+                                bool repeat = true, rOnC = false, rOnW = false, rOnB = false, rOnP = false, rOnD = false;
+                                while(tmp.AnsiPos("[\\Automation]") != 1 && i < file->Count - 1) {
+                                        if(tmp.AnsiPos("BriefingConfirmationDelay") == 1) {
+                                                try { delay = StrToInt(getValue(tmp)); } catch (...) {}
+                                        } else if(tmp.AnsiPos("BriefingConfirmationRepeat") == 1) {
+                                                try { repeat = checkBool2(StrToInt(getValue(tmp))); } catch (...) {}
+                                        } else if(tmp.AnsiPos("RestoreOnCreating") == 1) {
+                                                try { rOnC = checkBool2(StrToInt(getValue(tmp))); } catch (...) {}
+                                        } else if(tmp.AnsiPos("RestoreOnWaiting") == 1) {
+                                                try { rOnW = checkBool2(StrToInt(getValue(tmp))); } catch (...) {}
+                                        } else if(tmp.AnsiPos("RestoreOnBriefing") == 1) {
+                                                try { rOnB = checkBool2(StrToInt(getValue(tmp))); } catch (...) {}
+                                        } else if(tmp.AnsiPos("RestoreOnPlaying") == 1) {
+                                                try { rOnP = checkBool2(StrToInt(getValue(tmp))); } catch (...) {}
+                                        } else if(tmp.AnsiPos("RestoreOnDebriefing") == 1) {
+                                                try { rOnD = checkBool2(StrToInt(getValue(tmp))); } catch (...) {}
+                                        }
+                                        i++;
+                                        tmp = file->Strings[i].Trim();
+                                }
+                                Form1->setGameControlSettings(delay, repeat, rOnC, rOnW, rOnB, rOnP, rOnD);
                         }
                 }
                 delete file;
@@ -2382,7 +2424,7 @@ void __fastcall TWINDOW_SETTINGS::FormClose(TObject *Sender, TCloseAction &Actio
                 Form1->setChat(EDIT_CHAT_IRCSERVER_ADDRESS->Text,
                 StrToInt(EDIT_CHAT_IRCSERVER_PORT->Text),
                 EDIT_CHAT_IRCSERVER_CHANNEL->Text,
-                COMBOBOX_CHAT_USERNAME->Text,
+                COMBOBOX_CHAT_USERNAME->Text.TrimRight(),
                 CHECKBOX_CHAT_AUTOCONNECT->Checked);
         } catch (...) {}
 }

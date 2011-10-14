@@ -545,7 +545,7 @@ object Form1: TForm1
           TabOrder = 3
           Thousands = False
           Wrap = False
-          OnChanging = UpDown2Changing
+          OnChangingEx = UpDown2ChangingEx
         end
         object CHECKBOX_GAMECONTROL_AUTOGREENUP: TCheckBox
           Left = 4

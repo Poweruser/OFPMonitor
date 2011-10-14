@@ -411,6 +411,10 @@ class GameControl {
                 int greenUpDelay;
                 bool greenUpRepeat;
 
+                String checkBool(bool in) {
+                        if(in) { return "1"; }
+                        return "0";
+                }
         public:
 
                 bool restoreGame;
@@ -533,6 +537,10 @@ class GameControl {
                         return this->greenUpRepeat;
                 }
 
+                int getGreenUpDelay() {
+                        return this->greenUpDelay;
+                }
+
                 void enableAutoGreenUp(bool enabled) {
                         this->autoGreenUp = enabled;
                 }
@@ -542,7 +550,14 @@ class GameControl {
                 }
 
                 void setGreenUpDelay(int delay) {
-                        this->greenUpDelay = delay;
+                        int toset = delay;
+                        if(delay < Form1->UpDown2->Min) {
+                                toset = Form1->UpDown2->Min;
+                        }
+                        if(delay > Form1->UpDown2->Max) {
+                                toset = Form1->UpDown2->Max;
+                        }
+                        this->greenUpDelay = toset;
                 }
 
                 void sendGreenUpMessage(int serverId) {
@@ -577,6 +592,20 @@ class GameControl {
                                         out = true;
                                 }
                         }
+                        return out;
+                }
+
+                list<String> createFileEntry() {
+                        list<String> out;
+                        out.push_back("[Automation]");
+                        out.push_back("BriefingConfirmationDelay = " + IntToStr(this->greenUpDelay));
+                        out.push_back("BriefingConfirmationRepeat = " + this->checkBool(this->greenUpRepeat));
+                        out.push_back("RestoreOnCreating = " + this->checkBool(this->restoreOnCreating));
+                        out.push_back("RestoreOnWaiting = " + this->checkBool(this->restoreOnWaiting));
+                        out.push_back("RestoreOnBriefing = " + this->checkBool(this->restoreOnBriefing));
+                        out.push_back("RestoreOnPlaying = " + this->checkBool(this->restoreOnPlaying));
+                        out.push_back("RestoreOnDebriefing = " + this->checkBool(this->restoreOnDebriefing));
+                        out.push_back("[\\Automation]");
                         return out;
                 }
 };
@@ -642,6 +671,16 @@ void TForm1::setWindowSettings(int top,int left,int height, int width, float rat
 void TForm1::setFont(String name, int size, int charset,
                         bool bold, bool italic) {
         fontsettings = FontSettings(name, size, charset, bold, italic);
+}
+
+void TForm1::setGameControlSettings(int delay, bool repeat, bool rOnC, bool rOnW, bool rOnB, bool rOnP, bool rOnD) {
+        gameControl.setGreenUpDelay(delay);
+        gameControl.setGreenUpRepeat(repeat);
+        gameControl.restoreOnCreating = rOnC;
+        gameControl.restoreOnWaiting = rOnW;
+        gameControl.restoreOnBriefing = rOnB;
+        gameControl.restoreOnPlaying = rOnP;
+        gameControl.restoreOnDebriefing = rOnD;
 }
 
 /**
@@ -1762,7 +1801,12 @@ class ChatSettings {
                         output.push_back("Host = " + this->host);
                         output.push_back("Port = " + String(this->port));
                         output.push_back("Channel = " + this->channel);
-                        output.push_back("UserName = " + this->userName);
+                        String n = this->userName;
+                        if(n.SubString(1          , 1) == " " ||
+                           n.SubString(n.Length(), 1) == " ") {
+                                n = "\"" + n + "\"";
+                        }
+                        output.push_back("UserName = " + n);
                         output.push_back("AutoConnect = " + this->checkBool(this->autoConnect));
                         output.push_back("[\\ChatSettings]");
                         return output;
@@ -1938,15 +1982,24 @@ void updateGameControlGui() {
         }
         Form1->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE->Enabled = selected;
         Form1->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT->Enabled = selected;
+        bool repeatedGreenUp = gameControl.getGreenUpRepeat();
+        Form1->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE->Checked = !repeatedGreenUp;
+        Form1->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT->Checked = repeatedGreenUp;
         Form1->CHECKBOX_GAMECONTROL_RESTORE_CREATING->Enabled = selected;
+        Form1->CHECKBOX_GAMECONTROL_RESTORE_CREATING->Checked = gameControl.restoreOnCreating;
         Form1->CHECKBOX_GAMECONTROL_RESTORE_WAITING->Enabled = selected;
+        Form1->CHECKBOX_GAMECONTROL_RESTORE_WAITING->Checked = gameControl.restoreOnWaiting;
         Form1->CHECKBOX_GAMECONTROL_RESTORE_BRIEFING->Enabled = selected;
+        Form1->CHECKBOX_GAMECONTROL_RESTORE_BRIEFING->Checked = gameControl.restoreOnBriefing;
         Form1->CHECKBOX_GAMECONTROL_RESTORE_PLAYING->Enabled = selected;
+        Form1->CHECKBOX_GAMECONTROL_RESTORE_PLAYING->Checked = gameControl.restoreOnPlaying;
         Form1->CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Enabled = selected;
+        Form1->CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Checked = gameControl.restoreOnDebriefing;
         Form1->CHECKBOX_GAMECONTROL_AUTOGREENUP->Enabled = selected;
         Form1->CHECKBOX_GAMECONTROL_RESTORE->Enabled = selected;
         Form1->LABEL_GAMECONTROL_AUTOGREENUP_DELAY->Enabled = selected;
         Form1->UpDown2->Enabled = selected;
+        Form1->UpDown2->Position = gameControl.getGreenUpDelay();
         Form1->Edit5->Enabled = selected;
         Form1->ComboBox1->Enabled = !(Form1->ComboBox1->Items->Count == 0);
         Form1->ComboBox2->Enabled = !(Form1->ComboBox2->Items->Count == 0);
@@ -2047,7 +2100,12 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
                 ServerItem *sI = ServerArray[i].createServerItem();
                 servers.push_back((*sI));
         }
-        WINDOW_SETTINGS->writeSettingToFile(servers, fontsettings.createFileEntry(), windowsettings.createFileEntry(), chatsettings.createFileEntry());
+        list<String> otherSettings;
+        mergeLists(otherSettings, fontsettings.createFileEntry());
+        mergeLists(otherSettings, windowsettings.createFileEntry());
+        mergeLists(otherSettings, chatsettings.createFileEntry());
+        mergeLists(otherSettings, gameControl.createFileEntry());
+        WINDOW_SETTINGS->writeSettingToFile(servers, otherSettings);
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::BUTTON_SERVERINFO_COPYADDRESSClick(TObject *Sender)
@@ -2956,13 +3014,13 @@ void __fastcall TForm1::Close1Click(TObject *Sender)
 
 void __fastcall TForm1::RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCEClick(TObject *Sender)
 {
-        gameControl.setGreenUpRepeat(RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE->Checked);
+        gameControl.setGreenUpRepeat(false);
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TForm1::RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEATClick(TObject *Sender)
 {
-        gameControl.setGreenUpRepeat(RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT->Checked);        
+        gameControl.setGreenUpRepeat(true);        
 }
 //---------------------------------------------------------------------------
                    
@@ -3024,7 +3082,7 @@ void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
                 if(ServerArray[i].ip.IsEmpty()) {
                         break;
                 }
-                if(!ServerArray[i].name.IsEmpty()) {
+                if(!ServerArray[i].name.IsEmpty() && !ServerArray[i].blocked) {
                         ComboBox2->Items->AddObject(ServerArray[i].name, (TObject*) i);
                         if(gameControl.matchesServer(i)) {
                                 ComboBox2->ItemIndex = ComboBox2->Items->Count - 1;
@@ -3098,17 +3156,10 @@ void __fastcall TForm1::CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFINGClick(TObject *Se
 }
 //---------------------------------------------------------------------------
 
-
-void __fastcall TForm1::UpDown2Changing(TObject *Sender, bool &AllowChange)
+void __fastcall TForm1::UpDown2ChangingEx(TObject *Sender,
+      bool &AllowChange, short NewValue, TUpDownDirection Direction)
 {
-        gameControl.setGreenUpDelay(UpDown2->Position);        
+        gameControl.setGreenUpDelay(NewValue);
 }
 //---------------------------------------------------------------------------
-
-
-
-
-
-
-
 

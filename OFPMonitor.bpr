@@ -80,7 +80,7 @@ AutoIncBuild=0
 MajorVer=1
 MinorVer=6
 Release=2
-Build=0
+Build=1
 Debug=0
 PreRelease=0
 Special=0
@@ -92,7 +92,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=by Poweruser
 FileDescription=OFP Server monitoring tool
-FileVersion=1.6.2.0
+FileVersion=1.6.2.1
 InternalName=OFPMonitor
 LegalCopyright=(c) Poweruser
 LegalTrademarks=

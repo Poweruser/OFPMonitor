@@ -275,7 +275,7 @@ public:		// User declarations
         String TWINDOW_SETTINGS::getPlayerName(int actVer, int reqVer);
         String TWINDOW_SETTINGS::getSetGameFullName(int gameid);
         String TWINDOW_SETTINGS::getFolder(String in);
-        void TWINDOW_SETTINGS::writeSettingToFile(list<ServerItem> servers, list<String> font, list<String> window, list<String> chat);
+        void TWINDOW_SETTINGS::writeSettingToFile(list<ServerItem> servers, list<String> otherSettings);
         void TWINDOW_SETTINGS::setSettingsChanged();
         void TWINDOW_SETTINGS::setCustomNotifications(bool active);
         bool TWINDOW_SETTINGS::areCustomNotificationsEnabled();

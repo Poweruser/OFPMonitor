@@ -259,8 +259,8 @@ __published:	// IDE-managed Components
         void __fastcall CHECKBOX_GAMECONTROL_RESTORE_BRIEFINGClick(TObject *Sender);
         void __fastcall CHECKBOX_GAMECONTROL_RESTORE_PLAYINGClick(TObject *Sender);
         void __fastcall CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFINGClick(TObject *Sender);
-        void __fastcall UpDown2Changing(TObject *Sender,
-          bool &AllowChange);
+        void __fastcall UpDown2ChangingEx(TObject *Sender,
+          bool &AllowChange, short NewValue, TUpDownDirection Direction);
 private:	// User declarations
 public:		// User declarations
         void TForm1::readServerList(list<ServerItem> &in);
@@ -270,6 +270,7 @@ public:		// User declarations
                                 float ratioMN,float ratioPI,float ratioPL,
                                 float ratioSC,float ratioDE,float ratioTE,
                                 int devider);
+        void TForm1::setGameControlSettings(int delay, bool repeat, bool rOnC, bool rOnW, bool rOnB, bool rOnP, bool rOnD);
         list<String> TForm1::splitUpMessage(String msg, String split);
         bool TForm1::doNameFilter(String c, String d);
         void TForm1::incomingChatMessage(String chan, String msg, bool controlMsg);
