@@ -1984,27 +1984,17 @@ void updateGameControlGui() {
                 Form1->CHECKBOX_GAMECONTROL_RESTORE->Checked = false;
                 gameControl.enableRestoreGame(false);
         }
-        Form1->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE->Enabled = selected;
-        Form1->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT->Enabled = selected;
         bool repeatedGreenUp = gameControl.getGreenUpRepeat();
         Form1->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE->Checked = !repeatedGreenUp;
         Form1->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT->Checked = repeatedGreenUp;
-        Form1->CHECKBOX_GAMECONTROL_RESTORE_CREATING->Enabled = selected;
         Form1->CHECKBOX_GAMECONTROL_RESTORE_CREATING->Checked = gameControl.restoreOnCreating;
-        Form1->CHECKBOX_GAMECONTROL_RESTORE_WAITING->Enabled = selected;
         Form1->CHECKBOX_GAMECONTROL_RESTORE_WAITING->Checked = gameControl.restoreOnWaiting;
-        Form1->CHECKBOX_GAMECONTROL_RESTORE_BRIEFING->Enabled = selected;
         Form1->CHECKBOX_GAMECONTROL_RESTORE_BRIEFING->Checked = gameControl.restoreOnBriefing;
-        Form1->CHECKBOX_GAMECONTROL_RESTORE_PLAYING->Enabled = selected;
         Form1->CHECKBOX_GAMECONTROL_RESTORE_PLAYING->Checked = gameControl.restoreOnPlaying;
-        Form1->CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Enabled = selected;
         Form1->CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Checked = gameControl.restoreOnDebriefing;
         Form1->CHECKBOX_GAMECONTROL_AUTOGREENUP->Enabled = selected;
         Form1->CHECKBOX_GAMECONTROL_RESTORE->Enabled = selected;
-        Form1->LABEL_GAMECONTROL_AUTOGREENUP_DELAY->Enabled = selected;
-        Form1->UpDown2->Enabled = selected;
         Form1->UpDown2->Position = gameControl.getGreenUpDelay();
-        Form1->Edit5->Enabled = selected;
         Form1->ComboBox1->Enabled = !(Form1->ComboBox1->Items->Count == 0);
         Form1->ComboBox2->Enabled = !(Form1->ComboBox2->Items->Count == 0);
 }
