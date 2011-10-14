@@ -543,6 +543,9 @@ class GameControl {
 
                 void enableAutoGreenUp(bool enabled) {
                         this->autoGreenUp = enabled;
+                        if(!enabled) {
+                                Form1->TimerAutoGreenUp->Enabled = enabled;
+                        }
                 }
 
                 void enableRestoreGame(bool enabled) {
@@ -558,6 +561,7 @@ class GameControl {
                                 toset = Form1->UpDown2->Max;
                         }
                         this->greenUpDelay = toset;
+                        Form1->TimerAutoGreenUp->Interval = this->greenUpDelay * 1000;
                 }
 
                 void sendGreenUpMessage(int serverId) {
