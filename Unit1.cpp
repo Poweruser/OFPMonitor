@@ -3056,6 +3056,7 @@ void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
         m->Add("OperationFlashpointbeta.exe");
         m->Add("FLASHPOINTRESISTANCE.EXE");
         m->Add("FLASHPOINTBETA.EXE");
+        m->Add("OFP.exe");
         m->Add("ColdWarAssault.exe");
 
         if(pf->enumerate(s, m)) {
