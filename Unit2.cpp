@@ -2629,7 +2629,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_OFPRES_BROWSEClick(TObject *Sender)
         if(!EDIT_OFPRES_EXECUTABLE->Text.IsEmpty()) {
                 OpenDialog1->InitialDir = getFolder(EDIT_OFPRES_EXECUTABLE->Text);
         }
-        OpenDialog1->Filter = "Operation Flashpoint: Resistance|FLASHPOINTRESISTANCE.EXE;FLASHPOINTBETA.EXE";
+        OpenDialog1->Filter = "Operation Flashpoint: Resistance|FLASHPOINTRESISTANCE.EXE;FLASHPOINTBETA.EXE;OFP.exe";
         OpenDialog1->Tag = GAMEID_OFPRES;
         OpenDialog1->Execute();
 }
