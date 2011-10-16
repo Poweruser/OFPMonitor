@@ -2574,7 +2574,14 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
 void __fastcall TForm1::MENUITEM_MAINMENU_FONTClick(TObject *Sender)
 {
         FontDialog1->Font = StringGrid1->Font;
-        FontDialog1->Execute();        
+        if(FontDialog1->Execute()) {
+                Form1->setFont( FontDialog1->Font->Name,
+                                FontDialog1->Font->Size,
+                                FontDialog1->Font->Charset,
+                                FontDialog1->Font->Style.Contains(fsBold),
+                                FontDialog1->Font->Style.Contains(fsItalic));
+                WINDOW_SETTINGS->setSettingsChanged();
+        }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormResize(TObject *Sender)
