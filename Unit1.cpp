@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 
 #include "QueryAnswer.h"                                                                    
-#include "OFPMonitor.h"
+#include "OFPMonitor.h"        
 #include "Address.h"
 #include "Player.h"
 #include "Server.h"
@@ -1747,9 +1747,9 @@ class ChatSettings {
                 int connectionLost;
                 bool doConnect;
                 ChatSettings() {
-                        this->host = "irc.freenode.net";
-                        this->port = 6666;
-                        this->channel = "#operationflashpoint1";
+                        this->host = DEFAULT_IRCSERVER_HOST;
+                        this->port = DEFAULT_IRCSERVER_PORT;
+                        this->channel = DEFAULT_IRCSERVER_CHANNEL;
                         this->userName = "";
                         this->setAutoConnect(false);
                         this->init();
@@ -3056,15 +3056,20 @@ void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
         ComboBox1->Clear();
         ProcessFinder *pf = new ProcessFinder();
         TStringList *s = new TStringList();
-        s->Add("Operation Flashpoint");
-        s->Add("Cold War Assault");
+        s->Sorted = true;
+        s->Duplicates = dupIgnore;
+        s->Add(getAppTitleByGameId(GAMEID_OFPCWC));
+        s->Add(getAppTitleByGameId(GAMEID_OFPRES));
+        s->Add(getAppTitleByGameId(GAMEID_ARMACWA));
         TStringList *m = new TStringList();
-        m->Add("OperationFlashpoint.exe");
-        m->Add("OperationFlashpointbeta.exe");
-        m->Add("FLASHPOINTRESISTANCE.EXE");
-        m->Add("FLASHPOINTBETA.EXE");
-        m->Add("OFP.exe");
-        m->Add("ColdWarAssault.exe");
+        list<String> exes;
+        mergeLists(exes, getExesByGameId(GAMEID_OFPCWC));
+        mergeLists(exes, getExesByGameId(GAMEID_OFPRES));
+        mergeLists(exes, getExesByGameId(GAMEID_ARMACWA));
+        while(exes.size() > 0) {
+                m->Add(exes.front());
+                exes.pop_front();
+        }
 
         if(pf->enumerate(s, m)) {
                 for (list<ProcessInfo>::iterator proc = pf->output.begin(); proc != pf->output.end(); ++proc) {

@@ -5,8 +5,7 @@
 #include <vcl.h>                                                          
 #include <filectrl.hpp>
 #include <mmsystem.h>
-#include <windows.h>
-#include <Registry.hpp>
+#include <windows.h>       
                                               
 #pragma hdrstop
 
@@ -249,29 +248,6 @@ bool checkBool2(String in) {
 }
 
 /**
-   Reads a String from the OS registry. 'a' holds a list of keys to visit in order,
-   'key' is the object which content is to read inside the last key
- */
-
-String GetRegistryValue(void * root, list<String> a, String key) {
-        String S = "";
-        TRegistry *Registry = new TRegistry(KEY_READ);
-        try
-        {
-                Registry->RootKey = root;
-                while (a.size() > 0) {
-                        Registry->OpenKey(a.front(),false);
-                        a.pop_front();
-                }
-                S = Registry->ReadString(key);
-        }
-        __finally {
-                delete Registry;
-        }
-        return S;
-}
-
-/**
    Returns the folder of the game exe file
  */
 
@@ -325,7 +301,7 @@ class Game {
                 int version;
                 Configuration startupConfs[confAmount];
 
-                String defaultExeName;
+                list<String> exeNames;
                 String gamespyToken;
                 Game () {
                         this->set = false;
@@ -349,41 +325,22 @@ class Game {
                 }
 
                 void autodetect(String exe, String player) {
-                        String e = exe;
-                        if(!FileExists(e)) {
-                                list<String> regFolder;
-                                if(this->gameid == GAMEID_OFPCWC || this->gameid == GAMEID_OFPRES) {
-                                        regFolder.push_back("SOFTWARE");
-                                        regFolder.push_back("Codemasters");
-                                        regFolder.push_back("Operation Flashpoint");
-                                } else if(this->gameid == GAMEID_ARMACWA) {
-                                        regFolder.push_back("SOFTWARE");
-                                        regFolder.push_back("Bohemia Interactive Studio");
-                                        regFolder.push_back("ColdWarAssault");
+                        list<String> exes = getExePathsByGameId(this->gameid);
+                        exes.push_front(exe);
+                        for(list<String>::iterator ci = exes.begin(); ci != exes.end(); ++ci) {
+                                if(FileExists(*ci)) {
+                                        this->exe = (*ci);
+                                        this->folder = WINDOW_SETTINGS->getFolder(this->exe);
+                                        this->queryVersion();
+                                        this->detectPlayer(player);
+                                        this->set = true;
+                                        break;
                                 }
-                                String f = GetRegistryValue(HKEY_LOCAL_MACHINE, regFolder, "Main");
-                                e = f + "\\" + this->defaultExeName;
-                        }
-                        if(FileExists(e)) {
-                                this->exe = e;
-                                this->folder = WINDOW_SETTINGS->getFolder(this->exe);
-                                this->queryVersion();
-                                this->detectPlayer(player);
-                                this->set = true;
                         }
                 }
 
                 void detectPlayer(String setP) {
-                        list<String> regPlayer;
-                        if(gameid == GAMEID_OFPCWC || gameid == GAMEID_OFPRES) {
-                                regPlayer.push_back("SOFTWARE");
-                                regPlayer.push_back("Codemasters");
-                                regPlayer.push_back("Operation Flashpoint");
-                         } else if(gameid == GAMEID_ARMACWA) {
-                                regPlayer.push_back("SOFTWARE");
-                                regPlayer.push_back("Bohemia Interactive Studio");
-                                regPlayer.push_back("ColdWarAssault");
-                        }
+                        list<String> regPlayer = getRegistryPathByGameId(this->gameid);
                         String regP = GetRegistryValue(HKEY_CURRENT_USER, regPlayer, "Player Name");
                         list<String> profiles = findPlayerProfiles(WINDOW_SETTINGS->getFolder(this->exe));
                         bool fRegPlayer = false, fSetPlayer = false;
@@ -406,19 +363,9 @@ class Game {
 
                 void setGameId(int gameid) {
                         this->gameid = gameid;
-                        if(this->gameid == GAMEID_OFPCWC) {
-                                this->gamespyToken = "opflash";
-                                this->defaultExeName = "OperationFlashpoint.exe";
-                                this->fullName = "Operation Flashpoint: Cold War Crisis";
-                        } else if(this->gameid == GAMEID_OFPRES) {
-                                this->gamespyToken = "opflashr";
-                                this->defaultExeName = "FLASHPOINTRESISTANCE.EXE";
-                                this->fullName = "Operation Flaspoint: Resistance";
-                        } else if(this->gameid == GAMEID_ARMACWA) {
-                                this->gamespyToken = "opflashr";
-                                this->defaultExeName = "ColdWarAssault.exe";
-                                this->fullName = "ArmA: Cold War Assault";
-                        }
+                        this->exeNames = getExesByGameId(gameid);
+                        this->gamespyToken = getGameSpyTokenByGameId(gameid);
+                        this->fullName = getFullGameNameByGameId(gameid);
                 }
 
                 void queryVersion() {
@@ -1341,9 +1288,9 @@ list<ServerItem> readConfigFile() {
                         } else if(tmp.AnsiPos("[ChatSettings]") == 1) {
                                 i++;
                                 tmp = file->Strings[i].Trim();
-                                String host = "irc.freenode.net";
-                                String channel = "#operationflashpoint1";
-                                int port = 6666;
+                                String host = DEFAULT_IRCSERVER_HOST;
+                                String channel = DEFAULT_IRCSERVER_CHANNEL;
+                                int port = DEFAULT_IRCSERVER_PORT;
                                 String user = "";
                                 bool autoConnect = false;
                                 while(tmp.AnsiPos("[\\ChatSettings]") != 1 && i < file->Count - 1) {
@@ -2277,6 +2224,19 @@ void updateServerEditorList(bool all) {
         }
 }
 
+String buildOpenDialogFilter(int gameid) {
+        String filter = getFullGameNameByGameId(gameid) + "|";
+        list<String> exes = getExesByGameId(gameid);
+        while(exes.size() > 0) {
+                filter += exes.front();
+                exes.pop_front();
+                if(exes.size() > 0) {
+                        filter += ";";
+                }
+        }
+        return filter;
+}
+
 //---------------------------------------------------------------------------
 __fastcall TWINDOW_SETTINGS::TWINDOW_SETTINGS(TComponent* Owner)
         : TForm(Owner)
@@ -2623,13 +2583,12 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_COPYClick(
 }
 //---------------------------------------------------------------------------
 
-
 void __fastcall TWINDOW_SETTINGS::BUTTON_OFPRES_BROWSEClick(TObject *Sender)
 {
         if(!EDIT_OFPRES_EXECUTABLE->Text.IsEmpty()) {
                 OpenDialog1->InitialDir = getFolder(EDIT_OFPRES_EXECUTABLE->Text);
         }
-        OpenDialog1->Filter = "Operation Flashpoint: Resistance|FLASHPOINTRESISTANCE.EXE;FLASHPOINTBETA.EXE;OFP.exe";
+        OpenDialog1->Filter = buildOpenDialogFilter(GAMEID_OFPRES);
         OpenDialog1->Tag = GAMEID_OFPRES;
         OpenDialog1->Execute();
 }
@@ -2642,7 +2601,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_OFPCWC_BROWSEClick(
         if(!EDIT_OFPCWC_EXECUTABLE->Text.IsEmpty()) {
                 OpenDialog1->InitialDir = getFolder(EDIT_OFPCWC_EXECUTABLE->Text);
         }
-        OpenDialog1->Filter = "Operation Flashpoint: Cold War Crisis|OperationFlashpoint.exe;OperationFlashpointbeta.exe";
+        OpenDialog1->Filter = buildOpenDialogFilter(GAMEID_OFPCWC);
         OpenDialog1->Tag = GAMEID_OFPCWC;
         OpenDialog1->Execute();
 }
@@ -2654,7 +2613,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_ARMACWA_BROWSEClick(
         if(!EDIT_ARMACWA_EXECUTABLE->Text.IsEmpty()) {
                 OpenDialog1->InitialDir = getFolder(EDIT_ARMACWA_EXECUTABLE->Text);
         }
-        OpenDialog1->Filter = "Armed Assault: Cold War Assault|ColdWarAssault.exe";
+        OpenDialog1->Filter = buildOpenDialogFilter(GAMEID_ARMACWA);
         OpenDialog1->Tag = GAMEID_ARMACWA;
         OpenDialog1->Execute();
 }
@@ -2666,48 +2625,30 @@ void __fastcall TWINDOW_SETTINGS::ComboBox2Change(TObject *Sender)
         updateConfList();
         checkConfListState();
         int comboindex = ComboBox2->Items->IndexOf(ComboBox2->Text);
-        if(comboindex >= 0) {
+        bool enable = (comboindex >= 0);
+        if(enable) {
                 int gameid = (int) ComboBox2->Items->Objects[comboindex];
                 updateModFolderList(programSettings.games[gameid].folder);
-                GROUPBOX_CONFIGURATIONS->Enabled = true;
-                GROUPBOX_NEWCONFIGURATION->Enabled = true;
-                BUTTON_NEWCONFIGURATION_UP->Enabled = true;
-                BUTTON_NEWCONFIGURATION_DOWN->Enabled = true;
-                BUTTON_EDITCONFIGURATION_OK->Enabled = true;
-                BUTTON_NEWCONFIGURATION_ADD->Enabled = true;
-                BUTTON_NEWCONFIGURATION_CLEAR->Enabled = true;
-                BUTTON_EDITCONFIGURATION_CANCEL->Enabled = true;
-                BUTTON_NEWCONFIGURATION_MOVELEFT->Enabled = true;
-                BUTTON_NEWCONFIGURATION_MOVERIGHT->Enabled = true;
-                EDIT_NEWCONFIGURATION_LABEL->Enabled = true;
-                EDIT_NEWCONFIGURATION_PASSWORD->Enabled = true;
-                EDIT_NEWCONFIGURATION_PARAMETERS->Enabled = true;
-                CHECKBOX_NEWCONFIGURATION_NOSPLASH->Enabled = true;
-                CHECKBOX_NEWCONFIGURATION_NOMAP->Enabled = true;
-                LISTBOX_MODFOLDERS_ALL->Enabled = true;
-                LISTBOX_MODFOLDERS_SELECTED->Enabled = true;
-        } else {
-                GROUPBOX_CONFIGURATIONS->Enabled = false;
-                GROUPBOX_NEWCONFIGURATION->Enabled = false;
-                BUTTON_NEWCONFIGURATION_MOVELEFT->Enabled = false;
-                BUTTON_NEWCONFIGURATION_MOVERIGHT->Enabled = false;
-                BUTTON_NEWCONFIGURATION_UP->Enabled = false;
-                BUTTON_NEWCONFIGURATION_DOWN->Enabled = false;
-                BUTTON_EDITCONFIGURATION_OK->Enabled = false;
-                BUTTON_NEWCONFIGURATION_ADD->Enabled = false;
-                BUTTON_NEWCONFIGURATION_CLEAR->Enabled = false;
-                BUTTON_EDITCONFIGURATION_CANCEL->Enabled = false;
-                EDIT_NEWCONFIGURATION_LABEL->Enabled = false;
-                EDIT_NEWCONFIGURATION_PASSWORD->Enabled = false;
-                EDIT_NEWCONFIGURATION_PARAMETERS->Enabled = false;
-                CHECKBOX_NEWCONFIGURATION_NOSPLASH->Enabled = false;
-                CHECKBOX_NEWCONFIGURATION_NOMAP->Enabled = false;
-                LISTBOX_MODFOLDERS_ALL->Enabled = false;
-                LISTBOX_MODFOLDERS_SELECTED->Enabled = false;
         }
+        GROUPBOX_CONFIGURATIONS->Enabled = enable;
+        GROUPBOX_NEWCONFIGURATION->Enabled = enable;
+        BUTTON_NEWCONFIGURATION_UP->Enabled = enable;
+        BUTTON_NEWCONFIGURATION_DOWN->Enabled = enable;
+        BUTTON_EDITCONFIGURATION_OK->Enabled = enable;
+        BUTTON_NEWCONFIGURATION_ADD->Enabled = enable;
+        BUTTON_NEWCONFIGURATION_CLEAR->Enabled = enable;
+        BUTTON_EDITCONFIGURATION_CANCEL->Enabled = enable;
+        BUTTON_NEWCONFIGURATION_MOVELEFT->Enabled = enable;
+        BUTTON_NEWCONFIGURATION_MOVERIGHT->Enabled = enable;
+        EDIT_NEWCONFIGURATION_LABEL->Enabled = enable;
+        EDIT_NEWCONFIGURATION_PASSWORD->Enabled = enable;
+        EDIT_NEWCONFIGURATION_PARAMETERS->Enabled = enable;
+        CHECKBOX_NEWCONFIGURATION_NOSPLASH->Enabled = enable;
+        CHECKBOX_NEWCONFIGURATION_NOMAP->Enabled = enable;
+        LISTBOX_MODFOLDERS_ALL->Enabled = enable;
+        LISTBOX_MODFOLDERS_SELECTED->Enabled = enable;
 }
 //---------------------------------------------------------------------------
-
 
 void __fastcall TWINDOW_SETTINGS::COMBOBOX_OFPCWC_PROFILEChange(
       TObject *Sender)
@@ -3266,9 +3207,9 @@ void __fastcall TWINDOW_SETTINGS::EDIT_CHAT_IRCSERVER_PORTChange(
 void __fastcall TWINDOW_SETTINGS::BUTTON_CHAT_SETDEFAULTClick(
       TObject *Sender)
 {
-        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_ADDRESS->Text = "irc.freenode.net";
-        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_PORT->Text = 6666;
-        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_CHANNEL->Text = "operationflashpoint1";
+        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_ADDRESS->Text = DEFAULT_IRCSERVER_HOST;
+        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_PORT->Text = DEFAULT_IRCSERVER_PORT;
+        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_CHANNEL->Text = DEFAULT_IRCSERVER_CHANNEL;
         WINDOW_SETTINGS->CHECKBOX_CHAT_AUTOCONNECT->Checked = false;
 }
 //---------------------------------------------------------------------------
