@@ -18,7 +18,6 @@ USEFORM("Unit5.cpp", WINDOW_UPDATE);
 HANDLE hMutex;
 
 bool MyAppAlreadyRunning() {
-        return false;
         hMutex = CreateMutex(NULL,true,"OFPMonitor");
         if (GetLastError() == ERROR_ALREADY_EXISTS ) {
                 CloseHandle(hMutex);
