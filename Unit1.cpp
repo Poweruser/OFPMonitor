@@ -1154,13 +1154,16 @@ void TForm1::readServerList(list<ServerItem> &servers) {
                 if(tmp.address.Length() > 8) {
                         Address *a = new Address();
                         if(a->getAddress(tmp.address, 2303)) {
-                                ServerArray[numOfServers] = Server(a->ip, a->port, numOfServers);
-                                ServerArray[numOfServers].watch = tmp.watch;
-                                ServerArray[numOfServers].favorite = tmp.favorite;
-                                ServerArray[numOfServers].persistent = tmp.persistent;
-                                ServerArray[numOfServers].blocked = tmp.blocked;
-                                ServerArray[numOfServers].gamestate = tmp.gamestate;
-                                ServerArray[numOfServers].gametime = tmp.gametime;
+                                int i = numOfServers;
+                                ServerArray[i] = Server(a->ip, a->port, i);
+                                ServerArray[i].watch = tmp.watch;
+                                ServerArray[i].favorite = tmp.favorite;
+                                ServerArray[i].persistent = tmp.persistent;
+                                ServerArray[i].blocked = tmp.blocked;
+                                ServerArray[i].gamestate = tmp.gamestate;
+                                ServerArray[i].gametime = tmp.gametime;
+                                ServerArray[i].autojoin = tmp.autojoin;
+                                ServerArray[i].autojoinConf = tmp.autojoinConf;
                                 numOfServers++;
                         }
                         delete a;
@@ -2544,8 +2547,6 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
                 CurrentList->Delete(0);
         }
         if(addresses.size() > 0) {
-                ServerItem si = addresses.front();
-
 /*
                 setEmptyStringGrid();
                 setEmptyPlayerList();

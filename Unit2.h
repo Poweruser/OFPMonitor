@@ -292,7 +292,7 @@ public:		// User declarations
         void TWINDOW_SETTINGS::addCustomNotification(String name, int filters, list<String> &mission,
                                     list<String> &server, list<String> &player, int minPlayers,
                                     int maxPlayers, String soundFile, int volume, int start, int end,
-                                    String color, int repeat);
+                                    String color, bool repeat);
         int TWINDOW_SETTINGS::checkNotifications(String servername, int players, int status,
                                 String missionname, bool passworded,
                                 list<String> playerList);

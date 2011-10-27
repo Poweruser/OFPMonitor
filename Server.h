@@ -20,6 +20,8 @@ class ServerItem {
         	bool favorite;
         	bool persistent;
         	bool blocked;
+                bool autojoin;
+                String autojoinConf;
 
                 ServerItem();
         	ServerItem(String address);

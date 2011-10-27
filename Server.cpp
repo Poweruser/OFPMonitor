@@ -17,6 +17,8 @@
                         this->blocked = false;
                         this->gamestate = 0;
                         this->gametime = 0;
+                        this->autojoin = false;
+                        this->autojoinConf = "";
                 }
 
                 ServerItem::ServerItem(String address) {
@@ -27,6 +29,8 @@
                         this->blocked = false;
                         this->gamestate = 0;
                         this->gametime = 0;
+                        this->autojoin = false;
+                        this->autojoinConf = "";
                 }
 
                 Server::Server() {
@@ -107,6 +111,8 @@
                         sI->blocked = this->blocked;
                         sI->gamestate = this->gamestate;
                         sI->gametime = this->gametime;
+                        sI->autojoin = this->autojoin;
+                        sI->autojoinConf = this->autojoinConf;
                         return sI;
                 }
 

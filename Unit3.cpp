@@ -60,6 +60,7 @@ void __fastcall TWINDOW_LOCALGAME::COMBOBOX_LOCALGAMESChange(
                 int gameid = (int) COMBOBOX_LOCALGAMES->Items->Objects[index];
                 int confNum = WINDOW_SETTINGS->getConfAmount(gameid);
                 COMBOBOX_LOCALMODS->Items->Clear();
+                COMBOBOX_LOCALMODS->Items->AddObject(WINDOW_SETTINGS->getGuiString("MENUITEM_POPUP_JOIN_NOMODS"), (TObject*) (-2));
                 for(int i = 0; i < confNum; i++) {
                         String entry = WINDOW_SETTINGS->getConfListEntry(gameid, i);
                         COMBOBOX_LOCALMODS->Items->AddObject(entry, (TObject *)i);
@@ -85,14 +86,16 @@ void __fastcall TWINDOW_LOCALGAME::BUTTON_LOCALGAME_STARTClick(
         if(COMBOBOX_LOCALGAMES->ItemIndex >= 0) {
                 gameid = (int) COMBOBOX_LOCALGAMES->Items->Objects[COMBOBOX_LOCALGAMES->ItemIndex];
         }
+
         if(COMBOBOX_LOCALMODS->ItemIndex >= 0) {
                 modid =  (int) COMBOBOX_LOCALMODS->Items->Objects[COMBOBOX_LOCALMODS->ItemIndex];
         }
-        String startup = "";
+        bool multiPlayer = CHECKBOX_MULTIPLAYER->Checked;
+        String startup = "-nosplash -nomap";
         if(modid >= 0) {
-                startup = WINDOW_SETTINGS->getConfStartLineLocal(gameid, modid, CHECKBOX_MULTIPLAYER->Checked);
-        } else if(CHECKBOX_MULTIPLAYER->Checked) {
-                startup = "-host";
+                startup = WINDOW_SETTINGS->getConfStartLineLocal(gameid, modid, multiPlayer);
+        } else if(multiPlayer) {
+                startup += " -host";
         }
         if(gameid >= 0 && gameid < GAMES_TOTAL) {
                 String exe = WINDOW_SETTINGS->getExe(gameid);

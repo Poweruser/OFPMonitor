@@ -6,7 +6,7 @@
     <PROJECT value="OFPMonitor.exe"/>
     <OBJFILES value="OFPMonitor.obj Unit1.obj Unit2.obj Unit4.obj FileVersion.obj Unit3.obj 
       irc\irc.obj Unit5.obj Address.obj QueryAnswer.obj Server.obj Player.obj 
-      Message.obj Sorter.obj ProcessFinder.obj"/>
+      Message.obj Sorter.obj ProcessFinder.obj ConfigReader.obj"/>
     <RESFILES value="OFPMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
@@ -69,6 +69,7 @@
       <FILE FILENAME="Message.cpp" FORMNAME="" UNITNAME="Message" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Sorter.cpp" FORMNAME="" UNITNAME="Sorter" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="ProcessFinder.cpp" FORMNAME="" UNITNAME="ProcessFinder" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="ConfigReader.cpp" FORMNAME="" UNITNAME="ConfigReader" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>

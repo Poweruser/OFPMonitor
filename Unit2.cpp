@@ -22,6 +22,7 @@ TWINDOW_SETTINGS *WINDOW_SETTINGS;
 #include "guiDBDefs.cpp"
 #include "FileVersion.h"
 #include "OFPMonitor.h"
+#include "ConfigReader.h"
 using namespace OFPMonitor_Unit2;
 
 extern unsigned long resolv(char *host) ; 
@@ -110,7 +111,7 @@ class Configuration {
                         String out = "";
                         out += " " + this->createParameterLine(false, true, false);
                         out += " -connect=" + ip;
-                        out += " -port=" + String(port);
+                        out += " -port=" + IntToStr(port);
                         String ml = this->createModLine();
                         if(!player.IsEmpty()) {
                                 out += " \"-name=" + player + "\"";
@@ -237,14 +238,6 @@ String checkBool(bool in) {
         } else {
                 return "0";
         }
-}
-
-/**
-   Converts the binary representation of true and false (1 and 0) to a bool
- */
-
-bool checkBool2(String in) {
-        return (in == "1");
 }
 
 /**
@@ -753,21 +746,7 @@ void updateConfList() {
         }
 }
 
-/**
-   Returns the value of a String with the format "XYZ = VALUE"
- */
 
-String getValue(String in) {
-        String out = "";
-        String tmp = in.Trim();
-        for(int i = 1; i < tmp.Length(); i++) {
-                if(tmp.SubString(i,1) == "=") {
-                        out = tmp.SubString(i + 1, tmp.Length() - i).Trim();
-                        break;
-                }
-        }
-        return out;
-}
 
 String extractNameFromValue(String in) {
         int start = 0;
@@ -962,7 +941,7 @@ void updateLanguage(String languagefile) {
 
 
         if(FileExists(pathAndFile)) {
-
+                String sign = "=";
                 file->LoadFromFile(pathAndFile);
                 String tmp;
                 guiStrings.clear();
@@ -971,76 +950,77 @@ void updateLanguage(String languagefile) {
                         Application->ProcessMessages();
                         val.clear();
                         tmp = file->Strings[i].Trim();
-                        if(tmp.SubString(1,6) == "BUTTON") {
-                                val = getVarAndValue(tmp, "=");
+                        if(tmp.AnsiPos("BUTTON") == 1) {
+                                val = getVarAndValue(tmp, sign);
                                 for(int j = 0; j < GetArrLength(guiButton); j++) {
                                         if(guiButton[j]->Name == val.front()) {
                                                 guiButton[j]->Caption = val.back();
                                                 break;
                                         }
                                 }
-                        } else if(tmp.SubString(1,5) == "LABEL") {
-                                val = getVarAndValue(tmp, "=");
+                        } else if(tmp.AnsiPos("LABEL") == 1) {
+                                val = getVarAndValue(tmp, sign);
                                 for(int j = 0; j < GetArrLength(guiLabel); j++) {
                                         if(guiLabel[j]->Name == val.front()) {
                                                 guiLabel[j]->Caption = val.back();
                                                 break;
                                         }
                                 }
-                        } else if(tmp.SubString(1,8) == "CHECKBOX") {
-                                val = getVarAndValue(tmp, "=");
+                        } else if(tmp.AnsiPos("CHECKBOX") == 1) {
+                                val = getVarAndValue(tmp, sign);
                                 for(int j = 0; j < GetArrLength(guiCheckBox); j++) {
                                         if(guiCheckBox[j]->Name == val.front()) {
                                                 guiCheckBox[j]->Caption = val.back();
                                                 break;
                                         }
                                 }
-                        } else if(tmp.SubString(1,8) == "GROUPBOX") {
-                                val = getVarAndValue(tmp, "=");
+                        } else if(tmp.AnsiPos("GROUPBOX") == 1) {
+                                val = getVarAndValue(tmp, sign);
                                 for(int j = 0; j < GetArrLength(guiGroupBox); j++) {
                                         if(guiGroupBox[j]->Name == val.front()) {
                                                 guiGroupBox[j]->Caption = val.back();
                                                 break;
                                         }
                                 }
-                        } else if(tmp.SubString(1,8) == "MENUITEM") {
-                                val = getVarAndValue(tmp, "=");
+                        } else if(tmp.AnsiPos("MENUITEM") == 1) {
+                                val = getVarAndValue(tmp, sign);
                                 for(int j = 0; j < GetArrLength(guiMenuItem); j++) {
                                         if(guiMenuItem[j]->Name == val.front()) {
                                                 guiMenuItem[j]->Caption = val.back();
                                                 break;
                                         }
                                 }
-                        } else if(tmp.SubString(1,6) == "WINDOW") {
-                                val = getVarAndValue(tmp, "=");
+                        } else if(tmp.AnsiPos("WINDOW") == 1) {
+                                val = getVarAndValue(tmp, sign);
                                 for(int j = 0; j < GetArrLength(guiForm); j++) {
                                         if(guiForm[j]->Name == val.front()) {
                                                 guiForm[j]->Caption = val.back();
                                                 break;
                                         }
                                 }
-                        } else if(tmp.SubString(1,11) == "RADIOBUTTON") {
-                                val = getVarAndValue(tmp, "=");
+                        } else if(tmp.AnsiPos("RADIOBUTTON") == 1) {
+                                val = getVarAndValue(tmp, sign);
                                 for(int j = 0; j < GetArrLength(guiRadioButton); j++) {
                                         if(guiRadioButton[j]->Name == val.front()) {
                                                 guiRadioButton[j]->Caption = val.back();
                                                 break;
                                         }
                                 }
-                        } else if(tmp.SubString(1,6) == "STRING") {
-                                val = getVarAndValue(tmp, "=");
-                                String f = val.front();
-                                String b = val.back();
-                                guiStrings.push_back(guiString(f,b));
-                        } else if(tmp.SubString(1,8) == "TABSHEET") {
-                                val = getVarAndValue(tmp, "=");
+                        } else if(tmp.AnsiPos("TABSHEET") == 1) {
+                                val = getVarAndValue(tmp, sign);
                                 for(int j = 0; j < GetArrLength(guiTabSheet); j++) {
                                         if(guiTabSheet[j]->Name == val.front()) {
                                                 guiTabSheet[j]->Caption = val.back();
                                                 break;
                                         }
                                 }
-                        } 
+                        }
+                        if(tmp.AnsiPos(sign)) {
+                                val = getVarAndValue(tmp, sign);
+                                String f = val.front();
+                                String b = val.back();
+                                guiStrings.push_back(guiString(f,b));
+                        }
                 }
                 Form1->StringGrid1->Cells[0][0] = WINDOW_SETTINGS->getGuiString("STRING_ID");
                 Form1->StringGrid1->Cells[1][0] = WINDOW_SETTINGS->getGuiString("STRING_NAME");
@@ -1140,76 +1120,55 @@ list<ServerItem> readConfigFile() {
                 for(int i = 0; i < file->Count; i++) {
                         String tmp = file->Strings[i].Trim();
                         if(tmp.AnsiPos("[General]") == 1) {
-                                i++;
-                                tmp = file->Strings[i].Trim();
-                                while(tmp.AnsiPos("[\\General]") != 1 && i < file->Count - 1) {
-                                        if(tmp.AnsiPos("Interval") == 1) {
-                                                interval = getValue(tmp);
-                                        } else if(tmp.AnsiPos("LangFile") == 1) {
-                                                langfile = getValue(tmp);
-                                        } else if(tmp.AnsiPos("customNotifications") == 1) {
-                                                notify = getValue(tmp);
-                                        } else if(tmp.AnsiPos("BandwidthUsage") == 1) {
-                                                try {
-                                                        bandwidthUsage = StrToInt(getValue(tmp));
-                                                } catch (...) {}
-                                        } else if(tmp.AnsiPos("checkUpdateAtStart") == 1) {
-                                                checkUpdate = getValue(tmp);
-                                        }
-                                        i++;
-                                        tmp = file->Strings[i].Trim();
-                                }
+                                ConfigSection *general = new ConfigSection("General");
+                                general->add(new ConfigEntry("Interval", dtString, (void*)(&interval)));
+                                general->add(new ConfigEntry("LangFile", dtString, (void*)(&langfile)));
+                                general->add(new ConfigEntry("customNotifications", dtString, (void*)(&notify)));
+                                general->add(new ConfigEntry("BandwidthUsage", dtInt, (void*)(&bandwidthUsage)));
+                                general->add(new ConfigEntry("checkUpdateAtStart", dtString, (void*)(&checkUpdate)));
+                                i = general->scan(file, i);
+                                delete general;
                         } else if(tmp.AnsiPos("[Game]") == 1) {
-                                i++;
-                                tmp = file->Strings[i].Trim();
-                                int gameid = -1;
-                                String player = "", exe;
-
-                                while(tmp.AnsiPos("[\\Game]") != 1 && i < file->Count -1) {
-                                        if(tmp.AnsiPos("Exe") == 1) {
-                                                exe = getValue(tmp);
-                                        } else if(tmp.AnsiPos("LastPlayer") == 1) {
-                                                player = extractNameFromValue(getValue(tmp));
-                                        } else if(tmp.AnsiPos("Name") == 1) {
-                                                String n = getValue(tmp);
-                                                gameid = getGameId(n);
-                                        }
-                                        i++;
-                                        tmp = file->Strings[i].Trim();
-                                }
+                                String player = "", exe = "", name = "";
+                                ConfigSection *game = new ConfigSection("Game");
+                                game->add(new ConfigEntry("Exe", dtString, (void*)(&exe)));
+                                game->add(new ConfigEntry("LastPlayer", dtString, (void*)(&player)));
+                                game->add(new ConfigEntry("Name", dtString, (void*)(&name)));
+                                i = game->scan(file, i);
+                                delete game;
+                                int gameid = getGameId(name);
                                 if(isValidGameID(gameid) && !exe.IsEmpty()) {
-                                        programSettings.setGame(gameid, exe, player);
+                                        programSettings.setGame(gameid, exe, extractNameFromValue(player));
                                         gameSet = true;
                                 }
                         } else if(tmp.AnsiPos("[Conf]") == 1) {
                                 Configuration c = Configuration();
                                 c.set = true;
-                                i++;
-                                tmp = file->Strings[i].Trim();
-                                int gameid = 1;
-                                while(tmp.AnsiPos("[\\Conf]") != 1 && i < file->Count - 1) {
-                                        if(tmp.AnsiPos("Password") == 1) {
-                                                c.password = getValue(tmp);
-                                        } else if(tmp.AnsiPos("Mods") == 1) {
-                                                c.mods = Form1->splitUpMessage(getValue(tmp), ";");
-                                        } else if(tmp.AnsiPos("Parameters") == 1) {
-                                                c.addParameters = Form1->splitUpMessage(getValue(tmp), " ");
-                                        } else if(tmp.AnsiPos("Label") == 1) {
-                                                c.label = getValue(tmp);
-                                        } else if(tmp.AnsiPos("Game") == 1) {
-                                                gameid = getGameId(getValue(tmp));
-                                        }
-                                        i++;
-                                        tmp = file->Strings[i].Trim();
+                                String mods = "", parameters = "", game = "";
+                                ConfigSection *conf = new ConfigSection("Conf");
+                                conf->add(new ConfigEntry("Password", dtString, (void*)(&(c.password))));
+                                conf->add(new ConfigEntry("Mods", dtString, (void*)(&mods)));
+                                conf->add(new ConfigEntry("Parameters", dtString, (void*)(&parameters)));
+                                conf->add(new ConfigEntry("Label", dtString, (void*)(&(c.label))));
+                                conf->add(new ConfigEntry("Game", dtString, (void*)(&game)));
+                                i = conf->scan(file, i);
+                                delete conf;
+                                c.gameid = getGameId(game);
+                                c.mods = Form1->splitUpMessage(mods, ";");
+                                c.addParameters = Form1->splitUpMessage(parameters, " ");
+                                if(isValidGameID(c.gameid)) {
+                                        programSettings.pSaddConf(c.gameid, c);
                                 }
-                                c.gameid = gameid;
-                                programSettings.pSaddConf(gameid, c);
                         } else if(tmp.AnsiPos("[Servers]") == 1) {
-                                i++;
-                                tmp = file->Strings[i].Trim();
-                                while(tmp.AnsiPos("[\\Servers]") != 1 && i < file->Count - 1) {
-                                        if(tmp.Length() > 8) {
-                                                list<String> z = Form1->splitUpMessage(tmp, ";");
+                                list<String> serverList;
+                                ConfigSection *servers = new ConfigSection("Servers");
+                                servers->add(new ConfigEntry("", dtServerItem, (void*)(&serverList)));
+                                i = servers->scan(file, i);
+                                delete servers;
+                                while(serverList.size() > 0) {
+                                        String s = serverList.front();
+                                        if(s.Length() > 8) {
+                                                list<String> z = Form1->splitUpMessage(s, ";");
                                                 ServerItem *sI = new ServerItem(z.front());
                                                 if(z.size() > 1) {
                                                         String att = z.back();
@@ -1218,238 +1177,141 @@ list<ServerItem> readConfigFile() {
                                                         sI->persistent = (att.AnsiPos("P") > 0);
                                                         sI->blocked = (att.AnsiPos("B") > 0);
                                                 }
-                                                ipList.push_back((*sI));
+                                                ipList.push_back(*sI);
                                         }
-                                        i++;
-                                        tmp = file->Strings[i].Trim();
+                                        serverList.pop_front();
                                 }
                         } else if(tmp.AnsiPos("[Filters]") == 1) {
-                                i++;
-                                tmp = file->Strings[i].Trim();
-                                while(tmp.AnsiPos("[\\Filters]") != 1 && i < file->Count - 1) {
-                                        if(tmp.AnsiPos("Playing") == 1) {
-                                                Form1->CHECKBOX_FILTER_PLAYING->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.AnsiPos("Waiting") == 1) {
-                                                Form1->CHECKBOX_FILTER_WAITING->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.AnsiPos("Creating") == 1) {
-                                                Form1->CHECKBOX_FILTER_CREATING->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.AnsiPos("Settingup") == 1) {
-                                                Form1->CHECKBOX_FILTER_SETTINGUP->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.AnsiPos("Briefing") == 1) {
-                                                Form1->CHECKBOX_FILTER_BRIEFING->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.AnsiPos("Debriefing") == 1) {
-                                                Form1->CHECKBOX_FILTER_DEBRIEFING->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.AnsiPos("WithPW") == 1) {
-                                                Form1->CHECKBOX_FILTER_WITHPASSWORD->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.AnsiPos("WithoutPW") == 1) {
-                                                Form1->CHECKBOX_FILTER_WITHOUTPASSWORD->Checked = checkBool2(getValue(tmp));
-                                        } else if(tmp.AnsiPos("minPlayers") == 1) {
-                                                try {
-                                                        int i = StrToInt(getValue(tmp));
-                                                        Form1->UpDown1->Position = i;
-                                                } catch (...) {}
-                                        } else if(tmp.AnsiPos("ServerName") == 1) {
-                                                Form1->Edit2->Text = getValue(tmp);
-                                        } else if(tmp.AnsiPos("MissionName") == 1) {
-                                                Form1->Edit1->Text = getValue(tmp);
-                                        } else if(tmp.AnsiPos("PlayerName") == 1) {
-                                                Form1->Edit4->Text = getValue(tmp);
-                                        }
-                                        i++;
-                                        tmp = file->Strings[i].Trim();
-                                }
+                                bool playing, waiting, creating, settingup, briefing,
+                                        debriefing, withpw, withoutpw;
+                                int minplayers = 0;
+                                String server = "", mission = "", player = "";
+                                ConfigSection *filters = new ConfigSection("Filters");
+                                filters->add(new ConfigEntry("Playing", dtBool, (void*)(&playing)));
+                                filters->add(new ConfigEntry("Waiting", dtBool, (void*)(&waiting)));
+                                filters->add(new ConfigEntry("Creating", dtBool, (void*)(&creating)));
+                                filters->add(new ConfigEntry("Settingup", dtBool, (void*)(&settingup)));
+                                filters->add(new ConfigEntry("Briefing", dtBool, (void*)(&briefing)));
+                                filters->add(new ConfigEntry("Debriefing", dtBool, (void*)(&debriefing)));
+                                filters->add(new ConfigEntry("WithPW", dtBool, (void*)(&withpw)));
+                                filters->add(new ConfigEntry("WithoutPW", dtBool, (void*)(&withoutpw)));
+                                filters->add(new ConfigEntry("minPlayers", dtInt, (void*)(&minplayers)));
+                                filters->add(new ConfigEntry("ServerName", dtString, (void*)(&server)));
+                                filters->add(new ConfigEntry("MissionName", dtString, (void*)(&mission)));
+                                filters->add(new ConfigEntry("PlayerName", dtString, (void*)(&player)));
+                                i = filters->scan(file, i);
+                                delete filters;
+                                Form1->UpDown1->Position = minplayers;
+                                Form1->Edit2->Text = server;
+                                Form1->Edit1->Text = mission;
+                                Form1->Edit4->Text = player;
+                                Form1->CHECKBOX_FILTER_CREATING->Checked = creating;
+                                Form1->CHECKBOX_FILTER_WAITING->Checked = waiting;
+                                Form1->CHECKBOX_FILTER_SETTINGUP->Checked = settingup;
+                                Form1->CHECKBOX_FILTER_BRIEFING->Checked = briefing;
+                                Form1->CHECKBOX_FILTER_PLAYING->Checked = playing;
+                                Form1->CHECKBOX_FILTER_DEBRIEFING->Checked = debriefing;
+                                Form1->CHECKBOX_FILTER_WITHPASSWORD->Checked = withpw;
+                                Form1->CHECKBOX_FILTER_WITHOUTPASSWORD->Checked = withoutpw;
                         } else if(tmp.AnsiPos("[FontSettings]") == 1) {
-                                i++;
-                                tmp = file->Strings[i].Trim();
-                                int charset = 0;
+                                int charset = 0, size = 0;
                                 String name = "";
-                                int size = 0;
                                 bool bold = false, italic = false;
-                                while(tmp.AnsiPos("[\\FontSettings]") != 1 && i < file->Count - 1) {
-                                        if(tmp.AnsiPos("Name")) {
-                                                name = getValue(tmp);
-                                        } else if(tmp.AnsiPos("Charset") == 1) {
-                                                try {
-                                                        charset = StrToInt(getValue(tmp));
-                                                } catch (...) {}
-                                        } else if(tmp.AnsiPos("Size") == 1) {
-                                                try {
-                                                        size = StrToInt(getValue(tmp));
-                                                } catch (...) {}
-                                        } else if(tmp.AnsiPos("Bold") == 1) {
-                                                bold = checkBool2(getValue(tmp));
-                                        } else if(tmp.AnsiPos("Italic") == 1) {
-                                                italic = checkBool2(getValue(tmp));
-                                        }
-                                        i++;
-                                        tmp = file->Strings[i].Trim();
-                                }
+                                ConfigSection *font = new ConfigSection("FontSettings");
+                                font->add(new ConfigEntry("Name", dtString, (void*)(&name)));
+                                font->add(new ConfigEntry("Charset", dtInt, (void*)(&charset)));
+                                font->add(new ConfigEntry("Size", dtInt, (void*)(&size)));
+                                font->add(new ConfigEntry("Bold", dtBool, (void*)(&bold)));
+                                font->add(new ConfigEntry("Italic", dtBool, (void*)(&italic)));
+                                i = font->scan(file, i);
+                                delete font;
                                 Form1->setFont(name, size, charset,bold,italic);
                         } else if(tmp.AnsiPos("[ChatSettings]") == 1) {
-                                i++;
-                                tmp = file->Strings[i].Trim();
-                                String host = DEFAULT_IRCSERVER_HOST;
-                                String channel = DEFAULT_IRCSERVER_CHANNEL;
+                                String host = DEFAULT_IRCSERVER_HOST, channel = DEFAULT_IRCSERVER_CHANNEL, user = "";
                                 int port = DEFAULT_IRCSERVER_PORT;
-                                String user = "";
                                 bool autoConnect = false;
-                                while(tmp.AnsiPos("[\\ChatSettings]") != 1 && i < file->Count - 1) {
-                                        if(tmp.AnsiPos("AutoConnect") == 1) {
-                                                autoConnect = checkBool2(getValue(tmp));
-                                        } else if(tmp.AnsiPos("Host") == 1) {
-                                                host = getValue(tmp);
-                                        } else if(tmp.AnsiPos("Port") == 1) {
-                                                try {
-                                                        port = StrToInt(getValue(tmp));
-                                                } catch (...) {}
-                                        } else if(tmp.AnsiPos("Channel") == 1) {
-                                                channel = getValue(tmp);
-                                                if(channel.SubString(1,1) != "#") {
-                                                        channel = "#" + channel;
-                                                }
-                                        } else if(tmp.AnsiPos("UserName") == 1) {
-                                                user = extractNameFromValue(getValue(tmp));
-                                        }
-                                        i++;
-                                        tmp = file->Strings[i].Trim();
+                                ConfigSection *chat = new ConfigSection("ChatSettings");
+                                chat->add(new ConfigEntry("AutoConnect", dtBool, (void*)(&autoConnect)));
+                                chat->add(new ConfigEntry("Host", dtString, (void*)(&host)));
+                                chat->add(new ConfigEntry("Port", dtInt, (void*)(&port)));
+                                chat->add(new ConfigEntry("Channel", dtString, (void*)(&channel)));
+                                chat->add(new ConfigEntry("UserName", dtString, (void*)(&user)));
+                                i = chat->scan(file, i);
+                                delete chat;
+                                if(channel.SubString(1,1) != "#") {
+                                        channel = "#" + channel;
                                 }
+                                user = extractNameFromValue(user);
                                 Form1->setChat(host, port, channel, user, autoConnect);
                         } else if(tmp.AnsiPos("[WindowSettings]") == 1) {
-                                i++;
-                                tmp = file->Strings[i].Trim();
-                                int     top = 0,
-                                        left = 0,
-                                        width = 0,
-                                        height = 0,
-                                        devider = 0;
-                                float   ratioID = 0.0f,
-                                        ratioSN = 0.0f,
-                                        ratioPN = 0.0f,
-                                        ratioST = 0.0f,
-                                        ratioIS = 0.0f,
-                                        ratioMN = 0.0f,
-                                        ratioPI = 0.0f,
-                                        ratioPL = 0.0f,
-                                        ratioSC = 0.0f,
-                                        ratioDE = 0.0f,
-                                        ratioTE = 0.0f;
-                                        
-                                while(tmp.AnsiPos("[\\WindowSettings]") != 1 && i < file->Count - 1) {
-                                        if(tmp.AnsiPos("Left") == 1) {
-                                                try {   left = StrToInt(getValue(tmp));  }catch(...) {}
-                                        } else if(tmp.AnsiPos("Top") == 1) {
-                                                try {   top = StrToInt(getValue(tmp));  }catch(...) {}
-                                        } else if(tmp.AnsiPos("Width") == 1) {
-                                                try {   width = StrToInt(getValue(tmp));  }catch(...) {}
-                                        } else if(tmp.AnsiPos("Height") == 1) {
-                                                try {   height = StrToInt(getValue(tmp));  }catch(...) {}
-                                        } else if(tmp.AnsiPos("ratioID") == 1) {
-                                                try {   ratioID = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.AnsiPos("ratioSN") == 1) {
-                                                try {   ratioSN = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.AnsiPos("ratioPN") == 1) {
-                                                try {   ratioPN = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.AnsiPos("ratioST") == 1) {
-                                                try {   ratioST = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.AnsiPos("ratioIS") == 1) {
-                                                try {   ratioIS = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.AnsiPos("ratioMN") == 1) {
-                                                try {   ratioMN = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.AnsiPos("ratioPI") == 1) {
-                                                try {   ratioPI = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.AnsiPos("ratioPL") == 1) {
-                                                try {   ratioPL = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.AnsiPos("ratioSC") == 1) {
-                                                try {   ratioSC = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.AnsiPos("ratioDE") == 1) {
-                                                try {   ratioDE = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.AnsiPos("ratioTE") == 1) {
-                                                try {   ratioTE = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        } else if(tmp.AnsiPos("devider") == 1) {
-                                                try {   devider = atof(getValue(tmp).c_str());  }catch(...) {}
-                                        }
-                                        i++;
-                                        tmp = file->Strings[i].Trim();
-                                }
-
-
-                                Form1->setWindowSettings(top,left,height,width,ratioID,
-                                        ratioSN,
-                                        ratioPN,
-                                        ratioST,
-                                        ratioIS,
-                                        ratioMN,
-                                        ratioPI,
-                                        ratioPL,
-                                        ratioSC,
-                                        ratioDE,
-                                        ratioTE,
-                                        devider);
+                                int     top = 0, left = 0, width = 0, height = 0, devider = 0;
+                                float   ratioID = 0.0f, ratioSN = 0.0f, ratioPN = 0.0f,
+                                        ratioST = 0.0f, ratioIS = 0.0f, ratioMN = 0.0f,
+                                        ratioPI = 0.0f, ratioPL = 0.0f, ratioSC = 0.0f,
+                                        ratioDE = 0.0f, ratioTE = 0.0f;
+                                ConfigSection *window = new ConfigSection("WindowSettings");
+                                window->add(new ConfigEntry("Left", dtInt, (void*)(&left)));
+                                window->add(new ConfigEntry("Top", dtInt, (void*)(&top)));
+                                window->add(new ConfigEntry("Width", dtInt, (void*)(&width)));
+                                window->add(new ConfigEntry("Height", dtInt, (void*)(&height)));
+                                window->add(new ConfigEntry("ratioID", dtFloat, (void*)(&ratioID)));
+                                window->add(new ConfigEntry("ratioSN", dtFloat, (void*)(&ratioSN)));
+                                window->add(new ConfigEntry("ratioPN", dtFloat, (void*)(&ratioPN)));
+                                window->add(new ConfigEntry("ratioST", dtFloat, (void*)(&ratioST)));
+                                window->add(new ConfigEntry("ratioIS", dtFloat, (void*)(&ratioIS)));
+                                window->add(new ConfigEntry("ratioMN", dtFloat, (void*)(&ratioMN)));
+                                window->add(new ConfigEntry("ratioPI", dtFloat, (void*)(&ratioPI)));
+                                window->add(new ConfigEntry("ratioPL", dtFloat, (void*)(&ratioPL)));
+                                window->add(new ConfigEntry("ratioSC", dtFloat, (void*)(&ratioSC)));
+                                window->add(new ConfigEntry("ratioDE", dtFloat, (void*)(&ratioDE)));
+                                window->add(new ConfigEntry("ratioTE", dtFloat, (void*)(&ratioTE)));
+                                window->add(new ConfigEntry("devider", dtInt, (void*)(&devider)));
+                                i = window->scan(file, i);
+                                delete window;
+                                Form1->setWindowSettings(top, left, height, width,
+                                        ratioID, ratioSN, ratioPN, ratioST,
+                                        ratioIS, ratioMN, ratioPI, ratioPL,
+                                        ratioSC, ratioDE, ratioTE, devider);
 
                         } else if(tmp.AnsiPos("[CustomNotification]") == 1) {
-                                i++;
-                                tmp = file->Strings[i].Trim();
                                 list<String> mission, server, player;
-                                String name = "Unnamed", soundFile = "", color = clWindow;
-                                int statusFilter = 0, volume = 100, minPlayers = -1, maxPlayers = -1, start = 0, end = -1, repeat = 0;
-                                while(tmp.AnsiPos("[\\CustomNotification]") != 1 && i < file->Count - 1) {
-                                        if(tmp.AnsiPos("name") == 1) {
-                                                name = getValue(tmp);
-                                        } else if(tmp.AnsiPos("missionFilter") == 1) {
-                                                mission = Form1->splitUpMessage(getValue(tmp),";");
-                                        } else if(tmp.AnsiPos("serverFilter") == 1) {
-                                                server = Form1->splitUpMessage(getValue(tmp),";");
-                                        } else if(tmp.AnsiPos("playerFilter") == 1) {
-                                                player = Form1->splitUpMessage(getValue(tmp),";");
-                                        } else if(tmp.AnsiPos("statusFilter") == 1) {
-                                                try {   statusFilter = StrToInt(getValue(tmp));  }catch(...) {}
-                                        } else if(tmp.AnsiPos("soundFile") == 1) {
-                                                soundFile = getValue(tmp);
-                                        } else if(tmp.AnsiPos("playbackVolume") == 1) {
-                                                try { volume = StrToInt(getValue(tmp)); } catch (...) {}
-                                        } else if(tmp.AnsiPos("playbackStart") == 1) {
-                                                try { start = StrToInt(getValue(tmp)); } catch (...) {}
-                                        } else if(tmp.AnsiPos("playbackEnd") == 1) {
-                                                try { end = StrToInt(getValue(tmp)); } catch (...) {}
-                                        } else if(tmp.AnsiPos("markingColor") == 1) {
-                                                color = getValue(tmp);
-                                        } else if(tmp.AnsiPos("minimumPlayers") == 1) {
-                                                try { minPlayers = StrToInt(getValue(tmp)); } catch (...) {}
-                                        } else if(tmp.AnsiPos("maximumPlayers") == 1) {
-                                                try { maxPlayers = StrToInt(getValue(tmp)); } catch (...) {}
-                                        } else if(tmp.AnsiPos("repeat") == 1) {
-                                                try { repeat = StrToInt(getValue(tmp)); } catch (...) {}
-                                        }
-                                        i++;
-                                        tmp = file->Strings[i].Trim();
-                                }
+                                String name = "Unnamed", soundFile = "", color = "clWindow", missionF = "", serverF = "", playerF = "";
+                                int statusFilter = 0, volume = 100, minPlayers = -1, maxPlayers = -1, start = 0, end = -1;
+                                bool repeat = false;
+                                ConfigSection *notification = new ConfigSection("CustomNotification");
+                                notification->add(new ConfigEntry("name", dtString, (void*)(&name)));
+                                notification->add(new ConfigEntry("missionFilter", dtString, (void*)(&missionF)));
+                                notification->add(new ConfigEntry("serverFilter", dtString, (void*)(&serverF)));
+                                notification->add(new ConfigEntry("playerFilter", dtString, (void*)(&playerF)));
+                                notification->add(new ConfigEntry("statusFilter", dtInt, (void*)(&statusFilter)));
+                                notification->add(new ConfigEntry("soundFile", dtString, (void*)(&soundFile)));
+                                notification->add(new ConfigEntry("playbackVolume", dtInt, (void*)(&volume)));
+                                notification->add(new ConfigEntry("playbackStart", dtInt, (void*)(&start)));
+                                notification->add(new ConfigEntry("playbackEnd", dtInt, (void*)(&end)));
+                                notification->add(new ConfigEntry("markingColor", dtString, (void*)(&color)));
+                                notification->add(new ConfigEntry("minimumPlayers", dtInt, (void*)(&minPlayers)));
+                                notification->add(new ConfigEntry("maximumPlayers", dtInt, (void*)(&maxPlayers)));
+                                notification->add(new ConfigEntry("repeat", dtBool, (void*)(&repeat)));
+                                i = notification->scan(file, i);
+                                delete notification;
+                                mission = Form1->splitUpMessage(missionF,";");
+                                server  = Form1->splitUpMessage(serverF, ";");
+                                player  = Form1->splitUpMessage(playerF, ";");
                                 WINDOW_SETTINGS->addCustomNotification(name, statusFilter, mission, server, player,
                                         minPlayers, maxPlayers, soundFile, volume, start, end, color, repeat);
 
                         } else if(tmp.AnsiPos("[Automation]") == 1) {
-                                i++;
-                                tmp = file->Strings[i].Trim();
                                 int delay = 10;
                                 bool repeat = true, rOnC = false, rOnW = false, rOnB = false, rOnP = false, rOnD = false;
-                                while(tmp.AnsiPos("[\\Automation]") != 1 && i < file->Count - 1) {
-                                        if(tmp.AnsiPos("BriefingConfirmationDelay") == 1) {
-                                                try { delay = StrToInt(getValue(tmp)); } catch (...) {}
-                                        } else if(tmp.AnsiPos("BriefingConfirmationRepeat") == 1) {
-                                                try { repeat = checkBool2(StrToInt(getValue(tmp))); } catch (...) {}
-                                        } else if(tmp.AnsiPos("RestoreOnCreating") == 1) {
-                                                try { rOnC = checkBool2(StrToInt(getValue(tmp))); } catch (...) {}
-                                        } else if(tmp.AnsiPos("RestoreOnWaiting") == 1) {
-                                                try { rOnW = checkBool2(StrToInt(getValue(tmp))); } catch (...) {}
-                                        } else if(tmp.AnsiPos("RestoreOnBriefing") == 1) {
-                                                try { rOnB = checkBool2(StrToInt(getValue(tmp))); } catch (...) {}
-                                        } else if(tmp.AnsiPos("RestoreOnPlaying") == 1) {
-                                                try { rOnP = checkBool2(StrToInt(getValue(tmp))); } catch (...) {}
-                                        } else if(tmp.AnsiPos("RestoreOnDebriefing") == 1) {
-                                                try { rOnD = checkBool2(StrToInt(getValue(tmp))); } catch (...) {}
-                                        }
-                                        i++;
-                                        tmp = file->Strings[i].Trim();
-                                }
+                                ConfigSection *automation = new ConfigSection("Automation");
+                                automation->add(new ConfigEntry("BriefingConfirmationDelay", dtInt, (void*)(&delay)));
+                                automation->add(new ConfigEntry("RestoreOnCreating", dtBool, (void*)(&rOnC)));
+                                automation->add(new ConfigEntry("RestoreOnWaiting", dtBool, (void*)(&rOnW)));
+                                automation->add(new ConfigEntry("RestoreOnBriefing", dtBool, (void*)(&rOnB)));
+                                automation->add(new ConfigEntry("RestoreOnPlaying", dtBool, (void*)(&rOnP)));
+                                automation->add(new ConfigEntry("RestoreOnDebriefing", dtBool, (void*)(&rOnD)));
+                                i = automation->scan(file, i);
+                                delete automation;
                                 Form1->setGameControlSettings(delay, repeat, rOnC, rOnW, rOnB, rOnP, rOnD);
                         }
                 }
@@ -1591,7 +1453,7 @@ class CustomNotification {
                 int playbackStart;
                 int playbackEnd;
                 TColor markingColor;
-                int repeat;
+                bool repeat;
                 bool set;
 
                 CustomNotification () {
@@ -1602,7 +1464,7 @@ class CustomNotification {
                 CustomNotification (String name, int filters, list<String> &mission,
                                     list<String> &server, list<String> &player, int minPlayers,
                                     int maxPlayers, String soundFile, int volume, int start, int end,
-                                    String color, int repeat) {
+                                    String color, bool repeat) {
                         this->name = name;
                         this->withoutPassword = ((filters & 1) == 1);
                         filters = filters >> 1;
@@ -1638,7 +1500,7 @@ class CustomNotification {
                         bool statusWithPW, bool statusWithoutPW,
                         list<String> &mission, list<String> &server,
                         list<String> &player, int minPlayers, int maxPlayers,
-                        String soundFile, int volume, int start, int end, String color, int repeat) {
+                        String soundFile, int volume, int start, int end, String color, bool repeat) {
                         this->name = name;
                         this->withoutPassword = statusWithoutPW;
                         this->withPassword = statusWithPW;
@@ -1728,7 +1590,7 @@ class CustomNotification {
                         output->Add("playbackVolume = " + String(this->playbackVolume));
                         output->Add("playbackStart = " + String(this->playbackStart));
                         output->Add("playbackEnd = " + String(this->playbackEnd));
-                        output->Add("repeat = " + IntToStr(this->repeat));
+                        output->Add("repeat = " + checkBool(this->repeat));
                         output->Add("[\\CustomNotification]");
 
                         return output;
@@ -1796,7 +1658,7 @@ void printPlaybackRange(int start, int end) {
 void TWINDOW_SETTINGS::addCustomNotification(String name, int filters, list<String> &mission,
                                     list<String> &server, list<String> &player, int minPlayers,
                                     int maxPlayers, String soundFile, int volume, int start, int end,
-                                    String color, int repeat) {
+                                    String color, bool repeat) {
         for(int i = 0; i < GetArrLength(CustomNotify); i++) {
                 if(!CustomNotify[i].set) {
                         CustomNotify[i] = CustomNotification(name, filters,
@@ -1954,7 +1816,7 @@ class MP3Job {
                                 this->volume = CustomNotify[index].playbackVolume;
                                 this->start = CustomNotify[index].playbackStart;
                                 this->end = CustomNotify[index].playbackEnd;
-                                this->repeat = ((CustomNotify[index].repeat == 1) ? true : false);
+                                this->repeat = CustomNotify[index].repeat;
                         }
                 }
                 this->started = false;
