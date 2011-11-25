@@ -693,7 +693,12 @@ void TForm1::setGameControlSettings(int delay, bool repeat, bool rOnC, bool rOnW
  */
 
 void updateTimeoutLimit() {
-        timeoutLimit = (int)(10 / WINDOW_SETTINGS->getUpdateInterval());
+        int setInterval = WINDOW_SETTINGS->getUpdateInterval();
+        if(setInterval >= 10) {
+                timeoutLimit = 1;
+        } else {
+                timeoutLimit = (int)(10 / setInterval);
+        }
 }
 
 /**
@@ -702,20 +707,19 @@ void updateTimeoutLimit() {
  */
 
 void sendUdpMessage(int index, String ip, int port, String msg) {
-        try {
-                Form1->IdUDPServer1->Send(ip, port, msg);
-                if(ServerArray[index].messageSent <= 1) {
+        if(ServerArray[index].messageSent <= 1) {
+                try {
+                        Form1->IdUDPServer1->Send(ip, port, msg);
                         ServerArray[index].messageSent = timeGetTime();
+                } catch (EIdConnectException &E) {
+                        ServerArray[index].clear();
+                } catch (...) {}
+        } else {
+                if(ServerArray[index].timeouts < timeoutLimit) {
+                        ServerArray[index].timeouts += 1;
                 } else {
-                        int tmp = ServerArray[index].timeouts;
-                        if(tmp < timeoutLimit) {
-                                ServerArray[index].timeouts = tmp + 1;
-                        } else {
-                                ServerArray[index].clear();
-                        }
+                        ServerArray[index].clear();
                 }
-        } catch (EIdException &E) {
-                addToErrorReport("Error while sending a UDP packet", E.Message + "   Address:  " + ip + ":" + IntToStr(port));
         }
 }
 
@@ -2065,7 +2069,8 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
 {
         int i = Timer1->Tag;
         i++;
-        if(i >= 2*WINDOW_SETTINGS->getUpdateInterval()) {
+        updateTimeoutLimit();
+        if(i >= WINDOW_SETTINGS->getUpdateInterval()) {
                 Timer2->Enabled = true;
                 Timer1->Tag = 0;
         } else {

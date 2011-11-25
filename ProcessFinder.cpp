@@ -67,7 +67,7 @@ bool ProcessFinder::enumerate(TStringList *titleStartsWith, TStringList *moduleI
                                 if( GetModuleFileNameExA(hProcess, hMods[i], szModName, sizeof(szModName) / sizeof(TCHAR)) ) {
                                         AnsiString str = AnsiString(szModName);
                                         for(int j = 0; j < moduleIncludes->Count; j++) {
-                                                if(str.AnsiPos(moduleIncludes->Strings[j]) > 0) {
+                                                if(str.LowerCase().AnsiPos(moduleIncludes->Strings[j].LowerCase()) > 0) {
                                                         (*ci).moduleName = str;
                                                         this->output.push_back(*ci);
                                                         break;
