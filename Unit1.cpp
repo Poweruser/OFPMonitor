@@ -1719,17 +1719,16 @@ class Chat {
                         this->changed = false;
                 }
 
-                bool incomingMessage(String name, String msg) {
+                bool incomingMessage(String name, String msg, bool controlMsg) {
                         if(name == this->name) {
                                 if(!msg.IsEmpty()) {
                                         this->output->Add(msg);
                                         if(Form1->TabControl1->TabIndex == -1 || Form1->TabControl1->Tabs->Strings[Form1->TabControl1->TabIndex] == this->name) {
                                                 Form1->MemoChatOutput->Lines->Add(msg);
-                                        } else {
+                                        } else if(!controlMsg) {
                                                 this->changed = true;
                                         }
                                 }
-                                Form1->TabControl1->Repaint();
                                 return true;
                         }
                         return false;
@@ -1783,18 +1782,27 @@ class ChatSettings {
                 }
 
                 void incomingMsg(String chan, String msg, bool controlMsg) {
+                        bool controlMessage = controlMsg;
+                        if(msg.AnsiPos("Logged in with") == 1) {
+                                controlMessage = true;
+                        }
                         bool found = false;
                         for(int i = 0; i < activeChats->Count && !found; i++) {
                                 Chat *c = (Chat*)(activeChats->Objects[i]);
-                                found = c->incomingMessage(chan, msg);
+                                found = c->incomingMessage(chan, msg, controlMsg);
                         }
-                        if(!found && !controlMsg) {
-                                Form1->TabControl1->Tabs->Add(chan);
-                                Chat *n = new Chat(chan);
-                                n->incomingMessage(chan, msg);
-                                activeChats->AddObject(chan, (TObject*)n);
+                        if(!controlMsg) {
+                                if(Form1->PageControl1->TabIndex != Form1->TABSHEET_CHAT->PageIndex) {
+                                        Form1->TABSHEET_CHAT->Highlighted = true;
+                                }
+                                if(!found) {
+                                        Form1->TabControl1->Tabs->Add(chan);
+                                        Chat *n = new Chat(chan);
+                                        n->incomingMessage(chan, msg, controlMsg);
+                                        activeChats->AddObject(chan, (TObject*)n);
+                                }
+                                Form1->TabControl1->Repaint();
                         }
-                        Form1->TabControl1->Repaint();
                 }
 
                 void setAutoConnect(bool ac) {
@@ -2804,13 +2812,6 @@ void __fastcall TForm1::TABSHEET_CHATShow(TObject *Sender)
         TABSHEET_CHAT->Highlighted = false;  
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::MemoChatOutputChange(TObject *Sender)
-{
-        if(PageControl1->TabIndex != TABSHEET_CHAT->PageIndex) {
-                TABSHEET_CHAT->Highlighted = true;
-        }
-}
-//---------------------------------------------------------------------------
 void __fastcall TForm1::MemoChatInputKeyDown(TObject *Sender, WORD &Key,
       TShiftState Shift)
 {
@@ -3175,4 +3176,5 @@ void __fastcall TForm1::UpDown2ChangingEx(TObject *Sender,
         gameControl.setGreenUpDelay(NewValue);
 }
 //---------------------------------------------------------------------------
+
 

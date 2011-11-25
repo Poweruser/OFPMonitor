@@ -225,7 +225,6 @@ __published:	// IDE-managed Components
           int ARow, TRect &Rect, TGridDrawState State);
         void __fastcall CoolTrayIcon1Click(TObject *Sender);
         void __fastcall TABSHEET_CHATShow(TObject *Sender);
-        void __fastcall MemoChatOutputChange(TObject *Sender);
         void __fastcall MemoChatInputKeyDown(TObject *Sender, WORD &Key,
           TShiftState Shift);
         void __fastcall MemoChatInputKeyUp(TObject *Sender, WORD &Key,

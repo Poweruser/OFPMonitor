@@ -671,7 +671,6 @@ object Form1: TForm1
             ReadOnly = True
             ScrollBars = ssVertical
             TabOrder = 1
-            OnChange = MemoChatOutputChange
           end
         end
       end
