@@ -643,7 +643,6 @@ object Form1: TForm1
           Align = alClient
           MultiLine = True
           OwnerDraw = True
-          PopupMenu = PopupMenuChat2
           TabOrder = 0
           OnChange = TabControl1Change
           OnChanging = TabControl1Changing

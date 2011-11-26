@@ -1789,16 +1789,16 @@ class ChatSettings {
                         bool found = false;
                         for(int i = 0; i < activeChats->Count && !found; i++) {
                                 Chat *c = (Chat*)(activeChats->Objects[i]);
-                                found = c->incomingMessage(chan, msg, controlMsg);
+                                found = c->incomingMessage(chan, msg, controlMessage);
                         }
-                        if(!controlMsg) {
+                        if(!controlMessage) {
                                 if(Form1->PageControl1->TabIndex != Form1->TABSHEET_CHAT->PageIndex) {
                                         Form1->TABSHEET_CHAT->Highlighted = true;
                                 }
                                 if(!found) {
                                         Form1->TabControl1->Tabs->Add(chan);
                                         Chat *n = new Chat(chan);
-                                        n->incomingMessage(chan, msg, controlMsg);
+                                        n->incomingMessage(chan, msg, controlMessage);
                                         activeChats->AddObject(chan, (TObject*)n);
                                 }
                                 Form1->TabControl1->Repaint();
@@ -2997,6 +2997,8 @@ void __fastcall TForm1::TabControl1ContextPopup(TObject *Sender,
                         Close1->Hint = c->name;
                         Close1->Caption = WINDOW_SETTINGS->getGuiString("STRING_CHAT_CLOSE");
                         Close1->Visible = true;
+                        TPoint p = TabControl1->ClientToScreen(MousePos);
+                        PopupMenuChat2->Popup(p.x, p.y);
                         break;
                 }
         }
