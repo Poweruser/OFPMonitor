@@ -694,10 +694,10 @@ void TForm1::setGameControlSettings(int delay, bool repeat, bool rOnC, bool rOnW
 
 void updateTimeoutLimit() {
         int setInterval = WINDOW_SETTINGS->getUpdateInterval();
-        if(setInterval >= 10) {
-                timeoutLimit = 1;
+        if(setInterval >= 15) {
+                timeoutLimit = 2;
         } else {
-                timeoutLimit = (int)(10 / setInterval);
+                timeoutLimit = (int)(30 / setInterval);
         }
 }
 
@@ -708,12 +708,7 @@ void updateTimeoutLimit() {
 
 void sendUdpMessage(int index, String ip, int port, String msg) {
         if(ServerArray[index].messageSent <= 1) {
-                try {
-                        Form1->IdUDPServer1->Send(ip, port, msg);
-                        ServerArray[index].messageSent = timeGetTime();
-                } catch (EIdConnectException &E) {
-                        ServerArray[index].clear();
-                } catch (...) {}
+                ServerArray[index].messageSent = timeGetTime();
         } else {
                 if(ServerArray[index].timeouts < timeoutLimit) {
                         ServerArray[index].timeouts += 1;
@@ -721,6 +716,11 @@ void sendUdpMessage(int index, String ip, int port, String msg) {
                         ServerArray[index].clear();
                 }
         }
+        try {
+                Form1->IdUDPServer1->Send(ip, port, msg);
+        } catch (EIdConnectException &E) {
+                ServerArray[index].clear();
+        } catch (...) {}
 }
 
 /**
@@ -1104,7 +1104,11 @@ void filterChanged(bool userinput) {
                         Form1->StringGrid1->Cells[3][rowIndex] = gs;
                         Form1->StringGrid1->Cells[4][rowIndex] = ServerArray[j].island;
                         Form1->StringGrid1->Cells[5][rowIndex] = ServerArray[j].mission;
-                        Form1->StringGrid1->Cells[6][rowIndex] = IntToStr(ServerArray[j].ping);
+                        String pingField = IntToStr(ServerArray[j].ping);
+                        if(ServerArray[j].timeouts > 0) {
+                                 pingField = " --- ";
+                        }
+                        Form1->StringGrid1->Cells[6][rowIndex] = pingField;
                         if(autojoin < 0) {
                                 if(!tableSorter.normal) {
                                         slist->Delete(slist->Count - 1);
@@ -1782,23 +1786,19 @@ class ChatSettings {
                 }
 
                 void incomingMsg(String chan, String msg, bool controlMsg) {
-                        bool controlMessage = controlMsg;
-                        if(msg.AnsiPos("Logged in with") == 1) {
-                                controlMessage = true;
-                        }
                         bool found = false;
                         for(int i = 0; i < activeChats->Count && !found; i++) {
                                 Chat *c = (Chat*)(activeChats->Objects[i]);
-                                found = c->incomingMessage(chan, msg, controlMessage);
+                                found = c->incomingMessage(chan, msg, controlMsg);
                         }
-                        if(!controlMessage) {
+                        if(!controlMsg) {
                                 if(Form1->PageControl1->TabIndex != Form1->TABSHEET_CHAT->PageIndex) {
                                         Form1->TABSHEET_CHAT->Highlighted = true;
                                 }
                                 if(!found) {
                                         Form1->TabControl1->Tabs->Add(chan);
                                         Chat *n = new Chat(chan);
-                                        n->incomingMessage(chan, msg, controlMessage);
+                                        n->incomingMessage(chan, msg, controlMsg);
                                         activeChats->AddObject(chan, (TObject*)n);
                                 }
                                 Form1->TabControl1->Repaint();

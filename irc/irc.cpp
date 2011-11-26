@@ -169,11 +169,13 @@ void chat_client_timercallback(void * t) {
                                 playername = string(omsg, 1, emp - 1);
                                 playername = name_irctolocal(playername);
                                 if(!Form1->isChatUserBlocked(playername.c_str())) {
+                                        String tmp = cmsg.c_str();
+                                        bool isLoggedInMsg = tmp.AnsiPos("Logged in with") == 1;
                                         cmsg = currentTimeString() + " - " + playername + ": " + cmsg;
                                         if(chan) {
-                                                appendText(tform1, Form1->getChatChannel().c_str(), cmsg, false);
+                                                appendText(tform1, Form1->getChatChannel().c_str(), cmsg, isLoggedInMsg);
                                         } else {
-                                                appendText(tform1, playername, cmsg, false);
+                                                appendText(tform1, playername, cmsg, isLoggedInMsg);
                                         }
                                         if(Form1->doNameFilter(cmsg.c_str(), playerName) ||
                                                 Form1->doNameFilter(cmsg.c_str(), (plrname_localtoirc(playerName)).c_str())) {
