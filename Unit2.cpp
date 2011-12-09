@@ -1991,13 +1991,11 @@ class MP3Player {
 
         void MP3remove(int index) {
                 for(int i = 0; i < this->limit; i++) {
-                        if(jobs[i].set) {
-                                if(jobs[i].notificationIndex == index) {
-                                        if(!Form1->isNotificationRuleActive(index)) {
-                                                jobs[i].stop();
-                                                jobs[i] = MP3Job();
-                                        }
-                                }
+                        if(jobs[i].set &&
+                           jobs[i].notificationIndex == index &&
+                           !Form1->isNotificationRuleActive(index)) {
+                                jobs[i].stop();
+                                jobs[i] = MP3Job();
                         }
                 }
         }

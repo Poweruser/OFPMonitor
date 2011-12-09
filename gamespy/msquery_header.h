@@ -35,8 +35,7 @@ unsigned long msip          = INADDR_NONE;
 
 
 
-int     scandelay       = 5,
-        quiet           = 0,
+int        quiet           = 0,
         myenctype       = -1,
         enctypex_type   = 1,
 	sd;

@@ -1572,13 +1572,15 @@ bool readInfoPacket(int i, String msg, String ip, int port) {
                                                         ServerArray[i].mission,
                                                         ServerArray[i].password,
                                                         playerList);
-                                if(now == -1 && ServerArray[i].notificationRuleIndex >= -1) {
-                                        int old = ServerArray[i].notificationRuleIndex;
+                                int old = ServerArray[i].notificationRuleIndex;
+                                if(now != old) {
                                         ServerArray[i].notificationRuleIndex = now;
-                                        WINDOW_SETTINGS->MP3remove(old);
-                                } else if(ServerArray[i].notificationRuleIndex == -1 && now >= -1) {
-                                        ServerArray[i].notificationRuleIndex = now;
-                                        WINDOW_SETTINGS->MP3add(ServerArray[i].notificationRuleIndex);
+                                        if(old >= 0) {
+                                                WINDOW_SETTINGS->MP3remove(old);
+                                        }
+                                        if(now >= 0) {
+                                                WINDOW_SETTINGS->MP3add(now);
+                                        }
                                 }
                         }
                 }
@@ -2519,8 +2521,8 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
         Application->ProcessMessages();
         TStringList *games = WINDOW_SETTINGS->getGameSpyGames();
         for (int k = 0; k < games->Count; k++) {
-                scandelay *= 1000;
                 dnsdb(NULL);
+                strcpy(gamestr, games->Strings[k].c_str());
                 gslist_step_1(gamestr, filter);
                 peer.sin_addr.s_addr = msip;
                 peer.sin_port        = htons(msport);
@@ -2552,7 +2554,6 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
                         }
                 }
         }
-                       
         list<ServerItem> addresses;
         while(CurrentList->Count > 0) {
                 ServerItem *p = (ServerItem*) (CurrentList->Objects[0]);
