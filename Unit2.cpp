@@ -1949,10 +1949,10 @@ class MP3Player {
                                 hasJob = true;
                                 if(jobs[i].hasEnded()) {
                                         jobs[i].stop();
-                                        jobs[i] = MP3Job();
                                         if(jobs[i].repeat) {
                                                 Form1->resetNotifications(jobs[i].notificationIndex);
                                         }
+                                        jobs[i] = MP3Job();
                                 }
                         }
                 }
