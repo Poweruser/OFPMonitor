@@ -1,7 +1,7 @@
 TButton *guiButton[18];
 TCheckBox *guiCheckBox[22];
 TLabel *guiLabel[32];
-TGroupBox *guiGroupBox[15];
+TGroupBox *guiGroupBox[16];
 TForm *guiForm[3];
 TMenuItem *guiMenuItem[20];
 TTabSheet *guiTabSheet[9];

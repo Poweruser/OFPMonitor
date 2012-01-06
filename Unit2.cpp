@@ -406,6 +406,7 @@ class Settings {
                 String file;
                 String languagefile;
                 BandwidthUsage level;
+                int volume;
 
                 Settings() {
                         this->workdir = GetCurrentDir();
@@ -419,6 +420,7 @@ class Settings {
                                 this->games[i] = Game();
                                 this->games[i].setGameId(i);
                         }
+                        this->volume = 100;
                 }
 
                 Configuration pSgetConf(int gameid, int i) {
@@ -456,6 +458,7 @@ class Settings {
                                 file->Add("customNotifications = " + checkBool(this->customNotifications));
                                 file->Add("BandwidthUsage = " + IntToStr(this->level));
                                 file->Add("checkUpdateAtStart = " + checkBool(this->checkUpdateAtStart));
+                                file->Add("Volume = " + IntToStr(this->volume));
                                 file->Add("[\\General]");
 
                                 for(int i = 0; i < GAMES_TOTAL; i++) {
@@ -614,6 +617,11 @@ class Settings {
                         }
                         box->OnChange(WINDOW_SETTINGS);
                 }
+
+                void setVolume(int v) {
+                        this->volume = v;
+                        this->changed = true;
+                }
 };
 Settings programSettings = Settings();
 
@@ -623,6 +631,10 @@ BandwidthUsage TWINDOW_SETTINGS::getBandwidthSettings() {
 
 int TWINDOW_SETTINGS::getUpdateInterval() {
         return programSettings.interval;
+}
+
+int TWINDOW_SETTINGS::getVolume() {
+        return programSettings.volume;
 }
 
 /**
@@ -1107,11 +1119,10 @@ void setBandwidthUsage(int level) {
  */
 
 list<ServerItem> readConfigFile() {
-        String interval = "";
         String langfile = "";
         String notify = "0";
         String checkUpdate = "0";
-        int bandwidthUsage = 0;
+        int interval = 3, bandwidthUsage = 0, volume = 100;
         bool gameSet = false;
         list<ServerItem> ipList;
         if(FileExists(programSettings.file)) {
@@ -1121,11 +1132,12 @@ list<ServerItem> readConfigFile() {
                         String tmp = file->Strings[i].Trim();
                         if(tmp.AnsiPos("[General]") == 1) {
                                 ConfigSection *general = new ConfigSection("General");
-                                general->add(new ConfigEntry("Interval", dtString, (void*)(&interval)));
+                                general->add(new ConfigEntry("Interval", dtInt, (void*)(&interval)));
                                 general->add(new ConfigEntry("LangFile", dtString, (void*)(&langfile)));
                                 general->add(new ConfigEntry("customNotifications", dtString, (void*)(&notify)));
                                 general->add(new ConfigEntry("BandwidthUsage", dtInt, (void*)(&bandwidthUsage)));
                                 general->add(new ConfigEntry("checkUpdateAtStart", dtString, (void*)(&checkUpdate)));
+                                general->add(new ConfigEntry("Volume", dtInt, (void*)(&volume)));
                                 i = general->scan(file, i);
                                 delete general;
                         } else if(tmp.AnsiPos("[Game]") == 1) {
@@ -1328,12 +1340,8 @@ list<ServerItem> readConfigFile() {
                 }
         }
         setBandwidthUsage(bandwidthUsage);
-        try {
-                int a = StrToInt(interval);
-                programSettings.setInterval(a);
-        }catch (...) {
-                programSettings.setInterval(3);
-        }
+        programSettings.setInterval(interval);
+        programSettings.setVolume(volume);
         programSettings.customNotifications = checkBool2(notify);
         programSettings.checkUpdateAtStart = checkBool2(checkUpdate);
         programSettings.changed = false;
@@ -1803,6 +1811,10 @@ class MP3Job {
 
         MP3Job() {
                 this->notificationIndex = -1;
+                this->repeat = false;
+                this->error = false;
+                this->stopped = false;
+                this->started = false;
                 this->set = false;
         }
 
@@ -1829,7 +1841,11 @@ class MP3Job {
                         if(0 != mciSendString(("Open \"" + this->file + "\" alias " + this->alias).c_str(),0,0,0)) {
                                 this->error = true;
                         }
-                        if(0 != mciSendString(("play " + this->alias + " from " + String(this->start) + " to " + String(this->end)).c_str(), 0, 0, 0)) {
+                        String range = "";
+                        if(this->start >= 0 && this->end >= 0) {
+                                range = " from " + String(this->start) + " to " + String(this->end);
+                        }
+                        if(0 != mciSendString(("play " + this->alias + range).c_str(), 0, 0, 0)) {
                                 this->error = true;
                         }
                         if(0 != mciSendString(("setaudio " + this->alias + " volume to " + String(this->volume*10)).c_str(), 0, 0, 0)) {
@@ -1868,12 +1884,12 @@ class MP3Job {
 
 class MP3Player {
     public:
-        MP3Job jobs[5];
+        MP3Job jobs[64];
         MP3Job preview;
         int limit;
 
         MP3Player() {
-                this->limit = 5;
+                this->limit = 64;
         }
 
         /**
@@ -1887,9 +1903,13 @@ class MP3Player {
                                 return;
                         }
                 }
+                this->MP3add(MP3Job(index));
+        }
+
+        void MP3add (MP3Job j) {
                 for(int i = 0; i < this->limit; i++) {
                         if(!this->jobs[i].set) {
-                                this->jobs[i] = MP3Job(index);
+                                this->jobs[i] = j;
                                 this->jobs[i].play();
                                 break;
                         }
@@ -2018,6 +2038,27 @@ void TWINDOW_SETTINGS::MP3remove(int index) {
 void TWINDOW_SETTINGS::MP3add(int index) {
         mp3p.MP3add(index);
         MP3Timer->Enabled = true;
+}
+
+int readSongLength(String file) {
+        mciSendString(("open \"" + file + "\" alias LengthCheck").c_str(),0,0,0);
+        mciSendString("set LengthCheck time format milliseconds",0,0,0);
+        char text[128];
+        mciSendString("status LengthCheck length", text, 128, 0);
+        mciSendString("close LengthCheck", 0, 0, 0);
+        return StrToInt(text);
+}
+
+void TWINDOW_SETTINGS::MP3add(String file, int volume) {
+        MP3Job m = MP3Job();
+        m.file = file;
+        m.volume = volume;
+        m.alias = "OFPM_AUDIO_" + TimeToStr(Time());
+        m.start = 0;
+        m.end = readSongLength(m.file);
+        m.set = true;
+        mp3p.MP3add(m);
+        MP3Timer->Enabled = true;        
 }
 
 void TWINDOW_SETTINGS::MP3shutdown() {
@@ -2593,12 +2634,7 @@ void __fastcall TWINDOW_SETTINGS::EDIT_NOTIFICATION_FILEChange(TObject *Sender)
                         if(EDIT_NOTIFICATION_FILE->Tag > -1) {
                                 printPlaybackRange(CustomNotify[EDIT_NOTIFICATION_FILE->Tag].playbackStart, CustomNotify[EDIT_NOTIFICATION_FILE->Tag].playbackEnd);
                         } else {
-                                mciSendString(("open \"" + EDIT_NOTIFICATION_FILE->Text + "\" alias LengthCheck").c_str(),0,0,0);
-                                mciSendString("set LengthCheck time format milliseconds",0,0,0);
-                                char text[128];
-                                mciSendString("status LengthCheck length", text, 128, 0);
-                                printPlaybackRange(0, StrToInt(text));
-                                mciSendString("close LengthCheck", 0, 0, 0);
+                                printPlaybackRange(0, readSongLength(EDIT_NOTIFICATION_FILE->Text));
                         }
                 }
         }
@@ -3087,6 +3123,7 @@ void __fastcall TWINDOW_SETTINGS::TABSHEET_GENERALShow(TObject *Sender)
         CHECKBOX_NOTIFICATIONS_ACTIVE->Checked = programSettings.customNotifications;
         CHECKBOX_UPDATE_CHECKATSTART->Checked = programSettings.checkUpdateAtStart;
         TRACKBAR_BANDWIDTH->Position = programSettings.level;
+        TRACKBAR_VOLUME->Position = programSettings.volume;
 }
 //---------------------------------------------------------------------------
 
@@ -3273,6 +3310,11 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_ADDClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TWINDOW_SETTINGS::TRACKBAR_VOLUMEChange(TObject *Sender)
+{
+        programSettings.setVolume(TRACKBAR_VOLUME->Position);        
+}
+//---------------------------------------------------------------------------
 
 
 

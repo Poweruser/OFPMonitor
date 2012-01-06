@@ -188,6 +188,45 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           OnClick = BUTTON_UPDATEClick
         end
       end
+      object GROUPBOX_VOLUME: TGroupBox
+        Left = 8
+        Top = 232
+        Width = 249
+        Height = 81
+        Caption = 'Output volume for watched servers '
+        TabOrder = 5
+        object Label1: TLabel
+          Left = 16
+          Top = 56
+          Width = 6
+          Height = 13
+          Caption = '0'
+        end
+        object Label2: TLabel
+          Left = 212
+          Top = 56
+          Width = 18
+          Height = 13
+          Caption = '100'
+        end
+        object TRACKBAR_VOLUME: TTrackBar
+          Left = 8
+          Top = 16
+          Width = 225
+          Height = 40
+          Max = 100
+          Orientation = trHorizontal
+          PageSize = 10
+          Frequency = 10
+          Position = 100
+          SelEnd = 0
+          SelStart = 0
+          TabOrder = 0
+          TickMarks = tmBoth
+          TickStyle = tsAuto
+          OnChange = TRACKBAR_VOLUMEChange
+        end
+      end
     end
     object TABSHEET_GAMES: TTabSheet
       Caption = 'Games'
@@ -1610,8 +1649,8 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     Left = 392
   end
   object ImageList1: TImageList
-    Left = 184
-    Top = 304
+    Left = 304
+    Top = 408
     Bitmap = {
       494C010105000900040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
@@ -2017,8 +2056,8 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
       000000000000}
   end
   object POPUPMENU_SERVERLISTEDITOR: TPopupMenu
-    Left = 216
-    Top = 304
+    Left = 336
+    Top = 408
     object MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE: TMenuItem
       Caption = 'Remove'
       OnClick = MENUITEM_POPUP_SERVERLISTEDITOR_REMOVEClick

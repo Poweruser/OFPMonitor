@@ -26,7 +26,6 @@
 #pragma package(smart_init)
 #pragma link "CoolTrayIcon"
 #pragma resource "*.dfm"
-#pragma resource "wavefiles.res"
 
 TForm1 *Form1;
 
@@ -1231,20 +1230,28 @@ void mergeLists(list<String> &a, list<String> &b) {
 
 void playAudioServerStatus(int i, int newStatus) {
         if(ServerArray[i].watch) {
-                int j = 0;
-                if(newStatus == SERVERSTATE_CREATING) {
-                        j = 1;
-                } else if(newStatus == SERVERSTATE_WAITING) {
-                        j = 2;
-                } else if(newStatus == SERVERSTATE_BRIEFING) {
-                        j = 3;
-                } else if(newStatus == SERVERSTATE_PLAYING) {
-                        j = 4;
-                } else if(newStatus == SERVERSTATE_DEBRIEFING) {
-                        j = 5;
+                String file = GetCurrentDir() + "\\sound\\";
+                switch(newStatus) {
+                        case SERVERSTATE_CREATING:
+                                file += "creating";
+                                break;
+                        case SERVERSTATE_WAITING:
+                                file += "waiting";
+                                break;
+                        case SERVERSTATE_BRIEFING:
+                                file += "briefing";
+                                break;
+                        case SERVERSTATE_PLAYING:
+                                file += "playing";
+                                break;
+                        case SERVERSTATE_DEBRIEFING:
+                                file += "debriefing";
+                                break;
                 }
-                if(j > 0) {
-                        PlaySound(PChar(j), NULL, SND_RESOURCE | SND_ASYNC);
+                if(FileExists(file + ".wav")) {
+                        WINDOW_SETTINGS->MP3add(file + ".wav", WINDOW_SETTINGS->getVolume());
+                } else if(FileExists(file + ".mp3")) {
+                        WINDOW_SETTINGS->MP3add(file + ".mp3", WINDOW_SETTINGS->getVolume());
                 }
         }
 }

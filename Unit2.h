@@ -180,6 +180,10 @@ __published:	// IDE-managed Components
         TImageList *ImageList1;
         TPopupMenu *POPUPMENU_SERVERLISTEDITOR;
         TMenuItem *MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE;
+        TGroupBox *GROUPBOX_VOLUME;
+        TTrackBar *TRACKBAR_VOLUME;
+        TLabel *Label1;
+        TLabel *Label2;
         void __fastcall BUTTON_OFPRES_BROWSEClick(TObject *Sender);
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialog1CanClose(TObject *Sender,
@@ -267,6 +271,7 @@ __published:	// IDE-managed Components
         void __fastcall MENUITEM_POPUP_SERVERLISTEDITOR_REMOVEClick(
           TObject *Sender);
         void __fastcall BUTTON_SERVERS_ADDClick(TObject *Sender);
+        void __fastcall TRACKBAR_VOLUMEChange(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         int TWINDOW_SETTINGS::getConfAmount(int gameid);
@@ -300,9 +305,11 @@ public:		// User declarations
         TColor TWINDOW_SETTINGS::getMarkingColor(int index);
         void TWINDOW_SETTINGS::MP3remove(int index);
         void TWINDOW_SETTINGS::MP3add(int index);
+        void TWINDOW_SETTINGS::MP3add(String file, int volume);
         void TWINDOW_SETTINGS::MP3shutdown();
         BandwidthUsage TWINDOW_SETTINGS::getBandwidthSettings();
         int TWINDOW_SETTINGS::getUpdateInterval();
+        int TWINDOW_SETTINGS::getVolume();
         __fastcall TWINDOW_SETTINGS(TComponent* Owner);
 };
 //---------------------------------------------------------------------------
