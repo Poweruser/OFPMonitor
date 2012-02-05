@@ -2229,6 +2229,12 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
                                 MENUITEM_POPUP_WATCH->Tag = index;
                                 MENUITEM_POPUP_WATCH->Checked = ServerArray[index].watch;
 
+                                while(t.size() > MENUITEM_POPUP_MODS->Count) {
+                                        TMenuItem *m = new TMenuItem(this);
+                                        m->Visible = false;
+                                        MENUITEM_POPUP_MODS->Add(m);
+                                }
+
                                 int i = 0;
                                 for (list<String>::iterator ci = t.begin(); ci != t.end(); ++ci) {
                                         if(!(*ci).IsEmpty()) {
