@@ -1094,7 +1094,6 @@ void updateLanguage(String languagefile) {
                 WINDOW_SETTINGS->LABEL_ARMACWA_PLAYERNAME->Caption = WINDOW_SETTINGS->getGuiString("STRING_PROFILE");
 
         }
-        updateGames();
 }
 
 void setBandwidthUsage(int level) {
@@ -1314,9 +1313,14 @@ list<ServerItem> readConfigFile() {
 
                         } else if(tmp.AnsiPos("[Automation]") == 1) {
                                 int delay = 10;
-                                bool repeat = true, rOnC = false, rOnW = false, rOnB = false, rOnP = false, rOnD = false;
+                                bool autodetect = false, autogreen = false, repeat = true, restoreGame = false,
+                                     rOnC = false, rOnW = false, rOnB = false, rOnP = false, rOnD = false;
                                 ConfigSection *automation = new ConfigSection("Automation");
+                                automation->add(new ConfigEntry("AutoDetectProcessAndServer", dtBool, (void*)(&autodetect)));
+                                automation->add(new ConfigEntry("BriefingConfirmationOn", dtBool, (void*)(&autogreen)));
                                 automation->add(new ConfigEntry("BriefingConfirmationDelay", dtInt, (void*)(&delay)));
+                                automation->add(new ConfigEntry("BriefingConfirmationRepeat", dtBool, (void*)(&repeat)));
+                                automation->add(new ConfigEntry("RestoreGame", dtBool, (void*)(&restoreGame)));
                                 automation->add(new ConfigEntry("RestoreOnCreating", dtBool, (void*)(&rOnC)));
                                 automation->add(new ConfigEntry("RestoreOnWaiting", dtBool, (void*)(&rOnW)));
                                 automation->add(new ConfigEntry("RestoreOnBriefing", dtBool, (void*)(&rOnB)));
@@ -1324,7 +1328,7 @@ list<ServerItem> readConfigFile() {
                                 automation->add(new ConfigEntry("RestoreOnDebriefing", dtBool, (void*)(&rOnD)));
                                 i = automation->scan(file, i);
                                 delete automation;
-                                Form1->setGameControlSettings(delay, repeat, rOnC, rOnW, rOnB, rOnP, rOnD);
+                                Form1->setGameControlSettings(autodetect, autogreen, delay, repeat, restoreGame, rOnC, rOnW, rOnB, rOnP, rOnD);
                         }
                 }
                 delete file;
@@ -1353,18 +1357,25 @@ list<ServerItem> readConfigFile() {
  */
 
 void findLanguageFiles() {
-                WINDOW_SETTINGS->ComboBox1->Clear();
-               	TSearchRec daten;
-                if(0 == FindFirst("OFPM*.lang", faAnyFile, daten)) {
-                        try {
-                                do {
-                                        WINDOW_SETTINGS->ComboBox1->Items->Add(daten.Name);
-                                } while(FindNext(daten) == 0);
-                        }__finally
-                        {
-                                FindClose(daten);
-                        }
+        String flags[8] = { "chinese", "czech", "german",
+                        "english", "french", "dutch",
+                        "polish", "russian" };
+        WINDOW_SETTINGS->ComboBox1->Clear();
+        TSearchRec daten;
+        if(0 == FindFirst("OFPM*.lang", faAnyFile, daten)) {
+                try {
+                        do {
+                                for(int i = 0; i < 8; i++) {
+                                        if(daten.Name.LowerCase().Pos(flags[i])) {
+                                                WINDOW_SETTINGS->ComboBox1->ItemsEx->AddItem(daten.Name, i, i, -1, -1, NULL);
+                                                break;
+                                        }
+                                }
+                        } while(FindNext(daten) == 0);
+                }__finally {
+                        FindClose(daten);
                 }
+        }
 }
 
 void checkConfListState() {
@@ -1838,7 +1849,7 @@ class MP3Job {
 
         void play() {
                 if(FileExists(this->file)) {
-                        if(0 != mciSendString(("Open \"" + this->file + "\" alias " + this->alias).c_str(),0,0,0)) {
+                        if(0 != mciSendString(("Open \"" + this->file + "\" alias " + this->alias + " type MPEGVideo").c_str(),0,0,0)) {
                                 this->error = true;
                         }
                         String range = "";
@@ -2006,7 +2017,7 @@ class MP3Player {
         }
 
         /**
-           Removes the MP3Job that was created for a certain notification @index
+           Removes all MP3Jobs that were created for a certain notification @index
          */
 
         void MP3remove(int index) {
@@ -2014,6 +2025,20 @@ class MP3Player {
                         if(jobs[i].set &&
                            jobs[i].notificationIndex == index &&
                            !Form1->isNotificationRuleActive(index)) {
+                                jobs[i].stop();
+                                jobs[i] = MP3Job();
+                        }
+                }
+        }
+
+        /**
+           Removes all MP3Jobs that were created for a certain audio file @index
+         */
+
+        void MP3remove(String file) {
+                for(int i = 0; i < this->limit; i++) {
+                        if(jobs[i].set &&
+                           jobs[i].file == file) {
                                 jobs[i].stop();
                                 jobs[i] = MP3Job();
                         }
@@ -2035,18 +2060,28 @@ TColor TWINDOW_SETTINGS::getMarkingColor(int index) {
 void TWINDOW_SETTINGS::MP3remove(int index) {
         mp3p.MP3remove(index);
 }
+
+void TWINDOW_SETTINGS::MP3remove(String file) {
+        mp3p.MP3remove(file);
+}
+
+
 void TWINDOW_SETTINGS::MP3add(int index) {
         mp3p.MP3add(index);
         MP3Timer->Enabled = true;
 }
 
 int readSongLength(String file) {
-        mciSendString(("open \"" + file + "\" alias LengthCheck").c_str(),0,0,0);
-        mciSendString("set LengthCheck time format milliseconds",0,0,0);
-        char text[128];
-        mciSendString("status LengthCheck length", text, 128, 0);
-        mciSendString("close LengthCheck", 0, 0, 0);
-        return StrToInt(text);
+        if(FileExists(file)) {
+                mciSendString(("open \"" + file + "\" alias LengthCheck").c_str(),0,0,0);
+                mciSendString("set LengthCheck time format milliseconds",0,0,0);
+                char text[128];
+                mciSendString("status LengthCheck length", text, 128, 0);
+                mciSendString("close LengthCheck", 0, 0, 0);
+                return StrToInt(text);
+        } else {
+                return 0;
+        }
 }
 
 void TWINDOW_SETTINGS::MP3add(String file, int volume) {
@@ -2306,17 +2341,6 @@ void __fastcall TWINDOW_SETTINGS::FormShow(TObject *Sender)
         exitEditMode();
         updateChatSettings();
         updateServerEditorList(true);
-}
-//---------------------------------------------------------------------------
-void __fastcall TWINDOW_SETTINGS::ComboBox1Change(TObject *Sender)
-{
-        if(FileExists(programSettings.workdir + "\\" + ComboBox1->Text)) {
-                ComboBox1->Enabled = false;
-                programSettings.languagefile = ComboBox1->Text;
-                updateLanguage(programSettings.languagefile);
-                ComboBox1->Enabled = true;
-                ComboBox1->SetFocus();
-        }
 }
 //---------------------------------------------------------------------------
 void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_EDITClick(TObject *Sender)
@@ -3316,5 +3340,17 @@ void __fastcall TWINDOW_SETTINGS::TRACKBAR_VOLUMEChange(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-
+void __fastcall TWINDOW_SETTINGS::ComboBox1Change(TObject *Sender)
+{
+        String file = ComboBox1->ItemsEx->ComboItems[ComboBox1->ItemIndex]->Caption;
+        if(FileExists(programSettings.workdir + "\\" + file)) {
+                ComboBox1->Enabled = false;
+                programSettings.languagefile = file;
+                updateLanguage(programSettings.languagefile);
+                ComboBox1->Enabled = true;
+                ComboBox1->SetFocus();
+                updateGames();
+        }
+}
+//---------------------------------------------------------------------------
 

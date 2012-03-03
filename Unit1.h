@@ -24,6 +24,7 @@
 #include <IdSocketHandle.hpp>
 #include <IdUDPBase.hpp>
 #include <IdUDPServer.hpp>
+#include <ImgList.hpp>
 
 //---------------------------------------------------------------------------
 
@@ -142,7 +143,6 @@ __published:	// IDE-managed Components
         TComboBox *ComboBox1;
         TComboBox *ComboBox2;
         TGroupBox *GROUPBOX_GAMECONTROL_PROCESS;
-        TLabel *LABEL_GAMECONTROL_PROCESSID;
         TGroupBox *GROUPBOX_GAMECONTROL_AUTOGREENUP;
         TRadioButton *RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE;
         TRadioButton *RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT;
@@ -158,12 +158,13 @@ __published:	// IDE-managed Components
         TCheckBox *CHECKBOX_GAMECONTROL_AUTOGREENUP;
         TCheckBox *CHECKBOX_GAMECONTROL_RESTORE;
         TTimer *TimerAutoGreenUp;
-        TButton *BUTTON_GAMECONTROL_REFRESH;
         TLabel *LABEL_GAMECONTROL_PROCESS;
         TLabel *LABEL_GAMECONTROL_SERVER;
-        TLabel *Label6;
-        TLabel *LABEL_GAMECONTROL_EXE;
         TLabel *Label9;
+        TImageList *ImageList1;
+        TCheckBox *CHECKBOX_GAMECONTROL_AUTODETECT;
+        TButton *BUTTON_GAMECONTROL_REFRESH;
+        TLabel *LABEL_GAMECONTROL_EXE;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
@@ -249,7 +250,6 @@ __published:	// IDE-managed Components
         void __fastcall CHECKBOX_GAMECONTROL_AUTOGREENUPClick(TObject *Sender);
         void __fastcall CHECKBOX_GAMECONTROL_RESTOREClick(TObject *Sender);
         void __fastcall TimerAutoGreenUpTimer(TObject *Sender);
-        void __fastcall BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender);
         void __fastcall ComboBox1Change(TObject *Sender);
         void __fastcall ComboBox2Change(TObject *Sender);
         void __fastcall TABSHEET_GAMECONTROLShow(TObject *Sender);
@@ -260,6 +260,9 @@ __published:	// IDE-managed Components
         void __fastcall CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFINGClick(TObject *Sender);
         void __fastcall UpDown2ChangingEx(TObject *Sender,
           bool &AllowChange, short NewValue, TUpDownDirection Direction);
+        void __fastcall CHECKBOX_GAMECONTROL_AUTODETECTClick(
+          TObject *Sender);
+        void __fastcall BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         void TForm1::readServerList(list<ServerItem> &in);
@@ -269,7 +272,8 @@ public:		// User declarations
                                 float ratioMN,float ratioPI,float ratioPL,
                                 float ratioSC,float ratioDE,float ratioTE,
                                 int devider);
-        void TForm1::setGameControlSettings(int delay, bool repeat, bool rOnC, bool rOnW, bool rOnB, bool rOnP, bool rOnD);
+        void TForm1::setGameControlSettings(bool autodetect, bool autogreen, int delay, bool repeat,
+                                bool restoreGame, bool rOnC, bool rOnW, bool rOnB, bool rOnP, bool rOnD);
         list<String> TForm1::splitUpMessage(String msg, String split);
         bool TForm1::doNameFilter(String c, String d);
         void TForm1::incomingChatMessage(String chan, String msg, bool controlMsg);
@@ -287,6 +291,7 @@ public:		// User declarations
         void TForm1::resetNotifications(int notificationIndex);
         Server* TForm1::getServer(int i);
         bool TForm1::addServer(String ip, int gameport);
+        void TForm1::updateGameControlGui();
         __fastcall TForm1(TComponent* Owner);
 
 };

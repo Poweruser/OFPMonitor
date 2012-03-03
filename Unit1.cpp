@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 
 #include "QueryAnswer.h"                                                                    
-#include "OFPMonitor.h"        
+#include "OFPMonitor.h"                                                 
 #include "Address.h"
 #include "Player.h"
 #include "Server.h"
@@ -25,6 +25,7 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma link "CoolTrayIcon"
+#pragma resource "wavefiles.res"
 #pragma resource "*.dfm"
 
 TForm1 *Form1;
@@ -329,7 +330,6 @@ class WindowSettings {
 };
 
 
-typedef list<Player> CustomPlayerList;
 int errorreports = 0;
 
 /**
@@ -397,6 +397,56 @@ String getGameState (int i) {
         return out;
 }
 
+/**
+   Removes all elements of list b and adds them in order to the end of list a
+ */
+
+void mergeLists(list<String> &a, list<String> &b) {
+        while(b.size() > 0) {
+                String tmp = b.front();
+                a.push_back(tmp);
+                b.pop_front();
+        }
+}
+
+/**
+   Checks if  c  contains  d
+   @c  the String to check
+   @d  the String to look for
+   @return  'true' is c does contain d, otherwise 'false'
+ */
+
+bool TForm1::doNameFilter(String c, String d) {
+        bool out = false;
+        String a = c.LowerCase();
+        String b = d.LowerCase();
+        for(int z = 0; z <= ((a.Length() - b.Length()) + 1); z++) {
+                if(a.SubString(z,b.Length()) == b) {
+                        out = true;
+                        break;
+                }
+        }
+        return out;
+}
+
+/**
+    Checks if a name of the Players in list  l  contains the String s
+    @return  result of the check. 'true' if at least
+             one player name contains s, otherwise 'false'
+ */
+
+bool doPlayerFilter(list<Player> l, String s) {
+        bool out = false;
+        for (list<Player>::iterator ci = l.begin(); ci != l.end(); ++ci) {
+                Player p = *ci;
+                if(Form1->doNameFilter(p.name, s)) {
+                        out = true;
+                        break;
+                }
+        }
+        return out;
+}
+
 Server ServerArray[SERVERARRAY_LENGTH];
 int numOfServers = 0;
 
@@ -406,6 +456,7 @@ class GameControl {
                 int serverIndex;
                 String serverIP;
                 int serverPort;
+                bool autoDetect;
                 bool autoGreenUp;
                 int greenUpDelay;
                 bool greenUpRepeat;
@@ -414,6 +465,80 @@ class GameControl {
                         if(in) { return "1"; }
                         return "0";
                 }
+
+                bool detectServer() {
+                        bool detected = false;
+                        if(this->autoDetect) {
+                                for(int i = 0; i < SERVERARRAY_LENGTH; i++) {
+                                        String playerName = WINDOW_SETTINGS->getPlayerName(ServerArray[i].actver, ServerArray[i].reqver);
+                                        if(!playerName.IsEmpty()) {
+                                                if(doPlayerFilter(ServerArray[i].playerlist, playerName)) {
+                                                        this->setServer(i, ServerArray[i].ip, ServerArray[i].gamespyport);
+                                                        detected = true;
+                                                        break;
+                                                }
+                                        }
+                                }
+                        }
+                        return detected;
+                }
+
+                bool detectProcess() {
+                        bool detected = false;
+                        if(this->autoDetect) {
+                                ProcessFinder *pf = new ProcessFinder();
+                                TStringList *startsWith = new TStringList();
+                                startsWith->Sorted = true;
+                                startsWith->Duplicates = dupIgnore;
+                                startsWith->Add(getAppTitleByGameId(GAMEID_OFPCWC));
+                                startsWith->Add(getAppTitleByGameId(GAMEID_OFPRES));
+                                startsWith->Add(getAppTitleByGameId(GAMEID_ARMACWA));
+                                TStringList *modules = new TStringList();
+                                list<String> exes;
+                                mergeLists(exes, getExesByGameId(GAMEID_OFPCWC));
+                                mergeLists(exes, getExesByGameId(GAMEID_OFPRES));
+                                mergeLists(exes, getExesByGameId(GAMEID_ARMACWA));
+                                while(exes.size() > 0) {
+                                        modules->Add(exes.front());
+                                        exes.pop_front();
+                                }
+                                if(pf->enumerate(startsWith, modules)) {
+                                        if(pf->output.size() == 1) {
+                                                this->setProcess(&(pf->output.front()));
+                                                detected = true;
+                                        }
+                                }
+                                delete pf;
+                                delete startsWith;
+                                delete modules;
+                        }
+                        return detected;
+                }
+
+                void checkCurrentData() {
+                        bool serverOK = this->verifyServer();
+                        bool processOK = false;
+                        if(this->isProcessValid()) {
+                                processOK = this->verifyProcess();
+                        }
+                        if(this->autoDetect) {
+                                if(this->detectServer()) {
+                                        Form1->updateGameControlGui();
+                                }
+                                if(!processOK) {
+                                        if(this->detectProcess()) {
+                                                Form1->updateGameControlGui();
+                                        }
+                                }
+                        }
+                }
+
+                bool isProcessValid() {
+                        return (this->proc.pid > 0 &&
+                                !this->proc.title.IsEmpty() &&
+                                !this->proc.moduleName.IsEmpty());
+                }
+
         public:
 
                 bool restoreGame;
@@ -424,6 +549,7 @@ class GameControl {
                 bool restoreOnDebriefing;
 
                 GameControl() {
+                        this->autoDetect = false;
                         this->autoGreenUp = false;
                         this->restoreGame = false;
                         this->serverPort = 0;
@@ -437,6 +563,53 @@ class GameControl {
                         this->restoreOnPlaying = false;
                         this->restoreOnDebriefing = false;
                 }
+
+                bool verifyProcess() {
+                        bool out = false;
+                        if(this->isProcessValid()) {
+                                ProcessFinder *pf = new ProcessFinder();
+                                TStringList *startsWith = new TStringList();
+                                startsWith->Add(this->proc.title);
+                                TStringList *modules = new TStringList();
+                                modules->Add(this->proc.moduleName);
+                                pf->enumerate(startsWith, modules);
+                                for (list<ProcessInfo>::iterator ci = pf->output.begin(); ci != pf->output.end(); ++ci) {
+                                        if(this->matchesProcess(&(*ci))) {
+                                                out = true;
+                                                break;
+                                        }
+                                }
+                                delete pf;
+                                delete startsWith;
+                                delete modules;
+                                if(!out) {
+                                        this->proc.clear();
+                                        Form1->updateGameControlGui();
+                                }
+                        }
+                        return out;
+                }
+
+                bool verifyServer() {
+                        bool out = false;
+                        if(this->serverIndex > -1) {
+                                out = this->matchesServer(this->serverIndex);
+                                if(!out) {
+                                        this->setServer(-1, "", 0);
+                                        Form1->updateGameControlGui();
+                                }
+                        }
+                        return out;
+                }
+
+                bool isAutoGreenOn() {
+                        return this->autoGreenUp;
+                }
+
+                bool isRestoreGameOn() {
+                        return this->restoreGame;
+                }
+
                 void setProcess(ProcessInfo *p) {
                         this->proc.pid = p->pid;
                         this->proc.hWindow = p->hWindow;
@@ -450,79 +623,55 @@ class GameControl {
                         this->serverPort = port;
                 }
 
-                bool verifyProcess() {
-                        bool out = false;
-                        if(this->proc.pid > 0 &&
-                           !this->proc.title.IsEmpty() &&
-                           !this->proc.moduleName.IsEmpty()) {
-                                ProcessFinder *pf = new ProcessFinder();
-                                TStringList *startsWith = new TStringList();
-                                startsWith->Add(this->proc.title);
-                                TStringList *modules = new TStringList();
-                                modules->Add(this->proc.moduleName);
-                                pf->enumerate(startsWith, modules);
-                                for (list<ProcessInfo>::iterator ci = pf->output.begin(); ci != pf->output.end(); ++ci) {
-                                        if((*ci).pid == this->proc.pid &&
-                                           (*ci).title == this->proc.title &&
-                                           (*ci).moduleName == this->proc.moduleName) {
-                                                out = true;
-                                        }                  
-                                }
-                                delete pf;
-                                delete startsWith;
-                                delete modules;
-                                if(!out) {
-                                        this->proc.clear();
-                                        Form1->BUTTON_GAMECONTROL_REFRESH->Click();
-                                }
-                        }
-                        return out;
+                bool matchesProcess(ProcessInfo *p) {
+                        return ((this->proc.pid == p->pid) &&
+                                (this->proc.title == p->title) &&
+                                (this->proc.moduleName == p->moduleName));
                 }
 
-                bool verifyServer(int serverId) {
-                        bool out = this->matchesServer(serverId);
-                        if(!out) {
-                                this->serverIndex = -1;
-                                this->serverPort = 0;
-                                this->serverIP = "";
-                                Form1->BUTTON_GAMECONTROL_REFRESH->Click();
+                bool matchesServer(int serverId) {
+                        bool out = false;
+                        if(serverId >= 0 && serverId < SERVERARRAY_LENGTH) {
+                                if(ServerArray[serverId].ip == this->serverIP &&
+                                   ServerArray[serverId].gamespyport == this->serverPort) {
+                                        out = true;
+                                }
                         }
                         return out;
                 }
 
                 void statusChange(int serverId, int oldStatus, int newStatus) {
-                        if(this->matchesServer(serverId)) {
-                                if(this->verifyProcess() && this->verifyServer(serverId)) {
-                                        if(this->autoGreenUp) {
-                                                if(newStatus == SERVERSTATE_BRIEFING) {
-                                                        if(!Form1->TimerAutoGreenUp->Enabled) {
-                                                                Form1->TimerAutoGreenUp->Interval = this->greenUpDelay * 1000;
-                                                                Form1->TimerAutoGreenUp->Tag = serverId;
-                                                                Form1->TimerAutoGreenUp->Enabled = true;
-                                                        }
-                                                } else {
-                                                        Form1->TimerAutoGreenUp->Enabled = false;
-                                                        Form1->TimerAutoGreenUp->Tag = -1;
+                        this->checkCurrentData();
+                        if(this->matchesServer(serverId) && isProcessValid()) {
+                                if(this->autoGreenUp) {
+                                        if(newStatus == SERVERSTATE_BRIEFING) {
+                                                if(!Form1->TimerAutoGreenUp->Enabled) {
+                                                        Form1->TimerAutoGreenUp->Interval = this->greenUpDelay * 1000;
+                                                        Form1->TimerAutoGreenUp->Tag = serverId;
+                                                        Form1->TimerAutoGreenUp->Enabled = true;
                                                 }
+                                        } else {
+                                                Form1->TimerAutoGreenUp->Enabled = false;
+                                                Form1->TimerAutoGreenUp->Tag = -1;
                                         }
-                                        if(this->restoreGame) {
-                                                if((oldStatus != SERVERSTATE_CREATING &&
-                                                        newStatus == SERVERSTATE_CREATING &&
-                                                        this->restoreOnCreating) ||
-                                                        (oldStatus != SERVERSTATE_WAITING &&
-                                                        newStatus == SERVERSTATE_WAITING &&
-                                                        this->restoreOnWaiting) ||
-                                                        (oldStatus != SERVERSTATE_BRIEFING &&
-                                                        newStatus == SERVERSTATE_BRIEFING &&
-                                                        this->restoreOnBriefing) ||
-                                                        (oldStatus != SERVERSTATE_PLAYING &&
-                                                        newStatus == SERVERSTATE_PLAYING &&
-                                                        this->restoreOnPlaying) ||
-                                                        (oldStatus != SERVERSTATE_DEBRIEFING &&
-                                                        newStatus == SERVERSTATE_DEBRIEFING &&
-                                                        this->restoreOnDebriefing)) {
-                                                                ShowWindowAsync(this->proc.hWindow, SW_RESTORE);
-                                                }
+                                }
+                                if(this->restoreGame) {
+                                        if((oldStatus != SERVERSTATE_CREATING &&
+                                                newStatus == SERVERSTATE_CREATING &&
+                                                this->restoreOnCreating) ||
+                                                (oldStatus != SERVERSTATE_WAITING &&
+                                                newStatus == SERVERSTATE_WAITING &&
+                                                this->restoreOnWaiting) ||
+                                                (oldStatus != SERVERSTATE_BRIEFING &&
+                                                newStatus == SERVERSTATE_BRIEFING &&
+                                                this->restoreOnBriefing) ||
+                                                (oldStatus != SERVERSTATE_PLAYING &&
+                                                newStatus == SERVERSTATE_PLAYING &&
+                                                this->restoreOnPlaying) ||
+                                                (oldStatus != SERVERSTATE_DEBRIEFING &&
+                                                newStatus == SERVERSTATE_DEBRIEFING &&
+                                                this->restoreOnDebriefing)) {
+                                                        ShowWindowAsync(this->proc.hWindow, SW_RESTORE);
                                         }
                                 }
                         }
@@ -545,10 +694,21 @@ class GameControl {
                         if(!enabled) {
                                 Form1->TimerAutoGreenUp->Enabled = enabled;
                         }
+                        this->checkCurrentData();
                 }
 
                 void enableRestoreGame(bool enabled) {
                         this->restoreGame = enabled;
+                        this->checkCurrentData();
+                }
+
+                void setAutoDetect(bool enabled) {
+                        this->autoDetect = enabled;
+                        this->checkCurrentData();
+                }
+
+                bool isAutoDetectOn() {
+                        return this->autoDetect;
                 }
 
                 void setGreenUpDelay(int delay) {
@@ -564,45 +724,22 @@ class GameControl {
                 }
 
                 void sendGreenUpMessage(int serverId) {
-                        if(this->verifyProcess() && this->verifyServer(serverId)) {
+                        if(this->verifyProcess() && this->verifyServer() && this->matchesServer(serverId)) {
                                 if(ServerArray[serverId].gamestate == SERVERSTATE_BRIEFING) {
                                         SendMessage(this->proc.hWindow, WM_KEYDOWN, VK_RETURN, NULL);
                                         SendMessage(this->proc.hWindow, WM_KEYUP  , VK_RETURN, NULL);
                                 }
                         }
-                }
-
-                bool matchesProcess(ProcessInfo *p) {
-                        bool out = false;
-                        if(this->proc.pid > 0 &&
-                           !this->proc.title.IsEmpty() &&
-                           !this->proc.moduleName.IsEmpty()) {
-                                if(this->proc.pid == p->pid &&
-                                   this->proc.title == p->title &&
-                                   this->proc.moduleName == p->moduleName) {
-                                        out = true;
-                                }
-                        }
-                        return out;
-                }
-
-                bool matchesServer(int serverId) {
-                        bool out = false;
-                        if(         serverId >= 0 &&          serverId < SERVERARRAY_LENGTH &&
-                           this->serverIndex >= 0 && this->serverIndex < SERVERARRAY_LENGTH) {
-                                if(ServerArray[serverId].ip == this->serverIP &&
-                                   ServerArray[serverId].gamespyport == this->serverPort) {
-                                        out = true;
-                                }
-                        }
-                        return out;
-                }
+                }                
 
                 list<String> createFileEntry() {
                         list<String> out;
                         out.push_back("[Automation]");
+                        out.push_back("AutoDetectProcessAndServer = " + this->checkBool(this->autoDetect));
+                        out.push_back("BriefingConfirmationOn = " + this->checkBool(this->autoGreenUp));
                         out.push_back("BriefingConfirmationDelay = " + IntToStr(this->greenUpDelay));
                         out.push_back("BriefingConfirmationRepeat = " + this->checkBool(this->greenUpRepeat));
+                        out.push_back("RestoreGame = " + this->checkBool(this->restoreGame));
                         out.push_back("RestoreOnCreating = " + this->checkBool(this->restoreOnCreating));
                         out.push_back("RestoreOnWaiting = " + this->checkBool(this->restoreOnWaiting));
                         out.push_back("RestoreOnBriefing = " + this->checkBool(this->restoreOnBriefing));
@@ -676,9 +813,13 @@ void TForm1::setFont(String name, int size, int charset,
         fontsettings = FontSettings(name, size, charset, bold, italic);
 }
 
-void TForm1::setGameControlSettings(int delay, bool repeat, bool rOnC, bool rOnW, bool rOnB, bool rOnP, bool rOnD) {
+void TForm1::setGameControlSettings(bool autodetect, bool autogreen, int delay, bool repeat,
+                        bool restoreGame, bool rOnC, bool rOnW, bool rOnB, bool rOnP, bool rOnD) {
+        gameControl.setAutoDetect(autodetect);
+        gameControl.enableAutoGreenUp(autogreen);
         gameControl.setGreenUpDelay(delay);
         gameControl.setGreenUpRepeat(repeat);
+        gameControl.enableRestoreGame(restoreGame);
         gameControl.restoreOnCreating = rOnC;
         gameControl.restoreOnWaiting = rOnW;
         gameControl.restoreOnBriefing = rOnB;
@@ -722,43 +863,6 @@ void sendUdpMessage(int index, String ip, int port, String msg) {
         } catch (...) {}
 }
 
-/**
-   Checks if  c  contains  d
-   @c  the String to check
-   @d  the String to look for
-   @return  'true' is c does contain d, otherwise 'false'
- */
-
-bool TForm1::doNameFilter(String c, String d) {
-        bool out = false;
-        String a = c.LowerCase();
-        String b = d.LowerCase();
-        for(int z = 0; z <= ((a.Length() - b.Length()) + 1); z++) {
-                if(a.SubString(z,b.Length()) == b) {
-                        out = true;
-                        break;
-                }
-        }
-        return out;
-}
-
-/**
-    Checks if a name of the Players in list  l  contains the String s
-    @return  result of the check. 'true' if at least
-             one player name contains s, otherwise 'false'
- */
-
-bool doPlayerFilter(CustomPlayerList l, String s) {
-        bool out = false;
-        for (CustomPlayerList::iterator ci = l.begin(); ci != l.end(); ++ci) {
-                Player p = *ci;
-                if(Form1->doNameFilter(p.name, s)) {
-                        out = true;
-                        break;
-                }
-        }
-        return out;
-}
 
 /**
    Performs the checking of filter options that are available to the user
@@ -877,7 +981,7 @@ void processPlayerList(int index) {
                         index = StrToInt(Form1->StringGrid1->Cells[0][row]);
                 }
                 int counter = ServerArray[index].playerlist.size();
-                for (CustomPlayerList::iterator ci = ServerArray[index].playerlist.begin(); ci != ServerArray[index].playerlist.end(); ++ci) {
+                for (list<Player>::iterator ci = ServerArray[index].playerlist.begin(); ci != ServerArray[index].playerlist.end(); ++ci) {
                         counter--;
                         if(counter < 0) {
                                 break;
@@ -1213,46 +1317,48 @@ list<String> TForm1::splitUpMessage(String msg, String split) {
 }
 
 /**
-   Removes all elements of list b and adds them in order to the end of list a
- */
-
-void mergeLists(list<String> &a, list<String> &b) {
-        while(b.size() > 0) {
-                String tmp = b.front();
-                a.push_back(tmp);
-                b.pop_front();
-        }
-}
-
-/**
    Plays an wavefile for the the new status of a server, if it's marked for watch
  */
 
 void playAudioServerStatus(int i, int newStatus) {
+        int volume = WINDOW_SETTINGS->getVolume();
+        String file = GetCurrentDir() + "\\sound\\";
+        int resourceIndex = 0;
+        switch(newStatus) {
+                case SERVERSTATE_CREATING:
+                        file += "creating";
+                        resourceIndex = 1;
+                        break;
+                case SERVERSTATE_WAITING:
+                        file += "waiting";
+                        resourceIndex = 2;
+                        break;
+                case SERVERSTATE_BRIEFING:
+                        file += "briefing";
+                        resourceIndex = 3;
+                        break;
+                case SERVERSTATE_PLAYING:
+                        file += "playing";
+                        resourceIndex = 4;
+                        break;
+                case SERVERSTATE_DEBRIEFING:
+                        file += "debriefing";
+                        resourceIndex = 5;
+                        break;
+        }
+        if(FileExists(file + ".mp3")) {
+                file += ".mp3";
+        } else if(FileExists(file + ".wav")) {
+                file += ".wav";
+        }
         if(ServerArray[i].watch) {
-                String file = GetCurrentDir() + "\\sound\\";
-                switch(newStatus) {
-                        case SERVERSTATE_CREATING:
-                                file += "creating";
-                                break;
-                        case SERVERSTATE_WAITING:
-                                file += "waiting";
-                                break;
-                        case SERVERSTATE_BRIEFING:
-                                file += "briefing";
-                                break;
-                        case SERVERSTATE_PLAYING:
-                                file += "playing";
-                                break;
-                        case SERVERSTATE_DEBRIEFING:
-                                file += "debriefing";
-                                break;
+                if(FileExists(file)) {
+                        WINDOW_SETTINGS->MP3add(file , volume);
+                } else if(resourceIndex > 0) {
+                        PlaySound(PChar(resourceIndex), NULL, SND_RESOURCE | SND_ASYNC);
                 }
-                if(FileExists(file + ".wav")) {
-                        WINDOW_SETTINGS->MP3add(file + ".wav", WINDOW_SETTINGS->getVolume());
-                } else if(FileExists(file + ".mp3")) {
-                        WINDOW_SETTINGS->MP3add(file + ".mp3", WINDOW_SETTINGS->getVolume());
-                }
+        } else {
+                WINDOW_SETTINGS->MP3remove(file);
         }
 }
 
@@ -1497,9 +1603,7 @@ bool readInfoPacket(int i, String msg, String ip, int port) {
                                                 int newStatus = 0;
                                                 try {
                                                         newStatus = StrToInt(*ci);
-                                                } catch (...) {
-                                                        newStatus = 1;
-                                                }
+                                                } catch (...) {}
                                                 if(newStatus > 0) {
                                                         if(ServerArray[i].gamestate != newStatus) {
                                                                 playAudioServerStatus(i, newStatus);
@@ -2000,14 +2104,58 @@ String decideQuery(BandwidthUsage bu, bool selected, int i) {
         return none;
 }
 
-void updateGameControlGui() {
-        bool selected = (Form1->ComboBox1->ItemIndex > -1) && (Form1->ComboBox2->ItemIndex > -1);
-        if(!selected) {
-                Form1->CHECKBOX_GAMECONTROL_AUTOGREENUP->Checked = false;
-                gameControl.enableAutoGreenUp(false);
-                Form1->CHECKBOX_GAMECONTROL_RESTORE->Checked = false;
-                gameControl.enableRestoreGame(false);
+void TForm1::updateGameControlGui() {
+        bool foundProcess = false;
+        for(int i = 0; i < Form1->ComboBox1->Items->Count; i++) {
+                ProcessInfo *proc = (ProcessInfo *) Form1->ComboBox1->Items->Objects[i];
+                if(gameControl.matchesProcess(proc)) {
+                        Form1->ComboBox1->ItemIndex = i;
+                        Form1->ComboBox1Change(ComboBox1);
+                        foundProcess = true;
+                        break;
+                }
         }
+        if(!foundProcess) {
+                if(gameControl.verifyProcess()) {
+                        Form1->BUTTON_GAMECONTROL_REFRESH->Click();
+                        return;
+                }
+                Form1->ComboBox1->ItemIndex = -1;
+                Form1->ComboBox1Change(ComboBox1);
+                Label9->Caption = "";
+        }
+        int serverId = -1;
+        bool foundServer = false;
+        if(Form1->ComboBox2->ItemIndex > -1) {
+                serverId = (int) Form1->ComboBox2->Items->Objects[Form1->ComboBox2->ItemIndex];
+        }
+        if(!(foundServer = gameControl.matchesServer(serverId))) {
+                for(int i = 0; i < Form1->ComboBox2->Items->Count; i++) {
+                        int sI = (int) (Form1->ComboBox2->Items->Objects[i]);
+                        if(gameControl.matchesServer(sI)) {
+                                Form1->ComboBox2->ItemIndex = i;
+                                Form1->ComboBox2Change(ComboBox2);
+                                foundServer = true;
+                                break;
+                        }
+                }
+        }
+        if(!foundServer) {
+                if(gameControl.verifyServer()) {
+                        Form1->BUTTON_GAMECONTROL_REFRESH->Click();
+                        return;
+                }
+                Form1->ComboBox2->ItemIndex = -1;
+                Form1->ComboBox2Change(ComboBox2);
+        }
+        if(foundProcess && foundServer && (gameControl.isAutoGreenOn() || gameControl.isRestoreGameOn())) {
+                TABSHEET_GAMECONTROL->ImageIndex = 1;
+        } else {
+                TABSHEET_GAMECONTROL->ImageIndex = 0;
+        }
+        Form1->CHECKBOX_GAMECONTROL_AUTODETECT->Checked = gameControl.isAutoDetectOn();
+        Form1->CHECKBOX_GAMECONTROL_AUTOGREENUP->Checked = gameControl.isAutoGreenOn();
+        Form1->CHECKBOX_GAMECONTROL_RESTORE->Checked = gameControl.isRestoreGameOn();
         bool repeatedGreenUp = gameControl.getGreenUpRepeat();
         Form1->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE->Checked = !repeatedGreenUp;
         Form1->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT->Checked = repeatedGreenUp;
@@ -2016,8 +2164,6 @@ void updateGameControlGui() {
         Form1->CHECKBOX_GAMECONTROL_RESTORE_BRIEFING->Checked = gameControl.restoreOnBriefing;
         Form1->CHECKBOX_GAMECONTROL_RESTORE_PLAYING->Checked = gameControl.restoreOnPlaying;
         Form1->CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Checked = gameControl.restoreOnDebriefing;
-        Form1->CHECKBOX_GAMECONTROL_AUTOGREENUP->Enabled = selected;
-        Form1->CHECKBOX_GAMECONTROL_RESTORE->Enabled = selected;
         Form1->UpDown2->Position = gameControl.getGreenUpDelay();
         Form1->ComboBox1->Enabled = !(Form1->ComboBox1->Items->Count == 0);
         Form1->ComboBox2->Enabled = !(Form1->ComboBox2->Items->Count == 0);
@@ -2395,7 +2541,7 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
         if(gameid >= 0) {
                 String playername = WINDOW_SETTINGS->getPlayerName(ServerArray[index].actver, ServerArray[index].reqver);
                 bool found = false;
-                for (CustomPlayerList::iterator ci = ServerArray[index].playerlist.begin(); ci != ServerArray[index].playerlist.end(); ++ci) {
+                for (list<Player>::iterator ci = ServerArray[index].playerlist.begin(); ci != ServerArray[index].playerlist.end(); ++ci) {
                         Player p = *ci;
                         if(p.name == playername) {
                                 found = true;
@@ -2823,7 +2969,7 @@ void __fastcall TForm1::CoolTrayIcon1Click(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::TABSHEET_CHATShow(TObject *Sender)
 {
-        TABSHEET_CHAT->Highlighted = false;  
+        TABSHEET_CHAT->Highlighted = false;
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::MemoChatInputKeyDown(TObject *Sender, WORD &Key,
@@ -3068,76 +3214,19 @@ void __fastcall TForm1::TimerAutoGreenUpTimer(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
-{
-        Label6->Caption = "";
-        Label9->Caption = "";
-        for(int i = 0; i < ComboBox1->Items->Count; i++) {
-                ProcessInfo *pi = (ProcessInfo*) ComboBox1->Items->Objects[i];
-                delete pi;
-        }
-        ComboBox1->Clear();
-        ProcessFinder *pf = new ProcessFinder();
-        TStringList *s = new TStringList();
-        s->Sorted = true;
-        s->Duplicates = dupIgnore;
-        s->Add(getAppTitleByGameId(GAMEID_OFPCWC));
-        s->Add(getAppTitleByGameId(GAMEID_OFPRES));
-        s->Add(getAppTitleByGameId(GAMEID_ARMACWA));
-        TStringList *m = new TStringList();
-        list<String> exes;
-        mergeLists(exes, getExesByGameId(GAMEID_OFPCWC));
-        mergeLists(exes, getExesByGameId(GAMEID_OFPRES));
-        mergeLists(exes, getExesByGameId(GAMEID_ARMACWA));
-        while(exes.size() > 0) {
-                m->Add(exes.front());
-                exes.pop_front();
-        }
-
-        if(pf->enumerate(s, m)) {
-                for (list<ProcessInfo>::iterator proc = pf->output.begin(); proc != pf->output.end(); ++proc) {
-                        ProcessInfo *p = new ProcessInfo((*proc).pid, (*proc).hWindow, (*proc).title, (*proc).moduleName);
-                        ComboBox1->Items->AddObject(p->title, (TObject*) p);
-                        if(gameControl.matchesProcess(p)) {
-                                ComboBox1->ItemIndex = ComboBox1->Items->Count - 1;
-                                ComboBox1Change(ComboBox1);
-                        }
-                }
-        }
-        delete pf;
-        delete s;
-        delete m;
-        ComboBox2->Clear();
-        for(int i = 0; i < SERVERARRAY_LENGTH; i++) {
-                if(ServerArray[i].ip.IsEmpty()) {
-                        break;
-                }
-                if(!ServerArray[i].name.IsEmpty() && !ServerArray[i].blocked) {
-                        ComboBox2->Items->AddObject(ServerArray[i].name, (TObject*) i);
-                        if(gameControl.matchesServer(i)) {
-                                ComboBox2->ItemIndex = ComboBox2->Items->Count - 1;
-                                ComboBox2Change(ComboBox2);
-                        }
-                }
-        }
-        updateGameControlGui();
-}
-//---------------------------------------------------------------------------
 
 void __fastcall TForm1::ComboBox1Change(TObject *Sender)
 {
         if(ComboBox1->ItemIndex > -1) {
                 ProcessInfo *p = (ProcessInfo*) ComboBox1->Items->Objects[ComboBox1->ItemIndex];
                 if(p != NULL) {
-                        Label6->Caption = IntToStr(p->pid);
                         Label9->Caption = p->moduleName;
                         gameControl.setProcess(p);
                 }
         }
-        updateGameControlGui();
 }
 //---------------------------------------------------------------------------
-      
+
 void __fastcall TForm1::ComboBox2Change(TObject *Sender)
 {
         if(ComboBox2->ItemIndex > -1) {
@@ -3146,7 +3235,6 @@ void __fastcall TForm1::ComboBox2Change(TObject *Sender)
                         gameControl.setServer(id, ServerArray[id].ip, ServerArray[id].gamespyport);
                 }
         }
-        updateGameControlGui();
 }
 //---------------------------------------------------------------------------
 
@@ -3182,7 +3270,7 @@ void __fastcall TForm1::CHECKBOX_GAMECONTROL_RESTORE_PLAYINGClick(TObject *Sende
 
 void __fastcall TForm1::CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFINGClick(TObject *Sender)
 {
-        gameControl.restoreOnDebriefing = CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Checked;        
+        gameControl.restoreOnDebriefing = CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Checked;
 }
 //---------------------------------------------------------------------------
 
@@ -3192,5 +3280,68 @@ void __fastcall TForm1::UpDown2ChangingEx(TObject *Sender,
         gameControl.setGreenUpDelay(NewValue);
 }
 //---------------------------------------------------------------------------
+
+
+void __fastcall TForm1::CHECKBOX_GAMECONTROL_AUTODETECTClick(
+      TObject *Sender)
+{
+        gameControl.setAutoDetect(CHECKBOX_GAMECONTROL_AUTODETECT->Checked);        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
+{
+        for(int i = 0; i < ComboBox1->Items->Count; i++) {
+                ProcessInfo *pi = (ProcessInfo*) ComboBox1->Items->Objects[i];
+                delete pi;
+        }
+        ComboBox1->Clear();
+        ProcessFinder *pf = new ProcessFinder();
+        TStringList *s = new TStringList();
+        s->Sorted = true;
+        s->Duplicates = dupIgnore;
+        s->Add(getAppTitleByGameId(GAMEID_OFPCWC));
+        s->Add(getAppTitleByGameId(GAMEID_OFPRES));
+        s->Add(getAppTitleByGameId(GAMEID_ARMACWA));
+        TStringList *m = new TStringList();
+        list<String> exes;
+        mergeLists(exes, getExesByGameId(GAMEID_OFPCWC));
+        mergeLists(exes, getExesByGameId(GAMEID_OFPRES));
+        mergeLists(exes, getExesByGameId(GAMEID_ARMACWA));
+        while(exes.size() > 0) {
+                m->Add(exes.front());
+                exes.pop_front();
+        }
+
+        if(pf->enumerate(s, m)) {
+                for (list<ProcessInfo>::iterator proc = pf->output.begin(); proc != pf->output.end(); ++proc) {
+                        ProcessInfo *p = new ProcessInfo((*proc).pid, (*proc).hWindow, (*proc).title, (*proc).moduleName);
+                        ComboBox1->Items->AddObject(p->title + "  |  " + IntToStr(p->pid), (TObject*) p);
+                        if(gameControl.matchesProcess(p)) {
+                                ComboBox1->ItemIndex = ComboBox1->Items->Count - 1;
+                        }
+                }
+        }
+        delete pf;
+        delete s;
+        delete m;
+        ComboBox2->Clear();
+        for(int i = 0; i < SERVERARRAY_LENGTH; i++) {
+                if(ServerArray[i].ip.IsEmpty()) {
+                        break;
+                }
+                if(!ServerArray[i].name.IsEmpty() && !ServerArray[i].blocked) {
+                        ComboBox2->Items->AddObject(ServerArray[i].name, (TObject*) i);
+                        if(gameControl.matchesServer(i)) {
+                                ComboBox2->ItemIndex = ComboBox2->Items->Count - 1;
+                        }
+                }
+        }
+        updateGameControlGui();
+}
+//---------------------------------------------------------------------------
+
+
+
 
 

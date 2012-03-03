@@ -50,7 +50,6 @@ __published:	// IDE-managed Components
         TLabel *LABEL_NEWCONFIGURATION_LABEL;
         TButton *BUTTON_NEWCONFIGURATION_CLEAR;
         TGroupBox *GROUPBOX_LANGUAGE;
-        TComboBox *ComboBox1;
         TButton *BUTTON_EDITCONFIGURATION_EDIT;
         TButton *BUTTON_EDITCONFIGURATION_OK;
         TButton *BUTTON_EDITCONFIGURATION_CANCEL;
@@ -184,6 +183,8 @@ __published:	// IDE-managed Components
         TTrackBar *TRACKBAR_VOLUME;
         TLabel *Label1;
         TLabel *Label2;
+        TImageList *ImageList2;
+        TComboBoxEx *ComboBox1;
         void __fastcall BUTTON_OFPRES_BROWSEClick(TObject *Sender);
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialog1CanClose(TObject *Sender,
@@ -200,7 +201,6 @@ __published:	// IDE-managed Components
         void __fastcall FormKeyDown(TObject *Sender, WORD &Key,
           TShiftState Shift);
         void __fastcall FormShow(TObject *Sender);
-        void __fastcall ComboBox1Change(TObject *Sender);
         void __fastcall BUTTON_EDITCONFIGURATION_EDITClick(TObject *Sender);
         void __fastcall BUTTON_EDITCONFIGURATION_OKClick(TObject *Sender);
         void __fastcall LISTBOX_CONFIGURATIONSClick(TObject *Sender);
@@ -272,6 +272,7 @@ __published:	// IDE-managed Components
           TObject *Sender);
         void __fastcall BUTTON_SERVERS_ADDClick(TObject *Sender);
         void __fastcall TRACKBAR_VOLUMEChange(TObject *Sender);
+        void __fastcall ComboBox1Change(TObject *Sender);
 private:	// User declarations
 public:		// User declarations
         int TWINDOW_SETTINGS::getConfAmount(int gameid);
@@ -304,6 +305,7 @@ public:		// User declarations
         TStringList* TWINDOW_SETTINGS::getNotificationsFileEntries();
         TColor TWINDOW_SETTINGS::getMarkingColor(int index);
         void TWINDOW_SETTINGS::MP3remove(int index);
+        void TWINDOW_SETTINGS::MP3remove(String file);
         void TWINDOW_SETTINGS::MP3add(int index);
         void TWINDOW_SETTINGS::MP3add(String file, int volume);
         void TWINDOW_SETTINGS::MP3shutdown();

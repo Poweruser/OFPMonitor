@@ -23,6 +23,12 @@ String updateInformation = "https://raw.github.com/wiki/poweruser/ofpmonitor/upd
 String updateLocation = "https://github.com/downloads/poweruser/ofpmonitor/";
 
 class UpdateTracker {
+  private:
+        String applicationExe;
+        String mainDir;
+        String updateDir;
+        String backupDir;
+
   public:
         int step;
         bool working;
@@ -43,10 +49,6 @@ class UpdateTracker {
         bool error;
         String errorMsg;
         int answer;
-        String applicationExe;
-        String mainDir;
-        String updateDir;
-        String backupDir;
         TForm1 *form1;
         TWINDOW_UPDATE *window_update;
         TWINDOW_SETTINGS *window_settings;
@@ -120,6 +122,23 @@ class UpdateTracker {
                 }
                 return out;
         }
+
+        String getApplicationExe() {
+                return this->applicationExe;
+        }
+
+        String getMainDir() {
+                return this->mainDir;
+        }
+
+        String getUpdateDir() {
+                return this->updateDir;
+        }
+
+        String getBackupDir() {
+                return this->backupDir;
+        }
+
 };
 
 UpdateTracker *uT;
@@ -175,8 +194,8 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
 
                         int begin = uTracker->stringList->IndexOf("[Files]");
                         int end = uTracker->stringList->IndexOf("[\\Files]");
-                        if(!DirectoryExists(uTracker->updateDir)) {
-                                CreateDir(uTracker->updateDir);
+                        if(!DirectoryExists(uTracker->getUpdateDir())) {
+                                CreateDir(uTracker->getUpdateDir());
                         }
                         WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Max = end - (begin + 1);
                         WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Position = 0;
@@ -199,7 +218,7 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                 if(success) {
                                         if(String(uT->fs->Size) == fileSize) {
                                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + file);
-                                                String fileOnDisk = uT->updateDir + "\\" + file;
+                                                String fileOnDisk = uT->getUpdateDir() + "\\" + file;
                                                 uT->fs->SaveToFile(fileOnDisk);
                                                 if(fileOnDisk.SubString(fileOnDisk.Length() - 3, 4) == ".rar") {
                                                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   Extracting " + file + " ...");
@@ -217,7 +236,7 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                                         RARHeaderDataEx rarHeader;
                                                         int retHeader = -1;
                                                         while((retHeader = RARReadHeaderEx(rarHandle, &rarHeader)) == 0) {
-                                                                RARProcessFile(rarHandle,RAR_EXTRACT,uT->updateDir.c_str(),NULL);
+                                                                RARProcessFile(rarHandle,RAR_EXTRACT,uT->getUpdateDir().c_str(),NULL);
                                                                 uT->filesToInstall->Add(rarHeader.FileName);
                                                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("      " + String(rarHeader.FileName));
                                                         }
@@ -240,23 +259,23 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                 WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Position = t + 1;
                         }
                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("... done.");
-                        if(!DirectoryExists(uT->backupDir)) {
-                                CreateDir(uT->backupDir);
+                        if(!DirectoryExists(uT->getBackupDir())) {
+                                CreateDir(uT->getBackupDir());
                         }
 
                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Installing files ...");
                                                 
                         for(int i = 0; i < uT->filesToInstall->Count; i++) {
                                 String item = uT->filesToInstall->Strings[i];
-                                if(FileExists(uT->mainDir + "\\" + item)) {
-                                        if(FileExists(uT->backupDir + "\\" + item)) {
-                                                DeleteFile(uT->backupDir + "\\" + item);
+                                if(FileExists(uT->getMainDir() + "\\" + item)) {
+                                        if(FileExists(uT->getBackupDir() + "\\" + item)) {
+                                                DeleteFile(uT->getBackupDir() + "\\" + item);
                                         }
-                                        if(!RenameFile(uT->mainDir + "\\" + item, uT->backupDir + "\\" + item)) {
+                                        if(!RenameFile(uT->getMainDir() + "\\" + item, uT->getBackupDir() + "\\" + item)) {
                                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   Could not backup: " + item);
                                         }
                                 }
-                                if(RenameFile(uT->updateDir + "\\" + item, uT->mainDir + "\\" + item)) {
+                                if(RenameFile(uT->getUpdateDir() + "\\" + item, uT->getMainDir() + "\\" + item)) {
                                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + item);
                                 } else {
                                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   Could not install: " + item);
@@ -264,7 +283,7 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                         }
 
                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("... done.");
-                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->SaveToFile(uT->mainDir + "\\updateLog.txt");
+                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->SaveToFile(uT->getMainDir() + "\\updateLog.txt");
                         uTracker->updateDone = true;
                 } else {
                         uTracker->updateDone = false;
@@ -346,8 +365,8 @@ void __fastcall TWINDOW_UPDATE::Timer1Timer(TObject *Sender)
                 } else if(uT->step == 3) {
                         if(uT->updateDone) {
                                 Timer1->Enabled = false;
-                                String targetExe = uT->applicationExe;
-                                String targetDir = uT->mainDir;
+                                String targetExe = uT->getApplicationExe();
+                                String targetDir = uT->getMainDir();
                                 delete uT;
                                 releaseMutex();
                                 Form1->Close();
