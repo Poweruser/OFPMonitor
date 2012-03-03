@@ -2032,13 +2032,13 @@ class MP3Player {
         }
 
         /**
-           Removes all MP3Jobs that were created for a certain audio file @index
+           Removes all MP3Jobs that were created with a certain alias
          */
 
-        void MP3remove(String file) {
+        void MP3remove(String alias) {
                 for(int i = 0; i < this->limit; i++) {
                         if(jobs[i].set &&
-                           jobs[i].file == file) {
+                           jobs[i].alias == alias) {
                                 jobs[i].stop();
                                 jobs[i] = MP3Job();
                         }
@@ -2061,8 +2061,8 @@ void TWINDOW_SETTINGS::MP3remove(int index) {
         mp3p.MP3remove(index);
 }
 
-void TWINDOW_SETTINGS::MP3remove(String file) {
-        mp3p.MP3remove(file);
+void TWINDOW_SETTINGS::MP3remove(String alias) {
+        mp3p.MP3remove(alias);
 }
 
 
@@ -2087,11 +2087,11 @@ int readSongLength(String file) {
         return out;
 }
 
-void TWINDOW_SETTINGS::MP3add(String file, int volume) {
+void TWINDOW_SETTINGS::MP3add(String file, String alias, int volume) {
         MP3Job m = MP3Job();
         m.file = file;
         m.volume = volume;
-        m.alias = "OFPM_AUDIO_" + TimeToStr(Time());
+        m.alias = alias;
         m.start = 0;
         m.end = readSongLength(m.file);
         m.set = true;

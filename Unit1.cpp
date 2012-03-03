@@ -1323,6 +1323,7 @@ list<String> TForm1::splitUpMessage(String msg, String split) {
 void playAudioServerStatus(int i, int newStatus) {
         int volume = WINDOW_SETTINGS->getVolume();
         String file = GetCurrentDir() + "\\sound\\";
+        String alias = ServerArray[i].ip + ":" + IntToStr(ServerArray[i].gamespyport);
         int resourceIndex = 0;
         switch(newStatus) {
                 case SERVERSTATE_CREATING:
@@ -1353,12 +1354,12 @@ void playAudioServerStatus(int i, int newStatus) {
         }
         if(ServerArray[i].watch) {
                 if(FileExists(file)) {
-                        WINDOW_SETTINGS->MP3add(file , volume);
+                        WINDOW_SETTINGS->MP3add(file, alias, volume);
                 } else if(resourceIndex > 0) {
                         PlaySound(PChar(resourceIndex), NULL, SND_RESOURCE | SND_ASYNC);
                 }
         } else {
-                WINDOW_SETTINGS->MP3remove(file);
+                WINDOW_SETTINGS->MP3remove(alias);
         }
 }
 

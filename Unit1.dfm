@@ -438,7 +438,7 @@ object Form1: TForm1
         object Label9: TLabel
           Left = 136
           Top = 94
-          Width = 505
+          Width = 3
           Height = 16
         end
         object LABEL_GAMECONTROL_EXE: TLabel
@@ -454,7 +454,7 @@ object Form1: TForm1
           Width = 345
           Height = 24
           Style = csDropDownList
-          ItemHeight = 16
+          ItemHeight = 0
           TabOrder = 0
           OnChange = ComboBox1Change
         end
@@ -464,7 +464,7 @@ object Form1: TForm1
           Width = 345
           Height = 24
           Style = csDropDownList
-          ItemHeight = 16
+          ItemHeight = 0
           Sorted = True
           TabOrder = 1
           OnChange = ComboBox2Change

@@ -305,9 +305,9 @@ public:		// User declarations
         TStringList* TWINDOW_SETTINGS::getNotificationsFileEntries();
         TColor TWINDOW_SETTINGS::getMarkingColor(int index);
         void TWINDOW_SETTINGS::MP3remove(int index);
-        void TWINDOW_SETTINGS::MP3remove(String file);
+        void TWINDOW_SETTINGS::MP3remove(String alias);
         void TWINDOW_SETTINGS::MP3add(int index);
-        void TWINDOW_SETTINGS::MP3add(String file, int volume);
+        void TWINDOW_SETTINGS::MP3add(String file, String alias, int volume);
         void TWINDOW_SETTINGS::MP3shutdown();
         BandwidthUsage TWINDOW_SETTINGS::getBandwidthSettings();
         int TWINDOW_SETTINGS::getUpdateInterval();
