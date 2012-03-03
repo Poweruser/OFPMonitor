@@ -2072,16 +2072,19 @@ void TWINDOW_SETTINGS::MP3add(int index) {
 }
 
 int readSongLength(String file) {
+        int out = 0;
         if(FileExists(file)) {
-                mciSendString(("open \"" + file + "\" alias LengthCheck").c_str(),0,0,0);
-                mciSendString("set LengthCheck time format milliseconds",0,0,0);
-                char text[128];
-                mciSendString("status LengthCheck length", text, 128, 0);
-                mciSendString("close LengthCheck", 0, 0, 0);
-                return StrToInt(text);
-        } else {
-                return 0;
+                if(!mciSendString(("open \"" + file + "\" alias LengthCheck").c_str(),0,0,0)) {
+                        mciSendString("set LengthCheck time format milliseconds",0,0,0);
+                        char text[128];
+                        mciSendString("status LengthCheck length", text, 128, 0);
+                        mciSendString("close LengthCheck", 0, 0, 0);
+                        try {
+                                out = StrToInt(text);
+                        } catch (...) {}
+                }
         }
+        return out;
 }
 
 void TWINDOW_SETTINGS::MP3add(String file, int volume) {
