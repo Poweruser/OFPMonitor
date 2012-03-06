@@ -49,8 +49,6 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
                         String soundDir = GetCurrentDir() + "\\sound\\";
                         if(!DirectoryExists(soundDir)) {
                                 CreateDir(soundDir);
-                        }
-                        if(DirectoryExists(soundDir)) {
                                 for(int i = 1; i <= 5; i++) {
                                         String files[5] = { "creating.wav", "waiting.wav", "briefing.wav", "playing.wav", "debriefing.wav" };
                                         String fileName = soundDir + files[i - 1];
