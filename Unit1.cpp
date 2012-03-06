@@ -1346,14 +1346,20 @@ void playAudioServerStatus(int i, int newStatus) {
                         resourceIndex = 5;
                         break;
         }
+        bool isWav = false;
         if(FileExists(file + ".mp3")) {
                 file += ".mp3";
         } else if(FileExists(file + ".wav")) {
                 file += ".wav";
+                isWav = true;
         }
         if(ServerArray[i].watch) {
                 if(FileExists(file)) {
-                        WINDOW_SETTINGS->MP3add(file, alias, volume);
+                        if(isWav && volume >= 100) {
+                                PlaySound(file.c_str(), NULL, SND_FILENAME | SND_ASYNC);
+                        } else {
+                                WINDOW_SETTINGS->MP3add(file, alias, volume);
+                        }
                 } else if(resourceIndex > 0) {
                         PlaySound(PChar(resourceIndex), NULL, SND_RESOURCE | SND_ASYNC);
                 }
