@@ -1809,7 +1809,6 @@ void exitEditNotificationMode() {
 class MP3Job {
     public:
         int notificationIndex;
-        bool set;
         bool error;
         bool started;
         bool stopped;
@@ -1826,7 +1825,6 @@ class MP3Job {
                 this->error = false;
                 this->stopped = false;
                 this->started = false;
-                this->set = false;
         }
 
         MP3Job(int index) {
@@ -1844,25 +1842,23 @@ class MP3Job {
                 }
                 this->started = false;
                 this->stopped = false;
-                this->set = true;
         }
 
         void play() {
                 if(FileExists(this->file)) {
-                        if(0 != mciSendString(("Open \"" + this->file + "\" alias " + this->alias + " type MPEGVideo").c_str(),0,0,0)) {
+                        if(mciSendString(("Open \"" + this->file + "\" alias " + this->alias + " type MPEGVideo").c_str(),0,0,0)) {
                                 this->error = true;
                         }
                         String range = "";
                         if(this->start >= 0 && this->end >= 0) {
                                 range = " from " + String(this->start) + " to " + String(this->end);
                         }
-                        if(0 != mciSendString(("play " + this->alias + range).c_str(), 0, 0, 0)) {
+                        if(mciSendString(("play " + this->alias + range).c_str(), 0, 0, 0)) {
                                 this->error = true;
+                        } else {
+                                this->started = true;
                         }
-                        if(0 != mciSendString(("setaudio " + this->alias + " volume to " + String(this->volume*10)).c_str(), 0, 0, 0)) {
-                                this->error = true;
-                        }
-                        this->started = true;
+                        mciSendString(("setaudio " + this->alias + " volume to " + String(this->volume*10)).c_str(), 0, 0, 0);
                 }
         }
 
@@ -1876,9 +1872,8 @@ class MP3Job {
                         } catch (...) {
                         }
                         return (pos >= this->end || this->error || this->stopped);
-                } else {
-                        return (this->error || this->stopped);
                 }
+                return (!this->started || this->error || this->stopped);
         }
 
         void stop() {
@@ -1894,9 +1889,11 @@ class MP3Job {
  */
 
 class MP3Player {
+    private:
+        MP3Job *jobs[64];
+        MP3Job *preview;
+
     public:
-        MP3Job jobs[64];
-        MP3Job preview;
         int limit;
 
         MP3Player() {
@@ -1910,18 +1907,20 @@ class MP3Player {
 
         void MP3add (int index) {
                 for(int i = 0; i < this->limit; i++) {
-                        if(this->jobs[i].notificationIndex == index) {
-                                return;
+                        if(this->jobs[i] != NULL) {
+                                if(this->jobs[i]->notificationIndex == index) {
+                                        return;
+                                }
                         }
                 }
-                this->MP3add(MP3Job(index));
+                this->MP3add(new MP3Job(index));
         }
 
-        void MP3add (MP3Job j) {
+        void MP3add (MP3Job *j) {
                 for(int i = 0; i < this->limit; i++) {
-                        if(!this->jobs[i].set) {
+                        if(!this->jobs[i] != NULL) {
                                 this->jobs[i] = j;
-                                this->jobs[i].play();
+                                this->jobs[i]->play();
                                 break;
                         }
                 }
@@ -1929,26 +1928,27 @@ class MP3Player {
 
         void MP3startPreview() {
                 MP3stopPreview();
-                MP3Job p = MP3Job(-1);
-                p.alias = "OFPM_MP3PREVIEW";
-                p.file = WINDOW_SETTINGS->EDIT_NOTIFICATION_FILE->Text;
-                p.volume = WINDOW_SETTINGS->TrackBar1->Position;
-                p.start = StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_MIN->Text)*60000 +
+                MP3Job *p = new MP3Job(-1);
+                p->alias = "OFPM_MP3PREVIEW";
+                p->file = WINDOW_SETTINGS->EDIT_NOTIFICATION_FILE->Text;
+                p->volume = WINDOW_SETTINGS->TrackBar1->Position;
+                p->start = StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_MIN->Text)*60000 +
                         StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_SEC->Text)*1000 +
                         StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_MILL->Text);
-                p.end = StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_MIN->Text)*60000 +
+                p->end = StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_MIN->Text)*60000 +
                         StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_SEC->Text)*1000 +
                         StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_MILL->Text);
                 this->preview = p;
-                this->preview.play();
+                this->preview->play();
                 WINDOW_SETTINGS->MP3Timer->Enabled = true;
         }
 
         void MP3stopPreview() {
-                if(this->preview.set) {
-                        if(this->preview.started) {
-                                this->preview.stop();
-                                this->preview = MP3Job();
+                if(this->preview != NULL) {
+                        if(this->preview->started) {
+                                this->preview->stop();
+                                delete (this->preview);
+                                this->preview = NULL;
                         }
                 }
         }
@@ -1959,11 +1959,12 @@ class MP3Player {
 
         void reset() {
                 for(int i = 0; i < this->limit; i++) {
-                        if(this->jobs[i].set) {
-                                if(this->jobs[i].started) {
-                                        this->jobs[i].stop();
+                        if(this->jobs[i] != NULL) {
+                                if(this->jobs[i]->started) {
+                                        this->jobs[i]->stop();
                                 }
-                                this->jobs[i] = MP3Job();
+                                delete (this->jobs[i]);
+                                this->jobs[i] = NULL;
                         }
                 }           
         }
@@ -1976,20 +1977,21 @@ class MP3Player {
         bool check() {
                 bool hasJob = false;
                 for(int i = 0; i < this->limit; i++) {
-                        if(this->jobs[i].set) {
+                        if(this->jobs[i] != NULL) {
                                 hasJob = true;
-                                if(jobs[i].hasEnded()) {
-                                        jobs[i].stop();
-                                        if(jobs[i].repeat) {
-                                                Form1->resetNotifications(jobs[i].notificationIndex);
+                                if(this->jobs[i]->hasEnded()) {
+                                        this->jobs[i]->stop();
+                                        if(this->jobs[i]->repeat) {
+                                                Form1->resetNotifications(jobs[i]->notificationIndex);
                                         }
-                                        jobs[i] = MP3Job();
+                                        delete (this->jobs[i]);
+                                        this->jobs[i] = NULL;
                                 }
                         }
                 }
-                if(this->preview.set) {
+                if(this->preview != NULL) {
                         hasJob = true;
-                        if(this->preview.hasEnded()) {
+                        if(this->preview->hasEnded()) {
                                 WINDOW_SETTINGS->STOP->Click();
                         } else {
                                 char text[128];
@@ -2022,11 +2024,12 @@ class MP3Player {
 
         void MP3remove(int index) {
                 for(int i = 0; i < this->limit; i++) {
-                        if(jobs[i].set &&
-                           jobs[i].notificationIndex == index &&
+                        if(this->jobs[i] != NULL &&
+                           this->jobs[i]->notificationIndex == index &&
                            !Form1->isNotificationRuleActive(index)) {
-                                jobs[i].stop();
-                                jobs[i] = MP3Job();
+                                this->jobs[i]->stop();
+                                delete (this->jobs[i]);
+                                this->jobs[i] = NULL;
                         }
                 }
         }
@@ -2037,10 +2040,11 @@ class MP3Player {
 
         void MP3remove(String alias) {
                 for(int i = 0; i < this->limit; i++) {
-                        if(jobs[i].set &&
-                           jobs[i].alias == alias) {
-                                jobs[i].stop();
-                                jobs[i] = MP3Job();
+                        if(this->jobs[i] != NULL &&
+                           this->jobs[i]->alias == alias) {
+                                this->jobs[i]->stop();
+                                delete (this->jobs[i]);
+                                this->jobs[i] = NULL;
                         }
                 }
         }
@@ -2088,13 +2092,12 @@ int readSongLength(String file) {
 }
 
 void TWINDOW_SETTINGS::MP3add(String file, String alias, int volume) {
-        MP3Job m = MP3Job();
-        m.file = file;
-        m.volume = volume;
-        m.alias = alias;
-        m.start = 0;
-        m.end = readSongLength(m.file);
-        m.set = true;
+        MP3Job *m = new MP3Job();
+        m->file = file;
+        m->volume = volume;
+        m->alias = alias;
+        m->start = 0;
+        m->end = readSongLength(m->file);
         mp3p.MP3add(m);
         MP3Timer->Enabled = true;        
 }
