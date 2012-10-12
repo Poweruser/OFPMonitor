@@ -413,6 +413,7 @@ void TWINDOW_SETTINGS::updateLanguage(String languagefile) {
                 WINDOW_SETTINGS->LABEL_ARMACWA_PLAYERNAME->Caption = WINDOW_SETTINGS->getGuiString("STRING_PROFILE");
 
         }
+        delete file;
 }
 
 

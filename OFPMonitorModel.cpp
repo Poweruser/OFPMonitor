@@ -28,7 +28,7 @@ OFPMonitorModel::OFPMonitorModel(String settingsFile, ServerList *serverList) {
         this->interval = 3;
         this->level = High;
         this->settingsfile = settingsFile;
-        this->languagefile = "Default";
+        this->languagefile = "";
         this->querying = false;
         this->guiUpdate = false;
         for(int i = 0; i < GAMESTOTAL; i++) {
@@ -46,6 +46,17 @@ OFPMonitorModel::~OFPMonitorModel() {
         TerminateThread(this->getServerListThread, 0);
         this->queryTimer->Enabled = false;
         delete (this->queryTimer);
+        delete (this->net);
+        while(this->notifications->Count < 0) {
+                CustomNotification *cN = (CustomNotification*) (this->notifications->First());
+                this->notifications->Delete(0);
+                delete cN;
+        }
+        delete (this->notifications);
+        for(int i = 0; i < GAMESTOTAL; i++) {
+                delete (this->games[i]);
+                this->games[i] = NULL;
+        }
         this->audioPlayer->stopAndReset();
         delete (this->audioPlayer);
         this->audioPlayer = NULL;
@@ -229,7 +240,13 @@ void OFPMonitorModel::readSettings(TStringList *file) {
         general->scan(file, 0);
         delete general;
 
-
+        if(!FileExists(this->languagefile)) {
+                String english = "OFPM_English.lang";
+                if(FileExists(this->getWorkDir() + "\\" + english)) {
+                        this->setLanguageFile(english);
+                }
+        }
+        
         int lineIndex = 0;
         String exe = "", player = "", name = "";
         ConfigSection *game = new ConfigSection("Game");
@@ -257,7 +274,6 @@ void OFPMonitorModel::readSettings(TStringList *file) {
                         }
                 }
         }
-
         
         lineIndex = 0;
         String password = "", mods = "", parameters = "", label = "", gameStr = "";
@@ -511,25 +527,32 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
         gameSpyList->Sorted = true;
         gameSpyList->Duplicates = dupIgnore;
 
-        TStringList *games = new TStringList;
-        games->Sorted = true;
-        games->Duplicates = dupIgnore;
+        TStringList *selectedGames = new TStringList;
+        selectedGames->Sorted = true;
+        selectedGames->Duplicates = dupIgnore;
+        TStringList *allGames = new TStringList;
+        allGames->Sorted = true;
+        allGames->Duplicates = dupIgnore;
         for(int i = 0; i < GAMESTOTAL; i++) {
                 Game *g = main->getGame((OFPGames)i);
                 if(g != NULL) {
+                        allGames->Add(g->getGamespyToken());
                         if(g->isActive()) {
-                                games->Add(g->getGamespyToken());
+                                selectedGames->Add(g->getGamespyToken());
                         }
                 }
         }
-        if(games->Count == 0) {
-                games->Add("opflash");
-                games->Add("opflashr");
+        if(selectedGames->Count == 0) {
+                for(int i = 0; i < allGames->Count; i++) {
+                        selectedGames->Add(allGames->Strings[i]);
+                }
         }
 
-        for (int k = 0; k < games->Count; k++) {
+        delete allGames;
+
+        for (int k = 0; k < selectedGames->Count; k++) {
                 dnsdb(NULL);
-                strcpy(gamestr, games->Strings[k].c_str());
+                strcpy(gamestr, selectedGames->Strings[k].c_str());
                 gslist_step_1(gamestr, filter);
                 peer.sin_addr.s_addr = msip;
                 peer.sin_port        = htons(msport);
@@ -561,22 +584,24 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
                         }
                 }
         }
-        while(gameSpyList->Count > 0) {
-                ServerConfigEntry *p = (ServerConfigEntry*) (gameSpyList->Objects[0]);
-                main->addServer(*p);
-                gameSpyList->Delete(0);
-                delete p;
+        if(gameSpyList->Count > 0) {
+                main->removeOfflineServers();
+                while(gameSpyList->Count > 0) {
+                        ServerConfigEntry *p = (ServerConfigEntry*) (gameSpyList->Objects[0]);
+                        main->addServer(*p);
+                        gameSpyList->Delete(0);
+                        delete p;
+                }
         }
 
         delete gameSpyList;
-        delete games;
+        delete selectedGames;
         main->setGameSpyUpdateDone(true);
         return 0;
 }
 
 void OFPMonitorModel::queryGameSpyList() {
         this->gameSpyUpdateDone = false;
-        this->servers->removeOfflineServers();        
         this->getServerListThread = CreateThread(0, 0, gamespyQuery_ThreadProc, (void*)this, 0, 0);
 }
 
@@ -707,6 +732,10 @@ bool OFPMonitorModel::guiNeedsUpdate() {
         bool out = this->guiUpdate;
         this->guiUpdate = false;
         return out;
+}
+
+void OFPMonitorModel::removeOfflineServers() {
+        this->servers->removeOfflineServers();
 }
 
 

@@ -83,13 +83,13 @@ ConfigSection::~ConfigSection() {
 int ConfigSection::scan(TStringList *file, int lineIndex) {
         int index = lineIndex;
         String line = "";
-        do {
+        while(index < file->Count) {
                 line = file->Strings[index].Trim();
                 index++;
                 if(line.AnsiPos("[" + this->name + "]") == 1) {
                         break;
-                }       
-        } while(index < file->Count);
+                }
+        }
         while(index < file->Count) {
                 line = file->Strings[index].Trim();
                 if(line.AnsiPos("[\\" + this->name + "]") == 1) {

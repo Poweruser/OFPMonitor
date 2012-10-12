@@ -23,6 +23,11 @@ UDPNetwork::UDPNetwork() {
 
 UDPNetwork::~UDPNetwork() {
         delete (this->udpSocket);
+        while(this->messageList.size() > 0) {
+                Message *m = this->messageList.front();
+                this->messageList.pop_front();
+                delete m;
+        }
 }
 
 bool UDPNetwork::sendUdpMessage(String ip, int port, String msg) {

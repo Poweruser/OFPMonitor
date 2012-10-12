@@ -255,12 +255,6 @@ bool TForm1::doNameFilter(String c, String d) {
         return out;
 }
 
-TStringList *ServerSortList = new TStringList;
-TStringList *ServerFavoriteSortList = new TStringList;
-TStringList *PlayerSortList = new TStringList;
-TStringList *PlayerSortList2 = new TStringList;
-
-
 /**
    Empties the Server table
  */
@@ -548,6 +542,11 @@ class Chat {
                         this->name = name;
                         this->output = new TStringList();
                         this->input = new TStringList();
+                }
+
+                ~Chat() {
+                        delete this->output;
+                        delete this->input;
                 }
 
                 void saveCurrentInput() {
@@ -919,18 +918,6 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         StringGrid2->Cells[3][0] = "Team";
         this->serverTableSorter = new ServerTableSorter();
         this->playerTableSorter = new PlayerTableSorter();
-        ServerSortList->Sorted = true;
-        ServerSortList->CaseSensitive = true;
-        ServerSortList->Duplicates = dupAccept;
-        ServerFavoriteSortList->Sorted = true;
-        ServerFavoriteSortList->CaseSensitive = true;
-        ServerFavoriteSortList->Duplicates = dupAccept;
-        PlayerSortList->Sorted = true;
-        PlayerSortList->CaseSensitive = true;
-        PlayerSortList->Duplicates = dupAccept;
-        PlayerSortList2->Sorted = true;
-        PlayerSortList2->CaseSensitive = true;
-        PlayerSortList2->Duplicates = dupAccept;
         blockedChatUsers->Sorted = true;
         blockedChatUsers->CaseSensitive = true;
         blockedChatUsers->Duplicates = dupIgnore;
@@ -1016,6 +1003,13 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
         this->windowSettings->getSettingsFileEntry(settings);
         settings->SaveToFile(this->ofpm->getSettingsFile());
         delete settings;
+        delete this->gameControl;
+        delete this->ofpm;
+        delete this->fontSettings;
+        delete this->windowSettings;
+        delete this->serverFilter;
+        delete this->serverTableSorter;
+        delete this->playerTableSorter;
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::BUTTON_SERVERINFO_COPYADDRESSClick(TObject *Sender)
@@ -1954,6 +1948,9 @@ void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
 void __fastcall TForm1::FormShow(TObject *Sender)
 {
         if(this->ofpm != NULL) {
+                if(!this->ofpm->getTotalServerCount()) {
+                        this->ofpm->queryGameSpyList();
+                }
                 this->ofpm->queryServers();
                 WINDOW_SETTINGS->updateLanguage(this->ofpm->getLanguageFile());
                 if(this->ofpm->isUpdateOnStartSet()) {

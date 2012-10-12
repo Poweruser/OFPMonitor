@@ -15,7 +15,6 @@ class Configuration {
                 String createStartLine(String ip, int port, String player, bool passwordRequired, String enteredPassword);
                 String createStartLineLocal(bool multiplayer, String player);
                 String createParameterLine(bool forceNoHost, bool forceNoConnect, bool forceNoPort, bool forceNoServer, bool forceNoNoSplash, bool forceNoNoMap);
-                TStringList* createFileEntry();
                 Configuration* clone();
                 String createListEntry();
                 void setLabel(String label);

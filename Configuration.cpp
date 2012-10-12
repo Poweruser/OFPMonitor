@@ -135,26 +135,6 @@ String Configuration::createStartLineLocal(bool multiplayer, String player) {
         return out;
 }
 
-TStringList* Configuration::createFileEntry() {
-        TStringList *output = new TStringList;
-        output->Add("[Conf]");
-        output->Add("Game = " + getGameName(this->gameid));
-        if(!this->label.IsEmpty()) {
-                output->Add("Label = " + this->label);
-        }
-        if(!this->password.IsEmpty()) {
-                output->Add("Password = " + this->password);
-        }
-        if(this->mods->Count > 0) {
-                output->Add("Mods = " + this->createModLine());
-        }
-        if(this->addParameters->Count > 0 || this->nosplash || this->nomap) {
-                output->Add("Parameters = " + this->createParameterLine(false, false, false, false, false, false));
-        }
-        output->Add("[\\Conf]");
-        return output;
-}
-
 void Configuration::setLabel(String label) {
         this->label = label;
 }

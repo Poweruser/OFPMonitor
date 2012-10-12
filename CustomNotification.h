@@ -12,7 +12,6 @@ class CustomNotification {
         public:
                 CustomNotification (String name, ServerFilter *filter, AudioTask *task, String color);
                 ~CustomNotification();
-                //TStringList* createFileEntry();
                 ServerFilter* getFilter();
                 AudioTask* getAudioTask();
                 String getName();

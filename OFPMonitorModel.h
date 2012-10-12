@@ -42,6 +42,7 @@ class OFPMonitorModel {
                 void addServer(String address);
                 bool removeServer(String address);
                 void addServer(ServerConfigEntry entry);
+                void removeOfflineServers();
                 void disableAutoJoin();
                 void playAudioServerStatus(StatusChange *status);
                 void startTheGame(Game *game, String configuration);

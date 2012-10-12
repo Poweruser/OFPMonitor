@@ -24,7 +24,11 @@ Game::Game(OFPGames id) {
 }
 
 Game::~Game() {
-        this->startupConfs->Clear();
+        while(this->startupConfs->Count > 0) {
+                Game *g = (Game*) (this->startupConfs->First());
+                this->startupConfs->Delete(0);
+                delete g;                     
+        }
         delete (this->startupConfs);
 }
 

@@ -77,6 +77,8 @@ void chat_client_disconnect() {
                 ircThreadInstance->playersJoined.clear();
  	        ircThreadInstance->userzSorted.clear();
                 TerminateThread(chatListener, 0);
+                delete ircThreadInstance;
+                ircThreadInstance = NULL;
         }
 }
 
@@ -86,6 +88,7 @@ void chat_client_connect() {
                 TerminateThread(chatListener, 0);
                 connectionFailedBefore = ircThreadInstance->connectionLost;
                 delete ircThreadInstance;
+                ircThreadInstance = NULL;
         }
         getplayername(connectionFailedBefore);
         ircThreadInstance = new irc_thread__parm();

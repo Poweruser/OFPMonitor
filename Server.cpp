@@ -554,6 +554,7 @@ void Server::parseQueryAnswers() {
                         }
                 }
         }
+        delete data;
         int lowerLimit = playerCounter;
         if(playerCounter == 0) {
                 lowerLimit = this->players;

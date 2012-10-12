@@ -101,18 +101,19 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
                  WINDOW_SETTINGS->setModel(ofpm);
                  WINDOW_LOCALGAME->setModel(ofpm);
 
+                 TStringList *file = new TStringList;
                  if(FileExists(settingsFile)) {
-                         TStringList *file = new TStringList;
-                         file->LoadFromFile(settingsFile);
-                         sL->readSettings(file);
-                         ofpm->readSettings(file);
-                         gameControl->readSettings(file);
-                         fontSettings->readSettings(file);
-                         windowSettings->readSettings(file);
-                         serverFilter->readSettings(file);
-                         Form1->readSettings(file);
-                         delete file;
+                        file->LoadFromFile(settingsFile);
                  }
+                 sL->readSettings(file);
+                 ofpm->readSettings(file);
+                 gameControl->readSettings(file);
+                 fontSettings->readSettings(file);
+                 windowSettings->readSettings(file);
+                 serverFilter->readSettings(file);
+                 Form1->readSettings(file);
+                 delete file;
+
                  Form1->applyWindowSettings();
                  Application->Run();
                 } catch (Exception &exception) {
