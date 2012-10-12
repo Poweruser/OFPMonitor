@@ -53,10 +53,6 @@ OFPMonitorModel::~OFPMonitorModel() {
                 delete cN;
         }
         delete (this->notifications);
-        for(int i = 0; i < GAMESTOTAL; i++) {
-                delete (this->games[i]);
-                this->games[i] = NULL;
-        }
         this->audioPlayer->stopAndReset();
         delete (this->audioPlayer);
         this->audioPlayer = NULL;

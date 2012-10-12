@@ -445,7 +445,13 @@ void TForm1::filterChanged(bool userinput) {
         flist->CaseSensitive = true;
         flist->Duplicates = dupAccept;
         TStringList *sortList;
-        list<Server*> matches = this->ofpm->getAllMatchingServers(this->serverFilter);
+        list<Server*> matches;
+        String totalServerCount = "", onlineServerCount = "";
+        if(this->ofpm != NULL) {
+                matches = this->ofpm->getAllMatchingServers(this->serverFilter);
+                totalServerCount = IntToStr(this->ofpm->getTotalServerCount());
+                onlineServerCount = IntToStr(this->ofpm->getOnlineServerCount());
+        }
         for (list<Server*>::iterator si = matches.begin(); si != matches.end(); ++si) {
                 Server *srv = *si;
                 if(srv->isFavorite()) {
@@ -472,8 +478,8 @@ void TForm1::filterChanged(bool userinput) {
                         sortList->AddObject(this->addLeadingZeros(srv->getPing(), 5), (TObject*) srv);
                 }
         }
-        this->StatusBar1->Panels->Items[0]->Text = WINDOW_SETTINGS->getGuiString("STRING_LISTED") + " " + IntToStr(this->ofpm->getTotalServerCount());
-        this->StatusBar1->Panels->Items[1]->Text = WINDOW_SETTINGS->getGuiString("STRING_ONLINE") + " " + IntToStr(this->ofpm->getOnlineServerCount());
+        this->StatusBar1->Panels->Items[0]->Text = WINDOW_SETTINGS->getGuiString("STRING_LISTED") + " " + totalServerCount;
+        this->StatusBar1->Panels->Items[1]->Text = WINDOW_SETTINGS->getGuiString("STRING_ONLINE") + " " + onlineServerCount;
         if(matches.size() == 0) {
                 this->setEmptyServerList();
                 this->setEmptyPlayerList();
@@ -1003,8 +1009,12 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
         this->windowSettings->getSettingsFileEntry(settings);
         settings->SaveToFile(this->ofpm->getSettingsFile());
         delete settings;
+
         delete this->gameControl;
+        this->gameControl = NULL;
+
         delete this->ofpm;
+        this->ofpm = NULL;
         delete this->fontSettings;
         delete this->windowSettings;
         delete this->serverFilter;
@@ -1374,7 +1384,9 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key,
         } else if(Key == VK_F13) {
                 CoolTrayIcon1->ShowMainForm();
         } else if(Key == VK_F2) {
-                this->ofpm->setCustomNotifications(!this->ofpm->areCustomNotificationsOn());
+                if(this->ofpm != NULL) {
+                        this->ofpm->setCustomNotifications(!this->ofpm->areCustomNotificationsOn());
+                }
         } else if(Key == VK_F3) {
                 toggleAlwaysOnTop();
         }
@@ -1386,7 +1398,10 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
         if(ACol > 0 && ARow > 0 && !(StringGrid1->Cells[0][ARow]).Trim().IsEmpty()) {
                 Server *srv = (Server*)(StringGrid1->Objects[0][ARow]);
                 if(srv != NULL) {
-                        TColor mark = this->ofpm->getMarkingColor(srv);
+                        TColor mark = clNone;
+                        if(this->ofpm != NULL) {
+                                this->ofpm->getMarkingColor(srv);
+                        }
                         if(     mark != clNone ||
                                 srv->isWatched() ||
                                 srv->isAutoJoin() ||
@@ -1912,9 +1927,11 @@ void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
         TStringList *s = new TStringList();
         s->Sorted = true;
         s->Duplicates = dupIgnore;
-        this->ofpm->getAllAppTitlesOfGames(s);
         TStringList *m = new TStringList();
-        this->ofpm->getAllExesOfGames(m);
+        if(this->ofpm != NULL) {
+                this->ofpm->getAllAppTitlesOfGames(s);
+                this->ofpm->getAllExesOfGames(m);
+        }
         if(pf->enumerate(s, m)) {
                 for (list<ProcessInfo>::iterator proc = pf->output.begin(); proc != pf->output.end(); ++proc) {
                         ProcessInfo *p = new ProcessInfo((*proc).pid, (*proc).hWindow, (*proc).title, (*proc).moduleName);
@@ -2043,7 +2060,9 @@ void __fastcall TForm1::StatusBar1MouseDown(TObject *Sender,
                                 if(X > left &&
                                    X < left + StatusBar1->Panels->Items[i]->Width) {
                                         if(i == 3) {
-                                                this->ofpm->setCustomNotifications(!this->ofpm->areCustomNotificationsOn());
+                                                if(this->ofpm != NULL) {
+                                                        this->ofpm->setCustomNotifications(!this->ofpm->areCustomNotificationsOn());
+                                                }
                                         } else if(i == 5) {
                                                 this->toggleAlwaysOnTop();
                                         }
