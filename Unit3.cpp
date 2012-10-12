@@ -4,9 +4,10 @@
 #pragma hdrstop      
 #include "Unit2.h"
 #include "Unit3.h"
-#include <OFPMonitor\OFPMonitor.h>
+#include "OFPMonitorModel.h"
+#include "OFPMonitorDefinitions.h"
+#include "Game.h"
 
-using namespace OFPMonitor_Unit2;
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -16,10 +17,8 @@ TWINDOW_LOCALGAME *WINDOW_LOCALGAME;
    Launches OFP with the passed start up configuration
  */
 
-void startTheGame(String configuration, String exe) {
-        if(FileExists(exe)) {
-                ShellExecute(NULL, "open", PChar(exe.c_str()), PChar(configuration.c_str()), PChar(WINDOW_SETTINGS->getFolder(exe).c_str()), SW_NORMAL);
-        }
+void TWINDOW_LOCALGAME::setModel(OFPMonitorModel *ofpm) {
+        this->ofpm = ofpm;
 }
 
 //---------------------------------------------------------------------------
@@ -33,10 +32,15 @@ __fastcall TWINDOW_LOCALGAME::TWINDOW_LOCALGAME(TComponent* Owner)
 void __fastcall TWINDOW_LOCALGAME::FormShow(TObject *Sender)
 {
         COMBOBOX_LOCALGAMES->Items->Clear();
-        for(int i = 0; i < GAMES_TOTAL; i++) {
-                String name = WINDOW_SETTINGS->getSetGameFullName(i);
-                if(!name.IsEmpty()) {
-                        COMBOBOX_LOCALGAMES->Items->AddObject(name, (TObject *)i);
+        for(int i = 0; i < GAMESTOTAL; i++) {
+                Game *g = this->ofpm->getGame((OFPGames)i);
+                if(g != NULL) {
+                        if(g->isActive()) {
+                                String name = g->getFullName();
+                                if(!name.IsEmpty()) {
+                                        COMBOBOX_LOCALGAMES->Items->AddObject(name, (TObject*)g);
+                                }
+                        }
                 }
         }
         if(COMBOBOX_LOCALGAMES->Items->Count > 0) {
@@ -57,13 +61,16 @@ void __fastcall TWINDOW_LOCALGAME::COMBOBOX_LOCALGAMESChange(
 {
         int index = COMBOBOX_LOCALGAMES->ItemIndex;
         if(index >= 0) {
-                int gameid = (int) COMBOBOX_LOCALGAMES->Items->Objects[index];
-                int confNum = WINDOW_SETTINGS->getConfAmount(gameid);
+                Game *g = (Game*) (COMBOBOX_LOCALGAMES->Items->Objects[index]);
+                int confNum = g->getConfigurationsCount();
                 COMBOBOX_LOCALMODS->Items->Clear();
-                COMBOBOX_LOCALMODS->Items->AddObject(WINDOW_SETTINGS->getGuiString("MENUITEM_POPUP_JOIN_NOMODS"), (TObject*) (-2));
+                COMBOBOX_LOCALMODS->Items->AddObject(WINDOW_SETTINGS->getGuiString("MENUITEM_POPUP_JOIN_NOMODS"), (TObject*)(NULL));
                 for(int i = 0; i < confNum; i++) {
-                        String entry = WINDOW_SETTINGS->getConfListEntry(gameid, i);
-                        COMBOBOX_LOCALMODS->Items->AddObject(entry, (TObject *)i);
+                        Configuration *conf = g->getConfiguration(i);
+                        if(conf != NULL) {
+                                String entry = conf->createListEntry();
+                                COMBOBOX_LOCALMODS->Items->AddObject(entry, (TObject *)conf);
+                        }
                 }
                 if(COMBOBOX_LOCALMODS->Items->Count > 0) {
                         COMBOBOX_LOCALMODS->Enabled = true;
@@ -81,26 +88,24 @@ void __fastcall TWINDOW_LOCALGAME::COMBOBOX_LOCALGAMESChange(
 void __fastcall TWINDOW_LOCALGAME::BUTTON_LOCALGAME_STARTClick(
       TObject *Sender)
 {
-        int gameid = -1;
-        int modid = -1;
+        Game *g = NULL;
+        Configuration *conf = NULL;
         if(COMBOBOX_LOCALGAMES->ItemIndex >= 0) {
-                gameid = (int) COMBOBOX_LOCALGAMES->Items->Objects[COMBOBOX_LOCALGAMES->ItemIndex];
+                g = (Game*) (COMBOBOX_LOCALGAMES->Items->Objects[COMBOBOX_LOCALGAMES->ItemIndex]);
         }
-
         if(COMBOBOX_LOCALMODS->ItemIndex >= 0) {
-                modid =  (int) COMBOBOX_LOCALMODS->Items->Objects[COMBOBOX_LOCALMODS->ItemIndex];
+                conf = (Configuration*) (COMBOBOX_LOCALMODS->Items->Objects[COMBOBOX_LOCALMODS->ItemIndex]);
         }
         bool multiPlayer = CHECKBOX_MULTIPLAYER->Checked;
-        String startup = "-nosplash -nomap";
-        if(modid >= 0) {
-                startup = WINDOW_SETTINGS->getConfStartLineLocal(gameid, modid, multiPlayer);
+        String startup = " -nosplash -nomap ";
+        if(conf != NULL && g != NULL) {
+                startup = conf->createStartLineLocal(multiPlayer, g->getProfileName());
         } else if(multiPlayer) {
                 startup += " -host";
         }
-        if(gameid >= 0 && gameid < GAMES_TOTAL) {
-                String exe = WINDOW_SETTINGS->getExe(gameid);
+        if(g != NULL) {
                 WINDOW_LOCALGAME->Close();
-                startTheGame(startup, exe);
+                this->ofpm->startTheGame(g, startup);
         }
 }
 //---------------------------------------------------------------------------

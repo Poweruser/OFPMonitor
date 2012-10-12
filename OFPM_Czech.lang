@@ -85,6 +85,7 @@ STRING_STATUS = Stav
 STRING_ISLAND = Ostrov
 STRING_MISSION = Mise
 STRING_PING = Ping
+STRING_ADDRESS = Adresa
 
 STRING_SCORE = Skóre
 STRING_DEATHS = Úmrtí
@@ -156,10 +157,10 @@ STRING_UPDATE2 = Chcete nyní provést OFPMonitor aktualizaci?
 STRING_UPDATE_ALREADYLATEST = Vy již máte nejnovejší verzi.
 
 TABSHEET_SERVERS = Servery
-GROUPBOX_SERVERS_ADD = Nový server IP[:Port]
+STRING_SERVERS_ADD_TITLE = Pridání nového serveru ...
+STRING_SERVERS_ADD_PROMPT = Zadejte adresu serveru
 BUTTON_SERVERS_ADD = Pridat
-RADIOBUTTON_SERVERS_SHOW_ADDRESS = Zobrazit adresy
-RADIOBUTTON_SERVERS_SHOW_NAME = Zobrazit jména
+BUTTON_SERVERS_REMOVE = Odstranit
 STRING_SERVERS_FAVORITE = Oblíbené
 STRING_SERVERS_WATCHED = Sledované
 STRING_SERVERS_PERSISTENT = Trvalý
@@ -186,3 +187,6 @@ CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING = Vyslechnutí hlášení
 BUTTON_GAMECONTROL_REFRESH = Aktualizace seznamu
 
 GROUPBOX_VOLUME = Hlasitost zvuku servery pro sledované:
+
+STRING_PASSWORDDIALOG_TITLE = Je vyžadováno heslo
+STRING_PASSWORDDIALOG_PROMPT = Tento server je chránen heslem. Zadejte jej zde:

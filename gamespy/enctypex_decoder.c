@@ -374,7 +374,6 @@ int enctypex_decoder_convert_to_ipport(unsigned char *data, int datalen, unsigne
                     *p,
                     *o,
                     *l;
-    static const int    use_parval = 1; // par and val are required, so this bool is useless
     static unsigned char    // this function is not thread-safe if you use it for retrieving the extra data (infobuff)
                     parz    = 0,
                     valz    = 0,
@@ -399,36 +398,28 @@ int enctypex_decoder_convert_to_ipport(unsigned char *data, int datalen, unsigne
     } else {
         if(p < l) {
             pars = *p++;
-            if(use_parval) {  // save the static data
-                parz = pars;
-                par  = (par_t *) realloc(par, sizeof(par_t) * parz);
-            }
+            parz = pars;
+            par  = (par_t *) realloc(par, sizeof(par_t) * parz);
             for(i = 0; (i < pars) && (p < l); i++) {
                 t = *p++;
-                if(use_parval) {
-                    par[i].type = t;
-                    par[i].name = p;
-                }
+                par[i].type = t;
+                par[i].name = p;
                 p += strlen(p) + 1;
             }
         }
         if(p < l) {
             vals = *p++;
-            if(use_parval) {  // save the static data
-                valz = vals;
-                val  = (unsigned char * *) realloc(val, sizeof(unsigned char *) * valz);
-            }
+            valz = vals;
+            val  = (unsigned char * *) realloc(val, sizeof(unsigned char *) * valz);
             for(i = 0; (i < vals) && (p < l); i++) {
-                if(use_parval) val[i] = p;
+                val[i] = p;
                 p += strlen(p) + 1;
             }
         }
     }
 
-    if(use_parval) {
-        pars = parz;
-        vals = valz;
-    }
+    pars = parz;
+    vals = valz;
     if(infobuff && (infobuff_size > 0)) {
         infobuff[0] = 0;
     }
@@ -479,7 +470,6 @@ int enctypex_decoder_convert_to_ipport(unsigned char *data, int datalen, unsigne
                 }}
                 t = *p++;
 
-                if(use_parval) {
                     if(!par[i].type) {  // string
                         if(t == 0xff) { // inline string
                             enctypex_infobuff_check(strlen(p)) {
@@ -498,7 +488,6 @@ int enctypex_decoder_convert_to_ipport(unsigned char *data, int datalen, unsigne
                             infobuff_len += sprintf(infobuff + infobuff_len, "%d", (signed char)t);
                         }}
                     }
-                }
             }
         }
         if(infobuff) {  // do NOT touch par/val, I use realloc

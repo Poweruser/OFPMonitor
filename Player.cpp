@@ -9,18 +9,37 @@
 
 #pragma package(smart_init)
 
-                Player::Player() {
-                        this->deaths = 0;
-                        this->score = 0;
-                        this->team = "";
-                        this->name = "";
-                }
+Player::Player() {
+        this->clear();
+}
 
+Player::Player(String name, int score, int deaths, String team) {
+        this->name = name;
+        this->score = score;
+        this->deaths = deaths;
+        this->team = team;
+}
 
-                Player::Player(String &n, String &t, int &s, int &d) {
-                        this->name = n;
-                        this->team = t;
-                        this->score = s;
-                        this->deaths = d;
-                }
+void Player::clear() {
+        this->deaths = 0;
+        this->score = 0;
+        this->team = "";
+        this->name = "";
+}
+
+String Player::getName() {
+        return this->name;
+}
+int Player::getScore() {
+        return this->score;
+}
+
+int Player::getDeaths() {
+        return this->deaths;
+}
+
+String Player::getTeam() {
+        return this->team;
+}
+
 

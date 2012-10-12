@@ -13,11 +13,13 @@
  */
 
 class Message {
-        public:
+        private:
                 String content;
                 String ip;
                 int port;
                 DWORD toa;
+
+        public:
 
                 /**
                    Constructor
@@ -30,6 +32,12 @@ class Message {
                 */
 
                 Message(String ip, int port, String content, DWORD toa);
+                String getAddress();
+                String getContent();
+                String getIP();
+                DWORD getTimeOfArrival();
+                int getPort();
+                bool isContentValid();
 };
 //---------------------------------------------------------------------------
 #endif

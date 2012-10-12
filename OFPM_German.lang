@@ -85,6 +85,7 @@ STRING_STATUS = Status
 STRING_ISLAND = Insel
 STRING_MISSION = Mission
 STRING_PING = Ping
+STRING_ADDRESS = Adresse
 
 STRING_SCORE = Punkte
 STRING_DEATHS = Tode
@@ -156,10 +157,10 @@ STRING_UPDATE2 = Wollen Sie OFPMonitor jetzt aktualisieren?
 STRING_UPDATE_ALREADYLATEST = Sie haben bereits die neueste Version
 
 TABSHEET_SERVERS = Server
-GROUPBOX_SERVERS_ADD = Neuer Server  IP[:Port]
+STRING_SERVERS_ADD_TITLE = Neuen Server hinzufügen ...
+STRING_SERVERS_ADD_PROMPT = Geben Sie die Adresse des Servers ein
 BUTTON_SERVERS_ADD = Hinzufügen
-RADIOBUTTON_SERVERS_SHOW_ADDRESS = Adressen anzeigen
-RADIOBUTTON_SERVERS_SHOW_NAME = Namen anzeigen
+BUTTON_SERVERS_REMOVE = Entfernen
 STRING_SERVERS_FAVORITE = Favoriten
 STRING_SERVERS_WATCHED = Beobachet
 STRING_SERVERS_PERSISTENT = Persistent
@@ -186,3 +187,6 @@ CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING = Nachbesprechung
 BUTTON_GAMECONTROL_REFRESH = Listen aktualisieren
 
 GROUPBOX_VOLUME = Lautstärke für beobachtete Server:
+
+STRING_PASSWORDDIALOG_TITLE = Passwort benötigt
+STRING_PASSWORDDIALOG_PROMPT = Dieser Server ist passwortgeschützt. Geben Sie es hier ein:

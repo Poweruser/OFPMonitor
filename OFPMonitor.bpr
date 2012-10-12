@@ -6,13 +6,18 @@
     <PROJECT value="OFPMonitor.exe"/>
     <OBJFILES value="OFPMonitor.obj Unit1.obj Unit2.obj Unit4.obj FileVersion.obj Unit3.obj 
       irc\irc.obj Unit5.obj Address.obj QueryAnswer.obj Server.obj Player.obj 
-      Message.obj Sorter.obj ProcessFinder.obj ConfigReader.obj"/>
+      Message.obj ProcessFinder.obj ConfigReader.obj ServerList.obj 
+      StringSplitter.obj OFPMonitorModel.obj UDPNetwork.obj QueryRequest.obj 
+      Game.obj Configuration.obj GameControl.obj ServerFilter.obj 
+      FontSettings.obj StatusChange.obj ServerTableSorter.obj 
+      PlayerTableSorter.obj AudioPlayer.obj CustomNotification.obj AudioTask.obj 
+      AudioPosition.obj WindowSettings.obj ServerEditorSorter.obj"/>
     <RESFILES value="OFPMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
     <DEFFILE value=""/>
     <RESDEPEN value="$(RESFILES) Unit1.dfm Unit2.dfm Unit4.dfm Unit3.dfm Unit5.dfm"/>
-    <LIBFILES value="..\..\Lib\psapi.lib lib\unrar.lib"/>
+    <LIBFILES value="C:\Lib\psapi.lib lib\unrar.lib"/>
     <LIBRARIES value="IndyProtocols60.lib IndySystem60.lib IndyCore60.lib CoolTrayIcon.lib 
       bcbsmp.lib vclx.lib rtl.lib vcl.lib"/>
     <SPARELIBS value="vcl.lib rtl.lib vclx.lib bcbsmp.lib CoolTrayIcon.lib IndyCore60.lib 
@@ -29,15 +34,15 @@
     <USERDEFINES value=""/>
     <SYSDEFINES value="NO_STRICT"/>
     <MAINSOURCE value="OFPMonitor.cpp"/>
-    <INCLUDEPATH value="irc;include;..;$(BCB)\include;$(BCB)\include\vcl"/>
-    <LIBPATH value="irc;lib;..;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <INCLUDEPATH value="C:\Programme\Borland\CBuilder6\Projects;irc;include;..;$(BCB)\include;$(BCB)\include\vcl"/>
+    <LIBPATH value="C:\Programme\Borland\CBuilder6\Projects;irc;lib;..;$(BCB)\lib\obj;$(BCB)\lib"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <OTHERFILES value=""/>
   </MACROS>
   <OPTIONS>
-    <IDLCFLAGS value="-Iirc -Iinclude -I.. -I$(BCB)\include -I$(BCB)\include\vcl -src_suffix cpp 
-      -boa"/>
-    <CFLAG1 value="-O2 -Vx -Ve -X- -a8 -b- -d -k- -vi -O -O1 -c -tW -tWM"/>
+    <IDLCFLAGS value="-IC:\Programme\Borland\CBuilder6\Projects -Iirc -Iinclude -I.. 
+      -I$(BCB)\include -I$(BCB)\include\vcl -src_suffix cpp -boa"/>
+    <CFLAG1 value="-O2 -Q -Vx -Ve -X- -a8 -b- -d -k- -vi -O -O1 -c -tW -tWM"/>
     <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
     <RFLAGS value=""/>
     <AFLAGS value="/mx /w2 /zn"/>
@@ -55,7 +60,7 @@
       <FILE FILENAME="OFPMonitor.cpp" FORMNAME="" UNITNAME="OFPMonitor" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Unit1.cpp" FORMNAME="Form1" UNITNAME="Unit1" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Unit2.cpp" FORMNAME="WINDOW_SETTINGS" UNITNAME="Unit2" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="..\..\Lib\psapi.lib" FORMNAME="" UNITNAME="psapi.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="C:\Lib\psapi.lib" FORMNAME="" UNITNAME="psapi.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Unit4.cpp" FORMNAME="WINDOW_INFO" UNITNAME="Unit4" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="FileVersion.cpp" FORMNAME="" UNITNAME="FileVersion" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Unit3.cpp" FORMNAME="WINDOW_LOCALGAME" UNITNAME="Unit3" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
@@ -67,9 +72,27 @@
       <FILE FILENAME="Server.cpp" FORMNAME="" UNITNAME="Server" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Player.cpp" FORMNAME="" UNITNAME="Player" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Message.cpp" FORMNAME="" UNITNAME="Message" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="Sorter.cpp" FORMNAME="" UNITNAME="Sorter" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="ProcessFinder.cpp" FORMNAME="" UNITNAME="ProcessFinder" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="ConfigReader.cpp" FORMNAME="" UNITNAME="ConfigReader" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="ServerList.cpp" FORMNAME="" UNITNAME="ServerList" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="StringSplitter.cpp" FORMNAME="" UNITNAME="StringSplitter" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="OFPMonitorModel.cpp" FORMNAME="" UNITNAME="OFPMonitorModel" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="UDPNetwork.cpp" FORMNAME="" UNITNAME="UDPNetwork" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="QueryRequest.cpp" FORMNAME="" UNITNAME="QueryRequest" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Game.cpp" FORMNAME="" UNITNAME="Game" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Configuration.cpp" FORMNAME="" UNITNAME="Configuration" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="GameControl.cpp" FORMNAME="" UNITNAME="GameControl" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="ServerFilter.cpp" FORMNAME="" UNITNAME="ServerFilter" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="FontSettings.cpp" FORMNAME="" UNITNAME="FontSettings" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="StatusChange.cpp" FORMNAME="" UNITNAME="StatusChange" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="ServerTableSorter.cpp" FORMNAME="" UNITNAME="ServerTableSorter" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="PlayerTableSorter.cpp" FORMNAME="" UNITNAME="PlayerTableSorter" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="AudioPlayer.cpp" FORMNAME="" UNITNAME="AudioPlayer" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="CustomNotification.cpp" FORMNAME="" UNITNAME="CustomNotification" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="AudioTask.cpp" FORMNAME="" UNITNAME="AudioTask" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="AudioPosition.cpp" FORMNAME="" UNITNAME="AudioPosition" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="WindowSettings.cpp" FORMNAME="" UNITNAME="WindowSettings" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="ServerEditorSorter.cpp" FORMNAME="" UNITNAME="ServerEditorSorter" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>
@@ -102,30 +125,35 @@ ProductName=OFPMonitor
 ProductVersion=1.0.0.0
 Comments=
 
+[Excluded Packages]
+c:\programme\borland\cbuilder6\Bin\DCLNMF60.bpl=NetMasters Fastnet Tools
+
 [HistoryLists\hlIncludePath]
-Count=8
-Item0=irc;include;..;$(BCB)\include;$(BCB)\include\vcl
-Item1=D:\Programme\BCB6\Projects;irc;include;..;$(BCB)\include;$(BCB)\include\vcl
-Item2=E:\ProgC\Borland\CBuilder6\Projects;irc;include;..;$(BCB)\include;$(BCB)\include\vcl
-Item3=irc;..;$(BCB)\include;$(BCB)\include\vcl
-Item4=..;$(BCB)\include;$(BCB)\include\vcl
-Item5=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
+Count=9
+Item0=C:\Programme\Borland\CBuilder6\Projects;irc;include;..;$(BCB)\include;$(BCB)\include\vcl
+Item1=irc;include;..;$(BCB)\include;$(BCB)\include\vcl
+Item2=D:\Programme\BCB6\Projects;irc;include;..;$(BCB)\include;$(BCB)\include\vcl
+Item3=E:\ProgC\Borland\CBuilder6\Projects;irc;include;..;$(BCB)\include;$(BCB)\include\vcl
+Item4=irc;..;$(BCB)\include;$(BCB)\include\vcl
+Item5=..;$(BCB)\include;$(BCB)\include\vcl
 Item6=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 Item7=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
+Item8=..;OFPMonitor;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=11
-Item0=irc;lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item1=D:\Programme\BCB6\Projects;irc;lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item2=D:\Programme\BCB6\Projects;irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib
-Item3=irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib
-Item4=E:\ProgC\Borland\CBuilder6\Projects;irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib
-Item5=d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item6=irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item7=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item8=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Count=12
+Item0=C:\Programme\Borland\CBuilder6\Projects;irc;lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item1=irc;lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item2=D:\Programme\BCB6\Projects;irc;lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item3=D:\Programme\BCB6\Projects;irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib
+Item4=irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib
+Item5=E:\ProgC\Borland\CBuilder6\Projects;irc;lib;d:\libs;..;$(BCB)\lib\obj;$(BCB)\lib
+Item6=d:\libs;irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item7=irc;$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item8=$(BCB)\Projects\Lib;..;$(BCB)\lib\obj;$(BCB)\lib
 Item9=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
-Item10=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item10=$(BCB)\Projects\Lib;..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
+Item11=..;OFPMonitor;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1

@@ -4,6 +4,14 @@
 #define Unit1H
 
 #include "Server.h"
+#include "Player.h"
+#include "OFPMonitorModel.h"
+#include "GameControl.h"
+#include "FontSettings.h"
+#include "WindowSettings.h"
+#include "ServerFilter.h"
+#include "ServerTableSorter.h"
+#include "PlayerTableSorter.h"
 
 #include <list.h>
 
@@ -19,11 +27,6 @@
 #include "trayicon.h"
 #include <Dialogs.hpp>
 #include "CoolTrayIcon.hpp"
-#include <IdBaseComponent.hpp>
-#include <IdComponent.hpp>
-#include <IdSocketHandle.hpp>
-#include <IdUDPBase.hpp>
-#include <IdUDPServer.hpp>
 #include <ImgList.hpp>
 
 //---------------------------------------------------------------------------
@@ -132,8 +135,6 @@ __published:	// IDE-managed Components
         TLabel *LABEL_SERVERINFO_EQMODREQ_VALUE;
         TCoolTrayIcon *CoolTrayIcon1;
         TMenuItem *MENUITEM_MAINMENU_LOCALGAME;
-        TTimer *Timer2;
-        TIdUDPServer *IdUDPServer1;
         TTabControl *TabControl1;
         TPopupMenu *PopupMenuChat;
         TMenuItem *Openchat1;
@@ -157,14 +158,17 @@ __published:	// IDE-managed Components
         TCheckBox *CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING;
         TCheckBox *CHECKBOX_GAMECONTROL_AUTOGREENUP;
         TCheckBox *CHECKBOX_GAMECONTROL_RESTORE;
-        TTimer *TimerAutoGreenUp;
         TLabel *LABEL_GAMECONTROL_PROCESS;
         TLabel *LABEL_GAMECONTROL_SERVER;
         TLabel *Label9;
-        TImageList *ImageList1;
+        TImageList *ImageListTabIcons;
         TCheckBox *CHECKBOX_GAMECONTROL_AUTODETECT;
         TButton *BUTTON_GAMECONTROL_REFRESH;
         TLabel *LABEL_GAMECONTROL_EXE;
+        TImageList *ImageListVolume;
+        TImageList *ImageListNotification;
+        TImageList *ImageListBandwidth;
+        TImageList *ImageListPinned;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
@@ -181,8 +185,6 @@ __published:	// IDE-managed Components
         void __fastcall Edit1Change(TObject *Sender);
         void __fastcall StringGrid1MouseDown(TObject *Sender,
           TMouseButton Button, TShiftState Shift, int X, int Y);
-        void __fastcall Edit3Change(TObject *Sender);
-        void __fastcall UpDown1Click(TObject *Sender, TUDBtnType Button);
         void __fastcall Edit2Change(TObject *Sender);
         void __fastcall StringGrid2MouseDown(TObject *Sender,
           TMouseButton Button, TShiftState Shift, int X, int Y);
@@ -202,10 +204,6 @@ __published:	// IDE-managed Components
         void __fastcall MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_FONTClick(TObject *Sender);
         void __fastcall FormResize(TObject *Sender);
-        void __fastcall StringGrid1MouseUp(TObject *Sender,
-          TMouseButton Button, TShiftState Shift, int X, int Y);
-        void __fastcall StringGrid2MouseUp(TObject *Sender,
-          TMouseButton Button, TShiftState Shift, int X, int Y);
         void __fastcall FontDialog1Apply(TObject *Sender, HWND Wnd);
         void __fastcall MENUITEM_POPUP_AUTOJOINBClick(TObject *Sender);
         void __fastcall StringGrid1ContextPopup(TObject *Sender,
@@ -231,9 +229,6 @@ __published:	// IDE-managed Components
         void __fastcall MemoChatInputKeyUp(TObject *Sender, WORD &Key,
           TShiftState Shift);
         void __fastcall MENUITEM_MAINMENU_LOCALGAMEClick(TObject *Sender);
-        void __fastcall Timer2Timer(TObject *Sender);
-        void __fastcall IdUDPServer1UDPRead(TIdUDPListenerThread *AThread,
-          TIdBytes AData, TIdSocketHandle *ABinding);
         void __fastcall TabControl1DrawTab(TCustomTabControl *Control,
           int TabIndex, const TRect &Rect, bool Active);
         void __fastcall TabControl1Change(TObject *Sender);
@@ -249,7 +244,6 @@ __published:	// IDE-managed Components
         void __fastcall RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEATClick(TObject *Sender);
         void __fastcall CHECKBOX_GAMECONTROL_AUTOGREENUPClick(TObject *Sender);
         void __fastcall CHECKBOX_GAMECONTROL_RESTOREClick(TObject *Sender);
-        void __fastcall TimerAutoGreenUpTimer(TObject *Sender);
         void __fastcall ComboBox1Change(TObject *Sender);
         void __fastcall ComboBox2Change(TObject *Sender);
         void __fastcall TABSHEET_GAMECONTROLShow(TObject *Sender);
@@ -263,18 +257,53 @@ __published:	// IDE-managed Components
         void __fastcall CHECKBOX_GAMECONTROL_AUTODETECTClick(
           TObject *Sender);
         void __fastcall BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender);
+        void __fastcall FormShow(TObject *Sender);
+        void __fastcall StringGrid1MouseUp(TObject *Sender,
+          TMouseButton Button, TShiftState Shift, int X, int Y);
+        void __fastcall StringGrid2MouseUp(TObject *Sender,
+          TMouseButton Button, TShiftState Shift, int X, int Y);
+        void __fastcall FormConstrainedResize(TObject *Sender,
+          int &MinWidth, int &MinHeight, int &MaxWidth, int &MaxHeight);
+        void __fastcall UpDown1ChangingEx(TObject *Sender,
+          bool &AllowChange, short NewValue, TUpDownDirection Direction);
+        void __fastcall StatusBar1DrawPanel(TStatusBar *StatusBar,
+          TStatusPanel *Panel, const TRect &Rect);
+        void __fastcall StatusBar1MouseDown(TObject *Sender,
+          TMouseButton Button, TShiftState Shift, int X, int Y);
 private:	// User declarations
+        OFPMonitorModel *ofpm;
+        GameControl *gameControl;
+        ServerFilter *serverFilter;
+        FontSettings *fontSettings;
+        WindowSettings *windowSettings;
+        ServerTableSorter *serverTableSorter;
+        PlayerTableSorter *playerTableSorter;
+        Server* selectedServer;
+        Server* selectedServerForPopUp;
+        bool filterChanging;
+
+        float TForm1::checkIfTableRatioZero(float in, TStringGrid *grid);
+        void TForm1::updateFilterOfGui();
+        void TForm1::updateGameControlGui();
+        void TForm1::updateFontOfGui(TFont *font);
+        void TForm1::writeServerToStringGrid(int rowIndex, Server *srv);
+        void TForm1::processPlayerList(Server *srv);
+        void TForm1::writePlayerToStringGrid(int rowIndex, Player *p);
+        void TForm1::updateServerInfoBox(Server *srv);
+        void TForm1::filterChanged(bool userinput);
+        void TForm1::setEmptyServerList();
+        void TForm1::setEmptyPlayerList();
+        String TForm1::extractNameFromValue(String in);
+        String TForm1::getGameState (int i);
+        void TForm1::updateWindowSettingsPosition();
+        void TForm1::applyWindowSettingsRatios();
+        bool TForm1::getServerPasswordDialog(String &password);
+        String TForm1::calcElapsedTime(long a, long b);
+        String TForm1::addLeadingZeros(int number, int length);
+        void TForm1::copyToClipBoard (String msg);
+
 public:		// User declarations
-        void TForm1::readServerList(list<ServerItem> &in);
-        void TForm1::setFont(String name, int size, int charset,bool bold, bool italic);
-        void TForm1::setWindowSettings(int top,int left, int height, int width, float ratioID,float ratioSN,
-                                float ratioPN,float ratioST,float ratioIS,
-                                float ratioMN,float ratioPI,float ratioPL,
-                                float ratioSC,float ratioDE,float ratioTE,
-                                int devider);
-        void TForm1::setGameControlSettings(bool autodetect, bool autogreen, int delay, bool repeat,
-                                bool restoreGame, bool rOnC, bool rOnW, bool rOnB, bool rOnP, bool rOnD);
-        list<String> TForm1::splitUpMessage(String msg, String split);
+        void TForm1::readServerList(list<ServerConfigEntry> &in);
         bool TForm1::doNameFilter(String c, String d);
         void TForm1::incomingChatMessage(String chan, String msg, bool controlMsg);
         void TForm1::setChat(String host, int port, String channel, String user, bool autoConnect);
@@ -287,11 +316,16 @@ public:		// User declarations
         void TForm1::ChatConnectionLost();
         void TForm1::ChatConnected(bool success);
         bool TForm1::isChatUserBlocked(String username);
-        bool TForm1::isNotificationRuleActive(int index);
-        void TForm1::resetNotifications(int notificationIndex);
-        Server* TForm1::getServer(int i);
-        bool TForm1::addServer(String ip, int gameport);
-        void TForm1::updateGameControlGui();
+        void TForm1::setModel(OFPMonitorModel *model);
+        void TForm1::setGameControl(GameControl *gameControl);
+        void TForm1::setServerFilter(ServerFilter *serverFilter);
+        void TForm1::setFontSettings(FontSettings *fontSettings);
+        void TForm1::setWindowSettings(WindowSettings *windowSettings);
+        void TForm1::readSettings(TStringList *file);
+        void TForm1::applyWindowSettings();
+        void TForm1::setSelectedServer(Server *srv);
+        void TForm1::setAlwaysOnTop(bool active);
+        void TForm1::toggleAlwaysOnTop();
         __fastcall TForm1(TComponent* Owner);
 
 };

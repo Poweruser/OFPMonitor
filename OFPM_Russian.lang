@@ -85,6 +85,7 @@ STRING_STATUS = Статус
 STRING_ISLAND = Остров
 STRING_MISSION = Миссия
 STRING_PING = Пинг
+STRING_ADDRESS = адрес
 
 STRING_SCORE = Очки
 STRING_DEATHS = Смерти
@@ -156,10 +157,10 @@ STRING_UPDATE2 = Вы хотите обновить OFPMonitor сейчас?
 STRING_UPDATE_ALREADYLATEST = У вас уже есть последняя версия
 
 TABSHEET_SERVERS = Серверы
-GROUPBOX_SERVERS_ADD = Новый сервер IP[:порт]
+STRING_SERVERS_ADD_TITLE = Добавление нового сервера ...
+STRING_SERVERS_ADD_PROMPT = Введите адрес сервера
 BUTTON_SERVERS_ADD = добавлять
-RADIOBUTTON_SERVERS_SHOW_ADDRESS = Показать адреса
-RADIOBUTTON_SERVERS_SHOW_NAME = Показать имена
+BUTTON_SERVERS_REMOVE = Удалить
 STRING_SERVERS_FAVORITE = Избранное
 STRING_SERVERS_WATCHED = Просмотренное
 STRING_SERVERS_PERSISTENT = Постоянное
@@ -186,3 +187,7 @@ CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING = Дебрифинг
 BUTTON_GAMECONTROL_REFRESH = Обновить списки
 
 GROUPBOX_VOLUME = Уровень звука для мониторинга серверов:
+
+STRING_PASSWORDDIALOG_TITLE = требуется пароль
+STRING_PASSWORDDIALOG_PROMPT = Этот сервер защищен паролем. Введите его здесь:
+

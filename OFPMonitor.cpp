@@ -4,8 +4,15 @@
 #include <windows.h>
 #include <list.h>
 #include "FileVersion.h"
-#include "OFPMonitor.h"
+#include "OFPMonitorModel.h"
+#include "OFPMonitorDefinitions.h"
+#include "ServerList.h"
+#include "GameControl.h"
 #include "ProcessFinder.h"
+#include "FontSettings.h"
+#include "Unit1.h"
+#include "Unit2.h"
+#include "Unit3.h"
 #pragma hdrstop
 
 //---------------------------------------------------------------------------
@@ -74,11 +81,40 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
                         Application->Title = "OFPMonitor " + fv->getFullVersion();
                         delete fv;
                         Application->CreateForm(__classid(TForm1), &Form1);
-                        Application->CreateForm(__classid(TWINDOW_UPDATE), &WINDOW_UPDATE);
-                        Application->CreateForm(__classid(TWINDOW_INFO), &WINDOW_INFO);
-                        Application->CreateForm(__classid(TWINDOW_LOCALGAME), &WINDOW_LOCALGAME);
-                        Application->CreateForm(__classid(TWINDOW_SETTINGS), &WINDOW_SETTINGS);
-                        Application->Run();
+                 Application->CreateForm(__classid(TWINDOW_UPDATE), &WINDOW_UPDATE);
+                 Application->CreateForm(__classid(TWINDOW_INFO), &WINDOW_INFO);
+                 Application->CreateForm(__classid(TWINDOW_LOCALGAME), &WINDOW_LOCALGAME);
+                 Application->CreateForm(__classid(TWINDOW_SETTINGS), &WINDOW_SETTINGS);
+                 String settingsFile = GetCurrentDir() + "\\OFPMonitor.ini";
+
+                 ServerList *sL = new ServerList();
+                 OFPMonitorModel *ofpm = new OFPMonitorModel(settingsFile, sL);
+                 GameControl *gameControl = new GameControl(ofpm);
+                 FontSettings *fontSettings = new FontSettings(Form1->Font);
+                 WindowSettings *windowSettings = new WindowSettings();
+                 ServerFilter *serverFilter = new ServerFilter();
+                 Form1->setFontSettings(fontSettings);
+                 Form1->setWindowSettings(windowSettings);
+                 Form1->setServerFilter(serverFilter);
+                 Form1->setGameControl(gameControl);
+                 Form1->setModel(ofpm);
+                 WINDOW_SETTINGS->setModel(ofpm);
+                 WINDOW_LOCALGAME->setModel(ofpm);
+
+                 if(FileExists(settingsFile)) {
+                         TStringList *file = new TStringList;
+                         file->LoadFromFile(settingsFile);
+                         sL->readSettings(file);
+                         ofpm->readSettings(file);
+                         gameControl->readSettings(file);
+                         fontSettings->readSettings(file);
+                         windowSettings->readSettings(file);
+                         serverFilter->readSettings(file);
+                         Form1->readSettings(file);
+                         delete file;
+                 }
+                 Form1->applyWindowSettings();
+                 Application->Run();
                 } catch (Exception &exception) {
                         Application->ShowException(&exception);
                 } catch (...) {
@@ -107,3 +143,4 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         return 0;
 }
 //---------------------------------------------------------------------------
+

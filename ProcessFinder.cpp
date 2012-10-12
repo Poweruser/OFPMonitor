@@ -20,12 +20,26 @@ ProcessInfo::ProcessInfo() {
         this->clear();
 }
 
-ProcessInfo::clear() {
+void ProcessInfo::clear() {
         this->pid = 0;
         this->hWindow = 0;
         this->title = "";
         this->moduleName = "";
 }
+
+bool ProcessInfo::equals(ProcessInfo p) {
+        return (this->pid == p.pid &&
+                this->hWindow == p.hWindow &&
+                this->title == p.title &&
+                this->moduleName == p.moduleName);
+};
+
+bool ProcessInfo::equals(ProcessInfo *p) {
+        return (this->pid == p->pid &&
+                this->hWindow == p->hWindow &&
+                this->title == p->title &&
+                this->moduleName == p->moduleName);
+};
 
 bool CALLBACK MyEnumWindowsProc(HWND hWnd, LPARAM lParam) {
         DWORD PID = 0;

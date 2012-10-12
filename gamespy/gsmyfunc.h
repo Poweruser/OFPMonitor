@@ -298,6 +298,8 @@ int tcpsocket(void) {
     return(sd);
 }
 
+
+
 void gslist_step_1(unsigned char *gamestr, unsigned char *filter) {
 
     if(enctypex_query[0] && (myenctype >= 0)) {

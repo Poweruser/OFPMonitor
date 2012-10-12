@@ -3,6 +3,12 @@
 #ifndef Unit2H
 #define Unit2H
 
+#include "OFPMonitorDefinitions.h"
+#include "OFPMonitorModel.h"      
+#include "Server.h"
+
+#include <list.h>
+
 //---------------------------------------------------------------------------
 #include <Classes.hpp>
 #include <Controls.hpp>
@@ -12,11 +18,10 @@
 #include <ComCtrls.hpp>
 #include <Buttons.hpp>
 #include <ExtCtrls.hpp>
-#include <list.h>
-#include "OFPMonitor.h"
-#include "Server.h"
 #include <ImgList.hpp>
 #include <Menus.hpp>
+#include <Grids.hpp>
+                     
 //---------------------------------------------------------------------------
 
 class TWINDOW_SETTINGS : public TForm
@@ -39,7 +44,7 @@ __published:	// IDE-managed Components
         TLabel *LABEL_SERVERLIST_INTERVAL;
         TEdit *EDIT_SERVERLIST_UPDATE;
         TUpDown *UPDOWN_SERVERLIST_UPDATE;
-        TOpenDialog *OpenDialog1;
+        TOpenDialog *OpenDialogGameFile;
         TGroupBox *GROUPBOX_SERVERLIST;
         TListBox *LISTBOX_MODFOLDERS_SELECTED;
         TButton *BUTTON_NEWCONFIGURATION_MOVELEFT;
@@ -89,8 +94,7 @@ __published:	// IDE-managed Components
         TLabel *LABEL_ARMACWA_DETECTEDVERSION;
         TTabSheet *TABSHEET_CHATSETTINGS;
         TComboBox *ComboBox2;
-        TOpenDialog *OpenDialog2;
-        TTimer *MP3Timer;
+        TOpenDialog *OpenDialogAudioFile;
         TCheckBox *CHECKBOX_REPEAT;
         TTrackBar *TrackBar1;
         TBitBtn *PLAY;
@@ -169,25 +173,21 @@ __published:	// IDE-managed Components
         TCheckBox *CHECKBOX_UPDATE_CHECKATSTART;
         TButton *BUTTON_UPDATE;
         TTabSheet *TABSHEET_SERVERS;
-        TListBox *ListBox1;
-        TRadioButton *RADIOBUTTON_SERVERS_SHOW_ADDRESS;
-        TRadioButton *RADIOBUTTON_SERVERS_SHOW_NAME;
-        TTreeView *TreeView1;
-        TGroupBox *GROUPBOX_SERVERS_ADD;
-        TEdit *Edit1;
         TButton *BUTTON_SERVERS_ADD;
-        TImageList *ImageList1;
-        TPopupMenu *POPUPMENU_SERVERLISTEDITOR;
-        TMenuItem *MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE;
+        TImageList *ImageListPropertyIcons;
         TGroupBox *GROUPBOX_VOLUME;
         TTrackBar *TRACKBAR_VOLUME;
         TLabel *Label1;
         TLabel *Label2;
-        TImageList *ImageList2;
+        TImageList *ImageListFlags;
         TComboBoxEx *ComboBox1;
+        TGroupBox *GROUPBOX_PREVIEW;
+        TButton *BUTTON_SERVERS_REMOVE;
+        TStringGrid *StringGrid1;
+        TTimer *Timer1;
         void __fastcall BUTTON_OFPRES_BROWSEClick(TObject *Sender);
         void __fastcall FormCreate(TObject *Sender);
-        void __fastcall OpenDialog1CanClose(TObject *Sender,
+        void __fastcall OpenDialogGameFileCanClose(TObject *Sender,
           bool &CanClose);
         void __fastcall BUTTON_NEWCONFIGURATION_MOVERIGHTClick(TObject *Sender);
         void __fastcall BUTTON_NEWCONFIGURATION_MOVELEFTClick(TObject *Sender);
@@ -222,7 +222,7 @@ __published:	// IDE-managed Components
         void __fastcall CHECKBOX_OFPRESClick(TObject *Sender);
         void __fastcall TABSHEET_MODSShow(TObject *Sender);
         void __fastcall BUTTON_BROWSEClick(TObject *Sender);
-        void __fastcall OpenDialog2CanClose(TObject *Sender,
+        void __fastcall OpenDialogAudioFileCanClose(TObject *Sender,
           bool &CanClose);
         void __fastcall EDIT_NOTIFICATION_FILEChange(TObject *Sender);
         void __fastcall CHECKBOX_FILTER_MINPLAYERSClick(TObject *Sender);
@@ -248,7 +248,6 @@ __published:	// IDE-managed Components
         void __fastcall EDIT_SONGEND_SECChange(TObject *Sender);
         void __fastcall EDIT_NOTIFICATION_FILEKeyUp(TObject *Sender, WORD &Key,
           TShiftState Shift);
-        void __fastcall MP3TimerTimer(TObject *Sender);
         void __fastcall LISTBOX_NOTIFICATIONSClick(TObject *Sender);
         void __fastcall CHECKBOX_NOTIFICATIONS_ACTIVEClick(TObject *Sender);
         void __fastcall EDIT_CHAT_IRCSERVER_PORTChange(TObject *Sender);
@@ -257,62 +256,47 @@ __published:	// IDE-managed Components
         void __fastcall TABSHEET_GENERALShow(TObject *Sender);
         void __fastcall CHECKBOX_UPDATE_CHECKATSTARTClick(TObject *Sender);
         void __fastcall BUTTON_UPDATEClick(TObject *Sender);
-        void __fastcall TreeView1DragOver(TObject *Sender, TObject *Source,
-          int X, int Y, TDragState State, bool &Accept);
-        void __fastcall TreeView1DragDrop(TObject *Sender, TObject *Source,
-          int X, int Y);
         void __fastcall TABSHEET_SERVERSShow(TObject *Sender);
-        void __fastcall RADIOBUTTON_SERVERS_SHOW_NAMEClick(
-          TObject *Sender);
-        void __fastcall RADIOBUTTON_SERVERS_SHOW_ADDRESSClick(
-          TObject *Sender);
-        void __fastcall TreeView1ContextPopup(TObject *Sender,
-          TPoint &MousePos, bool &Handled);
-        void __fastcall MENUITEM_POPUP_SERVERLISTEDITOR_REMOVEClick(
-          TObject *Sender);
         void __fastcall BUTTON_SERVERS_ADDClick(TObject *Sender);
         void __fastcall TRACKBAR_VOLUMEChange(TObject *Sender);
         void __fastcall ComboBox1Change(TObject *Sender);
+        void __fastcall StringGrid1DrawCell(TObject *Sender, int ACol,
+          int ARow, TRect &Rect, TGridDrawState State);
+        void __fastcall StringGrid1MouseDown(TObject *Sender,
+          TMouseButton Button, TShiftState Shift, int X, int Y);
+        void __fastcall BUTTON_SERVERS_REMOVEClick(TObject *Sender);
+        void __fastcall Timer1Timer(TObject *Sender);
 private:	// User declarations
-public:		// User declarations
-        int TWINDOW_SETTINGS::getConfAmount(int gameid);
-        String TWINDOW_SETTINGS::getConfListEntry(int gameid, int i);
-        String TWINDOW_SETTINGS::getConfModLine(int gameid, int i);
-        String TWINDOW_SETTINGS::getPlayerName(int actVer, int reqVer);
-        String TWINDOW_SETTINGS::getSetGameFullName(int gameid);
+
+        OFPMonitorModel *ofpm;
+
+        void TWINDOW_SETTINGS::updateConfList();
+        void TWINDOW_SETTINGS::refreshGamesModList();
+        void TWINDOW_SETTINGS::updateGames();
+        void TWINDOW_SETTINGS::checkForAutoDetection(OFPGames id);
+        void TWINDOW_SETTINGS::checkNotificationListState();
+        void TWINDOW_SETTINGS::exitEditNotificationMode();
+        void TWINDOW_SETTINGS::profileChanged(TComboBox *box, OFPGames gameid);
+        void TWINDOW_SETTINGS::updateNotificationsList();
+        void TWINDOW_SETTINGS::updateChatSettings();
+        void TWINDOW_SETTINGS::findLanguageFiles();
         String TWINDOW_SETTINGS::getFolder(String in);
-        void TWINDOW_SETTINGS::writeSettingToFile(list<ServerItem> servers, list<String> otherSettings);
-        void TWINDOW_SETTINGS::setSettingsChanged();
-        void TWINDOW_SETTINGS::setCustomNotifications(bool active);
-        bool TWINDOW_SETTINGS::areCustomNotificationsEnabled();
-        String TWINDOW_SETTINGS::getConfStartLine(int gameid, int i, String ip, int port);
-        String TWINDOW_SETTINGS::getConfStartLineLocal(int gameid, int i, bool multiplayer);
-        String TWINDOW_SETTINGS::getNoModsStartLine(int gameid, String ip, int port);
-        String TWINDOW_SETTINGS::getSameModsStartLine(int gameid, String ip, int port, String servermods);
-        int TWINDOW_SETTINGS::getGameId(int actVer, int reqVer);
-        String TWINDOW_SETTINGS::getExe(int actVer, int reqVer);
-        String TWINDOW_SETTINGS::getExe(int gameid);
-        String TWINDOW_SETTINGS::getExeFolder(int actVer, int reqVer);
+        void TWINDOW_SETTINGS::checkConfListState();
+        void TWINDOW_SETTINGS::exitEditMode();
+        void TWINDOW_SETTINGS::updateModFolderList(String ofpfolder);
+        void TWINDOW_SETTINGS::writeServerToStringGrid(int rowIndex, Server *srv);
+        void TWINDOW_SETTINGS::setEmptyServerEditorList();
+        String TWINDOW_SETTINGS::addLeadingZeros(int number, int length);
+        void TWINDOW_SETTINGS::updateServerEditorList();
+        void TWINDOW_SETTINGS::printPlaybackRange(AudioPosition start, AudioPosition end);
+        void TWINDOW_SETTINGS::printPlaybackPosition(AudioPosition current);
+
+
+public:		// User declarations
+        void TWINDOW_SETTINGS::setModel(OFPMonitorModel *ofpm);
         String TWINDOW_SETTINGS::getGuiString(String ident);
-        TStringList* TWINDOW_SETTINGS::getGameSpyGames();
-        void TWINDOW_SETTINGS::addCustomNotification(String name, int filters, list<String> &mission,
-                                    list<String> &server, list<String> &player, int minPlayers,
-                                    int maxPlayers, String soundFile, int volume, int start, int end,
-                                    String color, bool repeat);
-        int TWINDOW_SETTINGS::checkNotifications(String servername, int players, int status,
-                                String missionname, bool passworded,
-                                list<String> playerList);
-        TStringList* TWINDOW_SETTINGS::getNotificationsFileEntries();
-        TColor TWINDOW_SETTINGS::getMarkingColor(int index);
-        void TWINDOW_SETTINGS::MP3remove(int index);
-        void TWINDOW_SETTINGS::MP3remove(String alias);
-        void TWINDOW_SETTINGS::MP3add(int index);
-        void TWINDOW_SETTINGS::MP3add(String file, String alias, int volume);
-        void TWINDOW_SETTINGS::MP3shutdown();
-        BandwidthUsage TWINDOW_SETTINGS::getBandwidthSettings();
-        int TWINDOW_SETTINGS::getUpdateInterval();
-        int TWINDOW_SETTINGS::getVolume();
         __fastcall TWINDOW_SETTINGS(TComponent* Owner);
+        void TWINDOW_SETTINGS::updateLanguage(String languagefile);
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TWINDOW_SETTINGS *WINDOW_SETTINGS;

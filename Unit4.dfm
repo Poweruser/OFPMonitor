@@ -27,8 +27,8 @@ object WINDOW_INFO: TWINDOW_INFO
     Lines.Strings = (
       ''
       ''
-      'Programmed by Poweruser and Alvo'
-      'Email:  poweruser.rs@hotmail.com'
+      'Programmed by Poweruser ( Email:  poweruser.rs@hotmail.com )'
+      'Implementation of the IRC chat client by Alvo'
       ''
       
         'Several other people of the current OFP community contributed by' +

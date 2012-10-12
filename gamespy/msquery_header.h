@@ -60,3 +60,4 @@ unsigned char   *buff            = NULL,
                 secure[SECURESZ + 1],
                 enctypex_info[QUERYSZ],
                 *filter = "";
+

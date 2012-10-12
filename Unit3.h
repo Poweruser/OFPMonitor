@@ -21,7 +21,10 @@ __published:	// IDE-managed Components
         void __fastcall COMBOBOX_LOCALGAMESChange(TObject *Sender);
         void __fastcall BUTTON_LOCALGAME_STARTClick(TObject *Sender);
 private:	// User declarations
+        OFPMonitorModel *ofpm;
+
 public:		// User declarations
+        void TWINDOW_LOCALGAME::setModel(OFPMonitorModel *ofpm);
         __fastcall TWINDOW_LOCALGAME(TComponent* Owner);
 };
 //---------------------------------------------------------------------------

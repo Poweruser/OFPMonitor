@@ -1,12 +1,13 @@
 //---------------------------------------------------------------------------
 
-#include "Server.h"
-#include "Address.h"
+#include "AudioTask.h"
+#include "CustomNotification.h"
+#include "StringSplitter.h"
 #include <vcl.h>                                                          
 #include <filectrl.hpp>
 #include <mmsystem.h>
 #include <windows.h>       
-                                              
+                                                            
 #pragma hdrstop
 
 #include "Unit2.h"
@@ -21,212 +22,13 @@ TWINDOW_SETTINGS *WINDOW_SETTINGS;
 
 #include "guiDBDefs.cpp"
 #include "FileVersion.h"
-#include "OFPMonitor.h"
 #include "ConfigReader.h"
-using namespace OFPMonitor_Unit2;
 
 extern unsigned long resolv(char *host) ; 
 
-String getGameName(int gameid) {
-        if(gameid == GAMEID_OFPCWC) { return "OFP:CWC"; }
-        if(gameid == GAMEID_OFPRES) { return "OFP:RES"; }
-        if(gameid == GAMEID_ARMACWA) { return "ARMA:CWA"; }
-        return "UNKNOWN GAME";
+void TWINDOW_SETTINGS::setModel(OFPMonitorModel *ofpm) {
+        this->ofpm = ofpm;
 }
-
-int getGameId(String name) {
-        if(name == "OFP:CWC") { return GAMEID_OFPCWC; }
-        if(name == "OFP:RES") { return GAMEID_OFPRES; }
-        if(name == "ARMA:CWA") { return GAMEID_ARMACWA; }
-        return -1;
-}
-
-bool isValidGameID(int gameid) {
-        return (gameid >= 0 && gameid < GAMES_TOTAL);
-}
-
-
-
-/**
-   Represents an game configuration, which the user can use to join an server
- */
-
-class Configuration {
-        public:
-		bool set;
-                String label;
-                list<String> mods;
-                String password;
-                list<String> addParameters;
-                int gameid;
-                Configuration(int gameid, String l, list<String> &m, String pw, String aP, bool ns, bool nm) {
-                        this->set = true;
-                        this->gameid = gameid;
-                        this->label = l;
-                        this->mods = m;
-                        this->password = pw;
-                        this->addParameters = Form1->splitUpMessage(aP," ");
-                        if(nm) {
-                                this->addParameters.push_back("-nomap");
-                        }
-                        if(ns) {
-                                this->addParameters.push_back("-nosplash");
-                        }
-                }
-
-		Configuration () {
-			this->set = false;
-		}
-
-                /**
-                   Constructs the settings file's entry for this configuration
-                 */
-
-                TStringList* createFileEntry() {
-                        TStringList *output = new TStringList;
-                        output->Add("[Conf]");
-                        output->Add("Game = " + getGameName(this->gameid));
-                        if(!this->label.IsEmpty()) {
-                                output->Add("Label = " + this->label);
-                        }
-                        if(!this->password.IsEmpty()) {
-                                output->Add("Password = " + this->password);
-                        }
-                        if(this->mods.size() > 0) {
-                                output->Add("Mods = " + this->createModLine());
-                        }
-                        if(this->addParameters.size() > 0) {
-                                output->Add("Parameters = " + this->createParameterLine(false, false, false));
-                        }
-                        output->Add("[\\Conf]");
-                        return output;
-                }
-
-                /**
-                   Constructs the startup line, the game application is fed with
-                   when OFPMonitor launches the application
-                */
-
-                String createStartLine(String ip, int port, String player) {
-                        String out = "";
-                        out += " " + this->createParameterLine(false, true, false);
-                        out += " -connect=" + ip;
-                        out += " -port=" + IntToStr(port);
-                        String ml = this->createModLine();
-                        if(!player.IsEmpty()) {
-                                out += " \"-name=" + player + "\"";
-                        }
-                        if(!ml.IsEmpty()) {
-                                out += " \"-mod="+ ml +"\"";
-                        }
-                        if(!this->password.IsEmpty()) {
-                                out += " \"-password="  + this->password + "\"";
-                        }
-                        return out;
-                }
-
-                String createStartLineLocal(bool multiplayer, String player) {
-                        String out = "";
-                        out += " " + this->createParameterLine(true, true, true);
-                        if(multiplayer) {
-                                out += " -host";
-                        }
-                        String ml = this->createModLine();
-                        if(!player.IsEmpty()) {
-                                out += " \"-name=" + player + "\"";
-                        }
-                        if(!ml.IsEmpty()) {
-                                out += " \"-mod="+ ml +"\"";
-                        }
-                        if(!this->password.IsEmpty()) {
-                                out += " \"-password="  + this->password + "\"";
-                        }
-                        return out;
-                }
-
-                /**
-                   Constructs this configuration's entry in the settings window 
-                 */
-
-                String createListEntry() {
-                        String out = "";
-                        if(this->set) {
-                                if(!this->label.Trim().IsEmpty()) {
-                                        out += this->label + "  ";
-                                }
-                                if(this->password.Length() > 0) {
-                                        out += "pw:" + this->password + "  ";
-                                }
-                                out += this->createModLine();
-                        }
-                        return out;
-                }
-
-                /**
-                   Concatenates all mod folders of this configuration, with ; as seperator,
-                   as Operation Flashpoint expects it
-                 */
-
-                String createModLine () {
-                        String modline = "";
-                        unsigned int i = 0;
-                        for (list<String>::iterator ci = this->mods.begin(); ci != this->mods.end(); ++ci) {
-                                i++;
-                                modline += *ci;
-                                if(i < this->mods.size()) {
-                                        modline += ";";
-                                }
-                        }
-                        return modline;
-                }
-
-                /**
-                   Concatenates all additional startup parameters of this configuration, with a space as seperator
-                 */
-
-                String createParameterLine(bool forceNoHost, bool forceNoConnect, bool forceNoServer) {
-                        String paraline = "";
-                        unsigned int j = 0;
-                        for (list<String>::iterator cj = this->addParameters.begin(); cj != this->addParameters.end(); ++cj) {
-                                j++;
-                                String item = *cj;
-                                bool addIt = true;
-                                addIt = addIt && !(forceNoHost && item == "-host");
-                                addIt = addIt && !(forceNoConnect && item.SubString(1,8) == "-connect");
-                                addIt = addIt && !(forceNoServer && item == "-server");
-                                if(addIt) {
-                                        if(j > 1) {
-                                                paraline += " ";
-                                        }
-                                        paraline += *cj;
-                                }
-                        }
-                        return paraline;
-                }
-
-                /**
-                   Creates and returns a copy of this configuration
-                 */
-
-                Configuration clone() {
-                        list<String> c_mods;
-                        for (list<String>::iterator cm = this->mods.begin(); cm != this->mods.end(); ++cm) {
-                                c_mods.push_back(*cm);
-                        }
-                        list<String> c_addParameters;
-                        for (list<String>::iterator cap = this->addParameters.begin(); cap != this->addParameters.end(); ++cap) {
-                                c_addParameters.push_back(*cap);
-                        }
-                        Configuration copy = Configuration();
-                        copy.set = true;
-                        copy.label = this->label;
-                        copy.password = this->password;
-                        copy.mods = c_mods;
-                        copy.addParameters = c_addParameters;
-                        copy.gameid = this->gameid;
-                        return copy;
-                }
-};
 
 /**
    Converts an bool to its binary representation
@@ -241,545 +43,27 @@ String checkBool(bool in) {
 }
 
 /**
-   Returns the folder of the game exe file
- */
-
-String TWINDOW_SETTINGS::getFolder(String in) {
-        String out = "";
-        for(int i = in.Length() - 1; i >= 0; i--) {
-                if(in.SubString(i,1) == "\\") {
-                        out = in.SubString(0, i).Trim();
-                        break;
-                }
-        }
-        return out;
-}
-
-/**
-   Reads all player profile folders in OFP's \Users folder
- */
-
-list<String> findPlayerProfiles(String ofpfolder) {
-        list<String> profiles;
-        if(!ofpfolder.IsEmpty()) {
-                TSearchRec daten;
-                if(0 == FindFirst((ofpfolder +"\\Users\\*").c_str(), faDirectory, daten)) {
-                        try {
-                                do {
-                                        if(     daten.Size == 0 &&
-                                                daten.Name != "." &&
-                                                daten.Name != ".." &&
-                                                FileExists(ofpfolder + "\\Users\\" + daten.Name + "\\UserInfo.cfg")) {
-                                                profiles.push_back(String(daten.Name));
-                                        }
-                                } while(FindNext(daten) == 0);
-                        }__finally
-                        {
-                                FindClose(daten);
-                        }
-                }
-        }
-        return profiles;
-}
-
-
-class Game {
-        public:
-                bool set;
-                int gameid;
-                String exe;
-                String folder;
-                String player;
-                String fullName;
-                int version;
-                Configuration startupConfs[confAmount];
-
-                list<String> exeNames;
-                String gamespyToken;
-                Game () {
-                        this->set = false;
-                        this->exe = "";
-                        this->folder = "";
-                        this->version = 0;
-                        this->fullName = "";
-                        this->player = "";
-                }
-
-                /**
-                   Checks if the correct exe is set
-                 */
-
-                bool isValid() {
-                        return FileExists(this->exe);
-                }
-
-                void autodetect(String exe) {
-                        this->autodetect(exe, "");
-                }
-
-                void autodetect(String exe, String player) {
-                        list<String> exes = getExePathsByGameId(this->gameid);
-                        exes.push_front(exe);
-                        for(list<String>::iterator ci = exes.begin(); ci != exes.end(); ++ci) {
-                                if(FileExists(*ci)) {
-                                        this->exe = (*ci);
-                                        this->folder = WINDOW_SETTINGS->getFolder(this->exe);
-                                        this->queryVersion();
-                                        this->detectPlayer(player);
-                                        this->set = true;
-                                        break;
-                                }
-                        }
-                }
-
-                void detectPlayer(String setP) {
-                        list<String> regPlayer = getRegistryPathByGameId(this->gameid);
-                        String regP = GetRegistryValue(HKEY_CURRENT_USER, regPlayer, "Player Name");
-                        list<String> profiles = findPlayerProfiles(WINDOW_SETTINGS->getFolder(this->exe));
-                        bool fRegPlayer = false, fSetPlayer = false;
-                        for (list<String>::iterator ci = profiles.begin(); ci != profiles.end(); ++ci) {
-                                if((*ci) == setP && !setP.IsEmpty()) {
-                                        fSetPlayer = true;
-                                }
-                                if((*ci) == regP && !regP.IsEmpty()) {
-                                        fRegPlayer = true;
-                                }
-                        }
-                        if(fSetPlayer) {
-                                this->player = setP;
-                        } else if(fRegPlayer) {
-                                this->player = regP;
-                        } else if(profiles.size() > 0) {
-                                this->player = profiles.front();
-                        }
-                }
-
-                void setGameId(int gameid) {
-                        this->gameid = gameid;
-                        this->exeNames = getExesByGameId(gameid);
-                        this->gamespyToken = getGameSpyTokenByGameId(gameid);
-                        this->fullName = getFullGameNameByGameId(gameid);
-                }
-
-                void queryVersion() {
-                        if(FileExists(this->exe)) {
-                                FileVersion *fv = new FileVersion(this->exe);
-                                this->version = fv->getOFPVersion();
-                                delete fv;
-                        }
-                }
-
-                bool checkIfCorrectGame(int actVer, int reqVer) {
-                        if(!this->set) { return false; }
-                        return (reqVer <= this->version && this->version <= actVer && !this->player.IsEmpty());
-                }
-
-                int getConfigurationsCount() {
-                        int i = 0;
-                        for(int j = 0; j < confAmount; j++) {
-                                if(this->startupConfs[j].set) {
-                                        i++;
-                                } else {
-                                        break;
-                                }
-                        }
-                        return i;
-                }
-};
-
-
-/**
-   Stores the general program settings
- */
-
-class Settings {
-        public:
-                bool changed;
-                String workdir;
-                String exe;
-                String folder;
-                String player;
-                int interval;
-                bool customNotifications;
-                bool checkUpdateAtStart;
-                Game games[GAMES_TOTAL];
-                String file;
-                String languagefile;
-                BandwidthUsage level;
-                int volume;
-
-                Settings() {
-                        this->workdir = GetCurrentDir();
-                        this->customNotifications = false;
-                        this->interval = 1;
-                        this->level = High;
-                        this->file = this->workdir + "\\OFPMonitor.ini";
-                        this->languagefile = "Default";
-                        this->changed = false;
-                        for(int i = 0; i < GAMES_TOTAL; i++) {
-                                this->games[i] = Game();
-                                this->games[i].setGameId(i);
-                        }
-                        this->volume = 100;
-                }
-
-                Configuration pSgetConf(int gameid, int i) {
-                        return this->games[gameid].startupConfs[i];
-                }
-                void pSdeleteConf(int gameid, int i) {
-                        this->games[gameid].startupConfs[i].set = false;
-                        for(int j = i + 1; j < confAmount; j++) {
-                                this->games[gameid].startupConfs[j - 1] = (this->games[gameid].startupConfs[j]);
-                        }
-                        this->games[gameid].startupConfs[confAmount - 1].set = false;
-                        this->changed = true;
-                }
-                void pSaddConf(int gameid, Configuration c) {
-                        for(int i = 0; i < confAmount; i++) {
-                                if(!this->games[gameid].startupConfs[i].set) {
-                                        this->games[gameid].startupConfs[i] = c;
-                                        break;
-                                }
-                        }
-                        this->changed = true;
-                }
-
-                void setInterval(int i) {
-                        this->interval = i;
-                        this->changed = true;
-                }
-
-                void writeToFile(list<ServerItem> &servers, list<String> &otherSettings) {
-                        if(this->changed) {
-                                TStringList *file = new TStringList;
-                                file->Add("[General]");
-                                file->Add("LangFile = " + this->languagefile);
-                                file->Add("Interval = " + IntToStr(this->interval));
-                                file->Add("customNotifications = " + checkBool(this->customNotifications));
-                                file->Add("BandwidthUsage = " + IntToStr(this->level));
-                                file->Add("checkUpdateAtStart = " + checkBool(this->checkUpdateAtStart));
-                                file->Add("Volume = " + IntToStr(this->volume));
-                                file->Add("[\\General]");
-
-                                for(int i = 0; i < GAMES_TOTAL; i++) {
-                                        if(this->games[i].set) {
-                                                file->Add("[Game]");
-                                                if(i == GAMEID_OFPCWC) { file->Add("Name = OFP:CWC"); }
-                                                if(i == GAMEID_OFPRES) { file->Add("Name = OFP:RES"); }
-                                                if(i == GAMEID_ARMACWA) { file->Add("Name = ARMA:CWA"); }
-                                                file->Add("Exe = " + this->games[i].exe);
-                                                if(!this->games[i].player.IsEmpty()) {
-                                                        String lp = this->games[i].player;
-                                                        if(lp.SubString(1          , 1) == " " ||
-                                                           lp.SubString(lp.Length(), 1) == " ") {
-                                                                lp = "\"" + lp + "\"";
-                                                        }
-                                                        file->Add("LastPlayer = " + lp);
-                                                }
-                                                file->Add("[\\Game]");
-                                        }
-                                }
-
-                                for(int j = 0; j < GAMES_TOTAL; j++) {
-                                        for(int i = 0; i < confAmount; i++) {
-                                                if(this->games[j].startupConfs[i].set) {
-                                                        TStringList *entry = this->games[j].startupConfs[i].createFileEntry();
-                                                        while (entry->Count > 0) {
-                                                                file->Add(entry->Strings[0]);
-                                                                entry->Delete(0);
-                                                        }
-                                                        delete entry;
-                                                }
-                                        }
-                                }
-                                file->Add("[Filters]");
-                                file->Add("Playing = " + checkBool(Form1->CHECKBOX_FILTER_PLAYING->Checked));
-                                file->Add("Waiting= " + checkBool(Form1->CHECKBOX_FILTER_WAITING->Checked));
-                                file->Add("Creating = " + checkBool(Form1->CHECKBOX_FILTER_CREATING->Checked));
-                                file->Add("Settingup = " + checkBool(Form1->CHECKBOX_FILTER_SETTINGUP->Checked));
-                                file->Add("Briefing = " + checkBool(Form1->CHECKBOX_FILTER_BRIEFING->Checked));
-                                file->Add("Debriefing = " + checkBool(Form1->CHECKBOX_FILTER_DEBRIEFING->Checked));
-                                file->Add("WithPW = " + checkBool(Form1->CHECKBOX_FILTER_WITHPASSWORD->Checked));
-                                file->Add("WithoutPW = " + checkBool(Form1->CHECKBOX_FILTER_WITHOUTPASSWORD->Checked));
-                                file->Add("minPlayers = " + IntToStr(Form1->UpDown1->Position));
-                                file->Add("ServerName = " + Form1->Edit2->Text);
-                                file->Add("MissionName = " + Form1->Edit1->Text);
-                                file->Add("PlayerName = " + Form1->Edit4->Text);
-                                file->Add("[\\Filters]");
-                                String tmp;
-                                while(otherSettings.size() > 0) {
-                                        tmp = otherSettings.front();
-                                        file->Add(tmp);
-                                        otherSettings.pop_front();
-                                }
-
-                                if (servers.size() > 0) {
-                                        file->Add("[Servers]");
-                                        while(servers.size() > 0) {
-                                                ServerItem sI = servers.front();
-                                                String entry = sI.address;
-                                                String att = "";
-                                                if(sI.watch) { att += "W"; }
-                                                if(sI.favorite) { att += "F"; }
-                                                if(sI.persistent) { att += "P"; }
-                                                if(sI.blocked) { att += "B"; }
-                                                if(!att.IsEmpty()) { entry += ";" + att; }
-                                                file->Add(entry);
-                                                delete (&(servers.front()));
-                                                servers.pop_front();
-                                        }
-                                        file->Add("[\\Servers]");
-                                }
-                                TStringList *notifications = WINDOW_SETTINGS->getNotificationsFileEntries();
-                                while(notifications->Count > 0) {
-                                        file->Add(notifications->Strings[0]);
-                                        notifications->Delete(0);
-                                }
-                                file->SaveToFile(this->file);
-                                delete notifications;
-                                delete file;
-                        }
-                }
-
-                String createStartLine(String ip, int port, String player, String modline) {
-                        String out = " -nosplash -nomap ";
-                        out += " -connect=" + ip;
-                        out += " -port=" + String(port);
-                        if(!player.IsEmpty()) {
-                                out += " \"-name=" + player + "\"";
-                        }
-                        if(!modline.IsEmpty()) {
-                                out += " \"-mod="+ modline +"\"";
-                        }
-                        return out;
-                }
-                void setGame(int id, String exe, String player) {
-                        if(id >= 0 && id < GAMES_TOTAL) {
-                                if(FileExists(exe)) {
-                                        this->games[id].autodetect(exe, player);
-                                }
-                        }
-                }
-
-                void removeGame(int id) {
-                        this->games[id].set = false;
-                }
-
-                void setPlayer(int id, String player) {
-                        if(id >= 0 && id < GAMES_TOTAL) {
-                                if(this->games[id].isValid()) {
-                                        this->games[id].detectPlayer(player);
-                                }
-                        }
-                }
-
-                String getPlayerForServer(int actVer, int reqVer) {
-                        for(int i = 0; i < GAMES_TOTAL; i++) {
-                                if(this->games[i].set && this->games[i].isValid()) {
-                                        if(this->games[i].checkIfCorrectGame(actVer, reqVer)) {
-                                                return this->games[i].player;
-                                        }
-                                }
-                        }
-                        return "";
-                }
-
-                int getMatchingGame(int actVer, int reqVer) {
-                        for(int i = 0; i < GAMES_TOTAL; i++) {
-                                if(this->games[i].set && this->games[i].isValid()) {
-                                        if(this->games[i].checkIfCorrectGame(actVer, reqVer)) {
-                                                return i;
-                                        }
-                                }
-                        }
-                        return -1;
-                }
-
-                void refreshGamesModList(TComboBox *box) {
-                        String last = box->Text;
-                        box->Items->Clear();
-                        for(int i = 0; i < GAMES_TOTAL; i++) {
-                                if(this->games[i].set && this->games[i].isValid()) {
-                                        box->Items->AddObject(this->games[i].fullName, (TObject *)i);
-                                }
-                        }
-                        if(box->Items->Count > 0) {
-                                int index = box->Items->IndexOf(last);
-                                if(index > -1) {
-                                        box->ItemIndex = index;
-                                } else {
-                                        box->ItemIndex = 0;
-                                }
-                                box->Enabled = true;
-                                WINDOW_SETTINGS->GROUPBOX_NEWCONFIGURATION->Enabled = true;
-                        } else {
-                                box->Enabled = false;
-                        }
-                        box->OnChange(WINDOW_SETTINGS);
-                }
-
-                void setVolume(int v) {
-                        this->volume = v;
-                        this->changed = true;
-                }
-};
-Settings programSettings = Settings();
-
-BandwidthUsage TWINDOW_SETTINGS::getBandwidthSettings() {
-        return programSettings.level;
-}
-
-int TWINDOW_SETTINGS::getUpdateInterval() {
-        return programSettings.interval;
-}
-
-int TWINDOW_SETTINGS::getVolume() {
-        return programSettings.volume;
-}
-
-/**
-   Returns the number of game configurations the user has set
- */
-
-int TWINDOW_SETTINGS::getConfAmount(int gameid) {
-        if(isValidGameID(gameid)) {
-                return programSettings.games[gameid].getConfigurationsCount();
-        }
-        return 0;
-}
-
-String TWINDOW_SETTINGS::getSetGameFullName(int gameid) {
-        if(     isValidGameID(gameid) &&
-                programSettings.games[gameid].set &&
-                programSettings.games[gameid].isValid()) {
-                return programSettings.games[gameid].fullName;
-        }
-        return "";
-}
-
-void TWINDOW_SETTINGS::writeSettingToFile(list<ServerItem> servers, list<String> otherSettings) {
-        programSettings.writeToFile(servers, otherSettings);
-}
-
-void TWINDOW_SETTINGS::setCustomNotifications(bool active) {
-        programSettings.customNotifications = active;
-}
-
-bool TWINDOW_SETTINGS::areCustomNotificationsEnabled() {
-        return programSettings.customNotifications;
-}
-
-void TWINDOW_SETTINGS::setSettingsChanged() {
-        programSettings.changed = true;
-}
-
-String TWINDOW_SETTINGS::getConfListEntry(int gameid, int i) {
-        return programSettings.games[gameid].startupConfs[i].createListEntry();
-}
-
-String TWINDOW_SETTINGS::getConfStartLine(int gameid, int i, String ip, int port) {
-        return programSettings.games[gameid].startupConfs[i].createStartLine(ip, port, programSettings.games[gameid].player);
-}
-
-String TWINDOW_SETTINGS::getConfStartLineLocal(int gameid, int i, bool multiplayer) {
-        return programSettings.games[gameid].startupConfs[i].createStartLineLocal(multiplayer, programSettings.games[gameid].player);
-}
-
-String TWINDOW_SETTINGS::getNoModsStartLine(int gameid, String ip, int port) {
-        return programSettings.createStartLine(ip, port, programSettings.games[gameid].player, "");
-}
-
-String TWINDOW_SETTINGS::getSameModsStartLine(int gameid, String ip, int port, String servermods) {
-        return programSettings.createStartLine(ip, port, programSettings.games[gameid].player, servermods);
-}
-
-String TWINDOW_SETTINGS::getConfModLine(int gameid, int i) {
-        return programSettings.games[gameid].startupConfs[i].createModLine();
-}
-
-int TWINDOW_SETTINGS::getGameId(int actVer, int reqVer) {
-        return programSettings.getMatchingGame(actVer, reqVer);
-}
-
-/**
-   Returns the currently set game exe file
- */
-
-String TWINDOW_SETTINGS::getExe(int actVer, int reqVer) {
-        for(int i = 0; i < GAMES_TOTAL; i++) {
-                if(programSettings.games[i].set) {
-                        if(programSettings.games[i].checkIfCorrectGame(actVer, reqVer)) {
-                                return programSettings.games[i].exe;
-                        }
-                }
-        }
-        return "";
-}
-
-String TWINDOW_SETTINGS::getExe(int gameid) {
-        String out = "";
-        if(isValidGameID(gameid)) {
-                if(programSettings.games[gameid].set) {
-                        out = programSettings.games[gameid].exe;
-                }
-        }
-        return out;
-}
-
-/**
-   Returns the game folder
- */
-
-String TWINDOW_SETTINGS::getExeFolder(int actVer, int reqVer) {
-        for(int i = 0; i < GAMES_TOTAL; i++) {
-                if(programSettings.games[i].set) {
-                        if(programSettings.games[i].checkIfCorrectGame(actVer, reqVer)) {
-                                return programSettings.games[i].folder;
-                        }
-                }
-        }
-        return "";
-}
-
-/**
    Refreshes the list box for the configurations in the settings window
  */
 
-void updateConfList() {
+void TWINDOW_SETTINGS::updateConfList() {
         WINDOW_SETTINGS->LISTBOX_CONFIGURATIONS->Clear();
         int comboindex = WINDOW_SETTINGS->ComboBox2->Items->IndexOf(WINDOW_SETTINGS->ComboBox2->Text);
         if(comboindex >= 0) {
-                int gameid = (int) WINDOW_SETTINGS->ComboBox2->Items->Objects[comboindex];
-                for(int i = 0; i < confAmount; i++) {
-                        if(programSettings.games[gameid].startupConfs[i].set) {
-                                WINDOW_SETTINGS->LISTBOX_CONFIGURATIONS->Items->AddObject(programSettings.games[gameid].startupConfs[i].createListEntry(), (TObject *) i);
+                Game *g = (Game*) (WINDOW_SETTINGS->ComboBox2->Items->Objects[comboindex]);
+
+                if(g != NULL) {
+                        for(int i = 0; i < g->getConfigurationsCount(); i++) {
+                                Configuration *conf = g->getConfiguration(i);
+                                if(conf != NULL) {
+                                        WINDOW_SETTINGS->LISTBOX_CONFIGURATIONS->Items->AddObject(conf->createListEntry(), (TObject *) conf);
+                                }
                         }
                 }
         }
 }
 
 
-
-String extractNameFromValue(String in) {
-        int start = 0;
-        int end = 0;
-        for(int i = 1; i < in.Length(); i++) {
-                if(in.SubString(i, 1) == "\"") {
-                        start = i;
-                        break;
-                }
-        }
-        for(int i = in.Length(); i > start; i--) {
-                if(in.SubString(i, 1) == "\"") {
-                        end = i;
-                        break;
-                }
-        }
-        if(end && start) {
-                return in.SubString(start + 1, end - (start + 1));
-        }
-        return in;
-}
 
 /**
    Splits a String with 'diff' as seperator and returns the two parts in a list
@@ -807,7 +91,7 @@ list<String> getVarAndValue(String in, String diff) {
    modfolder list box in the settings window
  */
 
-void updateModFolderList(String ofpfolder) {
+void TWINDOW_SETTINGS::updateModFolderList(String ofpfolder) {
         WINDOW_SETTINGS->LISTBOX_MODFOLDERS_ALL->Clear();
         if(!ofpfolder.IsEmpty()) {
         	TSearchRec daten;
@@ -841,67 +125,96 @@ String TWINDOW_SETTINGS::getGuiString(String ident) {
         return out;
 }
 
-void updateGames() {
+void TWINDOW_SETTINGS::refreshGamesModList() {
+        TComboBox *box = this->ComboBox2;
+        String last = box->Text;
+        box->Items->Clear();
+        for(int i = 0; i < GAMESTOTAL; i++) {
+                Game *g = this->ofpm->getGame((OFPGames)i);
+                if(g != NULL) {
+                        if(g->isActive() && g->isValid()) {
+                                box->Items->AddObject(g->getFullName(), (TObject *)g);
+                        }
+                }
+        }
+
+        if(box->Items->Count > 0) {
+                int index = box->Items->IndexOf(last);
+                if(index > -1) {
+                        box->ItemIndex = index;
+                } else {
+                        box->ItemIndex = 0;
+                }
+                box->Enabled = true;
+                WINDOW_SETTINGS->GROUPBOX_NEWCONFIGURATION->Enabled = true;
+        } else {
+                box->Enabled = false;
+        }
+        box->OnChange(WINDOW_SETTINGS);
+}
+
+void TWINDOW_SETTINGS::updateGames() {
         TComboBox *combobox;
         TCheckBox *checkbox;
         TEdit *edit;
         TLabel *label;
-        for(int i = 0; i < GAMES_TOTAL; i++) {
-                if(i == GAMEID_OFPCWC) {
+        TGroupBox *groupbox;
+        for(int i = 0; i < GAMESTOTAL; i++) {
+                Game *g = this->ofpm->getGame((OFPGames)i);
+                if(i == OFPCWC) {
                         combobox = WINDOW_SETTINGS->COMBOBOX_OFPCWC_PROFILE;
                         checkbox = WINDOW_SETTINGS->CHECKBOX_OFPCWC;
                         edit = WINDOW_SETTINGS->EDIT_OFPCWC_EXECUTABLE;
                         label = WINDOW_SETTINGS->LABEL_OFPCWC_DETECTEDVERSION;
-                }
-                if(i == GAMEID_OFPRES) {
+                        groupbox = WINDOW_SETTINGS->GROUPBOX_OFPCWC;
+                } else if(i == OFPRES) {
                         combobox = WINDOW_SETTINGS->COMBOBOX_OFPRES_PROFILE;
                         checkbox = WINDOW_SETTINGS->CHECKBOX_OFPRES;
                         edit = WINDOW_SETTINGS->EDIT_OFPRES_EXECUTABLE;
                         label = WINDOW_SETTINGS->LABEL_OFPRES_DETECTEDVERSION;
-                }
-                if(i == GAMEID_ARMACWA) {
+                        groupbox = WINDOW_SETTINGS->GROUPBOX_OFPRES;
+                } else if(i == ARMACWA) {
                         combobox = WINDOW_SETTINGS->COMBOBOX_ARMACWA_PROFILE;
                         checkbox = WINDOW_SETTINGS->CHECKBOX_ARMACWA;
                         edit = WINDOW_SETTINGS->EDIT_ARMACWA_EXECUTABLE;
                         label = WINDOW_SETTINGS->LABEL_ARMACWA_DETECTEDVERSION;
+                        groupbox = WINDOW_SETTINGS->GROUPBOX_ARMACWA;
                 }
-
-                if(programSettings.games[i].set) {
-                        checkbox->Checked = true;
-                        edit->Text = programSettings.games[i].exe;
-                        if(!programSettings.games[i].exe.IsEmpty()) {
-                                label->Caption = WINDOW_SETTINGS->getGuiString("STRING_DETECTEDVERSION") + "  " + IntToStr(programSettings.games[i].version);
-                        } else {
-                                label->Caption = "";
+                combobox->Items->Clear();
+                edit->Text = "";
+                label->Caption = "";
+                groupbox->Visible = checkbox->Checked;
+                if(g->isActive()) {
+                        edit->Text = g->getGameExe();
+                        if(!(g->getGameExe().IsEmpty())) {
+                                label->Caption = WINDOW_SETTINGS->getGuiString("STRING_DETECTEDVERSION") + "  " + IntToStr(g->getFileVersion());
                         }
-                        combobox->Items->Clear();
-                        list<String> profiles = findPlayerProfiles(programSettings.games[i].folder);
+                        list<String> profiles = g->findPlayerProfiles();
                         String textToSet = "";
                         if(profiles.size() > 0) {
                                 combobox->Enabled = true;
                                 bool playerMatching = false;
                                 for (list<String>::iterator ci = profiles.begin(); ci != profiles.end(); ++ci) {
                                         combobox->Items->Add(*ci);
-                                        if((*ci) == programSettings.games[i].player) {
+                                        if((*ci) == g->getProfileName()) {
                                                 playerMatching = true;
                                         }
                                 }
                                 if(!playerMatching) {
-                                        programSettings.games[i].detectPlayer("");
+                                        g->detectPlayer("");
                                 }
-                                textToSet = programSettings.games[i].player;
+                                textToSet = g->getProfileName();
                         } else {
                                 combobox->Enabled = false;
-                                programSettings.games[i].player = "";
+                                g->setProfileName("");
                                 textToSet = WINDOW_SETTINGS->getGuiString("STRING_NOPROFILES");
                                 combobox->Items->Add(textToSet);
                         }
                         combobox->ItemIndex = combobox->Items->IndexOf(textToSet);
-                } else {
-                        checkbox->Checked = false;
+                        checkbox->Checked = true;
                 }
         }
-        programSettings.refreshGamesModList(WINDOW_SETTINGS->ComboBox2);
+        this->refreshGamesModList();
 }
 
 
@@ -909,9 +222,9 @@ void updateGames() {
    Applys a language file to the Gui
  */
 
-void updateLanguage(String languagefile) {
+void TWINDOW_SETTINGS::updateLanguage(String languagefile) {
         TStringList *file = new TStringList;
-        String pathAndFile = programSettings.workdir + "\\" + languagefile;
+        String pathAndFile = this->ofpm->getWorkDir() + "\\" + languagefile;
         guiStrings.clear();
         guiStrings.push_back(guiString("STRING_YES","Yes"));
         guiStrings.push_back(guiString("STRING_NO","No"));
@@ -950,6 +263,8 @@ void updateLanguage(String languagefile) {
         guiStrings.push_back(guiString("STRING_SERVERS_PERSISTENT","Persistent"));
         guiStrings.push_back(guiString("STRING_SERVERS_BLOCKED","Blocked"));
         guiStrings.push_back(guiString("STRING_SERVERS_ADDERROR","Could not resolve:"));
+        guiStrings.push_back(guiString("STRING_PASSWORDDIALOG_TITLE", "Password required"));
+        guiStrings.push_back(guiString("STRING_PASSWORDDIALOG_PROMPT", "This server is password-protected. Enter it here:"));
 
 
         if(FileExists(pathAndFile)) {
@@ -1045,6 +360,10 @@ void updateLanguage(String languagefile) {
                 Form1->StringGrid2->Cells[1][0] = WINDOW_SETTINGS->getGuiString("STRING_SCORE");
                 Form1->StringGrid2->Cells[2][0] = WINDOW_SETTINGS->getGuiString("STRING_DEATHS");
                 Form1->StringGrid2->Cells[3][0] = WINDOW_SETTINGS->getGuiString("STRING_TEAM");
+                WINDOW_SETTINGS->StringGrid1->Cells[0][0] = WINDOW_SETTINGS->getGuiString("STRING_ID");
+                WINDOW_SETTINGS->StringGrid1->Cells[1][0] = WINDOW_SETTINGS->getGuiString("STRING_ADDRESS");
+                WINDOW_SETTINGS->StringGrid1->Cells[2][0] = WINDOW_SETTINGS->getGuiString("STRING_NAME");
+
                 if(!WINDOW_SETTINGS->COMBOBOX_OFPRES_PROFILE->Enabled) {
                         WINDOW_SETTINGS->COMBOBOX_OFPRES_PROFILE->Text = WINDOW_SETTINGS->getGuiString("STRING_NOPROFILES");
                 }
@@ -1096,273 +415,18 @@ void updateLanguage(String languagefile) {
         }
 }
 
-void setBandwidthUsage(int level) {
-        switch(level) {
-                case 3:
-                        programSettings.level = VeryLow;
-                        break;
-                case 2:
-                        programSettings.level = Low;
-                        break;
-                case 1:
-                        programSettings.level = Moderate;
-                        break;
-                case 0:
-                default:
-                        programSettings.level = High;
-        }
-}
-
-/**
-   Reads the programs config file
- */
-
-list<ServerItem> readConfigFile() {
-        String langfile = "";
-        String notify = "0";
-        String checkUpdate = "0";
-        int interval = 3, bandwidthUsage = 0, volume = 100;
-        bool gameSet = false;
-        list<ServerItem> ipList;
-        if(FileExists(programSettings.file)) {
-                TStringList *file = new TStringList;
-                file->LoadFromFile(programSettings.file);
-                for(int i = 0; i < file->Count; i++) {
-                        String tmp = file->Strings[i].Trim();
-                        if(tmp.AnsiPos("[General]") == 1) {
-                                ConfigSection *general = new ConfigSection("General");
-                                general->add(new ConfigEntry("Interval", dtInt, (void*)(&interval)));
-                                general->add(new ConfigEntry("LangFile", dtString, (void*)(&langfile)));
-                                general->add(new ConfigEntry("customNotifications", dtString, (void*)(&notify)));
-                                general->add(new ConfigEntry("BandwidthUsage", dtInt, (void*)(&bandwidthUsage)));
-                                general->add(new ConfigEntry("checkUpdateAtStart", dtString, (void*)(&checkUpdate)));
-                                general->add(new ConfigEntry("Volume", dtInt, (void*)(&volume)));
-                                i = general->scan(file, i);
-                                delete general;
-                        } else if(tmp.AnsiPos("[Game]") == 1) {
-                                String player = "", exe = "", name = "";
-                                ConfigSection *game = new ConfigSection("Game");
-                                game->add(new ConfigEntry("Exe", dtString, (void*)(&exe)));
-                                game->add(new ConfigEntry("LastPlayer", dtString, (void*)(&player)));
-                                game->add(new ConfigEntry("Name", dtString, (void*)(&name)));
-                                i = game->scan(file, i);
-                                delete game;
-                                int gameid = getGameId(name);
-                                if(isValidGameID(gameid) && !exe.IsEmpty()) {
-                                        programSettings.setGame(gameid, exe, extractNameFromValue(player));
-                                        gameSet = true;
-                                }
-                        } else if(tmp.AnsiPos("[Conf]") == 1) {
-                                Configuration c = Configuration();
-                                c.set = true;
-                                String mods = "", parameters = "", game = "";
-                                ConfigSection *conf = new ConfigSection("Conf");
-                                conf->add(new ConfigEntry("Password", dtString, (void*)(&(c.password))));
-                                conf->add(new ConfigEntry("Mods", dtString, (void*)(&mods)));
-                                conf->add(new ConfigEntry("Parameters", dtString, (void*)(&parameters)));
-                                conf->add(new ConfigEntry("Label", dtString, (void*)(&(c.label))));
-                                conf->add(new ConfigEntry("Game", dtString, (void*)(&game)));
-                                i = conf->scan(file, i);
-                                delete conf;
-                                c.gameid = getGameId(game);
-                                c.mods = Form1->splitUpMessage(mods, ";");
-                                c.addParameters = Form1->splitUpMessage(parameters, " ");
-                                if(isValidGameID(c.gameid)) {
-                                        programSettings.pSaddConf(c.gameid, c);
-                                }
-                        } else if(tmp.AnsiPos("[Servers]") == 1) {
-                                list<String> serverList;
-                                ConfigSection *servers = new ConfigSection("Servers");
-                                servers->add(new ConfigEntry("", dtServerItem, (void*)(&serverList)));
-                                i = servers->scan(file, i);
-                                delete servers;
-                                while(serverList.size() > 0) {
-                                        String s = serverList.front();
-                                        if(s.Length() > 8) {
-                                                list<String> z = Form1->splitUpMessage(s, ";");
-                                                ServerItem *sI = new ServerItem(z.front());
-                                                if(z.size() > 1) {
-                                                        String att = z.back();
-                                                        sI->watch = (att.AnsiPos("W") > 0);
-                                                        sI->favorite = (att.AnsiPos("F") > 0);
-                                                        sI->persistent = (att.AnsiPos("P") > 0);
-                                                        sI->blocked = (att.AnsiPos("B") > 0);
-                                                }
-                                                ipList.push_back(*sI);
-                                        }
-                                        serverList.pop_front();
-                                }
-                        } else if(tmp.AnsiPos("[Filters]") == 1) {
-                                bool playing, waiting, creating, settingup, briefing,
-                                        debriefing, withpw, withoutpw;
-                                int minplayers = 0;
-                                String server = "", mission = "", player = "";
-                                ConfigSection *filters = new ConfigSection("Filters");
-                                filters->add(new ConfigEntry("Playing", dtBool, (void*)(&playing)));
-                                filters->add(new ConfigEntry("Waiting", dtBool, (void*)(&waiting)));
-                                filters->add(new ConfigEntry("Creating", dtBool, (void*)(&creating)));
-                                filters->add(new ConfigEntry("Settingup", dtBool, (void*)(&settingup)));
-                                filters->add(new ConfigEntry("Briefing", dtBool, (void*)(&briefing)));
-                                filters->add(new ConfigEntry("Debriefing", dtBool, (void*)(&debriefing)));
-                                filters->add(new ConfigEntry("WithPW", dtBool, (void*)(&withpw)));
-                                filters->add(new ConfigEntry("WithoutPW", dtBool, (void*)(&withoutpw)));
-                                filters->add(new ConfigEntry("minPlayers", dtInt, (void*)(&minplayers)));
-                                filters->add(new ConfigEntry("ServerName", dtString, (void*)(&server)));
-                                filters->add(new ConfigEntry("MissionName", dtString, (void*)(&mission)));
-                                filters->add(new ConfigEntry("PlayerName", dtString, (void*)(&player)));
-                                i = filters->scan(file, i);
-                                delete filters;
-                                Form1->UpDown1->Position = minplayers;
-                                Form1->Edit2->Text = server;
-                                Form1->Edit1->Text = mission;
-                                Form1->Edit4->Text = player;
-                                Form1->CHECKBOX_FILTER_CREATING->Checked = creating;
-                                Form1->CHECKBOX_FILTER_WAITING->Checked = waiting;
-                                Form1->CHECKBOX_FILTER_SETTINGUP->Checked = settingup;
-                                Form1->CHECKBOX_FILTER_BRIEFING->Checked = briefing;
-                                Form1->CHECKBOX_FILTER_PLAYING->Checked = playing;
-                                Form1->CHECKBOX_FILTER_DEBRIEFING->Checked = debriefing;
-                                Form1->CHECKBOX_FILTER_WITHPASSWORD->Checked = withpw;
-                                Form1->CHECKBOX_FILTER_WITHOUTPASSWORD->Checked = withoutpw;
-                        } else if(tmp.AnsiPos("[FontSettings]") == 1) {
-                                int charset = 0, size = 0;
-                                String name = "";
-                                bool bold = false, italic = false;
-                                ConfigSection *font = new ConfigSection("FontSettings");
-                                font->add(new ConfigEntry("Name", dtString, (void*)(&name)));
-                                font->add(new ConfigEntry("Charset", dtInt, (void*)(&charset)));
-                                font->add(new ConfigEntry("Size", dtInt, (void*)(&size)));
-                                font->add(new ConfigEntry("Bold", dtBool, (void*)(&bold)));
-                                font->add(new ConfigEntry("Italic", dtBool, (void*)(&italic)));
-                                i = font->scan(file, i);
-                                delete font;
-                                Form1->setFont(name, size, charset,bold,italic);
-                        } else if(tmp.AnsiPos("[ChatSettings]") == 1) {
-                                String host = DEFAULT_IRCSERVER_HOST, channel = DEFAULT_IRCSERVER_CHANNEL, user = "";
-                                int port = DEFAULT_IRCSERVER_PORT;
-                                bool autoConnect = false;
-                                ConfigSection *chat = new ConfigSection("ChatSettings");
-                                chat->add(new ConfigEntry("AutoConnect", dtBool, (void*)(&autoConnect)));
-                                chat->add(new ConfigEntry("Host", dtString, (void*)(&host)));
-                                chat->add(new ConfigEntry("Port", dtInt, (void*)(&port)));
-                                chat->add(new ConfigEntry("Channel", dtString, (void*)(&channel)));
-                                chat->add(new ConfigEntry("UserName", dtString, (void*)(&user)));
-                                i = chat->scan(file, i);
-                                delete chat;
-                                if(channel.SubString(1,1) != "#") {
-                                        channel = "#" + channel;
-                                }
-                                user = extractNameFromValue(user);
-                                Form1->setChat(host, port, channel, user, autoConnect);
-                        } else if(tmp.AnsiPos("[WindowSettings]") == 1) {
-                                int     top = 0, left = 0, width = 0, height = 0, devider = 0;
-                                float   ratioID = 0.0f, ratioSN = 0.0f, ratioPN = 0.0f,
-                                        ratioST = 0.0f, ratioIS = 0.0f, ratioMN = 0.0f,
-                                        ratioPI = 0.0f, ratioPL = 0.0f, ratioSC = 0.0f,
-                                        ratioDE = 0.0f, ratioTE = 0.0f;
-                                ConfigSection *window = new ConfigSection("WindowSettings");
-                                window->add(new ConfigEntry("Left", dtInt, (void*)(&left)));
-                                window->add(new ConfigEntry("Top", dtInt, (void*)(&top)));
-                                window->add(new ConfigEntry("Width", dtInt, (void*)(&width)));
-                                window->add(new ConfigEntry("Height", dtInt, (void*)(&height)));
-                                window->add(new ConfigEntry("ratioID", dtFloat, (void*)(&ratioID)));
-                                window->add(new ConfigEntry("ratioSN", dtFloat, (void*)(&ratioSN)));
-                                window->add(new ConfigEntry("ratioPN", dtFloat, (void*)(&ratioPN)));
-                                window->add(new ConfigEntry("ratioST", dtFloat, (void*)(&ratioST)));
-                                window->add(new ConfigEntry("ratioIS", dtFloat, (void*)(&ratioIS)));
-                                window->add(new ConfigEntry("ratioMN", dtFloat, (void*)(&ratioMN)));
-                                window->add(new ConfigEntry("ratioPI", dtFloat, (void*)(&ratioPI)));
-                                window->add(new ConfigEntry("ratioPL", dtFloat, (void*)(&ratioPL)));
-                                window->add(new ConfigEntry("ratioSC", dtFloat, (void*)(&ratioSC)));
-                                window->add(new ConfigEntry("ratioDE", dtFloat, (void*)(&ratioDE)));
-                                window->add(new ConfigEntry("ratioTE", dtFloat, (void*)(&ratioTE)));
-                                window->add(new ConfigEntry("devider", dtInt, (void*)(&devider)));
-                                i = window->scan(file, i);
-                                delete window;
-                                Form1->setWindowSettings(top, left, height, width,
-                                        ratioID, ratioSN, ratioPN, ratioST,
-                                        ratioIS, ratioMN, ratioPI, ratioPL,
-                                        ratioSC, ratioDE, ratioTE, devider);
-
-                        } else if(tmp.AnsiPos("[CustomNotification]") == 1) {
-                                list<String> mission, server, player;
-                                String name = "Unnamed", soundFile = "", color = "clWindow", missionF = "", serverF = "", playerF = "";
-                                int statusFilter = 0, volume = 100, minPlayers = -1, maxPlayers = -1, start = 0, end = -1;
-                                bool repeat = false;
-                                ConfigSection *notification = new ConfigSection("CustomNotification");
-                                notification->add(new ConfigEntry("name", dtString, (void*)(&name)));
-                                notification->add(new ConfigEntry("missionFilter", dtString, (void*)(&missionF)));
-                                notification->add(new ConfigEntry("serverFilter", dtString, (void*)(&serverF)));
-                                notification->add(new ConfigEntry("playerFilter", dtString, (void*)(&playerF)));
-                                notification->add(new ConfigEntry("statusFilter", dtInt, (void*)(&statusFilter)));
-                                notification->add(new ConfigEntry("soundFile", dtString, (void*)(&soundFile)));
-                                notification->add(new ConfigEntry("playbackVolume", dtInt, (void*)(&volume)));
-                                notification->add(new ConfigEntry("playbackStart", dtInt, (void*)(&start)));
-                                notification->add(new ConfigEntry("playbackEnd", dtInt, (void*)(&end)));
-                                notification->add(new ConfigEntry("markingColor", dtString, (void*)(&color)));
-                                notification->add(new ConfigEntry("minimumPlayers", dtInt, (void*)(&minPlayers)));
-                                notification->add(new ConfigEntry("maximumPlayers", dtInt, (void*)(&maxPlayers)));
-                                notification->add(new ConfigEntry("repeat", dtBool, (void*)(&repeat)));
-                                i = notification->scan(file, i);
-                                delete notification;
-                                mission = Form1->splitUpMessage(missionF,";");
-                                server  = Form1->splitUpMessage(serverF, ";");
-                                player  = Form1->splitUpMessage(playerF, ";");
-                                WINDOW_SETTINGS->addCustomNotification(name, statusFilter, mission, server, player,
-                                        minPlayers, maxPlayers, soundFile, volume, start, end, color, repeat);
-
-                        } else if(tmp.AnsiPos("[Automation]") == 1) {
-                                int delay = 10;
-                                bool autodetect = false, autogreen = false, repeat = true, restoreGame = false,
-                                     rOnC = false, rOnW = false, rOnB = false, rOnP = false, rOnD = false;
-                                ConfigSection *automation = new ConfigSection("Automation");
-                                automation->add(new ConfigEntry("AutoDetectProcessAndServer", dtBool, (void*)(&autodetect)));
-                                automation->add(new ConfigEntry("BriefingConfirmationOn", dtBool, (void*)(&autogreen)));
-                                automation->add(new ConfigEntry("BriefingConfirmationDelay", dtInt, (void*)(&delay)));
-                                automation->add(new ConfigEntry("BriefingConfirmationRepeat", dtBool, (void*)(&repeat)));
-                                automation->add(new ConfigEntry("RestoreGame", dtBool, (void*)(&restoreGame)));
-                                automation->add(new ConfigEntry("RestoreOnCreating", dtBool, (void*)(&rOnC)));
-                                automation->add(new ConfigEntry("RestoreOnWaiting", dtBool, (void*)(&rOnW)));
-                                automation->add(new ConfigEntry("RestoreOnBriefing", dtBool, (void*)(&rOnB)));
-                                automation->add(new ConfigEntry("RestoreOnPlaying", dtBool, (void*)(&rOnP)));
-                                automation->add(new ConfigEntry("RestoreOnDebriefing", dtBool, (void*)(&rOnD)));
-                                i = automation->scan(file, i);
-                                delete automation;
-                                Form1->setGameControlSettings(autodetect, autogreen, delay, repeat, restoreGame, rOnC, rOnW, rOnB, rOnP, rOnD);
-                        }
-                }
-                delete file;
-        }
-        if(!gameSet) {
-                for(int i = 0; i < GAMES_TOTAL; i++) {
-                        programSettings.games[i].autodetect("");
-                }                                              
-        }
-        if(!langfile.IsEmpty()) {
-                if(FileExists(GetCurrentDir() + "\\" + langfile)) {
-                        programSettings.languagefile = langfile;
-                }
-        }
-        setBandwidthUsage(bandwidthUsage);
-        programSettings.setInterval(interval);
-        programSettings.setVolume(volume);
-        programSettings.customNotifications = checkBool2(notify);
-        programSettings.checkUpdateAtStart = checkBool2(checkUpdate);
-        programSettings.changed = false;
-        return ipList;
-}
 
 /**
    Searches for languages files
  */
 
-void findLanguageFiles() {
+void TWINDOW_SETTINGS::findLanguageFiles() {
         String flags[8] = { "chinese", "czech", "german",
                         "english", "french", "dutch",
                         "polish", "russian" };
         WINDOW_SETTINGS->ComboBox1->Clear();
         TSearchRec daten;
-        if(0 == FindFirst("OFPM*.lang", faAnyFile, daten)) {
+        if(0 == FindFirst(this->ofpm->getWorkDir() + "\\OFPM*.lang", faAnyFile, daten)) {
                 try {
                         do {
                                 for(int i = 0; i < 8; i++) {
@@ -1378,7 +442,7 @@ void findLanguageFiles() {
         }
 }
 
-void checkConfListState() {
+void TWINDOW_SETTINGS::checkConfListState() {
         bool itemSelected = false;
         for(int i = 0; i < WINDOW_SETTINGS->LISTBOX_CONFIGURATIONS->Count; i++) {
                 if(WINDOW_SETTINGS->LISTBOX_CONFIGURATIONS->Selected[i]) {
@@ -1386,7 +450,7 @@ void checkConfListState() {
                         break;
                 }
         }
-        bool limitReached = WINDOW_SETTINGS->LISTBOX_CONFIGURATIONS->Items->Count >= confAmount;
+        bool limitReached = WINDOW_SETTINGS->LISTBOX_CONFIGURATIONS->Items->Count >= 50;
         WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_ADD->Enabled = !limitReached;
         WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_EDIT->Enabled = itemSelected;
         WINDOW_SETTINGS->BUTTON_CONFIGURATION_REMOVE->Enabled = itemSelected;
@@ -1395,7 +459,7 @@ void checkConfListState() {
         WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_DOWN->Enabled = itemSelected;
 }
 
-void exitEditMode() {
+void TWINDOW_SETTINGS::exitEditMode() {
         WINDOW_SETTINGS->LISTBOX_CONFIGURATIONS->Enabled = true;
         WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_OK->Enabled = false;
         WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_CANCEL->Enabled = false;
@@ -1406,358 +470,48 @@ void exitEditMode() {
         WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_CLEAR->Visible = true;
         WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_CLEAR->Enabled = true;
         WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_CLEAR->Click();
-        checkConfListState();
+        this->checkConfListState();
 }
 
-String TWINDOW_SETTINGS::getPlayerName(int actVer, int reqVer) {
-        for(int i = 0; i < GAMES_TOTAL; i++) {
-                if(programSettings.games[i].set) {
-                        if(programSettings.games[i].checkIfCorrectGame(actVer, reqVer)) {
-                                return programSettings.games[i].player;
-                        }
-                }
-        }
-        return "";
-}
-
-void checkForAutoDetection(int gameid) {
-        if(!programSettings.games[gameid].isValid()) {
-                programSettings.games[gameid].autodetect("");
-        } else {
-                programSettings.games[gameid].set = true;
-        }
-}
-
-TStringList* TWINDOW_SETTINGS::getGameSpyGames() {
-        TStringList *out = new TStringList();
-        out->Sorted = true;
-        out->CaseSensitive = true;
-        out->Duplicates = dupIgnore;
-        for(int i = 0; i < GAMES_TOTAL; i++) {
-                if(programSettings.games[i].set && programSettings.games[i].isValid()) {
-                        out->Add(programSettings.games[i].gamespyToken);
-                }
-        }
-        if(out->Count == 0) {
-                Game temp;
-                for(int i = 0; i < GAMES_TOTAL; i++) {
-                        temp.setGameId(i);
-                        out->Add(temp.gamespyToken);
-                }
-        }
-        return out;
-}
-
-class CustomNotification {
-        public:
-                String name;
-                bool statusCreating;
-                bool statusWaiting;
-                bool statusSettingUp;
-                bool statusBriefing;
-                bool statusPlaying;
-                bool statusDebriefing;
-
-                bool withPassword;
-                bool withoutPassword;
-
-                int minPlayers;
-                int maxPlayers;
-                list<String> serverFilter;
-                list<String> missionFilter;
-                list<String> playerFilter;
-
-                String soundFile;
-                int playbackVolume;
-                int playbackStart;
-                int playbackEnd;
-                TColor markingColor;
-                bool repeat;
-                bool set;
-
-                CustomNotification () {
-                        this->set = false;
-                        this->statusCreating = false;
-                }
-
-                CustomNotification (String name, int filters, list<String> &mission,
-                                    list<String> &server, list<String> &player, int minPlayers,
-                                    int maxPlayers, String soundFile, int volume, int start, int end,
-                                    String color, bool repeat) {
-                        this->name = name;
-                        this->withoutPassword = ((filters & 1) == 1);
-                        filters = filters >> 1;
-                        this->withPassword = ((filters & 1) == 1);
-                        filters = filters >> 1;
-                        this->statusDebriefing = ((filters & 1) == 1);
-                        filters = filters >> 1;
-                        this->statusPlaying = ((filters & 1) == 1);
-                        filters = filters >> 1;
-                        this->statusBriefing = ((filters & 1) == 1);
-                        filters = filters >> 1;
-                        this->statusSettingUp = ((filters & 1) == 1);
-                        filters = filters >> 1;
-                        this->statusWaiting = ((filters & 1) == 1);
-                        filters = filters >> 1;
-                        this->statusCreating = ((filters & 1) == 1);
-                        this->missionFilter = mission;
-                        this->serverFilter = server;
-                        this->playerFilter = player;
-                        this->soundFile = soundFile;
-                        this->minPlayers = minPlayers;
-                        this->maxPlayers = maxPlayers;
-                        this->playbackVolume = volume;
-                        this->playbackStart = start;
-                        this->playbackEnd = end;
-                        this->markingColor = StringToColor(color);
-                        this->repeat = repeat;
-                        this->set = true;
-                }
-
-                CustomNotification (String name, bool statusC, bool statusW,
-                        bool statusS, bool statusB, bool statusP, bool statusD,
-                        bool statusWithPW, bool statusWithoutPW,
-                        list<String> &mission, list<String> &server,
-                        list<String> &player, int minPlayers, int maxPlayers,
-                        String soundFile, int volume, int start, int end, String color, bool repeat) {
-                        this->name = name;
-                        this->withoutPassword = statusWithoutPW;
-                        this->withPassword = statusWithPW;
-                        this->statusDebriefing = statusD;
-                        this->statusPlaying = statusP;
-                        this->statusBriefing = statusB;
-                        this->statusSettingUp = statusS;
-                        this->statusWaiting = statusW;
-                        this->statusCreating = statusC;
-                        this->missionFilter = mission;
-                        this->serverFilter = server;
-                        this->playerFilter = player;
-                        this->soundFile = soundFile;
-                        this->minPlayers = minPlayers;
-                        this->maxPlayers = maxPlayers;
-                        this->playbackVolume = volume;
-                        this->playbackStart = start;
-                        this->playbackEnd = end;
-                        this->markingColor = StringToColor(color);
-                        this->repeat = repeat;
-                        this->set = true;
-                }
-
-                TStringList* createFileEntry() {
-                        TStringList *output = new TStringList;
-                        int filters = 0;
-                        if(this->statusCreating) { filters = filters + 1; }
-                        filters = filters << 1;
-                        if(this->statusWaiting) { filters = filters + 1; }
-                        filters = filters << 1;
-                        if(this->statusSettingUp) { filters = filters + 1; }
-                        filters = filters << 1;
-                        if(this->statusBriefing) { filters = filters + 1; }
-                        filters = filters << 1;
-                        if(this->statusPlaying) { filters = filters + 1; }
-                        filters = filters << 1;
-                        if(this->statusDebriefing) { filters = filters + 1; }
-                        filters = filters << 1;
-                        if(this->withPassword) { filters = filters + 1; }
-                        filters = filters << 1;
-                        if(this->withoutPassword) { filters = filters + 1; }
-                        output->Add("[CustomNotification]");
-                        output->Add("name = " + this->name);
-                        output->Add("statusFilter = " + String(filters));
-
-                        String mission = "";
-                        if(this->missionFilter.size() > 0) {
-                                do {
-                                        mission += this->missionFilter.front();
-                                        this->missionFilter.pop_front();
-                                        if(this->missionFilter.size() > 0) {
-                                                mission += ";";
-                                        }
-                                } while (this->missionFilter.size() > 0);
-                        }
-                        String server = "";
-                        if(this->serverFilter.size() > 0) {
-                                do {
-                                        server += this->serverFilter.front();
-                                        this->serverFilter.pop_front();
-                                        if(this->serverFilter.size() > 0) {
-                                                server += ";";
-                                        }
-                                } while (this->serverFilter.size() > 0);
-                        }
-                        String player = "";
-                        if(this->playerFilter.size() > 0) {
-                                do {
-                                        player += this->playerFilter.front();
-                                        this->playerFilter.pop_front();
-                                        if(this->playerFilter.size() > 0) {
-                                                player += ";";
-                                        }
-                                } while (this->playerFilter.size() > 0);
-                        }
-                        output->Add("missionFilter = " + mission);
-                        output->Add("serverFilter = " + server);
-                        output->Add("playerFilter = " + player);
-                        if(this->minPlayers >= 0) {
-                                output->Add("minimumPlayers = " + String(this->minPlayers));
-                        }
-                        if(this->maxPlayers >= 0) {
-                                output->Add("maximumPlayers = " + String(this->maxPlayers));
-                        }
-                        output->Add("markingColor = " + ColorToString(this->markingColor));
-                        output->Add("soundFile = " + this->soundFile);
-                        output->Add("playbackVolume = " + String(this->playbackVolume));
-                        output->Add("playbackStart = " + String(this->playbackStart));
-                        output->Add("playbackEnd = " + String(this->playbackEnd));
-                        output->Add("repeat = " + checkBool(this->repeat));
-                        output->Add("[\\CustomNotification]");
-
-                        return output;
-                }
-};
-
-CustomNotification CustomNotify[32];
-
-TStringList* TWINDOW_SETTINGS::getNotificationsFileEntries() {
-        TStringList *entry = new TStringList;
-
-        for(int i = 0; i < GetArrLength(CustomNotify); i++) {
-                if(CustomNotify[i].set) {
-                        TStringList *part = CustomNotify[i].createFileEntry();
-                        while(part->Count > 0) {
-                                entry->Add(part->Strings[0]);
-                                part->Delete(0);
-                        }
-                        delete part;
-                }
-        }
-        
-        return entry;
-}
-
-class SongPosition {
-     public:
-        int milli;
-        int sec;
-        int min;
-        SongPosition() {}
-	void SongPosition::setMilli(int milli) {
-		this->milli = milli;
-	}
-	void SongPosition::setSec(int sec) {
-		this->sec = sec;
-	}
-	void SongPosition::setMin(int min) {
-		this->min = min;
-	}
-};
-
-SongPosition calcSongPosition(int position) {
-        SongPosition out = SongPosition();
-        out.setMilli(position % 1000);
-        out.setSec(((position - out.milli)/1000) % 60);
-        out.setMin((((position - out.milli)/1000) - out.sec) / 60);
-        return out;
-}
-
-void printPlaybackRange(int start, int end) {
-        SongPosition s = calcSongPosition(start);
-        SongPosition e = calcSongPosition(end);
-        WINDOW_SETTINGS->EDIT_SONGSTART_MIN->Text = IntToStr(s.min);
-        WINDOW_SETTINGS->EDIT_SONGSTART_SEC->Text = IntToStr(s.sec);
-        WINDOW_SETTINGS->EDIT_SONGSTART_MILL->Text = IntToStr(s.milli);
-        WINDOW_SETTINGS->EDIT_SONGEND_MIN->Text = IntToStr(e.min);
-        WINDOW_SETTINGS->EDIT_SONGEND_SEC->Text = IntToStr(e.sec);
-        WINDOW_SETTINGS->EDIT_SONGEND_MILL->Text = IntToStr(e.milli);
-}
-
-
-
-
-void TWINDOW_SETTINGS::addCustomNotification(String name, int filters, list<String> &mission,
-                                    list<String> &server, list<String> &player, int minPlayers,
-                                    int maxPlayers, String soundFile, int volume, int start, int end,
-                                    String color, bool repeat) {
-        for(int i = 0; i < GetArrLength(CustomNotify); i++) {
-                if(!CustomNotify[i].set) {
-                        CustomNotify[i] = CustomNotification(name, filters,
-                                    mission, server, player,
-                                    minPlayers, maxPlayers,
-                                    soundFile, volume, start, end, color, repeat);
-                        break;
+void TWINDOW_SETTINGS::checkForAutoDetection(OFPGames id) {
+        Game *g = this->ofpm->getGame(id);
+        if(g != NULL) {
+                if(g->isValid()) {
+                        g->setActive(true);
+                } else {
+                        g->autodetect("");
                 }
         }
 }
 
-int TWINDOW_SETTINGS::checkNotifications(String servername, int players, int status,
-                                String missionname, bool passworded,
-                                list<String> playerlist) {
-        for(int i = 0; i < GetArrLength(CustomNotify); i++) {
-            if(CustomNotify[i].set) {
-                if(passworded && CustomNotify[i].withPassword ||
-                        !passworded && CustomNotify[i].withoutPassword) {
-                        if(     (CustomNotify[i].minPlayers <= players ||
-                                 CustomNotify[i].minPlayers < 0) &&
-                                (CustomNotify[i].maxPlayers >= players ||
-                                 CustomNotify[i].maxPlayers < 0)) {
-                                if(     CustomNotify[i].statusCreating && status == SERVERSTATE_CREATING ||
-                                        CustomNotify[i].statusWaiting && status == SERVERSTATE_WAITING ||
-                                        CustomNotify[i].statusBriefing && status == SERVERSTATE_BRIEFING ||
-                                        CustomNotify[i].statusSettingUp && status == SERVERSTATE_SETTINGUP ||
-                                        CustomNotify[i].statusPlaying && status == SERVERSTATE_PLAYING ||
-                                        CustomNotify[i].statusDebriefing && status == SERVERSTATE_DEBRIEFING) {
-                                        bool servertest = false;
-                                        bool missiontest = false;
-                                        bool playertest = false;
-                                        if(CustomNotify[i].serverFilter.size() > 0) {
-                                                for (list<String>::iterator ci = CustomNotify[i].serverFilter.begin(); ci != CustomNotify[i].serverFilter.end(); ++ci) {
-                                                        if(Form1->doNameFilter(servername,*ci)) {
-                                                                servertest = true;
-                                                                break;
-                                                        }
-                                                }
-                                        } else { servertest = true; }
-                                        if(CustomNotify[i].missionFilter.size() > 0) {
-                                                for (list<String>::iterator ci = CustomNotify[i].missionFilter.begin(); ci != CustomNotify[i].missionFilter.end(); ++ci) {
-                                                        if(Form1->doNameFilter(missionname,*ci)) {
-                                                                missiontest = true;
-                                                                break;
-                                                        }
-                                                }
-                                        } else { missiontest = true; }
-                                        if(CustomNotify[i].playerFilter.size() > 0) {
-                                                for (list<String>::iterator ci = playerlist.begin(); ci != playerlist.end(); ++ci) {
-                                                        for (list<String>::iterator di = CustomNotify[i].playerFilter.begin(); di != CustomNotify[i].playerFilter.end(); ++di) {
-                                                                if(Form1->doNameFilter(*ci,*di)) {
-                                                                        playertest = true;
-                                                                        break;
-                                                                }
-                                                        }
-                                                }
-                                        } else { playertest = true; }
-                                        if(servertest && missiontest && playertest) {
-                                                return i;
-                                        }
-                                }
-                        }
-                }
-            }
-        }
-        return -1;
+void TWINDOW_SETTINGS::printPlaybackRange(AudioPosition start, AudioPosition end) {
+        WINDOW_SETTINGS->EDIT_SONGSTART_MIN->Text = IntToStr(start.getMinutes());
+        WINDOW_SETTINGS->EDIT_SONGSTART_SEC->Text = IntToStr(start.getSeconds());
+        WINDOW_SETTINGS->EDIT_SONGSTART_MILL->Text = IntToStr(start.getMilliSeconds());
+        WINDOW_SETTINGS->EDIT_SONGEND_MIN->Text = IntToStr(end.getMinutes());
+        WINDOW_SETTINGS->EDIT_SONGEND_SEC->Text = IntToStr(end.getSeconds());
+        WINDOW_SETTINGS->EDIT_SONGEND_MILL->Text = IntToStr(end.getMilliSeconds());
+}
+
+void TWINDOW_SETTINGS::printPlaybackPosition(AudioPosition current) {
+        WINDOW_SETTINGS->LabelMilli->Caption = this->addLeadingZeros(current.getMilliSeconds(), 3);
+        WINDOW_SETTINGS->LabelSeconds->Caption = this->addLeadingZeros(current.getSeconds(), 2) + ":";
+        WINDOW_SETTINGS->LabelMinutes->Caption = this->addLeadingZeros(current.getMinutes(), 2) + ":";
 }
 
 
-void updateNotificationsList() {
+void TWINDOW_SETTINGS::updateNotificationsList() {
         WINDOW_SETTINGS->LISTBOX_NOTIFICATIONS->Clear();
-        for(int i = 0; i < GetArrLength(CustomNotify); i++) {
-                if(CustomNotify[i].set) {
-                        WINDOW_SETTINGS->LISTBOX_NOTIFICATIONS->Items->AddObject(CustomNotify[i].name, (TObject *) i);
+        for(int i = 0; i < this->ofpm->getNotificationCount(); i++) {
+                CustomNotification* notif = this->ofpm->getNotification(i);
+                if(notif != NULL) {
+                        WINDOW_SETTINGS->LISTBOX_NOTIFICATIONS->Items->AddObject(notif->getName(), (TObject *) notif);
                 }
         }
 }
  
 
-void checkNotificationListState() {
+void TWINDOW_SETTINGS::checkNotificationListState() {
         WINDOW_SETTINGS->BUTTON_EDITNOTIFICATION_EDIT->Enabled = false;
         WINDOW_SETTINGS->BUTTON_NOTIFICATION_REMOVE->Enabled = false;
         for(int i = 0; i < WINDOW_SETTINGS->LISTBOX_NOTIFICATIONS->Count; i++) {
@@ -1769,11 +523,12 @@ void checkNotificationListState() {
         }
 }
 
-void updateChatSettings() {
+void TWINDOW_SETTINGS::updateChatSettings() {
         WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Clear();
-        for(int i = 0; i < GAMES_TOTAL; i++) {
-                if(programSettings.games[i].set) {
-                        list<String> profiles = findPlayerProfiles(programSettings.games[i].folder);
+        for(int i = 0; i < GAMESTOTAL; i++) {
+                Game *g = this->ofpm->getGame((OFPGames)i);
+                if(g != NULL) {
+                        list<String> profiles = g->findPlayerProfiles();
                         for (list<String>::iterator ci = profiles.begin(); ci != profiles.end(); ++ci) {
                                 if(WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Items->IndexOf(*ci) == -1) {
                                         WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Items->Add(*ci);
@@ -1792,7 +547,7 @@ void updateChatSettings() {
         WINDOW_SETTINGS->CHECKBOX_CHAT_AUTOCONNECT->Checked = Form1->getChatAutoConnect();
 }
 
-void exitEditNotificationMode() {
+void TWINDOW_SETTINGS::exitEditNotificationMode() {
         WINDOW_SETTINGS->LISTBOX_NOTIFICATIONS->Enabled = true;
         WINDOW_SETTINGS->BUTTON_EDITNOTIFICATION_OK->Enabled = false;
         WINDOW_SETTINGS->BUTTON_EDITNOTIFICATION_CANCEL->Enabled = false;
@@ -1803,370 +558,83 @@ void exitEditNotificationMode() {
         WINDOW_SETTINGS->BUTTON_NEWNOTIFICATION_CLEAR->Visible = true;
         WINDOW_SETTINGS->BUTTON_NEWNOTIFICATION_CLEAR->Enabled = true;
         WINDOW_SETTINGS->BUTTON_NEWNOTIFICATION_CLEAR->Click();
-        checkNotificationListState();
+        this->checkNotificationListState();
 }
 
-class MP3Job {
-    public:
-        int notificationIndex;
-        bool error;
-        bool started;
-        bool stopped;
-        bool repeat;
-        String file;
-        String alias;
-        int volume;
-        int start;
-        int end;
-
-        MP3Job() {
-                this->notificationIndex = -1;
-                this->repeat = false;
-                this->error = false;
-                this->stopped = false;
-                this->started = false;
-        }
-
-        MP3Job(int index) {
-                this->notificationIndex = index;
-                this->error = false;
-                if(this->notificationIndex >= 0 && this->notificationIndex <= GetArrLength(CustomNotify)) {
-                        if(CustomNotify[this->notificationIndex].set) {
-                                this->file = CustomNotify[index].soundFile;
-                                this->alias = "OFPM_MP3_" + IntToStr(this->notificationIndex);
-                                this->volume = CustomNotify[index].playbackVolume;
-                                this->start = CustomNotify[index].playbackStart;
-                                this->end = CustomNotify[index].playbackEnd;
-                                this->repeat = CustomNotify[index].repeat;
-                        }
-                }
-                this->started = false;
-                this->stopped = false;
-        }
-
-        void play() {
-                if(FileExists(this->file)) {
-                        if(mciSendString(("Open \"" + this->file + "\" alias " + this->alias + " type MPEGVideo").c_str(),0,0,0)) {
-                                this->error = true;
-                        }
-                        String range = "";
-                        if(this->start >= 0 && this->end >= 0) {
-                                range = " from " + String(this->start) + " to " + String(this->end);
-                        }
-                        if(mciSendString(("play " + this->alias + range).c_str(), 0, 0, 0)) {
-                                this->error = true;
+void TWINDOW_SETTINGS::profileChanged(TComboBox *box, OFPGames gameid) {
+        if(isValidGameID(gameid)) {
+                Game *g = this->ofpm->getGame(gameid);
+                if(g != NULL) {
+                        if(box->Items->IndexOf(box->Text) == -1) {
+                                box->ItemIndex = box->Items->IndexOf(g->getProfileName());
                         } else {
-                                this->started = true;
+                                g->setProfileName(box->Text);
                         }
-                        mciSendString(("setaudio " + this->alias + " volume to " + String(this->volume*10)).c_str(), 0, 0, 0);
                 }
         }
-
-        bool hasEnded() {
-                if(FileExists(this->file)) {
-                        char text[128];
-                        mciSendString(("status " + this->alias + " position").c_str(), text, 128, 0);
-                        int pos = 0;
-                        try {
-                                pos = StrToInt(String(text));
-                        } catch (...) {
-                        }
-                        return (pos >= this->end || this->error || this->stopped);
-                }
-                return (!this->started || this->error || this->stopped);
-        }
-
-        void stop() {
-                if(FileExists(this->file)) {
-                        mciSendString(("Close " + this->alias).c_str(),0,0,0);
-                }
-                this->stopped = true;
-        }
-};
+}
 
 /**
-   A mp3 player
+   Converts an integer to a String and adds leading Zeros to the front until
+   the String is @length characters long. Used to sort numbers alphabetically
+   @i  number to convert
+   @length  length of the String to return
+   @return  the number with leading zeros as a String
  */
 
-class MP3Player {
-    private:
-        MP3Job *jobs[64];
-        MP3Job *preview;
-
-    public:
-        int limit;
-
-        MP3Player() {
-                this->limit = 64;
+String TWINDOW_SETTINGS::addLeadingZeros(int number, int length) {
+        String a = IntToStr(number);
+        while (a.Length() < length) {
+                a = "0" + a;
         }
-
-        /**
-           Creates a new MP3Job for a certain notifiation @index
-           If one already exists, nothing is done
-         */
-
-        void MP3add (int index) {
-                for(int i = 0; i < this->limit; i++) {
-                        if(this->jobs[i] != NULL) {
-                                if(this->jobs[i]->notificationIndex == index) {
-                                        return;
-                                }
-                        }
-                }
-                this->MP3add(new MP3Job(index));
-        }
-
-        void MP3add (MP3Job *j) {
-                for(int i = 0; i < this->limit; i++) {
-                        if(!this->jobs[i] != NULL) {
-                                this->jobs[i] = j;
-                                this->jobs[i]->play();
-                                break;
-                        }
-                }
-        }
-
-        void MP3startPreview() {
-                MP3stopPreview();
-                MP3Job *p = new MP3Job(-1);
-                p->alias = "OFPM_MP3PREVIEW";
-                p->file = WINDOW_SETTINGS->EDIT_NOTIFICATION_FILE->Text;
-                p->volume = WINDOW_SETTINGS->TrackBar1->Position;
-                p->start = StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_MIN->Text)*60000 +
-                        StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_SEC->Text)*1000 +
-                        StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_MILL->Text);
-                p->end = StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_MIN->Text)*60000 +
-                        StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_SEC->Text)*1000 +
-                        StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_MILL->Text);
-                this->preview = p;
-                this->preview->play();
-                WINDOW_SETTINGS->MP3Timer->Enabled = true;
-        }
-
-        void MP3stopPreview() {
-                if(this->preview != NULL) {
-                        if(this->preview->started) {
-                                this->preview->stop();
-                                delete (this->preview);
-                                this->preview = NULL;
-                        }
-                }
-        }
-
-        /**
-           Stops and removes all MP3Jobs
-         */
-
-        void reset() {
-                for(int i = 0; i < this->limit; i++) {
-                        if(this->jobs[i] != NULL) {
-                                if(this->jobs[i]->started) {
-                                        this->jobs[i]->stop();
-                                }
-                                delete (this->jobs[i]);
-                                this->jobs[i] = NULL;
-                        }
-                }           
-        }
-
-        /**
-           Checks the status of all active MP3Jobs and removes them when ended.
-           Or repeats them, when the user has set it.
-         */
-
-        bool check() {
-                bool hasJob = false;
-                for(int i = 0; i < this->limit; i++) {
-                        if(this->jobs[i] != NULL) {
-                                hasJob = true;
-                                if(this->jobs[i]->hasEnded()) {
-                                        this->jobs[i]->stop();
-                                        if(this->jobs[i]->repeat) {
-                                                Form1->resetNotifications(jobs[i]->notificationIndex);
-                                        }
-                                        delete (this->jobs[i]);
-                                        this->jobs[i] = NULL;
-                                }
-                        }
-                }
-                if(this->preview != NULL) {
-                        hasJob = true;
-                        if(this->preview->hasEnded()) {
-                                WINDOW_SETTINGS->STOP->Click();
-                        } else {
-                                char text[128];
-                                mciSendString("status OFPM_MP3PREVIEW position", text, 128,0);
-                                String out = "";
-                                int minutes = StrToInt(text);
-                                int milliseconds = minutes % 1000;
-                                WINDOW_SETTINGS->LabelMilli->Caption = IntToStr(milliseconds);
-                                minutes = (minutes - milliseconds)/1000;
-                                int seconds = minutes % 60;
-                                if(seconds < 10) {
-                                        WINDOW_SETTINGS->LabelSeconds->Caption = "0" + IntToStr(seconds) + ":";
-                                } else {
-                                        WINDOW_SETTINGS->LabelSeconds->Caption = IntToStr(seconds) + ":";
-                                }
-                                minutes = (minutes - seconds) / 60;
-                                if(minutes < 10) {
-                                        WINDOW_SETTINGS->LabelMinutes->Caption = "0" + IntToStr(minutes)+ ":";
-                                } else {
-                                        WINDOW_SETTINGS->LabelMinutes->Caption = IntToStr(minutes)+ ":";
-                                }
-                        }   
-                }
-                return hasJob;
-        }
-
-        /**
-           Removes all MP3Jobs that were created for a certain notification @index
-         */
-
-        void MP3remove(int index) {
-                for(int i = 0; i < this->limit; i++) {
-                        if(this->jobs[i] != NULL &&
-                           this->jobs[i]->notificationIndex == index &&
-                           !Form1->isNotificationRuleActive(index)) {
-                                this->jobs[i]->stop();
-                                delete (this->jobs[i]);
-                                this->jobs[i] = NULL;
-                        }
-                }
-        }
-
-        /**
-           Removes all MP3Jobs that were created with a certain alias
-         */
-
-        void MP3remove(String alias) {
-                for(int i = 0; i < this->limit; i++) {
-                        if(this->jobs[i] != NULL &&
-                           this->jobs[i]->alias == alias) {
-                                this->jobs[i]->stop();
-                                delete (this->jobs[i]);
-                                this->jobs[i] = NULL;
-                        }
-                }
-        }
-};
-
-MP3Player mp3p = MP3Player();
-
-TColor TWINDOW_SETTINGS::getMarkingColor(int index) {
-        if(index >= 0 && index < GetArrLength(CustomNotify)) {
-                if(CustomNotify[index].set) {
-                        return CustomNotify[index].markingColor;
-                }
-        }
-        return NULL;
+        return a;
 }
 
-void TWINDOW_SETTINGS::MP3remove(int index) {
-        mp3p.MP3remove(index);
-}
-
-void TWINDOW_SETTINGS::MP3remove(String alias) {
-        mp3p.MP3remove(alias);
-}
-
-
-void TWINDOW_SETTINGS::MP3add(int index) {
-        mp3p.MP3add(index);
-        MP3Timer->Enabled = true;
-}
-
-int readSongLength(String file) {
-        int out = 0;
-        if(FileExists(file)) {
-                if(!mciSendString(("open \"" + file + "\" alias LengthCheck").c_str(),0,0,0)) {
-                        mciSendString("set LengthCheck time format milliseconds",0,0,0);
-                        char text[128];
-                        mciSendString("status LengthCheck length", text, 128, 0);
-                        mciSendString("close LengthCheck", 0, 0, 0);
-                        try {
-                                out = StrToInt(text);
-                        } catch (...) {}
-                }
+void TWINDOW_SETTINGS::setEmptyServerEditorList() {
+        for(int i = 0; i < this->StringGrid1->ColCount; i++) {
+                this->StringGrid1->Cells[i][1] = "";
         }
-        return out;
+        this->StringGrid1->Objects[0][1] = NULL;
+        this->StringGrid1->RowCount = 2;
 }
 
-void TWINDOW_SETTINGS::MP3add(String file, String alias, int volume) {
-        MP3Job *m = new MP3Job();
-        m->file = file;
-        m->volume = volume;
-        m->alias = alias;
-        m->start = 0;
-        m->end = readSongLength(m->file);
-        mp3p.MP3add(m);
-        MP3Timer->Enabled = true;        
+void TWINDOW_SETTINGS::writeServerToStringGrid(int rowIndex, Server *srv) {
+        this->StringGrid1->Cells[0][rowIndex] = " " + IntToStr(srv->getIndex());
+        this->StringGrid1->Objects[0][rowIndex] = (TObject*) srv;
+        this->StringGrid1->Cells[1][rowIndex] = srv->getAddress();
+        this->StringGrid1->Cells[2][rowIndex] = srv->getName();
 }
 
-void TWINDOW_SETTINGS::MP3shutdown() {
-        mp3p.reset();
-        Form1->resetNotifications(-1);
-}
+void TWINDOW_SETTINGS::updateServerEditorList() {
+        list<Server*> allServers = this->ofpm->getAllMatchingServers(NULL);
+        if(allServers.size() == 0) {
+                this->setEmptyServerEditorList();
+                this->BUTTON_SERVERS_REMOVE->Enabled = false;
+        } else {
+                TStringList *sortlist = new TStringList;
+                sortlist->Sorted = true;
+                sortlist->CaseSensitive = true;
+                sortlist->Duplicates = dupAccept;
 
-void profileChanged(TComboBox *box, int gameid) {
-        if(isValidGameID(gameid)) {
-                if(box->Items->IndexOf(box->Text) == -1) {
-                        box->ItemIndex = box->Items->IndexOf(programSettings.games[gameid].player);
-                } else {
-                        programSettings.games[gameid].player = box->Text;
+                for(list<Server*>::iterator ci = allServers.begin(); ci != allServers.end(); ++ci) {
+                        Server *srv = *ci;
+                        if(srv != NULL) {
+                              sortlist->AddObject(this->addLeadingZeros(srv->getIndex(), 3), (TObject*) srv);
+                        }
                 }
+                int rowIndex = 0;
+                for(int i = 0; i < sortlist->Count; i++) {
+                        rowIndex++;
+                        this->writeServerToStringGrid(rowIndex, (Server*)(sortlist->Objects[i]));
+                }
+                sortlist->Clear();
+                delete sortlist;
+                StringGrid1->RowCount = max(1, rowIndex + 1);
+                this->BUTTON_SERVERS_REMOVE->Enabled = true;
         }
 }
 
-void updateServerEditorList(bool all) {
-        if(all) {
-                WINDOW_SETTINGS->ListBox1->Clear();
-        }
-        TTreeView *tree = WINDOW_SETTINGS->TreeView1;
-        tree->Items->Clear();
-        TTreeNode *sections[4];
-        sections[0] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVERS_FAVORITE"));
-        sections[1] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVERS_WATCHED"));
-        sections[2] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVERS_PERSISTENT"));
-        sections[3] = tree->Items->AddChild(NULL, WINDOW_SETTINGS->getGuiString("STRING_SERVERS_BLOCKED"));
-        int i = 0;
-        Server *s;
-        while((s = Form1->getServer(i)) != NULL) {
-                if(s->index == i) {
-                        String showName = s->name;
-                        if(showName.IsEmpty() || WINDOW_SETTINGS->RADIOBUTTON_SERVERS_SHOW_ADDRESS->Checked) {
-                                int p = s->gameport;
-                                if(p == 0) {
-                                        p = s->gamespyport - 1;
-                                }
-                                showName = s->ip + ":" + IntToStr(p);
-                        }
-                        if(all) {
-                                WINDOW_SETTINGS->ListBox1->Items->AddObject(showName, (TObject*)s);
-                        }
-
-                        if(s->favorite) {
-                                tree->Items->AddChildObject(sections[0], showName, (TObject*)s);
-                        }
-                        if(s->watch) {
-                                tree->Items->AddChildObject(sections[1], showName, (TObject*)s);
-                        }
-                        if(s->persistent) {
-                                tree->Items->AddChildObject(sections[2], showName, (TObject*)s);
-                        }
-                        if(s->blocked) {
-                                tree->Items->AddChildObject(sections[3], showName, (TObject*)s);
-                        }
-                }
-                i++;
-        }
-        for(int j = 0; j < 4; j++) {
-                sections[j]->SelectedIndex = j + 1;
-                sections[j]->ImageIndex = j + 1;
-                sections[j]->Expand(true);                
-        }
-}
-
-String buildOpenDialogFilter(int gameid) {
+String buildOpenDialogFilter(OFPGames gameid) {
         String filter = getFullGameNameByGameId(gameid) + "|";
         list<String> exes = getExesByGameId(gameid);
         while(exes.size() > 0) {
@@ -2179,6 +647,17 @@ String buildOpenDialogFilter(int gameid) {
         return filter;
 }
 
+String TWINDOW_SETTINGS::getFolder(String in) {
+        String out = "";
+        for(int i = in.Length() - 1; i >= 0; i--) {
+                if(in.SubString(i,1) == "\\") {
+                        out = in.SubString(0, i).Trim();
+                        break;
+                }
+        }
+        return out;
+}
+
 //---------------------------------------------------------------------------
 __fastcall TWINDOW_SETTINGS::TWINDOW_SETTINGS(TComponent* Owner)
         : TForm(Owner)
@@ -2189,33 +668,29 @@ __fastcall TWINDOW_SETTINGS::TWINDOW_SETTINGS(TComponent* Owner)
 void __fastcall TWINDOW_SETTINGS::FormCreate(TObject *Sender)
 {
         #include "guiDB.cpp"
-        findLanguageFiles();
-        list<ServerItem> ipList = readConfigFile();
-        updateLanguage(programSettings.languagefile);
-        Form1->readServerList(ipList);
-        updateConfList();
-        updateGames();
-        WINDOW_SETTINGS->ComboBox1->ItemIndex = WINDOW_SETTINGS->ComboBox1->Items->IndexOf(programSettings.languagefile);
-        if(Form1->getChatAutoConnect()) {
-                Form1->MENUITEM_MAINMENU_CHAT_CONNECT->Click();
+        StringGrid1->ColWidths[0] = 24;
+        StringGrid1->ColWidths[1] = 134;
+        StringGrid1->ColWidths[2] = 216;
+        for(int i = 3; i < 7; i++) {
+                StringGrid1->ColWidths[i] = 24;
         }
-
-        if(programSettings.checkUpdateAtStart) {
-                WINDOW_UPDATE->checkForNewVersion(false);
-        }
+        /*
+        this->updateConfList();
+        this->updateGames();
+        */
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TWINDOW_SETTINGS::OpenDialog1CanClose(TObject *Sender,
+void __fastcall TWINDOW_SETTINGS::OpenDialogGameFileCanClose(TObject *Sender,
       bool &CanClose)
 {
         if(CanClose) {
-                String exe = OpenDialog1->FileName;
-                String folder = getFolder(exe);
-                programSettings.setGame(OpenDialog1->Tag, exe, "");
-                updateGames();
-                OpenDialog1->InitialDir = "";
-                OpenDialog1->Tag = 0;
+                String exe = OpenDialogGameFile->FileName;
+                String folder = this->getFolder(exe);
+                this->ofpm->setGame((OFPGames)(OpenDialogGameFile->Tag), exe, "");
+                this->updateGames();
+                OpenDialogGameFile->InitialDir = "";
+                OpenDialogGameFile->Tag = -1;
         }
 }
 //---------------------------------------------------------------------------
@@ -2272,14 +747,16 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_DOWNClick(TObject *Sen
 void __fastcall TWINDOW_SETTINGS::BUTTON_CONFIGURATION_REMOVEClick(TObject *Sender)
 {
         int comboindex = ComboBox2->Items->IndexOf(ComboBox2->Text);
-        int gameid = (int) ComboBox2->Items->Objects[comboindex];
-
-        for(int i = 0; i < LISTBOX_CONFIGURATIONS->Count; i++) {
-                if(LISTBOX_CONFIGURATIONS->Selected[i]) {
-                        TObject *t = LISTBOX_CONFIGURATIONS->Items->Objects[i];
-                        int j = (int) t;
-                        programSettings.pSdeleteConf(gameid, j);
-                        LISTBOX_CONFIGURATIONS->Items->Delete(i);
+        Game *g = (Game*)(ComboBox2->Items->Objects[comboindex]);
+        if(g != NULL) {
+                for(int i = 0; i < LISTBOX_CONFIGURATIONS->Count; i++) {
+                        if(LISTBOX_CONFIGURATIONS->Selected[i]) {
+                                Configuration *conf = (Configuration*) (LISTBOX_CONFIGURATIONS->Items->Objects[i]);
+                                if(conf != NULL) {
+                                        g->deleteConfiguration(conf);
+                                        LISTBOX_CONFIGURATIONS->Items->Delete(i);
+                                }
+                        }
                 }
         }
         updateConfList();
@@ -2289,16 +766,31 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_CONFIGURATION_REMOVEClick(TObject *Send
         
 void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_ADDClick(TObject *Sender)
 {
-                int comboindex = ComboBox2->Items->IndexOf(ComboBox2->Text);
-                int gameid = (int) ComboBox2->Items->Objects[comboindex];
-                list<String> a;
-                for(int i = 0; i < LISTBOX_MODFOLDERS_SELECTED->Count; i++) {
-                        a.push_back(LISTBOX_MODFOLDERS_SELECTED->Items->Strings[i]);
+        int comboindex = ComboBox2->ItemIndex;
+        Game *g = NULL;
+        if(comboindex >= 0) {
+                g = (Game*)(ComboBox2->Items->Objects[comboindex]);
+        }
+        if(g != NULL) {
+                if(!EDIT_NEWCONFIGURATION_LABEL->Text.Trim().IsEmpty()) {
+                        TStringList *mods = new TStringList;
+                        for(int i = 0; i < LISTBOX_MODFOLDERS_SELECTED->Count; i++) {
+                                mods->Add(LISTBOX_MODFOLDERS_SELECTED->Items->Strings[i]);
+                        }
+                        Configuration *c = new Configuration(g->getGameId(),
+                                EDIT_NEWCONFIGURATION_LABEL->Text,
+                                mods,
+                                EDIT_NEWCONFIGURATION_PASSWORD->Text,
+                                EDIT_NEWCONFIGURATION_PARAMETERS->Text,
+                                CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked,
+                                CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
+                        g->addConfiguration(c);
+                } else {
+                        EDIT_NEWCONFIGURATION_LABEL->SetFocus();
                 }
-                Configuration newC = Configuration(gameid, EDIT_NEWCONFIGURATION_LABEL->Text, a, EDIT_NEWCONFIGURATION_PASSWORD->Text, EDIT_NEWCONFIGURATION_PARAMETERS->Text, CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked, CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
-                programSettings.pSaddConf(gameid, newC);
-                updateConfList();
-                checkConfListState();
+        }
+        this->updateConfList();
+        this->checkConfListState();
 }
 //---------------------------------------------------------------------------
           
@@ -2318,13 +810,13 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_CLEARClick(TObject *Se
 
 void __fastcall TWINDOW_SETTINGS::FormClose(TObject *Sender, TCloseAction &Action)
 {
-        WINDOW_SETTINGS->setSettingsChanged();
         if(STOP->Visible) {
                 STOP->Click();
         }
         try {
+                int port = StrToInt(EDIT_CHAT_IRCSERVER_PORT->Text);
                 Form1->setChat(EDIT_CHAT_IRCSERVER_ADDRESS->Text,
-                StrToInt(EDIT_CHAT_IRCSERVER_PORT->Text),
+                port,
                 EDIT_CHAT_IRCSERVER_CHANNEL->Text,
                 COMBOBOX_CHAT_USERNAME->Text.TrimRight(),
                 CHECKBOX_CHAT_AUTOCONNECT->Checked);
@@ -2345,8 +837,12 @@ void __fastcall TWINDOW_SETTINGS::FormKeyDown(TObject *Sender, WORD &Key,
 void __fastcall TWINDOW_SETTINGS::FormShow(TObject *Sender)
 {
         exitEditMode();
+        this->exitEditNotificationMode();
         updateChatSettings();
-        updateServerEditorList(true);
+        updateServerEditorList();
+        this->updateGames();
+        this->findLanguageFiles();
+        WINDOW_SETTINGS->ComboBox1->ItemIndex = WINDOW_SETTINGS->ComboBox1->Items->IndexOf(this->ofpm->getLanguageFile());
 }
 //---------------------------------------------------------------------------
 void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_EDITClick(TObject *Sender)
@@ -2367,48 +863,28 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_EDITClick(TObject *Se
         BUTTON_EDITCONFIGURATION_COPY->Enabled = false;
         BUTTON_CONFIGURATION_REMOVE->Enabled = false;
 
-        int comboindex = ComboBox2->Items->IndexOf(ComboBox2->Text);
-        int gameid = (int) ComboBox2->Items->Objects[comboindex];
-
         for(int i = 0; i < LISTBOX_CONFIGURATIONS->Count; i++) {
                 if(LISTBOX_CONFIGURATIONS->Selected[i]) {
-                        TObject *t = LISTBOX_CONFIGURATIONS->Items->Objects[i];
-                        int j = (int) t;
-                        Configuration edit = programSettings.games[gameid].startupConfs[j];
-                        EDIT_NEWCONFIGURATION_LABEL->Text = edit.label;
-                        EDIT_NEWCONFIGURATION_PASSWORD->Text = edit.password;
-                        for (list<String>::iterator ci = edit.mods.begin(); ci != edit.mods.end(); ++ci) {
-                                LISTBOX_MODFOLDERS_SELECTED->Items->Add(*ci);
+                        Configuration *conf = (Configuration*)(LISTBOX_CONFIGURATIONS->Items->Objects[i]);
+                        if(conf != NULL) {
+                                EDIT_NEWCONFIGURATION_LABEL->Text = conf->getLabel();
+                                EDIT_NEWCONFIGURATION_PASSWORD->Text = conf->getPassword();
+
+                        }
+                        TStringList *mods = conf->getMods();
+                        for(int j = 0; j < mods->Count; j++) {
+                                LISTBOX_MODFOLDERS_SELECTED->Items->Add(mods->Strings[j]);
                                 for(int k = 0; k < LISTBOX_MODFOLDERS_ALL->Count; k++) {
-                                        if(*ci == LISTBOX_MODFOLDERS_ALL->Items->Strings[k]) {
+                                        if(mods->Strings[j] == LISTBOX_MODFOLDERS_ALL->Items->Strings[k]) {
                                                 LISTBOX_MODFOLDERS_ALL->Items->Delete(k);
                                                 break;
                                         }
                                 }
                         }
-                        CHECKBOX_NEWCONFIGURATION_NOMAP->Checked = false;
-                        CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked = false;
-                        String line = "";
-                        for (list<String>::iterator di = edit.addParameters.begin(); di != edit.addParameters.end(); ++di) {
-                                String tmp = *di;
-                                String nomap = "-nomap";
-                                String nosplash = "-nosplash";
-                                if((nomap == tmp) || nosplash == tmp) {
-                                        if(nomap == tmp) {
-                                                CHECKBOX_NEWCONFIGURATION_NOMAP->Checked = true;
-                                        }
-                                        if(nosplash == tmp) {
-                                                CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked = true;
-                                        }
-                                } else {
-                                        if(line.Length() > 0) {
-                                                line += " ";
-                                        }
-                                        line += tmp;
-                                }
 
-                        }
-                        EDIT_NEWCONFIGURATION_PARAMETERS->Text = line;
+                        CHECKBOX_NEWCONFIGURATION_NOMAP->Checked = conf->isNoSplashSet();
+                        CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked = conf->isNoMapSet();
+                        EDIT_NEWCONFIGURATION_PARAMETERS->Text = conf->createParameterLine(false, false, false, false, true, true);
                         break;
                 }
         }
@@ -2417,31 +893,27 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_EDITClick(TObject *Se
 //---------------------------------------------------------------------------
 void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_OKClick(TObject *Sender)
 {
-        int comboindex = ComboBox2->Items->IndexOf(ComboBox2->Text);
-        int gameid = (int) ComboBox2->Items->Objects[comboindex];
-        list<String> a;
-        for(int i = 0; i < LISTBOX_MODFOLDERS_SELECTED->Count; i++) {
-                a.push_back(LISTBOX_MODFOLDERS_SELECTED->Items->Strings[i]);
-        }
         for(int i = 0; i < LISTBOX_CONFIGURATIONS->Count; i++) {
                 if(LISTBOX_CONFIGURATIONS->Selected[i]) {
-                        TObject *t = LISTBOX_CONFIGURATIONS->Items->Objects[i];
-                        int j = (int) t;
-                        programSettings.games[gameid].startupConfs[j].label = EDIT_NEWCONFIGURATION_LABEL->Text;
-                        programSettings.games[gameid].startupConfs[j].mods = a;
-                        programSettings.games[gameid].startupConfs[j].password = EDIT_NEWCONFIGURATION_PASSWORD->Text;
-                        programSettings.games[gameid].startupConfs[j].addParameters = Form1->splitUpMessage(EDIT_NEWCONFIGURATION_PARAMETERS->Text," ");
-                        if(CHECKBOX_NEWCONFIGURATION_NOMAP->Checked) {
-                                programSettings.games[gameid].startupConfs[j].addParameters.push_back("-nomap");
-                        }
-                        if(CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked) {
-                                programSettings.games[gameid].startupConfs[j].addParameters.push_back("-nosplash");
+                        Configuration *conf = (Configuration*)(LISTBOX_CONFIGURATIONS->Items->Objects[i]);
+                        if(conf != NULL) {
+                                TStringList *newmods = new TStringList;
+                                for(int i = 0; i < LISTBOX_MODFOLDERS_SELECTED->Count; i++) {
+                                        newmods->Add(LISTBOX_MODFOLDERS_SELECTED->Items->Strings[i]);
+                                }
+                                conf->setLabel(EDIT_NEWCONFIGURATION_LABEL->Text);
+                                conf->setMods(newmods);
+                                conf->setPassword(EDIT_NEWCONFIGURATION_PASSWORD->Text);
+                                conf->setAddParameters(EDIT_NEWCONFIGURATION_PARAMETERS->Text);
+                                delete newmods;
+                                conf->setNoMap(CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
+                                conf->setNoSplash(CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked);
                         }
                         break;
                 }
         }
-        updateConfList();
-        exitEditMode();
+        this->updateConfList();
+        this->exitEditMode();
 }
 //---------------------------------------------------------------------------
 
@@ -2455,20 +927,19 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_CANCELClick(
 
 void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_UPClick(TObject *Sender)
 {
-        int comboindex = ComboBox2->Items->IndexOf(ComboBox2->Text);
-        int gameid = (int) ComboBox2->Items->Objects[comboindex];
-        for(int i = 0; i < LISTBOX_CONFIGURATIONS->Count; i++) {
-                if(LISTBOX_CONFIGURATIONS->Selected[i]) {
-                        if(i > 0) {
-                                LISTBOX_CONFIGURATIONS->Items->Exchange(i, i - 1);
-                                Configuration tmp = programSettings.games[gameid].startupConfs[i];
-                                programSettings.games[gameid].startupConfs[i] = programSettings.games[gameid].startupConfs[i - 1];
-                                programSettings.games[gameid].startupConfs[i - 1] = tmp;
-
-                                TObject *t = LISTBOX_CONFIGURATIONS->Items->Objects[i];
-                                LISTBOX_CONFIGURATIONS->Items->Objects[i] = LISTBOX_CONFIGURATIONS->Items->Objects[i - 1];
-                                LISTBOX_CONFIGURATIONS->Items->Objects[i - 1] = t;
-                                break;
+        int comboindex = ComboBox2->ItemIndex;
+        Game *g = NULL;
+        if(comboindex >= 0) {
+                g = (Game*)(ComboBox2->Items->Objects[comboindex]);
+        }
+        if(g != NULL) {
+                for(int i = 0; i < LISTBOX_CONFIGURATIONS->Count; i++) {
+                        if(LISTBOX_CONFIGURATIONS->Selected[i]) {
+                                if(i > 0) {
+                                        LISTBOX_CONFIGURATIONS->Items->Exchange(i, i - 1);
+                                        g->exchangeConfs(i, i - 1);
+                                        break;
+                                }
                         }
                 }
         }
@@ -2477,19 +948,19 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_UPClick(TObject *Send
 
 void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_DOWNClick(TObject *Sender)
 {
-        int comboindex = ComboBox2->Items->IndexOf(ComboBox2->Text);
-        int gameid = (int) ComboBox2->Items->Objects[comboindex];
-        for(int i = 0; i < LISTBOX_CONFIGURATIONS->Count; i++) {
-                if(LISTBOX_CONFIGURATIONS->Selected[i]) {
-                        if(i < LISTBOX_CONFIGURATIONS->Count - 1) {
-                                LISTBOX_CONFIGURATIONS->Items->Exchange(i, i + 1);
-                                Configuration tmp = programSettings.games[gameid].startupConfs[i];
-                                programSettings.games[gameid].startupConfs[i] = programSettings.games[gameid].startupConfs[i + 1];
-                                programSettings.games[gameid].startupConfs[i + 1] = tmp;
-                                TObject *t = LISTBOX_CONFIGURATIONS->Items->Objects[i];
-                                LISTBOX_CONFIGURATIONS->Items->Objects[i] = LISTBOX_CONFIGURATIONS->Items->Objects[i + 1];
-                                LISTBOX_CONFIGURATIONS->Items->Objects[i + 1] = t;
-                                break;
+        int comboindex = ComboBox2->ItemIndex;
+        Game *g = NULL;
+        if(comboindex >= 0) {
+                g = (Game*)(ComboBox2->Items->Objects[comboindex]);
+        }
+        if(g != NULL) {
+                for(int i = 0; i < LISTBOX_CONFIGURATIONS->Count; i++) {
+                        if(LISTBOX_CONFIGURATIONS->Selected[i]) {
+                                if(i < LISTBOX_CONFIGURATIONS->Count - 1) {
+                                        LISTBOX_CONFIGURATIONS->Items->Exchange(i, i + 1);
+                                        g->exchangeConfs(i, i + 1);
+                                        break;
+                                }
                         }
                 }
         }
@@ -2500,28 +971,29 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_COPYClick(
       TObject *Sender)
 {
         int comboindex = ComboBox2->Items->IndexOf(ComboBox2->Text);
-        int gameid = (int) ComboBox2->Items->Objects[comboindex];
-        for(int i = 0; i < LISTBOX_CONFIGURATIONS->Count; i++) {
-                if(LISTBOX_CONFIGURATIONS->Selected[i]) {
-                        TObject *t = LISTBOX_CONFIGURATIONS->Items->Objects[i];
-                        int j = (int) t;
-                        Configuration copy = programSettings.games[gameid].startupConfs[j].clone();
-                        programSettings.pSaddConf(gameid, copy);
+        Game *g = (Game*)(ComboBox2->Items->Objects[comboindex]);
+        if(g != NULL) {
+                for(int i = 0; i < LISTBOX_CONFIGURATIONS->Count; i++) {
+                        if(LISTBOX_CONFIGURATIONS->Selected[i]) {
+                                Configuration *conf = (Configuration*)(LISTBOX_CONFIGURATIONS->Items->Objects[i]);
+                                Configuration *copy = conf->clone();
+                                g->addConfiguration(copy);
+                        }
                 }
         }
-        updateConfList();
-        checkConfListState();
+        this->updateConfList();
+        this->checkConfListState();
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::BUTTON_OFPRES_BROWSEClick(TObject *Sender)
 {
         if(!EDIT_OFPRES_EXECUTABLE->Text.IsEmpty()) {
-                OpenDialog1->InitialDir = getFolder(EDIT_OFPRES_EXECUTABLE->Text);
+                OpenDialogGameFile->InitialDir = getFolder(EDIT_OFPRES_EXECUTABLE->Text);
         }
-        OpenDialog1->Filter = buildOpenDialogFilter(GAMEID_OFPRES);
-        OpenDialog1->Tag = GAMEID_OFPRES;
-        OpenDialog1->Execute();
+        OpenDialogGameFile->Filter = buildOpenDialogFilter(OFPRES);
+        OpenDialogGameFile->Tag = OFPRES;
+        OpenDialogGameFile->Execute();
 }
 
 //---------------------------------------------------------------------------
@@ -2530,11 +1002,11 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_OFPCWC_BROWSEClick(
       TObject *Sender)
 {
         if(!EDIT_OFPCWC_EXECUTABLE->Text.IsEmpty()) {
-                OpenDialog1->InitialDir = getFolder(EDIT_OFPCWC_EXECUTABLE->Text);
+                OpenDialogGameFile->InitialDir = getFolder(EDIT_OFPCWC_EXECUTABLE->Text);
         }
-        OpenDialog1->Filter = buildOpenDialogFilter(GAMEID_OFPCWC);
-        OpenDialog1->Tag = GAMEID_OFPCWC;
-        OpenDialog1->Execute();
+        OpenDialogGameFile->Filter = buildOpenDialogFilter(OFPCWC);
+        OpenDialogGameFile->Tag = OFPCWC;
+        OpenDialogGameFile->Execute();
 }
 //---------------------------------------------------------------------------
 
@@ -2542,24 +1014,28 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_ARMACWA_BROWSEClick(
       TObject *Sender)
 {
         if(!EDIT_ARMACWA_EXECUTABLE->Text.IsEmpty()) {
-                OpenDialog1->InitialDir = getFolder(EDIT_ARMACWA_EXECUTABLE->Text);
+                OpenDialogGameFile->InitialDir = getFolder(EDIT_ARMACWA_EXECUTABLE->Text);
         }
-        OpenDialog1->Filter = buildOpenDialogFilter(GAMEID_ARMACWA);
-        OpenDialog1->Tag = GAMEID_ARMACWA;
-        OpenDialog1->Execute();
+        OpenDialogGameFile->Filter = buildOpenDialogFilter(ARMACWA);
+        OpenDialogGameFile->Tag = ARMACWA;
+        OpenDialogGameFile->Execute();
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::ComboBox2Change(TObject *Sender)
 {
-        exitEditMode();
-        updateConfList();
-        checkConfListState();
+
+        this->exitEditMode();
+
+        this->updateConfList();
+        this->checkConfListState();
         int comboindex = ComboBox2->Items->IndexOf(ComboBox2->Text);
         bool enable = (comboindex >= 0);
         if(enable) {
-                int gameid = (int) ComboBox2->Items->Objects[comboindex];
-                updateModFolderList(programSettings.games[gameid].folder);
+                Game *g = (Game*)(ComboBox2->Items->Objects[comboindex]);
+                if(g != NULL) {
+                        this->updateModFolderList(g->getGameFolder());
+                }
         }
         GROUPBOX_CONFIGURATIONS->Enabled = enable;
         GROUPBOX_NEWCONFIGURATION->Enabled = enable;
@@ -2584,70 +1060,70 @@ void __fastcall TWINDOW_SETTINGS::ComboBox2Change(TObject *Sender)
 void __fastcall TWINDOW_SETTINGS::COMBOBOX_OFPCWC_PROFILEChange(
       TObject *Sender)
 {
-        profileChanged(COMBOBOX_OFPCWC_PROFILE, GAMEID_OFPCWC);
+        this->profileChanged(COMBOBOX_OFPCWC_PROFILE, OFPCWC);
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::COMBOBOX_ARMACWA_PROFILEChange(
       TObject *Sender)
 {
-        profileChanged(COMBOBOX_ARMACWA_PROFILE, GAMEID_ARMACWA);
+        this->profileChanged(COMBOBOX_ARMACWA_PROFILE, ARMACWA);
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::COMBOBOX_OFPRES_PROFILEChange(TObject *Sender)
 {
-        profileChanged(COMBOBOX_OFPRES_PROFILE, GAMEID_OFPRES);
+        this->profileChanged(COMBOBOX_OFPRES_PROFILE, OFPRES);
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::CHECKBOX_OFPCWCClick(TObject *Sender)
 {
         if(!CHECKBOX_OFPCWC->Checked) {
-                programSettings.removeGame(GAMEID_OFPCWC);
+                this->ofpm->removeGame(OFPCWC);
         } else {
-                checkForAutoDetection(GAMEID_OFPCWC);
-                programSettings.games[GAMEID_OFPCWC].set = true;
-                updateGames();
+                this->checkForAutoDetection(OFPCWC);
+
         }
-        GROUPBOX_OFPCWC->Visible = CHECKBOX_OFPCWC->Checked;
-        GROUPBOX_OFPCWC->Enabled = CHECKBOX_OFPCWC->Checked;
+        this->updateGames();
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::CHECKBOX_OFPRESClick(TObject *Sender)
 {
         if(!CHECKBOX_OFPRES->Checked) {
-                programSettings.removeGame(GAMEID_OFPRES);
+                 this->ofpm->removeGame(OFPRES);
         } else {
-                checkForAutoDetection(GAMEID_OFPRES);
-                programSettings.games[GAMEID_OFPRES].set = true;
-                updateGames();
+                this->checkForAutoDetection(OFPRES);
+
         }
-        GROUPBOX_OFPRES->Visible = CHECKBOX_OFPRES->Checked;
-        GROUPBOX_OFPRES->Enabled = CHECKBOX_OFPRES->Checked;
+        this->updateGames();
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::TABSHEET_MODSShow(TObject *Sender)
 {
-        programSettings.refreshGamesModList(ComboBox2);
+        this->refreshGamesModList();
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::BUTTON_BROWSEClick(TObject *Sender)
 {
-        OpenDialog2->Execute();
+        OpenDialogAudioFile->Execute();
         STOP->Click();
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TWINDOW_SETTINGS::OpenDialog2CanClose(TObject *Sender,
+void __fastcall TWINDOW_SETTINGS::OpenDialogAudioFileCanClose(TObject *Sender,
       bool &CanClose)
 {
-        EDIT_NOTIFICATION_FILE->Tag = -1;
-        EDIT_NOTIFICATION_FILE->Text = "";
-        EDIT_NOTIFICATION_FILE->Text = OpenDialog2->FileName;
+        String file = OpenDialogAudioFile->FileName;
+        if(FileExists(file)) {
+                EDIT_NOTIFICATION_FILE->Text = file;
+                AudioTask *at = new AudioTask(file, this->ofpm->generateNewAudioAlias(), false);
+                printPlaybackRange(at->getStartTime(), at->getEndTime());
+                delete at;
+        }
 }
 //---------------------------------------------------------------------------
 
@@ -2656,17 +1132,11 @@ void __fastcall TWINDOW_SETTINGS::EDIT_NOTIFICATION_FILEChange(TObject *Sender)
         LabelMilli->Visible = false;
         LabelSeconds->Visible = false;
         LabelMinutes->Visible = false;
-        if(!FileExists(EDIT_NOTIFICATION_FILE->Text) && !EDIT_NOTIFICATION_FILE->Text.IsEmpty()) {
+        String file = EDIT_NOTIFICATION_FILE->Text;
+        if(!FileExists(file) && !file.IsEmpty()) {
                 EDIT_NOTIFICATION_FILE->Color = clRed;
         } else {
                 EDIT_NOTIFICATION_FILE->Color = clWindow;
-                if(FileExists(EDIT_NOTIFICATION_FILE->Text)) {
-                        if(EDIT_NOTIFICATION_FILE->Tag > -1) {
-                                printPlaybackRange(CustomNotify[EDIT_NOTIFICATION_FILE->Tag].playbackStart, CustomNotify[EDIT_NOTIFICATION_FILE->Tag].playbackEnd);
-                        } else {
-                                printPlaybackRange(0, readSongLength(EDIT_NOTIFICATION_FILE->Text));
-                        }
-                }
         }
 }
 //---------------------------------------------------------------------------
@@ -2736,43 +1206,45 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITNOTIFICATION_EDITClick(
 
         for(int i = 0; i < LISTBOX_NOTIFICATIONS->Count; i++) {
                 if(LISTBOX_NOTIFICATIONS->Selected[i]) {
-                        TObject *t = LISTBOX_NOTIFICATIONS->Items->Objects[i];
-                        int j = (int) t;
-                        CustomNotification cN = CustomNotify[j];
-                        EDIT_NOTIFICATION_NAME->Text = cN.name;
-                        CHECKBOX_FILTER_BRIEFING->Checked = cN.statusBriefing;
-                        CHECKBOX_FILTER_CREATING->Checked = cN.statusCreating;
-                        CHECKBOX_FILTER_DEBRIEFING->Checked = cN.statusDebriefing;
-                        CHECKBOX_FILTER_MAXPLAYERS->Checked = (cN.maxPlayers > 0);
-                        CHECKBOX_FILTER_MINPLAYERS->Checked = (cN.minPlayers > 0);
-                        CHECKBOX_FILTER_PLAYING->Checked = cN.statusPlaying;
-                        CHECKBOX_FILTER_SETTINGUP->Checked = cN.statusSettingUp;
-                        CHECKBOX_FILTER_WAITING->Checked = cN.statusWaiting;
-                        CHECKBOX_FILTER_WITHOUTPASSWORD->Checked = cN.withoutPassword;
-                        CHECKBOX_FILTER_WITHPASSWORD->Checked = cN.withPassword;
+                        CustomNotification *notif = (CustomNotification*)(LISTBOX_NOTIFICATIONS->Items->Objects[i]);
+                        if(notif != NULL) {
+                                EDIT_NOTIFICATION_NAME->Text = notif->getName();
+                                ColorBox1->Selected = notif->getMarkingColor();
 
-                        UPDOWN_MINPLAYERS->Position = max(cN.minPlayers, 0);
-                        CHECKBOX_FILTER_MINPLAYERS->Checked = (cN.minPlayers >= 0);
-                        UPDOWN_MAXPLAYERS->Position = max(cN.maxPlayers, 0);
-                        CHECKBOX_FILTER_MAXPLAYERS->Checked = (cN.maxPlayers >= 0);
-                        CHECKBOX_REPEAT->Checked = (cN.repeat == 1);
-                        MEMO_FILTER_MISSIONNAME->Clear();
-                        for (list<String>::iterator ci = cN.missionFilter.begin(); ci != cN.missionFilter.end(); ++ci) {
-                                MEMO_FILTER_MISSIONNAME->Lines->Add(*ci);
+                                AudioTask *task = notif->getAudioTask();
+                                printPlaybackRange(task->getStartTime(), task->getEndTime());
+                                CHECKBOX_REPEAT->Checked = task->isRepeatOn();
+                                TrackBar1->Position = task->getVolume();
+                                EDIT_NOTIFICATION_FILE->Text = task->getSoundFile();
+
+                                ServerFilter *filter = notif->getFilter();
+
+                                CHECKBOX_FILTER_BRIEFING->Checked = filter->briefing;
+                                CHECKBOX_FILTER_CREATING->Checked = filter->creating;
+                                CHECKBOX_FILTER_DEBRIEFING->Checked = filter->debriefing;
+                                CHECKBOX_FILTER_MAXPLAYERS->Checked = (filter->maxPlayers > 0);
+                                CHECKBOX_FILTER_MINPLAYERS->Checked = (filter->minPlayers > 0);
+                                CHECKBOX_FILTER_PLAYING->Checked = filter->playing;
+                                CHECKBOX_FILTER_SETTINGUP->Checked = filter->settingup;
+                                CHECKBOX_FILTER_WAITING->Checked = filter->waiting;
+                                CHECKBOX_FILTER_WITHOUTPASSWORD->Checked = filter->withoutPassword;
+                                CHECKBOX_FILTER_WITHPASSWORD->Checked = filter->withPassword;
+                                UPDOWN_MINPLAYERS->Position = max(filter->minPlayers, 0);
+                                UPDOWN_MAXPLAYERS->Position = max(filter->maxPlayers, 0);
+                                MEMO_FILTER_MISSIONNAME->Clear();
+                                for (int m = 0; m < filter->missionNames->Count; m++) {
+                                        MEMO_FILTER_MISSIONNAME->Lines->Add(filter->missionNames->Strings[m]);
+                                }
+                                MEMO_FILTER_SERVERNAME->Clear();
+                                for (int m = 0; m < filter->serverNames->Count; m++) {
+                                        MEMO_FILTER_SERVERNAME->Lines->Add(filter->serverNames->Strings[m]);
+                                }
+                                MEMO_FILTER_PLAYERNAME->Clear();
+                                for (int m = 0; m < filter->playerNames->Count; m++) {
+                                        MEMO_FILTER_PLAYERNAME->Lines->Add(filter->playerNames->Strings[m]);
+                                }
+                                break;
                         }
-                        MEMO_FILTER_SERVERNAME->Clear();
-                        for (list<String>::iterator ci = cN.serverFilter.begin(); ci != cN.serverFilter.end(); ++ci) {
-                                MEMO_FILTER_SERVERNAME->Lines->Add(*ci);
-                        }
-                        MEMO_FILTER_PLAYERNAME->Clear();
-                        for (list<String>::iterator ci = cN.playerFilter.begin(); ci != cN.playerFilter.end(); ++ci) {
-                                MEMO_FILTER_PLAYERNAME->Lines->Add(*ci);
-                        }
-                        EDIT_NOTIFICATION_FILE->Tag = j;
-                        EDIT_NOTIFICATION_FILE->Text = cN.soundFile;
-                        ColorBox1->Selected = cN.markingColor;
-                        TrackBar1->Position = cN.playbackVolume;
-                        break;
                 }
         }
 }
@@ -2781,126 +1253,131 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITNOTIFICATION_EDITClick(
 void __fastcall TWINDOW_SETTINGS::BUTTON_EDITNOTIFICATION_OKClick(
       TObject *Sender)
 {
-    if(!EDIT_NOTIFICATION_NAME->Text.Trim().IsEmpty() && (FileExists(EDIT_NOTIFICATION_FILE->Text) || EDIT_NOTIFICATION_FILE->Text.Trim().IsEmpty())) {
-        if(STOP->Visible) {
-                STOP->Click();
-        }
-        list<String> mission;
-        for(int i = 0; i < MEMO_FILTER_MISSIONNAME->Lines->Count; i++) {
-                if(!MEMO_FILTER_MISSIONNAME->Lines->Strings[i].Trim().IsEmpty()) {
-                        mission.push_back(MEMO_FILTER_MISSIONNAME->Lines->Strings[i]);
+        String notifName = EDIT_NOTIFICATION_NAME->Text;
+        String audioFile = EDIT_NOTIFICATION_FILE->Text;
+        if(!notifName.Trim().IsEmpty() && (FileExists(audioFile) || audioFile.Trim().IsEmpty())) {
+                if(STOP->Visible) {
+                        STOP->Click();
                 }
-        }
-        list<String> server;
-        for(int i = 0; i < MEMO_FILTER_SERVERNAME->Lines->Count; i++) {
-                if(!MEMO_FILTER_SERVERNAME->Lines->Strings[i].Trim().IsEmpty()) {
-                        server.push_back(MEMO_FILTER_SERVERNAME->Lines->Strings[i]);
-                }
-        }
-        list<String> player;
-        for(int i = 0; i < MEMO_FILTER_PLAYERNAME->Lines->Count; i++) {
-                if(!MEMO_FILTER_PLAYERNAME->Lines->Strings[i].Trim().IsEmpty()) {
-                        player.push_back(MEMO_FILTER_PLAYERNAME->Lines->Strings[i]);
-                }
-        }
-        for(int i = 0; i < LISTBOX_NOTIFICATIONS->Count; i++) {
-                if(LISTBOX_NOTIFICATIONS->Selected[i]) {
-                        TObject *t = LISTBOX_NOTIFICATIONS->Items->Objects[i];
-                        int j = (int) t;
-                        CustomNotify[j].name = EDIT_NOTIFICATION_NAME->Text;
-                        CustomNotify[j].missionFilter = mission;
-                        CustomNotify[j].serverFilter = server;
-                        CustomNotify[j].playerFilter = player;
-                        CustomNotify[j].statusCreating = CHECKBOX_FILTER_CREATING->Checked;
-                        CustomNotify[j].statusWaiting = CHECKBOX_FILTER_WAITING->Checked;
-                        CustomNotify[j].statusSettingUp = CHECKBOX_FILTER_SETTINGUP->Checked;
-                        CustomNotify[j].statusBriefing = CHECKBOX_FILTER_BRIEFING->Checked;
-                        CustomNotify[j].statusPlaying = CHECKBOX_FILTER_PLAYING->Checked;
-                        CustomNotify[j].statusDebriefing = CHECKBOX_FILTER_DEBRIEFING->Checked;
-                        CustomNotify[j].withPassword = CHECKBOX_FILTER_WITHPASSWORD->Checked;
-                        CustomNotify[j].withoutPassword = CHECKBOX_FILTER_WITHOUTPASSWORD->Checked;
+                int listindex = LISTBOX_NOTIFICATIONS->ItemIndex;
+                CustomNotification *notif = (CustomNotification*)(LISTBOX_NOTIFICATIONS->Items->Objects[listindex]);
+                if(notif != NULL) {
+                        ServerFilter *sf = notif->getFilter();
+                        sf->missionNames->Clear();
+                        for(int i = 0; i < MEMO_FILTER_MISSIONNAME->Lines->Count; i++) {
+                                if(!MEMO_FILTER_MISSIONNAME->Lines->Strings[i].Trim().IsEmpty()) {
+                                        sf->missionNames->Add(MEMO_FILTER_MISSIONNAME->Lines->Strings[i]);
+                                }
+                        }
+                        sf->playerNames->Clear();
+                        for(int i = 0; i < MEMO_FILTER_PLAYERNAME->Lines->Count; i++) {
+                                if(!MEMO_FILTER_PLAYERNAME->Lines->Strings[i].Trim().IsEmpty()) {
+                                        sf->playerNames->Add(MEMO_FILTER_PLAYERNAME->Lines->Strings[i]);
+                                }
+                        }
+                        sf->serverNames->Clear();
+                        for(int i = 0; i < MEMO_FILTER_SERVERNAME->Lines->Count; i++) {
+                                if(!MEMO_FILTER_SERVERNAME->Lines->Strings[i].Trim().IsEmpty()) {
+                                        sf->serverNames->Add(MEMO_FILTER_SERVERNAME->Lines->Strings[i]);
+                                }
+                        }
+                        notif->setName(notifName);
+                        sf->creating = CHECKBOX_FILTER_CREATING->Checked;
+                        sf->waiting = CHECKBOX_FILTER_WAITING->Checked;
+                        sf->settingup = CHECKBOX_FILTER_SETTINGUP->Checked;
+                        sf->briefing = CHECKBOX_FILTER_BRIEFING->Checked;
+                        sf->playing = CHECKBOX_FILTER_PLAYING->Checked;
+                        sf->debriefing = CHECKBOX_FILTER_DEBRIEFING->Checked;
+                        sf->withPassword = CHECKBOX_FILTER_WITHPASSWORD->Checked;
+                        sf->withoutPassword = CHECKBOX_FILTER_WITHOUTPASSWORD->Checked;
                         if(CHECKBOX_FILTER_MINPLAYERS->Checked) {
-                                CustomNotify[j].minPlayers = UPDOWN_MINPLAYERS->Position;
+                                sf->setMinPlayers(UPDOWN_MINPLAYERS->Position);
                         } else {
-                                CustomNotify[j].minPlayers = -1;
+                                sf->setMinPlayers(0);
                         }
                         if(CHECKBOX_FILTER_MAXPLAYERS->Checked) {
-                                CustomNotify[j].maxPlayers = UPDOWN_MAXPLAYERS->Position;
+                                sf->setMaxPlayers(UPDOWN_MAXPLAYERS->Position);
                         } else {
-                                CustomNotify[j].maxPlayers = -1;
+                                sf->setMaxPlayers(0);
                         }
-                        CustomNotify[j].soundFile = EDIT_NOTIFICATION_FILE->Text;
-                        CustomNotify[j].repeat = CHECKBOX_REPEAT->Checked;
-                        CustomNotify[j].playbackVolume = TrackBar1->Position;
-                        CustomNotify[i].playbackStart =
-                                                StrToInt(EDIT_SONGSTART_MIN->Text)*60000 +
-                                                StrToInt(EDIT_SONGSTART_SEC->Text)*1000 +
-                                                StrToInt(EDIT_SONGSTART_MILL->Text);
-                        CustomNotify[j].playbackEnd =
-                                                StrToInt(EDIT_SONGEND_MIN->Text)*60000 +
-                                                StrToInt(EDIT_SONGEND_SEC->Text)*1000 +
-                                                StrToInt(EDIT_SONGEND_MILL->Text);
-                        CustomNotify[j].markingColor = ColorBox1->Selected;
-                        break;
+                        AudioTask *at = notif->getAudioTask();
+                        at->setFile(EDIT_NOTIFICATION_FILE->Text);
+                        at->setRepeat(CHECKBOX_REPEAT->Checked);
+                        at->setVolume(TrackBar1->Position);
+                        int startPos = 0, endPos = 0;
+                        try {
+                                startPos =  StrToInt(EDIT_SONGSTART_MIN->Text)*60000 +
+                                StrToInt(EDIT_SONGSTART_SEC->Text)*1000 +
+                                StrToInt(EDIT_SONGSTART_MILL->Text);
+                        } catch (...) {}
+                        try {
+                                endPos =    StrToInt(EDIT_SONGEND_MIN->Text)*60000 +
+                                StrToInt(EDIT_SONGEND_SEC->Text)*1000 +
+                                StrToInt(EDIT_SONGEND_MILL->Text);
+                        } catch (...) {}
+                        at->setPlayLength(startPos, endPos);
+                        notif->setMarkingColor(ColorBox1->Selected);
                 }
+                updateNotificationsList();
+                exitEditNotificationMode();
         }
-        updateNotificationsList();
-        exitEditNotificationMode();
-    }
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::BUTTON_NEWNOTIFICATION_ADDClick(
       TObject *Sender)
 {
-        if(!EDIT_NOTIFICATION_NAME->Text.Trim().IsEmpty() && (FileExists(EDIT_NOTIFICATION_FILE->Text) || EDIT_NOTIFICATION_FILE->Text.Trim().IsEmpty())) {
+        String notifName = EDIT_NOTIFICATION_NAME->Text;
+        String audioName = EDIT_NOTIFICATION_FILE->Text;
+        if(!notifName.Trim().IsEmpty() && (FileExists(audioName) || audioName.Trim().IsEmpty())) {
                 if(STOP->Visible) {
                         STOP->Click();
                 }
-                list<String> mission, server, player;
+                TStringList *mission = new TStringList();
+                TStringList *server = new TStringList();
+                TStringList *player = new TStringList();
                 for(int i = 0; i < MEMO_FILTER_MISSIONNAME->Lines->Count; i++) {
-                        mission.push_back(MEMO_FILTER_MISSIONNAME->Lines->Strings[i]);
+                        mission->Add(MEMO_FILTER_MISSIONNAME->Lines->Strings[i]);
                 }
                 for(int i = 0; i < MEMO_FILTER_SERVERNAME->Lines->Count; i++) {
-                        server.push_back(MEMO_FILTER_SERVERNAME->Lines->Strings[i]);
+                        server->Add(MEMO_FILTER_SERVERNAME->Lines->Strings[i]);
                 }
                 for(int i = 0; i < MEMO_FILTER_PLAYERNAME->Lines->Count; i++) {
-                        player.push_back(MEMO_FILTER_PLAYERNAME->Lines->Strings[i]);
+                        player->Add(MEMO_FILTER_PLAYERNAME->Lines->Strings[i]);
                 }
-                int minP = -1, maxP = -1;
+                int minP = 0, maxP = 0;
                 if(CHECKBOX_FILTER_MINPLAYERS->Checked) {
                         minP = UPDOWN_MINPLAYERS->Position;
                 }
                 if(CHECKBOX_FILTER_MAXPLAYERS->Checked) {
                         maxP = UPDOWN_MAXPLAYERS->Position;
                 }
-                CustomNotification newCN = CustomNotification(EDIT_NOTIFICATION_NAME->Text,
-                        CHECKBOX_FILTER_CREATING->Checked, CHECKBOX_FILTER_WAITING->Checked,
-                        CHECKBOX_FILTER_SETTINGUP->Checked, CHECKBOX_FILTER_BRIEFING->Checked,
-                        CHECKBOX_FILTER_PLAYING->Checked, CHECKBOX_FILTER_DEBRIEFING->Checked,
-                        CHECKBOX_FILTER_WITHPASSWORD->Checked, CHECKBOX_FILTER_WITHOUTPASSWORD->Checked,
-                        mission, server, player, minP, maxP,
-                        EDIT_NOTIFICATION_FILE->Text, TrackBar1->Position,
-                                StrToInt(EDIT_SONGSTART_MIN->Text)*60000 +
-                                StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_SEC->Text)*1000 +
-                                StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_MILL->Text),
-                                StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_MIN->Text)*60000 +
-                                StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_SEC->Text)*1000 +
-                                StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_MILL->Text),
-                        ColorToString(ColorBox1->Selected),
-                        CHECKBOX_REPEAT->Checked);
+                ServerFilter *sf = new ServerFilter(mission, server, player);
+                sf->setMinPlayers(minP);
+                sf->setMaxPlayers(maxP);
+                sf->creating = CHECKBOX_FILTER_CREATING->Checked;
+                sf->waiting = CHECKBOX_FILTER_WAITING->Checked;
+                sf->settingup = CHECKBOX_FILTER_SETTINGUP->Checked;
+                sf->briefing = CHECKBOX_FILTER_BRIEFING->Checked;
+                sf->playing = CHECKBOX_FILTER_PLAYING->Checked;
+                sf->debriefing = CHECKBOX_FILTER_DEBRIEFING->Checked;
+                sf->withPassword = CHECKBOX_FILTER_WITHPASSWORD->Checked;
+                sf->withoutPassword = CHECKBOX_FILTER_WITHOUTPASSWORD->Checked;
 
-                for(int i = 0; i < GetArrLength(CustomNotify); i++) {
-                        if(!CustomNotify[i].set) {
-                                CustomNotify[i] = newCN;
-                                break;
-                        }
-                }
-                if(LISTBOX_NOTIFICATIONS->Items->Count >= GetArrLength(CustomNotify)) {
-                        BUTTON_NEWNOTIFICATION_ADD->Enabled = false;
-                }
-                updateNotificationsList();
-                checkNotificationListState();
+                AudioTask *at = new AudioTask(audioName, this->ofpm->generateNewAudioAlias(), CHECKBOX_REPEAT->Checked);
+                at->setVolume(TrackBar1->Position);
+                try {
+                        at->setPlayLength(      StrToInt(EDIT_SONGSTART_MIN->Text)*60000 +
+                                                StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_SEC->Text)*1000 +
+                                                StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_MILL->Text),
+                                                StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_MIN->Text)*60000 +
+                                                StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_SEC->Text)*1000 +
+                                                StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_MILL->Text));
+                } catch (...) {}
+                CustomNotification *notif = new CustomNotification(notifName, sf, at, ColorToString(ColorBox1->Selected));
+                this->ofpm->addNotification(notif);
+                this->updateNotificationsList();
+                this->checkNotificationListState();
         } else if(EDIT_NOTIFICATION_NAME->Text.Trim().IsEmpty()) {
                 EDIT_NOTIFICATION_NAME->SetFocus();
         } else if(!FileExists(EDIT_NOTIFICATION_FILE->Text) && !EDIT_NOTIFICATION_FILE->Text.Trim().IsEmpty()) {
@@ -2914,25 +1391,23 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_NOTIFICATION_REMOVEClick(
 {
         for(int i = 0; i < LISTBOX_NOTIFICATIONS->Count; i++) {
                 if(LISTBOX_NOTIFICATIONS->Selected[i]) {
-                        TObject *t = LISTBOX_NOTIFICATIONS->Items->Objects[i];
-                        int j = (int) t;
-                        CustomNotify[j] = CustomNotification();
+                        CustomNotification *notif = (CustomNotification*) (LISTBOX_NOTIFICATIONS->Items->Objects[i]);
+                        if(notif != NULL) {
+                                this->ofpm->removeNotification(notif);
+                        }
                         LISTBOX_NOTIFICATIONS->Items->Delete(i);
+                        break;
                 }
         }
-        if(LISTBOX_NOTIFICATIONS->Items->Count < GetArrLength(CustomNotify)) {
-                BUTTON_NEWNOTIFICATION_ADD->Enabled = true;
-        }
-        updateNotificationsList();
-        checkNotificationListState();
+        this->updateNotificationsList();
+        this->checkNotificationListState();
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::TABSHEET_NOTIFICATIONSShow(TObject *Sender)
 {
-        exitEditNotificationMode();
-        updateNotificationsList();
-        checkNotificationListState();
+        this->exitEditNotificationMode();
+        this->updateNotificationsList();
 }
 //---------------------------------------------------------------------------
 
@@ -2951,23 +1426,44 @@ void __fastcall TWINDOW_SETTINGS::PLAYClick(TObject *Sender)
                 LabelMinutes->Visible = true;
                 PLAY->Visible = false;
                 STOP->Visible = true;
-                mp3p.MP3startPreview();
+                AudioTask *at = new AudioTask(EDIT_NOTIFICATION_FILE->Text, "OFPM_AUDIOPREVIEW", false);
+                at->setDeleteOnEnd(true);
+                at->setPlayLength(      StrToInt(EDIT_SONGSTART_MIN->Text)*60000 +
+                                        StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_SEC->Text)*1000 +
+                                        StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_MILL->Text),
+                                        StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_MIN->Text)*60000 +
+                                        StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_SEC->Text)*1000 +
+                                        StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_MILL->Text));
+                at->setVolume(TrackBar1->Position);
+                AudioPlayer *player = this->ofpm->getAudioPlayer();
+                player->addAudioTask(at);
+                Timer1->Enabled = true;
         }        
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::TrackBar1Change(TObject *Sender)
 {
-        mciSendString(("setaudio OFPM_MP3PREVIEW volume to " + String(TrackBar1->Position)*10).c_str(), 0, 0,0);
-        
+        if(this->ofpm != NULL) {
+                AudioPlayer *player = this->ofpm->getAudioPlayer();
+                AudioTask *at = player->getTask("OFPM_AUDIOPREVIEW");
+                if(at != NULL) {
+                        at->setVolume(TrackBar1->Position);
+                }
+        }
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::STOPClick(TObject *Sender)
 {
-        mp3p.MP3stopPreview();
-        PLAY->Visible = true;
-        STOP->Visible = false;        
+        if(this->ofpm != NULL) {
+                AudioPlayer *player = this->ofpm->getAudioPlayer();
+                if(player != NULL) {
+                        player->removeAudioTask("OFPM_AUDIOPREVIEW");
+                        PLAY->Visible = true;
+                        STOP->Visible = false;
+                }
+        }
 }
 //---------------------------------------------------------------------------
 
@@ -3071,59 +1567,47 @@ void __fastcall TWINDOW_SETTINGS::EDIT_NOTIFICATION_FILEKeyUp(TObject *Sender, W
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TWINDOW_SETTINGS::MP3TimerTimer(TObject *Sender)
-{
-        MP3Timer->Enabled = mp3p.check();         
-}
-//---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::LISTBOX_NOTIFICATIONSClick(
       TObject *Sender)
 {
-        checkNotificationListState();        
+        this->checkNotificationListState();        
 }
 //---------------------------------------------------------------------------
-
-
+          
 void __fastcall TWINDOW_SETTINGS::CHECKBOX_NOTIFICATIONS_ACTIVEClick(TObject *Sender)
 {
-        WINDOW_SETTINGS->setCustomNotifications(CHECKBOX_NOTIFICATIONS_ACTIVE->Checked);
-        if(!CHECKBOX_NOTIFICATIONS_ACTIVE->Checked) {
-                WINDOW_SETTINGS->MP3shutdown();
-        }
+        this->ofpm->setCustomNotifications(CHECKBOX_NOTIFICATIONS_ACTIVE->Checked);
 }
 //---------------------------------------------------------------------------
 void __fastcall TWINDOW_SETTINGS::UPDOWN_SERVERLIST_UPDATEClick(TObject *Sender, TUDBtnType Button)
 {
-        programSettings.setInterval(UPDOWN_SERVERLIST_UPDATE->Position);
+        this->ofpm->setInterval(UPDOWN_SERVERLIST_UPDATE->Position);
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::LISTBOX_CONFIGURATIONSClick(TObject *Sender)
 {
-        checkConfListState();
+        this->checkConfListState();
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::CHECKBOX_ARMACWAClick(TObject *Sender)
 {
         if(!CHECKBOX_ARMACWA->Checked) {
-                programSettings.removeGame(GAMEID_ARMACWA);
+                 this->ofpm->removeGame(ARMACWA);
         } else {
-                checkForAutoDetection(GAMEID_ARMACWA);
-                programSettings.games[GAMEID_ARMACWA].set = true;
-                updateGames();
+                this->checkForAutoDetection(ARMACWA);
         }
-        GROUPBOX_ARMACWA->Visible = CHECKBOX_ARMACWA->Checked;
-        GROUPBOX_ARMACWA->Enabled = CHECKBOX_ARMACWA->Checked;
-}                                                                            
+        this->updateGames();
+}
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::EDIT_CHAT_IRCSERVER_PORTChange(
       TObject *Sender)
 {
         try {
-                int p = StrToInt(EDIT_CHAT_IRCSERVER_PORT->Text);
+                StrToInt(EDIT_CHAT_IRCSERVER_PORT->Text);
         } catch (...) {
                 EDIT_CHAT_IRCSERVER_PORT->Text = Form1->getChatPort();
         }
@@ -3143,24 +1627,24 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_CHAT_SETDEFAULTClick(
 
 void __fastcall TWINDOW_SETTINGS::TRACKBAR_BANDWIDTHChange(TObject *Sender)
 {
-        setBandwidthUsage(TRACKBAR_BANDWIDTH->Position);        
+        this->ofpm->setBandwidthUsage(TRACKBAR_BANDWIDTH->Position);        
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::TABSHEET_GENERALShow(TObject *Sender)
 {
-        UPDOWN_SERVERLIST_UPDATE->Position = programSettings.interval;
-        CHECKBOX_NOTIFICATIONS_ACTIVE->Checked = programSettings.customNotifications;
-        CHECKBOX_UPDATE_CHECKATSTART->Checked = programSettings.checkUpdateAtStart;
-        TRACKBAR_BANDWIDTH->Position = programSettings.level;
-        TRACKBAR_VOLUME->Position = programSettings.volume;
+        UPDOWN_SERVERLIST_UPDATE->Position = this->ofpm->getInterval();
+        CHECKBOX_NOTIFICATIONS_ACTIVE->Checked = this->ofpm->areCustomNotificationsOn();
+        CHECKBOX_UPDATE_CHECKATSTART->Checked = this->ofpm->isUpdateOnStartOn();
+        TRACKBAR_BANDWIDTH->Position = (int)(this->ofpm->getBandwidthUsage());
+        TRACKBAR_VOLUME->Position = this->ofpm->getVolume();
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::CHECKBOX_UPDATE_CHECKATSTARTClick(
       TObject *Sender)
 {
-        programSettings.checkUpdateAtStart = CHECKBOX_UPDATE_CHECKATSTART->Checked;
+        this->ofpm->toggleUpdateOnStart(CHECKBOX_UPDATE_CHECKATSTART->Checked);
 }
 //---------------------------------------------------------------------------
 
@@ -3170,193 +1654,168 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_UPDATEClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TWINDOW_SETTINGS::TreeView1DragOver(TObject *Sender,
-      TObject *Source, int X, int Y, TDragState State, bool &Accept)
-{
-        TTreeView *tree = (TTreeView *)Sender;
-        TTreeNode *node = tree->GetNodeAt(X,Y);
-        if(node == NULL) {
-                Accept = false;
-        } else {
-                Accept = Source->ClassNameIs("TListBox") && node->Parent == NULL;
-        }
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_SETTINGS::TreeView1DragDrop(TObject *Sender,
-      TObject *Source, int X, int Y)
-{
-        if (Sender->ClassNameIs("TTreeView") && Source->ClassNameIs("TListBox")) {
-                TTreeView *tree = (TTreeView *)Sender;
-                TListBox *list = (TListBox *)Source;
-                TTreeNode *node = tree->GetNodeAt(X,Y);
-
-                for(int i = 0; i < list->Count; i++) {
-                        if(list->Selected[i]) {
-                                String showName = list->Items->Strings[i];
-                                Server* server = (Server*) list->Items->Objects[i];
-                                bool alreadyIn = false;
-                                TTreeNode *ch = node->getFirstChild();
-                                while(ch != NULL) {
-                                        if(ch->Text == showName) {
-                                                Server *serv = (Server*) (ch->Data);
-                                                if(serv->ip == server->ip && serv->gamespyport == server->gamespyport) {
-                                                        alreadyIn = true;
-                                                        break;
-                                                }
-                                        }
-                                        ch = node->GetNextChild(ch);
-                                }
-
-                                if(!alreadyIn) {
-                                        tree->Items->AddChildObject(node, showName, (void*) server);
-                                        switch(node->SelectedIndex) {
-                                                case 1:
-                                                        // favorites
-                                                        server->favorite = true;
-                                                        break;
-                                                case 2:
-                                                        // watched
-                                                        server->watch = true;
-                                                        break;
-                                                case 3:
-                                                        // persistent
-                                                        server->persistent = true;
-                                                        break;
-                                                case 4:
-                                                        // blocked
-                                                        server->blocked = true;
-                                                        break;
-                                        }
-                                }
-                        }
-                }
-        }
-}
-//---------------------------------------------------------------------------
-
 void __fastcall TWINDOW_SETTINGS::TABSHEET_SERVERSShow(TObject *Sender)
 {
-        updateServerEditorList(true);
+        this->updateServerEditorList();
+        Timer1->Enabled = true;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TWINDOW_SETTINGS::RADIOBUTTON_SERVERS_SHOW_NAMEClick(
-      TObject *Sender)
-{
-        updateServerEditorList(true);
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_SETTINGS::RADIOBUTTON_SERVERS_SHOW_ADDRESSClick(
-      TObject *Sender)
-{
-        updateServerEditorList(true);
-}
-//---------------------------------------------------------------------------
-
-
-
-void __fastcall TWINDOW_SETTINGS::TreeView1ContextPopup(TObject *Sender,
-      TPoint &MousePos, bool &Handled)
-{
-        bool success = false;
-        TTreeNode *n = TreeView1->GetNodeAt(MousePos.x, MousePos.y);
-        if(n != NULL) {
-                if(n->SelectedIndex == 0 && !(n->HasChildren)) {
-                        Server *s = (Server*) (n->Data);
-                        POPUPMENU_SERVERLISTEDITOR->Tag = s->index;
-                        TTreeNode *parent = n->Parent;
-                        MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE->Tag = parent->SelectedIndex;
-                        success = true;
-                }
-        }
-        MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE->OnClick = MENUITEM_POPUP_SERVERLISTEDITOR_REMOVEClick;
-        MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE->Visible = success;
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_SETTINGS::MENUITEM_POPUP_SERVERLISTEDITOR_REMOVEClick(
-      TObject *Sender)
-{
-        if(MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE->Visible) {
-                int serverId = POPUPMENU_SERVERLISTEDITOR->Tag;
-                int sectionId = MENUITEM_POPUP_SERVERLISTEDITOR_REMOVE->Tag;
-                Server *s = Form1->getServer(serverId);
-                switch(sectionId) {
-                        case 1:
-                                // favorites
-                                s->favorite = false;
-                                break;
-                        case 2:
-                                // watched
-                                s->watch = false;
-                                break;
-                        case 3:
-                                // persistent
-                                s->persistent = false;
-                                break;
-                        case 4:
-                                // blocked
-                                s->blocked = false;
-                                break;
-
-                }
-        }
-        updateServerEditorList(false);
-}
-//---------------------------------------------------------------------------
 void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_ADDClick(TObject *Sender)
 {
-        if(!Edit1->Text.IsEmpty()) {
-                int defaultGameport = 2302;
-                Address *add = new Address();
-                if(add->getAddress(Edit1->Text, defaultGameport)) {
-                        Form1->addServer(add->ip, add->port);
-                } else {
-                        int success = false;
-                        struct in_addr addr;
-                        list<String> url = Form1->splitUpMessage(Edit1->Text, ":");
-                        if(url.size() == 1) {
-                                url.push_back(IntToStr(defaultGameport));
-                        }
-                        String ip = url.front();
-                        addr.s_addr = resolv(ip.c_str());
-                        if(addr.s_addr != INADDR_NONE) {
-                                ip = inet_ntoa(addr);
-                                if(ip != "62.157.140.133" && ip != "80.156.86.78") {
-                                        success = true;
+        String value;
+        if(InputQuery(WINDOW_SETTINGS->getGuiString("STRING_SERVERS_ADD_TITLE"), WINDOW_SETTINGS->getGuiString("STRING_SERVERS_ADD_PROMPT"), value)) {
+                if(!value.IsEmpty()) {
+                        int defaultGameport = 2302;
+                        Address *add = new Address();
+                        if(add->readAddress(value, defaultGameport, false)) {
+                                this->ofpm->addServer(add->getAddress());
+                        } else {
+                                int success = false;
+                                struct in_addr addr;
+                                StringSplitter ssp(value);
+                                TStringList *url = ssp.split(":");
+                                if(url->Count == 1) {
+                                        url->Add(IntToStr(defaultGameport));
+                                }
+                                String ip = url->Strings[0];
+                                addr.s_addr = resolv(ip.c_str());
+                                if(addr.s_addr != INADDR_NONE) {
+                                        ip = inet_ntoa(addr);
+                                        if(ip != "62.157.140.133" && ip != "80.156.86.78") {
+                                                success = true;
+                                        }
+                                }
+                                if(success && add->readAddress(ip + ":" + url->Strings[1], defaultGameport, false)) {
+                                        this->ofpm->addServer(add->getAddress());
+                                } else {
+                                        ShowMessage(WINDOW_SETTINGS->getGuiString("STRING_SERVERS_ADDERROR") + "  " + url->Strings[0]);
                                 }
                         }
-                        if(success && add->getAddress(ip + ":" + url.back(), defaultGameport)) {
-                                Form1->addServer(add->ip, add->port);
-                        } else {
-                                ShowMessage(WINDOW_SETTINGS->getGuiString("STRING_SERVERS_ADDERROR") + "  " + url.back());
-                        }
+                        delete add;
+                        updateServerEditorList();
                 }
-                delete add;
-                updateServerEditorList(true);
         }
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::TRACKBAR_VOLUMEChange(TObject *Sender)
 {
-        programSettings.setVolume(TRACKBAR_VOLUME->Position);        
+        this->ofpm->setVolume(TRACKBAR_VOLUME->Position);        
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_SETTINGS::ComboBox1Change(TObject *Sender)
 {
         String file = ComboBox1->ItemsEx->ComboItems[ComboBox1->ItemIndex]->Caption;
-        if(FileExists(programSettings.workdir + "\\" + file)) {
+        if(FileExists(this->ofpm->getWorkDir() + "\\" + file)) {
                 ComboBox1->Enabled = false;
-                programSettings.languagefile = file;
-                updateLanguage(programSettings.languagefile);
+                this->ofpm->setLanguageFile(file);
+                updateLanguage(file);
                 ComboBox1->Enabled = true;
                 ComboBox1->SetFocus();
-                updateGames();
+                this->updateGames();
         }
 }
 //---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::StringGrid1DrawCell(TObject *Sender,
+      int ACol, int ARow, TRect &Rect, TGridDrawState State)
+{
+        if(ACol > 2 && ACol < 7 && ARow > 0) {
+                if(!(StringGrid1->Cells[0][ARow]).Trim().IsEmpty()) {
+                        Server *srv = (Server*)(StringGrid1->Objects[0][ARow]);
+                        if(srv != NULL) {
+                                TColor mark = clNone;
+                                if(ACol == 3 && srv->isFavorite()) {
+                                        mark = clYellow;
+                                } else if(ACol == 4 && srv->isWatched()) {
+                                        mark = clBlue;
+                                } else if(ACol == 5 && srv->isPersistent()) {
+                                        mark = clGray;
+                                } else if(ACol == 6 && srv->isBlocked()) {
+                                        mark = clMaroon;
+                                }
+                                if(mark != clNone) {
+                                        StringGrid1->Canvas->Brush->Color = mark;
+                                        StringGrid1->Canvas->FillRect(Rect);
+                                }
+                        }
+                }
+        } else if(ACol > 2 && ACol < 7 && ARow == 0) {
+                if(ACol == 3) {
+                        ImageListPropertyIcons->Draw(StringGrid1->Canvas, Rect.Left + 4, Rect.Top + 2, 0, true);
+                } else if(ACol == 4) {
+                        ImageListPropertyIcons->Draw(StringGrid1->Canvas, Rect.Left + 4, Rect.Top + 2, 1, true);
+                } else if(ACol == 5) {
+                        ImageListPropertyIcons->Draw(StringGrid1->Canvas, Rect.Left + 4, Rect.Top + 2, 2, true);
+                } else if(ACol == 6) {
+                        ImageListPropertyIcons->Draw(StringGrid1->Canvas, Rect.Left + 4, Rect.Top + 2, 3, true);
+                }
+
+        }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::StringGrid1MouseDown(TObject *Sender,
+      TMouseButton Button, TShiftState Shift, int X, int Y)
+{
+        if(Button == mbLeft) {
+                int column = -1, row = -1;
+                StringGrid1->MouseToCell(X, Y, column, row);
+                if(column > 2 && column < 7 && row > 0) {
+                        Server *srv = (Server*) (StringGrid1->Objects[0][row]);
+                        if(srv != NULL) {
+                                if(column == 3) {
+                                        srv->setFavorite(!srv->isFavorite());
+                                } else if(column == 4) {
+                                        srv->setWatched(!srv->isWatched());
+                                } else if(column == 5) {
+                                        srv->setPersistent(!srv->isPersistent());
+                                } else if(column == 6) {
+                                        srv->setBlocked(!srv->isBlocked());
+                                }
+                        }
+                }
+        }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_REMOVEClick(TObject *Sender)
+{
+        TGridRect sel = StringGrid1->Selection;
+        if(sel.Top == sel.Bottom && sel.Top > 0) {
+                Server *srv = (Server*) (StringGrid1->Objects[0][sel.Top]);
+                if(srv != NULL) {
+                        if(!this->ofpm->removeServer(srv->getGamespyAddress())) {
+                                ShowMessage("failed");
+                        }
+                }
+        }
+        this->updateServerEditorList();
+        StringGrid1->Selection = sel;
+        StringGrid1->SetFocus();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::Timer1Timer(TObject *Sender)
+{
+        if(TABSHEET_SERVERS->Visible) {
+                Timer1->Interval = 2000;
+                WINDOW_SETTINGS->updateServerEditorList();
+        } else {
+                AudioPlayer *ap = this->ofpm->getAudioPlayer();
+                if(ap->hasAlias("OFPM_AUDIOPREVIEW")) {
+                        Timer1->Interval = 20;
+                        AudioPosition aPos = ap->getCurrentPosition("OFPM_AUDIOPREVIEW");
+                        printPlaybackPosition(aPos);
+                } else {
+                        printPlaybackPosition(AudioPosition(0));
+                        STOP->Click();
+                        Timer1->Enabled = false;
+                }
+        }
+}
+//---------------------------------------------------------------------------
+
 

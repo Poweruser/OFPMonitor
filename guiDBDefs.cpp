@@ -1,15 +1,15 @@
-TButton *guiButton[18];
+TButton *guiButton[19];
 TCheckBox *guiCheckBox[23];
 TLabel *guiLabel[31];
-TGroupBox *guiGroupBox[16];
+TGroupBox *guiGroupBox[15];
 TForm *guiForm[3];
 TMenuItem *guiMenuItem[20];
 TTabSheet *guiTabSheet[9];
-TRadioButton *guiRadioButton[4];
+TRadioButton *guiRadioButton[2];
 
 
 /**
-   Object that stores and identifier and the 
+   Object that stores an identifier and the 
    corresponding String of a language
  */
 

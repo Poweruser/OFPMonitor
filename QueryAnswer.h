@@ -4,18 +4,21 @@
 #define QueryAnswerH
 
 #include <vcl.h>
-#include <list.h>
 
 class QueryAnswer {
+
+
         public:
                 String id;
-                String part;
+                int part;
                 bool final;
-                list<String> content;
-
                 QueryAnswer();
+                ~QueryAnswer();
+                void setContent(TStringList *content);
+                void readContent(TStringList *out);
 
-                void clear();
+        private:
+                TStringList *content;
 };
 
 //---------------------------------------------------------------------------

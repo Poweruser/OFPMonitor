@@ -11,13 +11,17 @@
 
 class Address {
         public:
+                Address();
+                bool readAddress(String address, int defaultPort, bool gamespy);
+                String getIP();
+                int getPort();
+                bool isValid();
+                String getAddress();
+
+        private:
                 String ip;
                 int port;
-                Address();
-
-                Address(String ip, int port);
-
-                bool getAddress(String address, int defaultPort);
+                bool valid;
 };
 
 //---------------------------------------------------------------------------

@@ -4,12 +4,12 @@
 #include <list.h>
 #include <unrar.h>
 #include "FileVersion.h"
+#include "StringSplitter.h"
 #pragma hdrstop
 
 #include "Unit1.h"
 #include "Unit2.h"
 #include "Unit5.h"
-#include "OFPMonitor.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma link "IdIOHandler"
@@ -18,6 +18,8 @@
 #pragma link "IdSSL"
 #pragma resource "*.dfm"
 TWINDOW_UPDATE *WINDOW_UPDATE;
+
+void releaseMutex();
 
 String updateInformation = "https://raw.github.com/wiki/poweruser/ofpmonitor/update.txt";
 String updateLocation = "https://github.com/downloads/poweruser/ofpmonitor/";
@@ -42,10 +44,9 @@ class UpdateTracker {
         TStringList *filesToInstall;
         HANDLE thread1;
         HANDLE thread2;
-
+        bool newVersion;
         String localVersion;
         String remoteVersion;
-        bool newVersion;
         bool error;
         String errorMsg;
         int answer;
@@ -83,6 +84,14 @@ class UpdateTracker {
                 this->mainDir = GetCurrentDir();
                 this->updateDir = mainDir + "\\update";
                 this->backupDir = mainDir + "\\backup";
+        }
+
+        bool isNewVersionAvailable() {
+                return this->newVersion;
+        }
+
+        bool didErrorHappen() {
+                return this->error;
         }
 
         ~UpdateTracker() {
@@ -139,6 +148,12 @@ class UpdateTracker {
                 return this->backupDir;
         }
 
+        void errorHappend(String msg) {
+                this->error = true;
+                this->errorMsg = msg;
+                this->newVersion = false;
+        }
+
 };
 
 UpdateTracker *uT;
@@ -148,9 +163,7 @@ DWORD WINAPI UpdaterThread_Step1 (LPVOID lpdwThreadParam__ ) {
                 try {
                         uTracker->http->Get(updateInformation, uTracker->ms);
                 } catch (EIdException &E) {
-                        uTracker->error = true;
-                        uTracker->errorMsg = E.Message;
-                        uTracker->newVersion = false;
+                        uTracker->errorHappend(E.Message);
                         uTracker->step++;
                         uTracker->working = false;
                         return 0;
@@ -164,16 +177,15 @@ DWORD WINAPI UpdaterThread_Step1 (LPVOID lpdwThreadParam__ ) {
                                 uTracker->remoteVersion = uTracker->getValue(uTracker->stringList->Strings[i]);
                         }
                 }
-
-                list<String> local = uTracker->form1->splitUpMessage(uTracker->localVersion, ".");
-                list<String> remote = uTracker->form1->splitUpMessage(uTracker->remoteVersion, ".");
-                list<String>::iterator li = local.begin();
-                list<String>::iterator ri = remote.begin();
+                StringSplitter sspl(uTracker->localVersion);
+                TStringList *local = sspl.split(".");
+                StringSplitter sspr(uTracker->remoteVersion);
+                TStringList *remote = sspr.split(".");
                 uTracker->newVersion = false;
-                for (; li != local.end() && ri != remote.end(); ++li, ++ri) {
+                for(int i = 0; i < local->Count && i < remote->Count; i++) {
                         try {
-                                int l = StrToInt(*li);
-                                int r = StrToInt(*ri);
+                                int l = StrToInt(local->Strings[i]);
+                                int r = StrToInt(remote->Strings[r]);
                                 uTracker->newVersion = (r > l);
                                 if(uTracker->newVersion || (r < l)) {
                                         break;
@@ -183,6 +195,8 @@ DWORD WINAPI UpdaterThread_Step1 (LPVOID lpdwThreadParam__ ) {
                                 break;
                         }
                 }
+                delete local;
+                delete remote;
                 uTracker->step++;
                 uTracker->working = false;
                 return 0;
@@ -202,9 +216,10 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Downloading files ...");
                         
                         for(int i = begin + 1; i < end; i++) {
-                                list<String> item = Form1->splitUpMessage(uT->stringList->Strings[i].Trim(), ":");
-                                String file = item.front();
-                                String fileSize = item.back();
+                                StringSplitter ssp(uT->stringList->Strings[i].Trim());
+                                TStringList *item = ssp.split(":");
+                                String file = item->Strings[0];
+                                String fileSize = item->Strings[1];
                                 String target = updateLocation + file;
                                 uT->fs->Clear();
                                 WINDOW_UPDATE->LABEL_UPDATE_CURRENTFILE->Caption = file;
@@ -234,7 +249,7 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
 
                                                         HANDLE rarHandle = RAROpenArchiveEx(&rarArchive);
                                                         RARHeaderDataEx rarHeader;
-                                                        int retHeader = -1;
+                                                        int retHeader;
                                                         while((retHeader = RARReadHeaderEx(rarHandle, &rarHeader)) == 0) {
                                                                 RARProcessFile(rarHandle,RAR_EXTRACT,uT->getUpdateDir().c_str(),NULL);
                                                                 uT->filesToInstall->Add(rarHeader.FileName);

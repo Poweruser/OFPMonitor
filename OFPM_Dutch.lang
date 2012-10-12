@@ -85,6 +85,7 @@ STRING_STATUS = Status
 STRING_ISLAND = Eiland
 STRING_MISSION = Missie
 STRING_PING = Ping
+STRING_ADDRESS = Adres
 
 STRING_SCORE = Score
 STRING_DEATHS = Dood
@@ -156,10 +157,10 @@ STRING_UPDATE2 = Wil je updaten OFPMonitor nu?
 STRING_UPDATE_ALREADYLATEST = U heeft al de nieuwste versie
 
 TABSHEET_SERVERS = Servers
-GROUPBOX_SERVERS_ADD = Nieuwe Server IP[:Poort]
+STRING_SERVERS_ADD_TITLE = Voeg een nieuwe server ...
+STRING_SERVERS_ADD_PROMPT = Voer het adres van de server
 BUTTON_SERVERS_ADD = Toevoegen
-RADIOBUTTON_SERVERS_SHOW_ADDRESS = Tonen adressen
-RADIOBUTTON_SERVERS_SHOW_NAME = Tonen naam
+BUTTON_SERVERS_REMOVE = Verwijder
 STRING_SERVERS_FAVORITE = Favorieten
 STRING_SERVERS_WATCHED = Gevolgd
 STRING_SERVERS_PERSISTENT = Blijvend
@@ -186,3 +187,6 @@ CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING = Debriefing
 BUTTON_GAMECONTROL_REFRESH = Update de lijsten
 
 GROUPBOX_VOLUME = Volumeniveau voor gecontroleerde servers:
+
+STRING_PASSWORDDIALOG_TITLE = Wachtwoord vereist
+STRING_PASSWORDDIALOG_PROMPT = Deze server is beveiligd met een wachtwoord. Voer het hier:

@@ -15,10 +15,13 @@ class Player {
                 String team;
                 int deaths;
                 int score;
-
                 Player();
-
-                Player(String &n, String &t, int &s, int &d);
+                Player(String name, int score, int deaths, String team);
+                String getName();
+                int getScore();
+                int getDeaths();
+                String getTeam();
+                void clear();
 };
 //---------------------------------------------------------------------------
 #endif

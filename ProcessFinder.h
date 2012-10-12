@@ -15,18 +15,19 @@ class ProcessInfo {
 
                 ProcessInfo(DWORD pid, HWND hWindow, String title, String moduleName);
                 ProcessInfo();
-                clear();
+                bool equals(ProcessInfo p);
+                bool equals(ProcessInfo *p);
+                void clear();
 };
 
 class ProcessFinder {
         public:
-        TStringList *titleStartsWith;
-        list<ProcessInfo> output;
-        ProcessFinder();
-        ~ProcessFinder();
-        list<ProcessInfo> matchingProcesses;
-        bool ProcessFinder::enumerate(TStringList *titleStartsWith, TStringList *moduleIncludes);
-        private:
+        	TStringList *titleStartsWith;
+        	list<ProcessInfo> output;
+        	ProcessFinder();
+        	~ProcessFinder();
+        	list<ProcessInfo> matchingProcesses;
+        	bool ProcessFinder::enumerate(TStringList *titleStartsWith, TStringList *moduleIncludes);
 
 };
 

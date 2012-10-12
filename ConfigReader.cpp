@@ -82,21 +82,25 @@ ConfigSection::~ConfigSection() {
 
 int ConfigSection::scan(TStringList *file, int lineIndex) {
         int index = lineIndex;
-        String line = file->Strings[index].Trim();
-        if(line.AnsiPos("[" + this->name + "]") == 1) {
+        String line = "";
+        do {
+                line = file->Strings[index].Trim();
                 index++;
-                while(index < file->Count) {
-                        line = file->Strings[index].Trim();
-                        if(line.AnsiPos("[\\" + this->name + "]") == 1) {
+                if(line.AnsiPos("[" + this->name + "]") == 1) {
+                        break;
+                }       
+        } while(index < file->Count);
+        while(index < file->Count) {
+                line = file->Strings[index].Trim();
+                if(line.AnsiPos("[\\" + this->name + "]") == 1) {
+                        break;
+                }
+                for (list<ConfigEntry*>::iterator ce = this->items.begin(); ce != this->items.end(); ++ce) {
+                        if((*ce)->check(line)) {
                                 break;
                         }
-                        for (list<ConfigEntry*>::iterator ce = this->items.begin(); ce != this->items.end(); ++ce) {
-                                if((*ce)->check(line)) {
-                                        break;
-                                }
-                        }
-                        index++;
                 }
+                index++;
         }
         return index;
 }
