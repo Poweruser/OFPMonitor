@@ -317,8 +317,9 @@ void TForm1::processPlayerList(Server *srv) {
                 selected = (Server*) (this->StringGrid1->Objects[0][row]);
         }
         if(selected != NULL) {
-                int counter = selected->getPlayerNumOfPlayerList();
-                for(int i = 0; i < counter; i++) {
+                int availablePlayers = selected->getPlayerNumOfPlayerList();
+                int realPlayers = selected->getPlayerNum();
+                for(int i = 0; i < availablePlayers && i < realPlayers; i++) {
                         Player *p = selected->getPlayer(i);
                         if(p != NULL) {
                                 if(this->playerTableSorter->isNameSet()) {

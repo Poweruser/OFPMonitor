@@ -555,17 +555,15 @@ void Server::parseQueryAnswers() {
                 }
         }
         delete data;
-        int lowerLimit = playerCounter;
-        if(playerCounter == 0) {
-                lowerLimit = this->players;
-        }
-        this->playersInArray = lowerLimit;
-        for(int i = lowerLimit; i < 30; i++) {
-                if(this->playerArray[i] != NULL) {
-                        delete (this->playerArray[i]);
-                        this->playerArray[i] = NULL;
-                } else {
-                        break;
+        if(playerCounter > 0) {
+                this->playersInArray = playerCounter;
+                for(int i = playerCounter; i < 30; i++) {
+                        if(this->playerArray[i] != NULL) {
+                                delete (this->playerArray[i]);
+                                this->playerArray[i] = NULL;
+                        } else {
+                                break;
+                        }
                 }
         }
 }
