@@ -18,6 +18,8 @@ Configuration::Configuration(OFPGames gameid, String label, String mods, String 
         this->mods = ssp.split(";");
         this->password = password;
         this->addParameters = NULL;
+        this->nomap = false;
+        this->nosplash = false;
         this->setAddParameters(parameters);
 }
 
@@ -27,9 +29,11 @@ Configuration::Configuration(OFPGames gameid, String label, TStringList *mods, S
         this->mods = mods;
         this->password = password;
         this->addParameters = NULL;
+        this->nomap = false;
+        this->nosplash = false;
         this->setAddParameters(parameters);
-        this->nosplash = nosplash;
-        this->nomap = nomap;
+        this->nosplash = (this->nosplash || nosplash);
+        this->nomap = (this->nomap || nomap);
 }
 
 String Configuration::createModLine () {
@@ -78,11 +82,11 @@ String Configuration::createStartLine(String ip, int port, String player, bool p
 
 String Configuration::createParameterLine(bool forceNoHost, bool forceNoConnect, bool forceNoPort, bool forceNoServer, bool forceNoNoSplash, bool forceNoNoMap) {
         String paraline = "";
-        if(this->nosplash && !forceNoNoSplash) {
-                paraline += "-nosplash ";
-        }
         if(this->nomap && !forceNoNoMap) {
                 paraline += "-nomap ";
+        }
+        if(this->nosplash && !forceNoNoSplash) {
+                paraline += "-nosplash ";
         }
         for(int j = 0; j < this->addParameters->Count; j++) {
                 String item = this->addParameters->Strings[j];
@@ -149,6 +153,7 @@ void Configuration::setAddParameters(String parameters) {
                 this->addParameters = NULL;
         }
         StringSplitter ssp2(parameters);
+        ssp2.setKeepEmptyParts(false);
         this->addParameters = ssp2.split(" ");
         int ind;
         bool hasNosplash = (ind = this->addParameters->IndexOf("-nosplash")) > -1;
@@ -214,7 +219,7 @@ void Configuration::getSettingsFileEntry(TStringList *settings) {
         if(this->mods->Count > 0) {
                 settings->Add("Mods = " + this->createModLine());
         }
-        if(this->addParameters->Count > 0) {
+        if(this->addParameters->Count > 0 || this->nosplash || this->nomap) {
                 settings->Add("Parameters = " + this->createParameterLine(false, false, false, false, false, false));
         }
         settings->Add("[\\Conf]");

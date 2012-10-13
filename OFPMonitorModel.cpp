@@ -244,13 +244,14 @@ void OFPMonitorModel::readSettings(TStringList *file) {
         }
         
         int lineIndex = 0;
-        String exe = "", player = "", name = "";
+        String exe, player, name;
         ConfigSection *game = new ConfigSection("Game");
         game->add(new ConfigEntry("Exe", dtString, (void*)(&exe)));
         game->add(new ConfigEntry("LastPlayer", dtString, (void*)(&player)));
         game->add(new ConfigEntry("Name", dtString, (void*)(&name)));
         bool gameSet = false;
         while(lineIndex < file->Count) {
+                exe = "", player = "", name = "";
                 lineIndex = game->scan(file, lineIndex);
                 if(lineIndex < file->Count) {
                         OFPGames gameid = getGameId(name);
@@ -272,7 +273,7 @@ void OFPMonitorModel::readSettings(TStringList *file) {
         }
         
         lineIndex = 0;
-        String password = "", mods = "", parameters = "", label = "", gameStr = "";
+        String password, mods, parameters, label, gameStr;
         ConfigSection *conf = new ConfigSection("Conf");
         conf->add(new ConfigEntry("Password", dtString, (void*)(&password)));
         conf->add(new ConfigEntry("Mods", dtString, (void*)(&mods)));
@@ -280,6 +281,7 @@ void OFPMonitorModel::readSettings(TStringList *file) {
         conf->add(new ConfigEntry("Label", dtString, (void*)(&label)));
         conf->add(new ConfigEntry("Game", dtString, (void*)(&gameStr)));
         while(lineIndex < file->Count) {
+                parameters = "", gameStr = "", mods = "", label = "", password = "";
                 lineIndex = conf->scan(file, lineIndex);
                 if(lineIndex < file->Count) {
                         OFPGames gameid = getGameId(gameStr);
@@ -293,8 +295,8 @@ void OFPMonitorModel::readSettings(TStringList *file) {
 
         lineIndex = 0;
 
-        String notifName = "Unnamed", soundFile = "", color = "clWindow", missionF = "", serverF = "", playerF = "";
-        int statusFilter = 0, volume = 100, minPlayers = -1, maxPlayers = -1, start = 0, end = -1;
+        String notifName, soundFile, color, missionF, serverF, playerF;
+        int statusFilter, volume, minPlayers, maxPlayers, start, end;
         bool repeat = false;
         ConfigSection *notification = new ConfigSection("CustomNotification");
         notification->add(new ConfigEntry("name", dtString, (void*)(&notifName)));
@@ -311,6 +313,8 @@ void OFPMonitorModel::readSettings(TStringList *file) {
         notification->add(new ConfigEntry("maximumPlayers", dtInt, (void*)(&maxPlayers)));
         notification->add(new ConfigEntry("repeat", dtBool, (void*)(&repeat)));
         while(lineIndex < file->Count) {
+                notifName = "Unnamed", soundFile = "", color = "clNone", missionF = "", serverF = "", playerF = "";
+                statusFilter = 0, volume = 100, minPlayers = -1, maxPlayers = -1, start = 0, end = -1;
                 lineIndex = notification->scan(file, lineIndex);
                 if(lineIndex < file->Count) {
                         StringSplitter sspm(missionF);

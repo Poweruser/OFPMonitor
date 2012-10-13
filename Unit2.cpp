@@ -883,8 +883,8 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_EDITClick(TObject *Se
                                 }
                         }
 
-                        CHECKBOX_NEWCONFIGURATION_NOMAP->Checked = conf->isNoSplashSet();
-                        CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked = conf->isNoMapSet();
+                        CHECKBOX_NEWCONFIGURATION_NOMAP->Checked = conf->isNoMapSet();
+                        CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked = conf->isNoSplashSet();
                         EDIT_NEWCONFIGURATION_PARAMETERS->Text = conf->createParameterLine(false, false, false, false, true, true);
                         break;
                 }
@@ -905,10 +905,10 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_OKClick(TObject *Send
                                 conf->setLabel(EDIT_NEWCONFIGURATION_LABEL->Text);
                                 conf->setMods(newmods);
                                 conf->setPassword(EDIT_NEWCONFIGURATION_PASSWORD->Text);
-                                conf->setAddParameters(EDIT_NEWCONFIGURATION_PARAMETERS->Text);
-                                delete newmods;
                                 conf->setNoMap(CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
                                 conf->setNoSplash(CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked);
+                                conf->setAddParameters(EDIT_NEWCONFIGURATION_PARAMETERS->Text);
+                                delete newmods;                                                
                         }
                         break;
                 }
