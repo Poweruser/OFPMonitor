@@ -555,7 +555,7 @@ void Server::parseQueryAnswers() {
                 }
         }
         delete data;
-        if(playerCounter > 0) {
+        if(playerCounter > 0 || this->players == 0) {
                 this->playersInArray = playerCounter;
                 for(int i = playerCounter; i < 30; i++) {
                         if(this->playerArray[i] != NULL) {
