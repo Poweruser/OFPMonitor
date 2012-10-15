@@ -53,7 +53,8 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
         if(!MyAppAlreadyRunning()) {
 	        try {
-                        String soundDir = GetCurrentDir() + "\\sound\\";
+                        String applicationDir = ExtractFileDir(Application->ExeName);
+                        String soundDir = applicationDir + "\\sound\\";
                         if(!DirectoryExists(soundDir)) {
                                 CreateDir(soundDir);
                                 for(int i = 1; i <= 5; i++) {
@@ -85,7 +86,7 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
                  Application->CreateForm(__classid(TWINDOW_INFO), &WINDOW_INFO);
                  Application->CreateForm(__classid(TWINDOW_LOCALGAME), &WINDOW_LOCALGAME);
                  Application->CreateForm(__classid(TWINDOW_SETTINGS), &WINDOW_SETTINGS);
-                 String settingsFile = GetCurrentDir() + "\\OFPMonitor.ini";
+                 String settingsFile = applicationDir + "\\OFPMonitor.ini";
 
                  ServerList *sL = new ServerList();
                  OFPMonitorModel *ofpm = new OFPMonitorModel(settingsFile, sL);

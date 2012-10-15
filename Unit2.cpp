@@ -648,17 +648,6 @@ String buildOpenDialogFilter(OFPGames gameid) {
         return filter;
 }
 
-String TWINDOW_SETTINGS::getFolder(String in) {
-        String out = "";
-        for(int i = in.Length() - 1; i >= 0; i--) {
-                if(in.SubString(i,1) == "\\") {
-                        out = in.SubString(0, i).Trim();
-                        break;
-                }
-        }
-        return out;
-}
-
 //---------------------------------------------------------------------------
 __fastcall TWINDOW_SETTINGS::TWINDOW_SETTINGS(TComponent* Owner)
         : TForm(Owner)
@@ -687,7 +676,6 @@ void __fastcall TWINDOW_SETTINGS::OpenDialogGameFileCanClose(TObject *Sender,
 {
         if(CanClose) {
                 String exe = OpenDialogGameFile->FileName;
-                String folder = this->getFolder(exe);
                 this->ofpm->setGame((OFPGames)(OpenDialogGameFile->Tag), exe, "");
                 this->updateGames();
                 OpenDialogGameFile->InitialDir = "";
@@ -990,7 +978,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_COPYClick(
 void __fastcall TWINDOW_SETTINGS::BUTTON_OFPRES_BROWSEClick(TObject *Sender)
 {
         if(!EDIT_OFPRES_EXECUTABLE->Text.IsEmpty()) {
-                OpenDialogGameFile->InitialDir = getFolder(EDIT_OFPRES_EXECUTABLE->Text);
+                OpenDialogGameFile->InitialDir = ExtractFilePath(EDIT_OFPRES_EXECUTABLE->Text);
         }
         OpenDialogGameFile->Filter = buildOpenDialogFilter(OFPRES);
         OpenDialogGameFile->Tag = OFPRES;
@@ -1003,7 +991,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_OFPCWC_BROWSEClick(
       TObject *Sender)
 {
         if(!EDIT_OFPCWC_EXECUTABLE->Text.IsEmpty()) {
-                OpenDialogGameFile->InitialDir = getFolder(EDIT_OFPCWC_EXECUTABLE->Text);
+                OpenDialogGameFile->InitialDir = ExtractFilePath(EDIT_OFPCWC_EXECUTABLE->Text);
         }
         OpenDialogGameFile->Filter = buildOpenDialogFilter(OFPCWC);
         OpenDialogGameFile->Tag = OFPCWC;
@@ -1015,7 +1003,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_ARMACWA_BROWSEClick(
       TObject *Sender)
 {
         if(!EDIT_ARMACWA_EXECUTABLE->Text.IsEmpty()) {
-                OpenDialogGameFile->InitialDir = getFolder(EDIT_ARMACWA_EXECUTABLE->Text);
+                OpenDialogGameFile->InitialDir = ExtractFilePath(EDIT_ARMACWA_EXECUTABLE->Text);
         }
         OpenDialogGameFile->Filter = buildOpenDialogFilter(ARMACWA);
         OpenDialogGameFile->Tag = ARMACWA;

@@ -81,7 +81,7 @@ class UpdateTracker {
                 this->localVersion = fv->getFullVersion();
                 delete fv;
                 this->applicationExe = Application->ExeName;
-                this->mainDir = GetCurrentDir();
+                this->mainDir = ExtractFileDir(Application->ExeName);
                 this->updateDir = mainDir + "\\update";
                 this->backupDir = mainDir + "\\backup";
         }

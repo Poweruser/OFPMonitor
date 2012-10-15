@@ -23,7 +23,7 @@ OFPMonitorModel::OFPMonitorModel(String settingsFile, ServerList *serverList) {
         this->queryTimer->Enabled = false;
         this->queryTimer->Interval = 10;
         this->queryTimer->OnTimer = this->onQueryTimer;
-        this->AppWorkdir = GetCurrentDir();
+        this->AppWorkdir = ExtractFileDir(Application->ExeName);
         this->customNotifications = false;
         this->interval = 3;
         this->level = High;
