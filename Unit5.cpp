@@ -185,7 +185,7 @@ DWORD WINAPI UpdaterThread_Step1 (LPVOID lpdwThreadParam__ ) {
                 for(int i = 0; i < local->Count && i < remote->Count; i++) {
                         try {
                                 int l = StrToInt(local->Strings[i]);
-                                int r = StrToInt(remote->Strings[r]);
+                                int r = StrToInt(remote->Strings[i]);
                                 uTracker->newVersion = (r > l);
                                 if(uTracker->newVersion || (r < l)) {
                                         break;
