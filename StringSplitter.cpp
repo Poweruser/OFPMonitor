@@ -11,7 +11,7 @@
 
 
 StringSplitter::StringSplitter(String str) {
-        this->keep = true;
+        this->keep = false;
         this->str = str;
 }
 
