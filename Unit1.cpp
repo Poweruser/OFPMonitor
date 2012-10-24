@@ -1504,6 +1504,10 @@ void __fastcall TForm1::Close1Click(TObject *Sender)
         if(!name.IsEmpty()) {
                 if(this->chat != NULL) {
                         this->chat->closeConversation(name);
+                        if(this->TabControl1->Tabs->Count > 0) {
+                                this->TabControl1->TabIndex = 0;
+                                this->TabControl1Change(this);
+                        }
                 }
         }
 }
