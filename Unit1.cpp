@@ -1666,11 +1666,9 @@ void __fastcall TForm1::FormShow(TObject *Sender)
                 }
         }
         this->updateFilterOfGui();
-        /*
-        if(this->getChatAutoConnect()) {
+        if(this->chatSettings->isAutoConnectOn()) {
                 this->MENUITEM_MAINMENU_CHAT_CONNECT->Click();
         }
-        */
 }
 //---------------------------------------------------------------------------
 

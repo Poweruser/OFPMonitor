@@ -13,7 +13,7 @@ class ChatSettings {
                 String userName;
                 bool autoConnect;
                 String extractNameFromValue(String in);
-                
+
         public:
 
                 ChatSettings();
@@ -26,21 +26,7 @@ class ChatSettings {
                 bool isAutoConnectOn();
                 void getSettingsFileEntry(TStringList *settings);
                 void readSettings(TStringList *file);
+                void setDefault();
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //---------------------------------------------------------------------------
 #endif

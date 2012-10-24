@@ -1607,12 +1607,10 @@ void __fastcall TWINDOW_SETTINGS::EDIT_CHAT_IRCSERVER_PORTChange(
 void __fastcall TWINDOW_SETTINGS::BUTTON_CHAT_SETDEFAULTClick(
       TObject *Sender)
 {
-       /*
-        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_ADDRESS->Text = DEFAULT_IRCSERVER_HOST;
-        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_PORT->Text = DEFAULT_IRCSERVER_PORT;
-        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_CHANNEL->Text = DEFAULT_IRCSERVER_CHANNEL;
-        */
-        WINDOW_SETTINGS->CHECKBOX_CHAT_AUTOCONNECT->Checked = false;
+        if(this->chatSettings != NULL) {
+                this->chatSettings->setDefault();
+        }
+        this->updateChatSettings();
 }
 //---------------------------------------------------------------------------
 

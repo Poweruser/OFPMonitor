@@ -22,12 +22,5 @@ class ChatLog {
                 void incomingMsg(String msg, bool control);
                 bool hasNewMessages();
 };
-
-
-
-
-
-
-
 //---------------------------------------------------------------------------
 #endif

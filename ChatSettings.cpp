@@ -15,11 +15,9 @@
 
 
 ChatSettings::ChatSettings() {
-        this->host = DEFAULT_IRCSERVER_HOST;
-        this->port = DEFAULT_IRCSERVER_PORT;
-        this->channel = DEFAULT_IRCSERVER_CHANNEL;
         this->userName = "";
-        this->autoConnect = false;
+        this->autoConnect = false;        
+        this->setDefault();
 }
 
 ChatSettings::ChatSettings(String host, int port, String channel, String userName, bool ac) {
@@ -36,6 +34,12 @@ void ChatSettings::setSettings(String host, int port, String channel, String use
         this->channel = channel;
         this->userName = userName;
         this->autoConnect = ac;
+}
+
+void ChatSettings::setDefault() {
+        this->host = DEFAULT_IRCSERVER_HOST;
+        this->port = DEFAULT_IRCSERVER_PORT;
+        this->channel = DEFAULT_IRCSERVER_CHANNEL;
 }
 
 /**
