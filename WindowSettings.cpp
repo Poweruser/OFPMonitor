@@ -172,3 +172,4 @@ void WindowSettings::setAlwaysOnTop(bool active) {
 }
 
 
+

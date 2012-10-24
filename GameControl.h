@@ -7,10 +7,11 @@
 #include "ProcessFinder.h"
 #include "OFPMonitorModel.h"
 #include "StatusChange.h"
+#include "Observer.h"
 #include <vcl.h>
 #include <list.h>
 
-class GameControl {
+class GameControl : public Observable {
         public:
                 bool restoreGame;
                 bool restoreOnCreating;
@@ -38,7 +39,6 @@ class GameControl {
                 void enableRestoreGame(bool enabled);
                 void setAutoDetect(bool enabled);
                 void setGreenUpDelay(int delay);
-                bool guiNeedsUpdate();
                 void readSettings(TStringList *file);
                 void ProcessMessages();
                 void getSettingsFileEntry(TStringList *settings);
@@ -53,7 +53,6 @@ class GameControl {
                 bool autoGreenUp;
                 int greenUpDelay;
                 bool greenUpRepeat;
-                bool guiUpdate;
 
                 String checkBool(bool in);
                 bool detectServer();

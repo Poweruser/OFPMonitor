@@ -4,13 +4,13 @@
 #define ServerFilterH
 
 #include <vcl.h>
+#include "Observer.h"
 
-class ServerFilter {
+class ServerFilter : public Observable {
         public:
                 ServerFilter();
                 ServerFilter(TStringList *missions, TStringList *servers, TStringList *players);
                 ~ServerFilter();
-                bool guiNeedsUpdate();
                 void setMissionName(String mission);
                 void setPlayerName(String player);
                 void setServerName(String server);
@@ -39,11 +39,6 @@ class ServerFilter {
                 void parseBinaryStatusFilter(int filter);
                 String concatenateFilter(TStringList *list, String splitter);
                 void getSettingsFileEntry(TStringList *settings);
-
-        private:
-
-                bool guiUpdate;
-
 
 };
 

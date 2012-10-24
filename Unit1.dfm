@@ -21,6 +21,7 @@ object Form1: TForm1
   OnClose = FormClose
   OnConstrainedResize = FormConstrainedResize
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   OnResize = FormResize
   OnShow = FormShow
@@ -456,7 +457,7 @@ object Form1: TForm1
           Width = 345
           Height = 24
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 16
           TabOrder = 0
           OnChange = ComboBox1Change
         end
@@ -466,7 +467,7 @@ object Form1: TForm1
           Width = 345
           Height = 24
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 16
           Sorted = True
           TabOrder = 1
           OnChange = ComboBox2Change
@@ -944,17 +945,6 @@ object Form1: TForm1
         Enabled = False
         OnClick = MENUITEM_MAINMENU_CHAT_DISCONNECTClick
       end
-      object MENUITEM_MAINMENU_CHAT_LOG: TMenuItem
-        Caption = 'Log'
-        object MENUITEM_MAINMENU_CHAT_SAVETOFILE: TMenuItem
-          Caption = 'Save to file'
-          OnClick = MENUITEM_MAINMENU_CHAT_SAVETOFILEClick
-        end
-        object MENUITEM_MAINMENU_CHAT_CLEARLOG: TMenuItem
-          Caption = 'Clear'
-          OnClick = MENUITEM_MAINMENU_CHAT_CLEARLOGClick
-        end
-      end
     end
     object MENUITEM_MAINMENU_FONT: TMenuItem
       Caption = 'Font'
@@ -984,14 +974,6 @@ object Form1: TForm1
     OnTimer = TimerIrcChatTimerTimer
     Left = 568
     Top = 192
-  end
-  object SaveDialog1: TSaveDialog
-    DefaultExt = 'txt'
-    Filter = 'Text file (*.txt)|*.txt'
-    Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist, ofNoNetworkButton, ofEnableSizing]
-    OnCanClose = SaveDialog1CanClose
-    Left = 536
-    Top = 224
   end
   object CoolTrayIcon1: TCoolTrayIcon
     CycleInterval = 0

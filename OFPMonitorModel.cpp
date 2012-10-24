@@ -30,7 +30,6 @@ OFPMonitorModel::OFPMonitorModel(String settingsFile, ServerList *serverList) {
         this->settingsfile = settingsFile;
         this->languagefile = "";
         this->querying = false;
-        this->guiUpdate = false;
         for(int i = 0; i < GAMESTOTAL; i++) {
                 this->games[i] = new Game((OFPGames)i);
         }
@@ -66,7 +65,7 @@ BandwidthUsage OFPMonitorModel::getBandwidthUsage() {
 
 void OFPMonitorModel::setVolume(int v) {
         this->volume = v;
-        this->guiUpdate = true;
+        this->NotifyObserver();
 }
 
 void __fastcall OFPMonitorModel::onQueryTimer(TObject *Sender) {
@@ -90,6 +89,8 @@ void __fastcall OFPMonitorModel::onQueryTimer(TObject *Sender) {
                         }
                         delete qr;
                         this->serversToQuery.pop_front();
+                } else {
+                        this->queryTimer->Enabled = false;
                 }
                 this->querying = false;
         }                              
@@ -201,6 +202,7 @@ Server* OFPMonitorModel::findUserOnServer() {
 
 void OFPMonitorModel::setInterval(int seconds) {
         this->interval = seconds;
+        this->NotifyObserver();
 }
 
 int OFPMonitorModel::getInterval() {
@@ -222,7 +224,7 @@ void OFPMonitorModel::setBandwidthUsage(int level) {
                 default:
                         this->level = High;
         }
-        this->guiUpdate = true;
+        this->NotifyObserver();
 }
 
 void OFPMonitorModel::readSettings(TStringList *file) {
@@ -337,7 +339,7 @@ void OFPMonitorModel::readSettings(TStringList *file) {
                 }
         }
         delete notification;
-
+        this->NotifyObserver();
 } 
 
 void OFPMonitorModel::setGame(OFPGames id, String exe, String player) {
@@ -665,7 +667,7 @@ void OFPMonitorModel::removeNotification(CustomNotification *notif) {
 
 void OFPMonitorModel::setCustomNotifications(bool on) {
         this->customNotifications = on;
-        this->guiUpdate = true;
+        this->NotifyObserver();
 }
 
 bool OFPMonitorModel::areCustomNotificationsOn() {
@@ -726,12 +728,6 @@ void OFPMonitorModel::getSettingsFileEntry(TStringList *settings) {
 
 AudioPlayer* OFPMonitorModel::getAudioPlayer() {
         return this->audioPlayer;
-}
-
-bool OFPMonitorModel::guiNeedsUpdate() {
-        bool out = this->guiUpdate;
-        this->guiUpdate = false;
-        return out;
 }
 
 void OFPMonitorModel::removeOfflineServers() {

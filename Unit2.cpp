@@ -4,9 +4,6 @@
 #include "CustomNotification.h"
 #include "StringSplitter.h"
 #include <vcl.h>                                                          
-#include <filectrl.hpp>
-#include <mmsystem.h>
-#include <windows.h>       
                                                             
 #pragma hdrstop
 
@@ -537,15 +534,15 @@ void TWINDOW_SETTINGS::updateChatSettings() {
                         }
                 }
         }
-        String user = Form1->getChatUserName();
+        String user = this->chatSettings->getUserName();
         if(!user.IsEmpty()) {
                 WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Items->Add(user);
         }
-        WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Text = Form1->getChatUserName();
-        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_ADDRESS->Text = Form1->getChatHost();
-        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_PORT->Text = Form1->getChatPort();
-        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_CHANNEL->Text = Form1->getChatChannel();
-        WINDOW_SETTINGS->CHECKBOX_CHAT_AUTOCONNECT->Checked = Form1->getChatAutoConnect();
+        WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Text = this->chatSettings->getUserName();
+        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_ADDRESS->Text = this->chatSettings->getHost();
+        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_PORT->Text = this->chatSettings->getPort();
+        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_CHANNEL->Text = this->chatSettings->getChannel();
+        WINDOW_SETTINGS->CHECKBOX_CHAT_AUTOCONNECT->Checked = this->chatSettings->isAutoConnectOn();
 }
 
 void TWINDOW_SETTINGS::exitEditNotificationMode() {
@@ -633,6 +630,10 @@ void TWINDOW_SETTINGS::updateServerEditorList() {
                 StringGrid1->RowCount = max(1, rowIndex + 1);
                 this->BUTTON_SERVERS_REMOVE->Enabled = true;
         }
+}
+
+void TWINDOW_SETTINGS::setChatSettings(ChatSettings *chatSettings) {
+        this->chatSettings = chatSettings;
 }
 
 String buildOpenDialogFilter(OFPGames gameid) {
@@ -804,11 +805,11 @@ void __fastcall TWINDOW_SETTINGS::FormClose(TObject *Sender, TCloseAction &Actio
         }
         try {
                 int port = StrToInt(EDIT_CHAT_IRCSERVER_PORT->Text);
-                Form1->setChat(EDIT_CHAT_IRCSERVER_ADDRESS->Text,
-                port,
-                EDIT_CHAT_IRCSERVER_CHANNEL->Text,
-                COMBOBOX_CHAT_USERNAME->Text.TrimRight(),
-                CHECKBOX_CHAT_AUTOCONNECT->Checked);
+                this->chatSettings->setSettings(EDIT_CHAT_IRCSERVER_ADDRESS->Text,
+                                                port,
+                                                EDIT_CHAT_IRCSERVER_CHANNEL->Text,
+                                                COMBOBOX_CHAT_USERNAME->Text.TrimRight(),
+                                                CHECKBOX_CHAT_AUTOCONNECT->Checked);
         } catch (...) {}
 }
 //---------------------------------------------------------------------------
@@ -1598,7 +1599,7 @@ void __fastcall TWINDOW_SETTINGS::EDIT_CHAT_IRCSERVER_PORTChange(
         try {
                 StrToInt(EDIT_CHAT_IRCSERVER_PORT->Text);
         } catch (...) {
-                EDIT_CHAT_IRCSERVER_PORT->Text = Form1->getChatPort();
+                EDIT_CHAT_IRCSERVER_PORT->Text = IntToStr(this->chatSettings->getPort());
         }
 }
 //---------------------------------------------------------------------------
@@ -1606,9 +1607,11 @@ void __fastcall TWINDOW_SETTINGS::EDIT_CHAT_IRCSERVER_PORTChange(
 void __fastcall TWINDOW_SETTINGS::BUTTON_CHAT_SETDEFAULTClick(
       TObject *Sender)
 {
+       /*
         WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_ADDRESS->Text = DEFAULT_IRCSERVER_HOST;
         WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_PORT->Text = DEFAULT_IRCSERVER_PORT;
         WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_CHANNEL->Text = DEFAULT_IRCSERVER_CHANNEL;
+        */
         WINDOW_SETTINGS->CHECKBOX_CHAT_AUTOCONNECT->Checked = false;
 }
 //---------------------------------------------------------------------------

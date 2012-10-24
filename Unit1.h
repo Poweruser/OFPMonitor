@@ -12,6 +12,8 @@
 #include "ServerFilter.h"
 #include "ServerTableSorter.h"
 #include "PlayerTableSorter.h"
+#include "Chat.h"
+#include "Observer.h"
 
 #include <list.h>
 
@@ -31,7 +33,8 @@
 
 //---------------------------------------------------------------------------
 
-class TForm1 : public TForm
+
+class TForm1 : public TForm, public Observer
 {
 __published:	// IDE-managed Components
         TStringGrid *StringGrid1;
@@ -127,10 +130,6 @@ __published:	// IDE-managed Components
         TMenuItem *MENUITEM_MAINMENU_CHAT_DISCONNECT;
         TMemo *MemoChatOutput;
         TMemo *MemoChatInput;
-        TMenuItem *MENUITEM_MAINMENU_CHAT_LOG;
-        TMenuItem *MENUITEM_MAINMENU_CHAT_SAVETOFILE;
-        TMenuItem *MENUITEM_MAINMENU_CHAT_CLEARLOG;
-        TSaveDialog *SaveDialog1;
         TLabel *LABEL_SERVERINFO_EQMODREQ;
         TLabel *LABEL_SERVERINFO_EQMODREQ_VALUE;
         TCoolTrayIcon *CoolTrayIcon1;
@@ -213,10 +212,6 @@ __published:	// IDE-managed Components
         void __fastcall TimerIrcChatTimerTimer(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender);
-        void __fastcall MENUITEM_MAINMENU_CHAT_CLEARLOGClick(TObject *Sender);
-        void __fastcall MENUITEM_MAINMENU_CHAT_SAVETOFILEClick(TObject *Sender);
-        void __fastcall SaveDialog1CanClose(TObject *Sender,
-          bool &CanClose);
         void __fastcall MemoChatInputChange(TObject *Sender);
         void __fastcall StringGrid3MouseDown(TObject *Sender,
           TMouseButton Button, TShiftState Shift, int X, int Y);
@@ -270,6 +265,7 @@ __published:	// IDE-managed Components
           TStatusPanel *Panel, const TRect &Rect);
         void __fastcall StatusBar1MouseDown(TObject *Sender,
           TMouseButton Button, TShiftState Shift, int X, int Y);
+        void __fastcall FormDestroy(TObject *Sender);
 private:	// User declarations
         OFPMonitorModel *ofpm;
         GameControl *gameControl;
@@ -280,7 +276,10 @@ private:	// User declarations
         PlayerTableSorter *playerTableSorter;
         Server* selectedServer;
         Server* selectedServerForPopUp;
+        ChatSettings *chatSettings;
+        Chat* chat;
         bool filterChanging;
+        HANDLE chatThreadHandle;
 
         float TForm1::checkIfTableRatioZero(float in, TStringGrid *grid);
         void TForm1::updateFilterOfGui();
@@ -293,7 +292,6 @@ private:	// User declarations
         void TForm1::filterChanged(bool userinput);
         void TForm1::setEmptyServerList();
         void TForm1::setEmptyPlayerList();
-        String TForm1::extractNameFromValue(String in);
         String TForm1::getGameState (int i);
         void TForm1::updateWindowSettingsPosition();
         void TForm1::applyWindowSettingsRatios();
@@ -305,28 +303,18 @@ private:	// User declarations
 public:		// User declarations
         void TForm1::readServerList(list<ServerConfigEntry> &in);
         bool TForm1::doNameFilter(String c, String d);
-        void TForm1::incomingChatMessage(String chan, String msg, bool controlMsg);
-        void TForm1::setChat(String host, int port, String channel, String user, bool autoConnect);
-        String TForm1::getChatHost();
-        int TForm1::getChatPort();
-        String TForm1::getChatChannel();
-        String TForm1::getChatUserName();
-        bool TForm1::getChatAutoConnect();
-        void TForm1::ChatNotification(String msg);
-        void TForm1::ChatConnectionLost();
-        void TForm1::ChatConnected(bool success);
-        bool TForm1::isChatUserBlocked(String username);
         void TForm1::setModel(OFPMonitorModel *model);
         void TForm1::setGameControl(GameControl *gameControl);
         void TForm1::setServerFilter(ServerFilter *serverFilter);
         void TForm1::setFontSettings(FontSettings *fontSettings);
         void TForm1::setWindowSettings(WindowSettings *windowSettings);
-        void TForm1::readSettings(TStringList *file);
+        void TForm1::setChatSettings(ChatSettings *chatSettings);
         void TForm1::applyWindowSettings();
         void TForm1::setSelectedServer(Server *srv);
         void TForm1::setAlwaysOnTop(bool active);
         void TForm1::toggleAlwaysOnTop();
         __fastcall TForm1(TComponent* Owner);
+        void TForm1::update(Observable *o);
 
 };
 //---------------------------------------------------------------------------

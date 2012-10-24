@@ -11,10 +11,11 @@
 #include "CustomNotification.h"
 #include "Game.h"
 #include "AudioPlayer.h"
+#include "Observer.h"
 #include <vcl.h>
 #include <list.h>
 
-class OFPMonitorModel {
+class OFPMonitorModel : public Observable {
         public:
 
                 OFPMonitorModel(String settingsFile, ServerList *serverList);
@@ -68,7 +69,6 @@ class OFPMonitorModel {
                 void setGameSpyUpdateDone(bool done);
                 void getSettingsFileEntry(TStringList *settings);
                 AudioPlayer* getAudioPlayer();
-                bool guiNeedsUpdate();
 
 
         private:
@@ -86,7 +86,6 @@ class OFPMonitorModel {
                 void __fastcall onQueryTimer(TObject *Sender);
                 void checkCustomNotifications(Server *svr);
 
-                bool guiUpdate;
                 String AppWorkdir;
                 String AppExe;
                 int interval;

@@ -11,12 +11,10 @@
 #pragma package(smart_init)
 
 
-FontSettings::FontSettings(TFont *font) {
-        this->name = font->Name;
-        this->size = font->Size;
-        this->charset = font->Charset;
-        this->style = font->Style;
-        this->guiUpdate = false;
+FontSettings::FontSettings() {
+        this->name = "";
+        this->size = 10;
+        this->charset = DEFAULT_CHARSET;
 }
 
 String FontSettings::checkBool(bool in) {
@@ -32,14 +30,6 @@ void FontSettings::getSettingsFileEntry(TStringList *settings) {
         settings->Add("Bold = " + IntToStr(this->style.Contains(fsBold)));
         settings->Add("Italic = " + IntToStr(this->style.Contains(fsItalic)));
         settings->Add("[\\FontSettings]");
-}
-
-bool FontSettings::guiNeedsUpdate() {
-        if(this->guiUpdate) {
-                this->guiUpdate = false;
-                return true;
-        }
-        return false;
 }
 
 void FontSettings::readSettings(TStringList *file) {
@@ -58,7 +48,7 @@ void FontSettings::readSettings(TStringList *file) {
                 if(italic) {
                         this->style = this->style << fsItalic;
                 }
-                this->guiUpdate = true;
+                this->NotifyObserver();
         }
         delete font;
 }
@@ -77,5 +67,5 @@ void FontSettings::setFont(TFont *font) {
         this->name = font->Name;
         this->style = font->Style;
         this->charset = font->Charset;
-        this->guiUpdate = true;
+        this->NotifyObserver();
 }

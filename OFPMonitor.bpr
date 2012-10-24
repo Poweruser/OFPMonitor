@@ -5,13 +5,14 @@
     <VERSION value="BCB.06.00"/>
     <PROJECT value="OFPMonitor.exe"/>
     <OBJFILES value="OFPMonitor.obj Unit1.obj Unit2.obj Unit4.obj FileVersion.obj Unit3.obj 
-      irc\irc.obj Unit5.obj Address.obj QueryAnswer.obj Server.obj Player.obj 
-      Message.obj ProcessFinder.obj ConfigReader.obj ServerList.obj 
-      StringSplitter.obj OFPMonitorModel.obj UDPNetwork.obj QueryRequest.obj 
-      Game.obj Configuration.obj GameControl.obj ServerFilter.obj 
-      FontSettings.obj StatusChange.obj ServerTableSorter.obj 
-      PlayerTableSorter.obj AudioPlayer.obj CustomNotification.obj AudioTask.obj 
-      AudioPosition.obj WindowSettings.obj"/>
+      Unit5.obj Address.obj QueryAnswer.obj Server.obj Player.obj Message.obj 
+      ProcessFinder.obj ConfigReader.obj ServerList.obj StringSplitter.obj 
+      OFPMonitorModel.obj UDPNetwork.obj QueryRequest.obj Game.obj 
+      Configuration.obj GameControl.obj ServerFilter.obj FontSettings.obj 
+      StatusChange.obj ServerTableSorter.obj PlayerTableSorter.obj 
+      AudioPlayer.obj CustomNotification.obj AudioTask.obj AudioPosition.obj 
+      WindowSettings.obj ChatSettings.obj ChatLog.obj Observer.obj Chat.obj 
+      ChatMessage.obj IRCClient.obj"/>
     <RESFILES value="OFPMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
@@ -24,7 +25,7 @@
       IndySystem60.lib IndyProtocols60.lib"/>
     <PACKAGES value="vcl.bpi rtl.bpi bcbsmp.bpi IndyCore60.bpi IndyProtocols60.bpi 
       IndySystem60.bpi CoolTrayIcon.bpi"/>
-    <PATHCPP value=".;irc"/>
+    <PATHCPP value=".;"/>
     <PATHPAS value=".;"/>
     <PATHRC value=".;"/>
     <PATHASM value=".;"/>
@@ -34,15 +35,14 @@
     <USERDEFINES value=""/>
     <SYSDEFINES value="NO_STRICT"/>
     <MAINSOURCE value="OFPMonitor.cpp"/>
-    <INCLUDEPATH value="irc;include;..;$(BCB)\include;$(BCB)\include\vcl"/>
-    <LIBPATH value="irc;lib;..;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <INCLUDEPATH value="include;..;$(BCB)\include;$(BCB)\include\vcl"/>
+    <LIBPATH value="lib;..;$(BCB)\lib\obj;$(BCB)\lib"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <OTHERFILES value=""/>
   </MACROS>
   <OPTIONS>
-    <IDLCFLAGS value="-Iirc -Iinclude -I.. -I$(BCB)\include -I$(BCB)\include\vcl -src_suffix cpp 
-      -boa"/>
-    <CFLAG1 value="-O2 -Q -Vx -Ve -X- -a8 -b- -d -k- -vi -O -O1 -c -tW -tWM"/>
+    <IDLCFLAGS value="-Iinclude -I.. -I$(BCB)\include -I$(BCB)\include\vcl -src_suffix cpp -boa"/>
+    <CFLAG1 value="-O2 -Vx -Ve -X- -a8 -b- -d -k- -vi -O -O1 -c -tW -tWM"/>
     <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
     <RFLAGS value=""/>
     <AFLAGS value="/mx /w2 /zn"/>
@@ -64,7 +64,6 @@
       <FILE FILENAME="Unit4.cpp" FORMNAME="WINDOW_INFO" UNITNAME="Unit4" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="FileVersion.cpp" FORMNAME="" UNITNAME="FileVersion" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Unit3.cpp" FORMNAME="WINDOW_LOCALGAME" UNITNAME="Unit3" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="irc\irc.cpp" FORMNAME="" UNITNAME="irc" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Unit5.cpp" FORMNAME="WINDOW_UPDATE" UNITNAME="Unit5" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Address.cpp" FORMNAME="" UNITNAME="Address" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\unrar.lib" FORMNAME="" UNITNAME="unrar.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
@@ -92,6 +91,12 @@
       <FILE FILENAME="AudioTask.cpp" FORMNAME="" UNITNAME="AudioTask" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="AudioPosition.cpp" FORMNAME="" UNITNAME="AudioPosition" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="WindowSettings.cpp" FORMNAME="" UNITNAME="WindowSettings" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="ChatSettings.cpp" FORMNAME="" UNITNAME="ChatSettings" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="ChatLog.cpp" FORMNAME="" UNITNAME="ChatLog" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Observer.cpp" FORMNAME="" UNITNAME="Observer" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Chat.cpp" FORMNAME="" UNITNAME="Chat" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="ChatMessage.cpp" FORMNAME="" UNITNAME="ChatMessage" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="IRCClient.cpp" FORMNAME="" UNITNAME="IRCClient" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>
@@ -101,8 +106,8 @@
 IncludeVerInfo=1
 AutoIncBuild=0
 MajorVer=1
-MinorVer=6
-Release=3
+MinorVer=7
+Release=0
 Build=0
 Debug=0
 PreRelease=0
@@ -115,7 +120,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=by Poweruser
 FileDescription=OFP Server monitoring tool
-FileVersion=1.6.3.0
+FileVersion=1.7.0.0
 InternalName=OFPMonitor
 LegalCopyright=(c) Poweruser
 LegalTrademarks=
@@ -128,12 +133,16 @@ Comments=
 c:\programme\borland\cbuilder6\Bin\DCLNMF60.bpl=NetMasters Fastnet Tools
 
 [HistoryLists\hlIncludePath]
-Count=1
-Item0=irc;include;..;$(BCB)\include;$(BCB)\include\vcl
+Count=3
+Item0=include;..;$(BCB)\include;$(BCB)\include\vcl
+Item1=C:\Programme\Borland\CBuilder6\Projects;irc;include;..;$(BCB)\include;$(BCB)\include\vcl
+Item2=irc;include;..;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=1
-Item0=irc;lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Count=3
+Item0=lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item1=C:\Programme\Borland\CBuilder6\Projects;irc;lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item2=irc;lib;..;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1

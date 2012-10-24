@@ -54,6 +54,7 @@ void ServerFilter::setMissionName(String mission) {
         if(!mission.IsEmpty()) {
                 this->missionNames->Add(mission);
         }
+        this->NotifyObserver();
 }
 
 void ServerFilter::setPlayerName(String player) {
@@ -61,6 +62,7 @@ void ServerFilter::setPlayerName(String player) {
         if(!player.IsEmpty()) {
                 this->playerNames->Add(player);
         }
+        this->NotifyObserver();
 }
 
 void ServerFilter::setServerName(String server) {
@@ -68,6 +70,7 @@ void ServerFilter::setServerName(String server) {
         if(!server.IsEmpty()) {
                 this->serverNames->Add(server);
         }
+        this->NotifyObserver();
 }
 
 String ServerFilter::getMissionName() {
@@ -119,16 +122,9 @@ void ServerFilter::readSettings(TStringList *file) {
                         this->playerNames->Add(player);
                 }
         }
-        this->guiUpdate = true;
+        this->NotifyObserver();
 }
 
-bool ServerFilter::guiNeedsUpdate() {
-        if(this->guiUpdate) {
-                this->guiUpdate = false;
-                return true;
-        }
-        return false;
-}
 
 bool ServerFilter::testMissionName(String mission) {
         if(this->missionNames->Count == 0) { return true; }
@@ -155,6 +151,7 @@ void ServerFilter::setMinPlayers(int num) {
         } else {
                 this->minPlayers = num;
         }
+        this->NotifyObserver();
 }
 
 void ServerFilter::setMaxPlayers(int num) {
@@ -163,6 +160,7 @@ void ServerFilter::setMaxPlayers(int num) {
         } else {
                 this->maxPlayers = num;
         }
+        this->NotifyObserver();
 }
 
 
@@ -202,6 +200,7 @@ void ServerFilter::parseBinaryStatusFilter(int filters) {
         this->waiting = filters & 1;
         filters = filters >> 1;
         this->creating = filters & 1;
+        this->NotifyObserver();
 }
 
 String ServerFilter::concatenateFilter(TStringList *list, String splitter) {

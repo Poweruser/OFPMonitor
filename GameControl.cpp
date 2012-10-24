@@ -28,7 +28,6 @@ GameControl::GameControl(OFPMonitorModel *ofpm) {
         this->autoGreenUp = false;
         this->greenUpDelay = 10;
         this->greenUpRepeat = false;
-        this->guiUpdate = false;
 }
 
 GameControl::~GameControl() {
@@ -56,7 +55,7 @@ bool GameControl::verifyProcess() {
                 delete modules;
                 if(!out) {
                         this->proc.clear();
-                        this->guiUpdate = true;
+                        this->NotifyObserver();
                 }
         }
         return out;
@@ -224,14 +223,6 @@ void GameControl::getSettingsFileEntry(TStringList *settings) {
         settings->Add("[\\Automation]");
 }
 
-bool GameControl::guiNeedsUpdate() {
-        if(this->guiUpdate) {
-                this->guiUpdate = false;
-                return true;
-        }
-        return false;
-}
-
 String GameControl::checkBool(bool in) {
         if(in) { return "1"; }
         return "0";
@@ -289,12 +280,12 @@ void GameControl::checkCurrentData() {
         if(this->autoDetect) {
                 if(!serverOK) {
                         if(this->detectServer()) {
-                                this->guiUpdate = true;
+                                this->NotifyObserver();
                         }
                 }
                 if(!processOK) {
                         if(this->detectProcess()) {
-                                this->guiUpdate = true;
+                                this->NotifyObserver();
                         }
                 }
         }

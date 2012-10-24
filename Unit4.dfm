@@ -28,7 +28,6 @@ object WINDOW_INFO: TWINDOW_INFO
       ''
       ''
       'Programmed by Poweruser ( Email:  poweruser.rs@hotmail.com )'
-      'Implementation of the IRC chat client by Alvo'
       ''
       
         'Several other people of the current OFP community contributed by' +

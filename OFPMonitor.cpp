@@ -51,82 +51,7 @@ String getExeFromFullPath(String in) {
 
 WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
-        if(!MyAppAlreadyRunning()) {
-	        try {
-                        String applicationDir = ExtractFileDir(Application->ExeName);
-                        String soundDir = applicationDir + "\\sound\\";
-                        if(!DirectoryExists(soundDir)) {
-                                CreateDir(soundDir);
-                                for(int i = 1; i <= 5; i++) {
-                                        String files[5] = { "creating.wav", "waiting.wav", "briefing.wav", "playing.wav", "debriefing.wav" };
-                                        String fileName = soundDir + files[i - 1];
-                                        if(!FileExists(fileName)) {
-                                                HMODULE hModule = GetModuleHandle(NULL);
-                                                HRSRC resourceInfo = FindResource(hModule, MAKEINTRESOURCE(i), "WAVE");
-                                                if(hModule && resourceInfo) {
-                                                        HGLOBAL data = LoadResource(hModule, resourceInfo);
-                                                        DWORD size = SizeofResource(hModule, resourceInfo);
-                                                        if(data && size > 0) {
-                                                                TMemoryStream *ms = new TMemoryStream();
-                                                                ms->WriteBuffer(data, size);
-                                                                ms->SaveToFile(fileName);
-                                                                ms->Clear();
-                                                                delete ms;
-                                                        }
-                                                }
-                                        }
-                                }
-                        }
-                        Application->Initialize();
-                        FileVersion *fv = new FileVersion(Application->ExeName);
-                        Application->Title = "OFPMonitor " + fv->getFullVersion();
-                        delete fv;
-                        Application->CreateForm(__classid(TForm1), &Form1);
-                 Application->CreateForm(__classid(TWINDOW_UPDATE), &WINDOW_UPDATE);
-                 Application->CreateForm(__classid(TWINDOW_INFO), &WINDOW_INFO);
-                 Application->CreateForm(__classid(TWINDOW_LOCALGAME), &WINDOW_LOCALGAME);
-                 Application->CreateForm(__classid(TWINDOW_SETTINGS), &WINDOW_SETTINGS);
-                 String settingsFile = applicationDir + "\\OFPMonitor.ini";
-
-                 ServerList *sL = new ServerList();
-                 OFPMonitorModel *ofpm = new OFPMonitorModel(settingsFile, sL);
-                 GameControl *gameControl = new GameControl(ofpm);
-                 FontSettings *fontSettings = new FontSettings(Form1->Font);
-                 WindowSettings *windowSettings = new WindowSettings();
-                 ServerFilter *serverFilter = new ServerFilter();
-                 Form1->setFontSettings(fontSettings);
-                 Form1->setWindowSettings(windowSettings);
-                 Form1->setServerFilter(serverFilter);
-                 Form1->setGameControl(gameControl);
-                 Form1->setModel(ofpm);
-                 WINDOW_SETTINGS->setModel(ofpm);
-                 WINDOW_LOCALGAME->setModel(ofpm);
-
-                 TStringList *file = new TStringList;
-                 if(FileExists(settingsFile)) {
-                        file->LoadFromFile(settingsFile);
-                 }
-                 sL->readSettings(file);
-                 ofpm->readSettings(file);
-                 gameControl->readSettings(file);
-                 fontSettings->readSettings(file);
-                 windowSettings->readSettings(file);
-                 serverFilter->readSettings(file);
-                 Form1->readSettings(file);
-                 delete file;
-
-                 Form1->applyWindowSettings();
-                 Application->Run();
-                } catch (Exception &exception) {
-                        Application->ShowException(&exception);
-                } catch (...) {
-                        try {
-                                throw Exception("");
-                        } catch (Exception &exception) {
-                                Application->ShowException(&exception);
-                        }
-                }
-	} else {
+        if(MyAppAlreadyRunning()) {
                 ProcessFinder *finder = new ProcessFinder();
                 TStringList *startsWith = new TStringList();
                 startsWith->Add("OFPMonitor");
@@ -141,7 +66,113 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
                 delete finder;
                 delete startsWith;
                 delete moduleIncludes;
+                return 0;
+        } else {
+                /*
+                   Extracting the watched sounds from the exe's resources if the
+                   subdirectory \sound does not exist yet
+                */
+
+                String soundDir = ExtractFileDir(Application->ExeName) + "\\sound\\";
+                if(!DirectoryExists(soundDir)) {
+                        CreateDir(soundDir);
+                        for(int i = 1; i <= 5; i++) {
+                                String files[5] = { "creating.wav", "waiting.wav", "briefing.wav", "playing.wav", "debriefing.wav" };
+                                String fileName = soundDir + files[i - 1];
+                                if(!FileExists(fileName)) {
+                                        HMODULE hModule = GetModuleHandle(NULL);
+                                        HRSRC resourceInfo = FindResource(hModule, MAKEINTRESOURCE(i), "WAVE");
+                                        if(hModule && resourceInfo) {
+                                                HGLOBAL data = LoadResource(hModule, resourceInfo);
+                                                DWORD size = SizeofResource(hModule, resourceInfo);
+                                                if(data && size > 0) {
+                                                        TMemoryStream *ms = new TMemoryStream();
+                                                        ms->WriteBuffer(data, size);
+                                                        ms->SaveToFile(fileName);
+                                                        ms->Clear();
+                                                        delete ms;
+                                                }
+                                        }
+                                }
+                        }
+                }
         }
+
+        String settingsFile = ExtractFileDir(Application->ExeName) + "\\OFPMonitor.ini";
+        ServerList *sL = new ServerList();
+        OFPMonitorModel *ofpm = new OFPMonitorModel(settingsFile, sL);
+        GameControl *gameControl = new GameControl(ofpm);
+        FontSettings *fontSettings = new FontSettings();
+        WindowSettings *windowSettings = new WindowSettings();
+        ServerFilter *serverFilter = new ServerFilter();
+        ChatSettings *chatSettings = new ChatSettings();
+
+        TStringList *file = new TStringList;
+        if(FileExists(settingsFile)) {
+                file->LoadFromFile(settingsFile);
+        }
+        sL->readSettings(file);
+        ofpm->readSettings(file);
+        gameControl->readSettings(file);
+        fontSettings->readSettings(file);
+        windowSettings->readSettings(file);
+        serverFilter->readSettings(file);
+        chatSettings->readSettings(file);
+
+        try {
+                Application->Initialize();
+                FileVersion *fv = new FileVersion(Application->ExeName);
+                Application->Title = "OFPMonitor " + fv->getFullVersion();
+                delete fv;
+                Application->CreateForm(__classid(TForm1), &Form1);
+                 Application->CreateForm(__classid(TWINDOW_UPDATE), &WINDOW_UPDATE);
+                 Application->CreateForm(__classid(TWINDOW_INFO), &WINDOW_INFO);
+                 Application->CreateForm(__classid(TWINDOW_LOCALGAME), &WINDOW_LOCALGAME);
+                 Application->CreateForm(__classid(TWINDOW_SETTINGS), &WINDOW_SETTINGS);
+                 Form1->setFontSettings(fontSettings);
+                Form1->setWindowSettings(windowSettings);
+                Form1->setChatSettings(chatSettings);
+                Form1->setServerFilter(serverFilter);
+                Form1->setGameControl(gameControl);
+                Form1->setModel(ofpm);
+                fontSettings->SetObserver(Form1);
+                gameControl->SetObserver(Form1);
+                ofpm->SetObserver(Form1);
+                Form1->update(fontSettings);
+                Form1->update(gameControl);
+                Form1->update(ofpm);
+                WINDOW_SETTINGS->setModel(ofpm);
+                WINDOW_SETTINGS->setChatSettings(chatSettings);
+                WINDOW_LOCALGAME->setModel(ofpm);
+                Form1->applyWindowSettings();
+                Application->Run();
+
+                TStringList *settings = new TStringList;
+                ofpm->getSettingsFileEntry(settings);
+                serverFilter->getSettingsFileEntry(settings);
+                gameControl->getSettingsFileEntry(settings);
+                fontSettings->getSettingsFileEntry(settings);
+                windowSettings->getSettingsFileEntry(settings);
+                chatSettings->getSettingsFileEntry(settings);
+                settings->SaveToFile(ofpm->getSettingsFile());
+                delete settings;
+        } catch (Exception &exception) {
+                Application->ShowException(&exception);
+        } catch (...) {
+                try {
+                        throw Exception("");
+                } catch (Exception &exception) {
+                        Application->ShowException(&exception);
+                }
+        }
+
+        delete gameControl;
+        delete ofpm;
+        delete fontSettings;
+        delete windowSettings;
+        delete serverFilter;
+        delete chatSettings;
+        delete file;
         return 0;
 }
 //---------------------------------------------------------------------------

@@ -5,15 +5,15 @@
 
 #include <vcl.h>
 #include <list.h>
+#include "Observer.h"
 
-class FontSettings {
+class FontSettings : public Observable {
         public:
-                FontSettings(TFont *font);
+                FontSettings();
                 FontSettings(String name, int size, int charset, bool bold, bool italic);
                 void FontSettings::readSettings(TStringList *file);
                 TFont* getFont();
                 void setFont(TFont *font);
-                bool guiNeedsUpdate();
                 void getSettingsFileEntry(TStringList *settings);
 
         private:
@@ -21,11 +21,8 @@ class FontSettings {
                 int size;
                 int charset;
                 TFontStyles style;
-                bool guiUpdate;
 
                 String checkBool(bool in);
-
-
 };
 
 

@@ -6,6 +6,7 @@
 #include "OFPMonitorDefinitions.h"
 #include "OFPMonitorModel.h"      
 #include "Server.h"
+#include "ChatSettings.h"
 
 #include <list.h>
 
@@ -269,6 +270,7 @@ __published:	// IDE-managed Components
 private:	// User declarations
 
         OFPMonitorModel *ofpm;
+        ChatSettings *chatSettings;
 
         void TWINDOW_SETTINGS::updateConfList();
         void TWINDOW_SETTINGS::refreshGamesModList();
@@ -297,6 +299,7 @@ public:		// User declarations
         String TWINDOW_SETTINGS::getGuiString(String ident);
         __fastcall TWINDOW_SETTINGS(TComponent* Owner);
         void TWINDOW_SETTINGS::updateLanguage(String languagefile);
+        void TWINDOW_SETTINGS::setChatSettings(ChatSettings *chatSettings);        
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TWINDOW_SETTINGS *WINDOW_SETTINGS;
