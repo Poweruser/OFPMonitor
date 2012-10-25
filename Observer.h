@@ -14,11 +14,13 @@ class Observer {
 
 class Observable {
         private:
-                Observer *observer;
+                TList *observers;
 
         public:
                 Observable();
+                ~Observable();
                 void SetObserver(Observer *o);
+                void RemoveObserver(Observer *o);
                 void NotifyObserver();
 };
 

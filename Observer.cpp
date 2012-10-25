@@ -10,16 +10,30 @@
 #pragma package(smart_init)
 
 Observable::Observable() {
-        this->observer = NULL;
+        this->observers = new TList;
+}
+
+Observable::~Observable() {
+        this->observers->Clear();
+        delete this->observers;
 }
 
 void Observable::NotifyObserver() {
-        if(this->observer != NULL) {
-                this->observer->update(this);
+        for(int i = 0; i < this->observers->Count; i++) {
+                Observer *obs = (Observer*)(this->observers->Items[i]);
+                if(obs != NULL) {
+                       obs->update(this);
+                }
         }
 }
 
 void Observable::SetObserver(Observer *o) {
-        observer = o;
+        if(this->observers->IndexOf(o) < 0) {
+                this->observers->Add(o);
+        }
+}
+
+void Observable::RemoveObserver(Observer *o) {
+        this->observers->Remove(o);
 }
 
