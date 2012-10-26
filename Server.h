@@ -35,23 +35,6 @@ class ServerConfigEntry {
 
 class Server : public TObject {
         public:
-                int index;
-                int gamespyport;
-                int gameport;
-                int ping;
-                DWORD messageSent;
-                int timeouts;
-                String ip;
-                String timeleft;
-                long gametime;
-                int players;
-                int playersInArray;
-                int maxplayers;
-                String mission;
-                String name;
-                int gamestate;
-
-
                 __fastcall Server(int index, String ip, int port);
                 __fastcall Server(int index, String ip, int port, ServerConfigEntry entry);
                 __fastcall ~Server();
@@ -116,9 +99,6 @@ class Server : public TObject {
                 String createSettingsFileEntry();
                 void setSelectedToDisplay(bool active);
 
-                int missedQueryTurns;
-                int emptyServerCounter;
-
         private:
                 int password;
                 int actver;
@@ -143,6 +123,24 @@ class Server : public TObject {
                 String impl;
                 Player *playerArray[30];
                 QueryAnswer queries[5];
+                int missedQueryTurns;
+                int emptyServerCounter;
+                int index;
+                int gamespyport;
+                int gameport;
+                int ping;
+                DWORD messageSent;
+                int timeouts;
+                String ip;
+                String timeleft;
+                long gametime;
+                int players;
+                int playersInArray;
+                int maxplayers;
+                String mission;
+                String name;
+                int gamestate;
+                bool online;
 };
 
 //---------------------------------------------------------------------------

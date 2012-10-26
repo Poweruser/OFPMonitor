@@ -63,6 +63,7 @@ __fastcall Server::Server(int index, String ip, int port, ServerConfigEntry entr
 }
 
 void Server::clear() {
+        this->online = false;
         this->autojoin = false;
         this->autojoinConf = "";
         this->gameport = 0;
@@ -165,11 +166,9 @@ bool Server::processUpdate(Message *msg) {
                 this->parseQueryAnswers();
                 if(this->messageSent > 1) {
                         this->ping = msg->getTimeOfArrival() - this->messageSent;
-                        if(this->ping < 0) {
-                                this->ping *= -1;
-                        }
                         this->messageSent = 1;
                         this->timeouts = 0;
+                        this->online = true;
                 }
                 if(this->players > 0) {
                         this->emptyServerCounter = 0;
@@ -601,7 +600,7 @@ int Server::getMaxPlayerNum() {
 }
 
 bool Server::isOnline() {
-        return !this->name.IsEmpty() && !this->isBlocked();
+        return this->online;
 }
 
 bool Server::hasTimedOut() {
