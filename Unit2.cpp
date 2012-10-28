@@ -1170,7 +1170,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITNOTIFICATION_OKClick(
                         sec = StrToIntDef(EDIT_SONGEND_SEC->Text, -1);
                         mil = StrToIntDef(EDIT_SONGEND_MILL->Text, -1);
                         if(min > -1 && sec > -1 && mil > -1) {
-                                endPos = mil*60000 + sec*1000 + mil;
+                                endPos = min*60000 + sec*1000 + mil;
                         }
                         at->setPlayLength(startPos, endPos);
                         notif->setMarkingColor(ColorBox1->Selected);
