@@ -4,11 +4,25 @@
 #pragma hdrstop
 
 #include "Unit4.h"
-#include "Unit5.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 TWINDOW_INFO *WINDOW_INFO;
+
+void TWINDOW_INFO::setLanguageDB(LanguageDB *languageDB) {
+        this->languageDB = languageDB;
+}
+
+void TWINDOW_INFO::update(Observable *o) {
+        if(o == this->languageDB) {
+                this->updateGuiLanguage();
+        }
+}
+
+void TWINDOW_INFO::updateGuiLanguage() {
+        this->Caption = this->languageDB->getGuiString("WINDOW_INFO");
+}
+
 //---------------------------------------------------------------------------
 __fastcall TWINDOW_INFO::TWINDOW_INFO(TComponent* Owner)
         : TForm(Owner)

@@ -14,6 +14,7 @@
 #include "PlayerTableSorter.h"
 #include "Chat.h"
 #include "Observer.h"
+#include "LanguageDB.h"
 
 #include <list.h>
 
@@ -278,6 +279,7 @@ private:	// User declarations
         Server* selectedServerForPopUp;
         ChatSettings *chatSettings;
         Chat* chat;
+        LanguageDB *languageDB;
         bool filterChanging;
         HANDLE chatThreadHandle;
 
@@ -309,12 +311,14 @@ public:		// User declarations
         void TForm1::setFontSettings(FontSettings *fontSettings);
         void TForm1::setWindowSettings(WindowSettings *windowSettings);
         void TForm1::setChatSettings(ChatSettings *chatSettings);
+        void TForm1::setLanguageDB(LanguageDB *languageDB);
         void TForm1::applyWindowSettings();
         void TForm1::setSelectedServer(Server *srv);
         void TForm1::setAlwaysOnTop(bool active);
         void TForm1::toggleAlwaysOnTop();
         __fastcall TForm1(TComponent* Owner);
         void TForm1::update(Observable *o);
+        void TForm1::updateGuiLanguage();
 
 };
 //---------------------------------------------------------------------------

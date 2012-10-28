@@ -8,16 +8,12 @@
 #pragma hdrstop
 
 #include "Unit2.h"
-#include "Unit1.h"
-#include "Unit3.h"
-#include "Unit4.h"
 #include "Unit5.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 TWINDOW_SETTINGS *WINDOW_SETTINGS;
 
-#include "guiDBDefs.cpp"
 #include "FileVersion.h"
 #include "ConfigReader.h"
 
@@ -27,16 +23,15 @@ void TWINDOW_SETTINGS::setModel(OFPMonitorModel *ofpm) {
         this->ofpm = ofpm;
 }
 
-/**
-   Converts an bool to its binary representation
- */
-
-String checkBool(bool in) {
-        if(in) {
-                return "1";
-        } else {
-                return "0";
+void TWINDOW_SETTINGS::update(Observable *o) {
+        if(o == this->languageDB) {
+                this->updateGuiLanguage();
         }
+
+}
+
+void TWINDOW_SETTINGS::setLanguageDB(LanguageDB *languageDB) {
+        this->languageDB = languageDB;
 }
 
 /**
@@ -44,42 +39,130 @@ String checkBool(bool in) {
  */
 
 void TWINDOW_SETTINGS::updateConfList() {
-        WINDOW_SETTINGS->LISTBOX_CONFIGURATIONS->Clear();
-        int comboindex = WINDOW_SETTINGS->ComboBox2->Items->IndexOf(WINDOW_SETTINGS->ComboBox2->Text);
+        this->LISTBOX_CONFIGURATIONS->Clear();
+        int comboindex = this->ComboBox2->Items->IndexOf(this->ComboBox2->Text);
         if(comboindex >= 0) {
-                Game *g = (Game*) (WINDOW_SETTINGS->ComboBox2->Items->Objects[comboindex]);
+                Game *g = (Game*) (this->ComboBox2->Items->Objects[comboindex]);
 
                 if(g != NULL) {
                         for(int i = 0; i < g->getConfigurationsCount(); i++) {
                                 Configuration *conf = g->getConfiguration(i);
                                 if(conf != NULL) {
-                                        WINDOW_SETTINGS->LISTBOX_CONFIGURATIONS->Items->AddObject(conf->createListEntry(), (TObject *) conf);
+                                        this->LISTBOX_CONFIGURATIONS->Items->AddObject(conf->createListEntry(), (TObject *) conf);
                                 }
                         }
                 }
         }
 }
 
-
-
-/**
-   Splits a String with 'diff' as seperator and returns the two parts in a list
- */
-
-list<String> getVarAndValue(String in, String diff) {
-        list<String> out;
-        String tmp = in.Trim();
-        for(int i = 0; i < tmp.Length(); i++) {
-                if(tmp.SubString(i,diff.Length()) == diff) {
-                        out.push_front(tmp.SubString(1, i - 1).Trim());
-                        out.push_back(tmp.SubString(i + diff.Length(), tmp.Length() - (i + diff.Length() -1)).Trim());
-                        break;
+void TWINDOW_SETTINGS::updateGuiLanguage() {
+        if(this->languageDB != NULL) {
+                this->BUTTON_OFPRES_BROWSE->Caption = this->languageDB->getGuiString(BUTTON_OFPRES_BROWSE->Name);
+                this->BUTTON_CONFIGURATION_REMOVE->Caption = this->languageDB->getGuiString(BUTTON_CONFIGURATION_REMOVE->Name);
+                this->BUTTON_NEWCONFIGURATION_UP->Caption = this->languageDB->getGuiString(BUTTON_NEWCONFIGURATION_UP->Name);
+                this->BUTTON_NEWCONFIGURATION_DOWN->Caption = this->languageDB->getGuiString(BUTTON_NEWCONFIGURATION_DOWN->Name);
+                this->BUTTON_NEWCONFIGURATION_ADD->Caption = this->languageDB->getGuiString(BUTTON_NEWCONFIGURATION_ADD->Name);
+                this->BUTTON_NEWCONFIGURATION_CLEAR->Caption = this->languageDB->getGuiString(BUTTON_NEWCONFIGURATION_CLEAR->Name);
+                this->BUTTON_EDITCONFIGURATION_EDIT->Caption = this->languageDB->getGuiString(BUTTON_EDITCONFIGURATION_EDIT->Name);
+                this->BUTTON_EDITCONFIGURATION_OK->Caption = this->languageDB->getGuiString(BUTTON_EDITCONFIGURATION_OK->Name);
+                this->BUTTON_EDITCONFIGURATION_CANCEL->Caption = this->languageDB->getGuiString(BUTTON_EDITCONFIGURATION_CANCEL->Name);
+                this->BUTTON_EDITCONFIGURATION_UP->Caption = this->languageDB->getGuiString(BUTTON_EDITCONFIGURATION_UP->Name);
+                this->BUTTON_EDITCONFIGURATION_DOWN->Caption = this->languageDB->getGuiString(BUTTON_EDITCONFIGURATION_DOWN->Name);
+                this->BUTTON_EDITCONFIGURATION_COPY->Caption = this->languageDB->getGuiString(BUTTON_EDITCONFIGURATION_COPY->Name);
+                this->BUTTON_CHAT_SETDEFAULT->Caption = this->languageDB->getGuiString(BUTTON_CHAT_SETDEFAULT->Name);
+                this->BUTTON_UPDATE->Caption = this->languageDB->getGuiString(BUTTON_UPDATE->Name);
+                this->BUTTON_SERVERS_ADD->Caption = this->languageDB->getGuiString(BUTTON_SERVERS_ADD->Name);
+                this->BUTTON_SERVERS_REMOVE->Caption = this->languageDB->getGuiString(BUTTON_SERVERS_REMOVE->Name);
+                this->CHECKBOX_NEWCONFIGURATION_NOSPLASH->Caption = this->languageDB->getGuiString(CHECKBOX_NEWCONFIGURATION_NOSPLASH->Name);
+                this->CHECKBOX_NEWCONFIGURATION_NOMAP->Caption = this->languageDB->getGuiString(CHECKBOX_NEWCONFIGURATION_NOMAP->Name);
+                this->CHECKBOX_REPEAT->Caption = this->languageDB->getGuiString(CHECKBOX_REPEAT->Name);
+                this->CHECKBOX_NOTIFICATIONS_ACTIVE->Caption = this->languageDB->getGuiString(CHECKBOX_NOTIFICATIONS_ACTIVE->Name);
+                this->CHECKBOX_CHAT_AUTOCONNECT->Caption = this->languageDB->getGuiString(CHECKBOX_CHAT_AUTOCONNECT->Name);
+                this->CHECKBOX_UPDATE_CHECKATSTART->Caption = this->languageDB->getGuiString(CHECKBOX_UPDATE_CHECKATSTART->Name);
+                this->LABEL_SERVERLIST_INTERVAL->Caption = this->languageDB->getGuiString(LABEL_SERVERLIST_INTERVAL->Name);
+                this->LABEL_NEWCONFIGURATION_MODFOLDERS->Caption = this->languageDB->getGuiString(LABEL_NEWCONFIGURATION_MODFOLDERS->Name);
+                this->LABEL_NEWCONFIGURATION_LABEL->Caption = this->languageDB->getGuiString(LABEL_NEWCONFIGURATION_LABEL->Name);
+                this->LABEL_NEWCONFIGURATION_PASSWORD->Caption = this->languageDB->getGuiString(LABEL_NEWCONFIGURATION_PASSWORD->Name);
+                this->LABEL_NEWCONFIGURATION_ADDITIONALPARAMETERS->Caption = this->languageDB->getGuiString(LABEL_NEWCONFIGURATION_ADDITIONALPARAMETERS->Name);
+                this->LABEL_CHAT_USERNAME->Caption = this->languageDB->getGuiString(LABEL_CHAT_USERNAME->Name);
+                this->LABEL_CHAT_IRCSERVER_ADDRESS->Caption = this->languageDB->getGuiString(LABEL_CHAT_IRCSERVER_ADDRESS->Name);
+                this->LABEL_CHAT_IRCSERVER_PORT->Caption = this->languageDB->getGuiString(LABEL_CHAT_IRCSERVER_PORT->Name);
+                this->LABEL_CHAT_IRCSERVER_CHANNEL->Caption = this->languageDB->getGuiString(LABEL_CHAT_IRCSERVER_CHANNEL->Name);
+                this->LABEL_BANDWIDTH_HIGH->Caption = this->languageDB->getGuiString(LABEL_BANDWIDTH_HIGH->Name);
+                this->LABEL_BANDWIDTH_MODERATE->Caption = this->languageDB->getGuiString(LABEL_BANDWIDTH_MODERATE->Name);
+                this->LABEL_BANDWIDTH_LOW->Caption = this->languageDB->getGuiString(LABEL_BANDWIDTH_LOW->Name);
+                this->LABEL_BANDWIDTH_VERYLOW->Caption = this->languageDB->getGuiString(LABEL_BANDWIDTH_VERYLOW->Name);
+                this->GROUPBOX_OFPRES->Caption = this->languageDB->getGuiString(GROUPBOX_OFPRES->Name);
+                this->GROUPBOX_SERVERLIST->Caption = this->languageDB->getGuiString(GROUPBOX_SERVERLIST->Name);
+                this->GROUPBOX_LANGUAGE->Caption = this->languageDB->getGuiString(GROUPBOX_LANGUAGE->Name);
+                this->GROUPBOX_NEWCONFIGURATION->Caption = this->languageDB->getGuiString(GROUPBOX_NEWCONFIGURATION->Name);
+                this->GROUPBOX_NOTIFICATIONS_FILTERS->Caption = this->languageDB->getGuiString(GROUPBOX_NOTIFICATIONS_FILTERS->Name);
+                this->GROUPBOX_CONFIGURATIONS->Caption = this->languageDB->getGuiString(GROUPBOX_CONFIGURATIONS->Name);
+                this->GROUPBOX_NOTIFICATIONS->Caption = this->languageDB->getGuiString(GROUPBOX_NOTIFICATIONS->Name);
+                this->GROUPBOX_CHATSETTINGS_GENERAL->Caption = this->languageDB->getGuiString(GROUPBOX_CHATSETTINGS_GENERAL->Name);
+                this->GROUPBOX_CHATSETTINGS_SERVER->Caption = this->languageDB->getGuiString(GROUPBOX_CHATSETTINGS_SERVER->Name);
+                this->GROUPBOX_BANDWIDTHCONSUMPTION->Caption = this->languageDB->getGuiString(GROUPBOX_BANDWIDTHCONSUMPTION->Name);
+                this->GROUPBOX_UPDATE->Caption = this->languageDB->getGuiString(GROUPBOX_UPDATE->Name);
+                this->GROUPBOX_VOLUME->Caption = this->languageDB->getGuiString(GROUPBOX_UPDATE->Name);
+                this->Caption = this->languageDB->getGuiString(this->Name);
+                this->TABSHEET_GENERAL->Caption = this->languageDB->getGuiString(this->TABSHEET_GENERAL->Name);
+                this->TABSHEET_GAMES->Caption = this->languageDB->getGuiString(this->TABSHEET_GAMES->Name);
+                this->TABSHEET_MODS->Caption = this->languageDB->getGuiString(this->TABSHEET_MODS->Name);
+                this->TABSHEET_NOTIFICATIONS->Caption = this->languageDB->getGuiString(this->TABSHEET_NOTIFICATIONS->Name);
+                this->TABSHEET_CHATSETTINGS->Caption = this->languageDB->getGuiString(this->TABSHEET_CHATSETTINGS->Name);
+                this->TABSHEET_SERVERS->Caption = this->languageDB->getGuiString(this->TABSHEET_SERVERS->Name);
+                this->StringGrid1->Cells[0][0] = this->languageDB->getGuiString("STRING_ID");
+                this->StringGrid1->Cells[1][0] = this->languageDB->getGuiString("STRING_ADDRESS");
+                this->StringGrid1->Cells[2][0] = this->languageDB->getGuiString("STRING_NAME");
+                if(!this->COMBOBOX_OFPRES_PROFILE->Enabled) {
+                        this->COMBOBOX_OFPRES_PROFILE->Text = this->languageDB->getGuiString("STRING_NOPROFILES");
                 }
+                if(!this->COMBOBOX_OFPCWC_PROFILE->Enabled) {
+                        this->COMBOBOX_OFPCWC_PROFILE->Text = this->languageDB->getGuiString("STRING_NOPROFILES");
+                }
+                if(!this->COMBOBOX_ARMACWA_PROFILE->Enabled) {
+                        this->COMBOBOX_ARMACWA_PROFILE->Text = this->languageDB->getGuiString("STRING_NOPROFILES");
+                }
+                this->LABEL_FILTER_MISSIONNAME_BOX->Caption = this->languageDB->getGuiString("LABEL_FILTER_MISSIONNAME");
+                this->LABEL_FILTER_SERVERNAME_BOX->Caption = this->languageDB->getGuiString("LABEL_FILTER_SERVERNAME");
+                this->LABEL_FILTER_PLAYERNAME_BOX->Caption = this->languageDB->getGuiString("LABEL_FILTER_PLAYERNAME");
+                this->BUTTON_EDITNOTIFICATION_CANCEL->Caption = this->languageDB->getGuiString("BUTTON_EDITCONFIGURATION_CANCEL");
+                this->BUTTON_EDITNOTIFICATION_EDIT->Caption = this->languageDB->getGuiString("BUTTON_EDITCONFIGURATION_EDIT");
+                this->BUTTON_EDITNOTIFICATION_OK->Caption = this->languageDB->getGuiString("BUTTON_EDITCONFIGURATION_OK");
+                this->BUTTON_NEWNOTIFICATION_ADD->Caption = this->languageDB->getGuiString("BUTTON_NEWCONFIGURATION_ADD");
+                this->BUTTON_NEWNOTIFICATION_CLEAR->Caption = this->languageDB->getGuiString("BUTTON_NEWCONFIGURATION_CLEAR");
+                this->BUTTON_NOTIFICATION_REMOVE->Caption = this->languageDB->getGuiString("BUTTON_CONFIGURATION_REMOVE");
+                this->CHECKBOX_FILTER_CREATING->Caption = this->languageDB->getGuiString("CHECKBOX_FILTER_CREATING");
+                this->CHECKBOX_FILTER_WAITING->Caption = this->languageDB->getGuiString("CHECKBOX_FILTER_WAITING");
+                this->CHECKBOX_FILTER_BRIEFING->Caption = this->languageDB->getGuiString("CHECKBOX_FILTER_BRIEFING");
+                this->CHECKBOX_FILTER_SETTINGUP->Caption = this->languageDB->getGuiString("CHECKBOX_FILTER_SETTINGUP");
+                this->CHECKBOX_FILTER_PLAYING->Caption = this->languageDB->getGuiString("CHECKBOX_FILTER_PLAYING");
+                this->CHECKBOX_FILTER_DEBRIEFING->Caption = this->languageDB->getGuiString("CHECKBOX_FILTER_DEBRIEFING");
+                this->CHECKBOX_FILTER_MINPLAYERS->Caption = this->languageDB->getGuiString("STRING_MINIMUM");
+                this->CHECKBOX_FILTER_MAXPLAYERS->Caption = this->languageDB->getGuiString("STRING_MAXIMUM");
+                this->BUTTON_BROWSE->Caption = this->languageDB->getGuiString("STRING_BROWSE");
+                this->BUTTON_OFPCWC_BROWSE->Caption = this->languageDB->getGuiString("STRING_BROWSE");
+                this->BUTTON_OFPRES_BROWSE->Caption = this->languageDB->getGuiString("STRING_BROWSE");
+                this->BUTTON_ARMACWA_BROWSE->Caption = this->languageDB->getGuiString("STRING_BROWSE");
+                this->LABEL_FILTER_PASSWORD->Caption = this->languageDB->getGuiString("LABEL_FILTER_PASSWORD");
+                this->LABEL_FILTER_STATUS->Caption = this->languageDB->getGuiString("LABEL_FILTER_STATUS");
+                this->LABEL_NOTIFICATION_NAME->Caption = this->languageDB->getGuiString("STRING_NAME");
+                this->LABEL_FILTER_PLAYERS->Caption = this->languageDB->getGuiString("STRING_PLAYERS");
+                this->CHECKBOX_FILTER_WITHOUTPASSWORD->Caption = this->languageDB->getGuiString("CHECKBOX_FILTER_WITHOUTPASSWORD");
+                this->CHECKBOX_FILTER_WITHPASSWORD->Caption = this->languageDB->getGuiString("CHECKBOX_FILTER_WITHPASSWORD");
+                this->LABEL_VOLUME->Caption = this->languageDB->getGuiString("STRING_PLAYBACKVOLUME");
+                this->LABEL_MARKINGCOLOR->Caption = this->languageDB->getGuiString("STRING_MARKINGCOLOR");
+                this->LABEL_AUDIOFILE->Caption = this->languageDB->getGuiString("STRING_AUDIOFILE");
+                this->LABEL_AUDIO_FROM->Caption = this->languageDB->getGuiString("STRING_FROM");
+                this->LABEL_AUDIO_TO->Caption = this->languageDB->getGuiString("STRING_TO");
+                this->LABEL_OFPCWC_EXECUTABLE->Caption = this->languageDB->getGuiString("STRING_OFPEXECUTABLE");
+                this->LABEL_OFPRES_EXECUTABLE->Caption = this->languageDB->getGuiString("STRING_OFPEXECUTABLE");
+                this->LABEL_ARMACWA_EXECUTABLE->Caption = this->languageDB->getGuiString("STRING_OFPEXECUTABLE");
+                this->LABEL_OFPCWC_PLAYERNAME->Caption = this->languageDB->getGuiString("STRING_PROFILE");
+                this->LABEL_OFPRES_PLAYERNAME->Caption = this->languageDB->getGuiString("STRING_PROFILE");
+                this->LABEL_ARMACWA_PLAYERNAME->Caption = this->languageDB->getGuiString("STRING_PROFILE");
         }
-        return out;
 }
-
-
 
 
 
@@ -89,14 +172,14 @@ list<String> getVarAndValue(String in, String diff) {
  */
 
 void TWINDOW_SETTINGS::updateModFolderList(String ofpfolder) {
-        WINDOW_SETTINGS->LISTBOX_MODFOLDERS_ALL->Clear();
+        this->LISTBOX_MODFOLDERS_ALL->Clear();
         if(!ofpfolder.IsEmpty()) {
         	TSearchRec daten;
                 if(0 == FindFirst((ofpfolder +"\\*").c_str(), faDirectory, daten)) {
                         try {
                                 do {
                                         if(daten.Size == 0 && daten.Name != "." && daten.Name != "..") {
-                                                WINDOW_SETTINGS->LISTBOX_MODFOLDERS_ALL->Items->Add(String(daten.Name));
+                                                this->LISTBOX_MODFOLDERS_ALL->Items->Add(String(daten.Name));
                                         }
                                 } while(FindNext(daten) == 0);
                         }__finally
@@ -105,21 +188,6 @@ void TWINDOW_SETTINGS::updateModFolderList(String ofpfolder) {
                         }
                 }
         }
-}
-
-/**
-   Returns a String of the current set language for an identifier 
- */
-
-String TWINDOW_SETTINGS::getGuiString(String ident) {
-        String out = "";
-        for (list<guiString>::iterator ci = guiStrings.begin(); ci != guiStrings.end(); ++ci) {
-                if((*ci).identifier == ident) {
-                        out = (*ci).value;
-                        break;
-                }
-        }
-        return out;
 }
 
 void TWINDOW_SETTINGS::refreshGamesModList() {
@@ -143,7 +211,7 @@ void TWINDOW_SETTINGS::refreshGamesModList() {
                         box->ItemIndex = 0;
                 }
                 box->Enabled = true;
-                WINDOW_SETTINGS->GROUPBOX_NEWCONFIGURATION->Enabled = true;
+                this->GROUPBOX_NEWCONFIGURATION->Enabled = true;
         } else {
                 box->Enabled = false;
         }
@@ -159,23 +227,23 @@ void TWINDOW_SETTINGS::updateGames() {
         for(int i = 0; i < GAMESTOTAL; i++) {
                 Game *g = this->ofpm->getGame((OFPGames)i);
                 if(i == OFPCWC) {
-                        combobox = WINDOW_SETTINGS->COMBOBOX_OFPCWC_PROFILE;
-                        checkbox = WINDOW_SETTINGS->CHECKBOX_OFPCWC;
-                        edit = WINDOW_SETTINGS->EDIT_OFPCWC_EXECUTABLE;
-                        label = WINDOW_SETTINGS->LABEL_OFPCWC_DETECTEDVERSION;
-                        groupbox = WINDOW_SETTINGS->GROUPBOX_OFPCWC;
+                        combobox = this->COMBOBOX_OFPCWC_PROFILE;
+                        checkbox = this->CHECKBOX_OFPCWC;
+                        edit = this->EDIT_OFPCWC_EXECUTABLE;
+                        label = this->LABEL_OFPCWC_DETECTEDVERSION;
+                        groupbox = this->GROUPBOX_OFPCWC;
                 } else if(i == OFPRES) {
-                        combobox = WINDOW_SETTINGS->COMBOBOX_OFPRES_PROFILE;
-                        checkbox = WINDOW_SETTINGS->CHECKBOX_OFPRES;
-                        edit = WINDOW_SETTINGS->EDIT_OFPRES_EXECUTABLE;
-                        label = WINDOW_SETTINGS->LABEL_OFPRES_DETECTEDVERSION;
-                        groupbox = WINDOW_SETTINGS->GROUPBOX_OFPRES;
+                        combobox = this->COMBOBOX_OFPRES_PROFILE;
+                        checkbox = this->CHECKBOX_OFPRES;
+                        edit = this->EDIT_OFPRES_EXECUTABLE;
+                        label = this->LABEL_OFPRES_DETECTEDVERSION;
+                        groupbox = this->GROUPBOX_OFPRES;
                 } else if(i == ARMACWA) {
-                        combobox = WINDOW_SETTINGS->COMBOBOX_ARMACWA_PROFILE;
-                        checkbox = WINDOW_SETTINGS->CHECKBOX_ARMACWA;
-                        edit = WINDOW_SETTINGS->EDIT_ARMACWA_EXECUTABLE;
-                        label = WINDOW_SETTINGS->LABEL_ARMACWA_DETECTEDVERSION;
-                        groupbox = WINDOW_SETTINGS->GROUPBOX_ARMACWA;
+                        combobox = this->COMBOBOX_ARMACWA_PROFILE;
+                        checkbox = this->CHECKBOX_ARMACWA;
+                        edit = this->EDIT_ARMACWA_EXECUTABLE;
+                        label = this->LABEL_ARMACWA_DETECTEDVERSION;
+                        groupbox = this->GROUPBOX_ARMACWA;
                 }
                 combobox->Items->Clear();
                 edit->Text = "";
@@ -184,7 +252,7 @@ void TWINDOW_SETTINGS::updateGames() {
                 if(g->isActive()) {
                         edit->Text = g->getGameExe();
                         if(!(g->getGameExe().IsEmpty())) {
-                                label->Caption = WINDOW_SETTINGS->getGuiString("STRING_DETECTEDVERSION") + "  " + IntToStr(g->getFileVersion());
+                                label->Caption = this->languageDB->getGuiString("STRING_DETECTEDVERSION") + "  " + IntToStr(g->getFileVersion());
                         }
                         list<String> profiles = g->findPlayerProfiles();
                         String textToSet = "";
@@ -204,7 +272,7 @@ void TWINDOW_SETTINGS::updateGames() {
                         } else {
                                 combobox->Enabled = false;
                                 g->setProfileName("");
-                                textToSet = WINDOW_SETTINGS->getGuiString("STRING_NOPROFILES");
+                                textToSet = this->languageDB->getGuiString("STRING_NOPROFILES");
                                 combobox->Items->Add(textToSet);
                         }
                         combobox->ItemIndex = combobox->Items->IndexOf(textToSet);
@@ -214,206 +282,6 @@ void TWINDOW_SETTINGS::updateGames() {
         this->refreshGamesModList();
 }
 
-
-/**
-   Applys a language file to the Gui
- */
-
-void TWINDOW_SETTINGS::updateLanguage(String languagefile) {
-        TStringList *file = new TStringList;
-        String pathAndFile = this->ofpm->getWorkDir() + "\\" + languagefile;
-        guiStrings.clear();
-        guiStrings.push_back(guiString("STRING_YES","Yes"));
-        guiStrings.push_back(guiString("STRING_NO","No"));
-        guiStrings.push_back(guiString("STRING_NAME","Name"));
-        guiStrings.push_back(guiString("STRING_ONLINE","Online:"));
-        guiStrings.push_back(guiString("STRING_LISTED","Listed:"));
-        guiStrings.push_back(guiString("STRING_ERRORS","Errors:"));
-        guiStrings.push_back(guiString("STRING_NOPROFILES","No player profiles found!"));
-        guiStrings.push_back(guiString("STRING_PLAYER_ALREADY_ON_SERVER","There's already a player with the same name on the server. Do you still want to start OFP?"));
-        guiStrings.push_back(guiString("STRING_FROM","From:"));
-        guiStrings.push_back(guiString("STRING_TO","To:"));
-        guiStrings.push_back(guiString("STRING_PLAYBACKVOLUME","Volume:"));
-        guiStrings.push_back(guiString("STRING_AUDIOFILE","MP3-File:"));
-        guiStrings.push_back(guiString("STRING_MARKINGCOLOR","Marking color:"));
-        guiStrings.push_back(guiString("STRING_MINIMUM","Min."));
-        guiStrings.push_back(guiString("STRING_MAXIMUM","Max:"));
-        guiStrings.push_back(guiString("STRING_CHAT_CONNECTINGTO","Connecting to:"));
-        guiStrings.push_back(guiString("STRING_CHAT_CHANNEL","Channel:"));
-        guiStrings.push_back(guiString("STRING_CHAT_DISCONNECTED","Disconnected."));
-        guiStrings.push_back(guiString("STRING_CHAT_CONNECTING_FAILED","Connecting failed."));
-        guiStrings.push_back(guiString("STRING_CHAT_JOINED","joined"));
-        guiStrings.push_back(guiString("STRING_CHAT_LEFT","left"));
-        guiStrings.push_back(guiString("STRING_CHAT_CLOSE","Close"));
-        guiStrings.push_back(guiString("STRING_CHAT_CHATWITH","Chat with ..."));        
-        guiStrings.push_back(guiString("STRING_CHAT_CONNECTIONLOST","Connection lost. Reconnecting ..."));
-        guiStrings.push_back(guiString("STRING_DETECTEDVERSION","Detected file version: "));
-        guiStrings.push_back(guiString("STRING_CHAT_LEFT","left"));
-        guiStrings.push_back(guiString("STRING_BROWSE","Browse ..."));
-        guiStrings.push_back(guiString("STRING_OFPEXECUTABLE","Executable"));
-        guiStrings.push_back(guiString("STRING_PROFILE","Player name:"));
-        guiStrings.push_back(guiString("STRING_UPDATE1","New version available:"));
-        guiStrings.push_back(guiString("STRING_UPDATE2","Do you want to update now?"));
-        guiStrings.push_back(guiString("STRING_UPDATE_ALREADYLATEST","You already have the latest version"));
-        guiStrings.push_back(guiString("STRING_SERVERS_FAVORITE","Favorites"));
-        guiStrings.push_back(guiString("STRING_SERVERS_WATCHED","Watched"));
-        guiStrings.push_back(guiString("STRING_SERVERS_PERSISTENT","Persistent"));
-        guiStrings.push_back(guiString("STRING_SERVERS_BLOCKED","Blocked"));
-        guiStrings.push_back(guiString("STRING_SERVERS_ADDERROR","Could not resolve:"));
-        guiStrings.push_back(guiString("STRING_PASSWORDDIALOG_TITLE", "Password required"));
-        guiStrings.push_back(guiString("STRING_PASSWORDDIALOG_PROMPT", "This server is password-protected. Enter it here:"));
-
-
-        if(FileExists(pathAndFile)) {
-                String sign = "=";
-                file->LoadFromFile(pathAndFile);
-                String tmp;
-                guiStrings.clear();
-                list<String> val;
-                for(int i = 0; i < file->Count; i++) {
-                        Application->ProcessMessages();
-                        val.clear();
-                        tmp = file->Strings[i].Trim();
-                        if(tmp.AnsiPos("BUTTON") == 1) {
-                                val = getVarAndValue(tmp, sign);
-                                for(int j = 0; j < GetArrLength(guiButton); j++) {
-                                        if(guiButton[j]->Name == val.front()) {
-                                                guiButton[j]->Caption = val.back();
-                                                break;
-                                        }
-                                }
-                        } else if(tmp.AnsiPos("LABEL") == 1) {
-                                val = getVarAndValue(tmp, sign);
-                                for(int j = 0; j < GetArrLength(guiLabel); j++) {
-                                        if(guiLabel[j]->Name == val.front()) {
-                                                guiLabel[j]->Caption = val.back();
-                                                break;
-                                        }
-                                }
-                        } else if(tmp.AnsiPos("CHECKBOX") == 1) {
-                                val = getVarAndValue(tmp, sign);
-                                for(int j = 0; j < GetArrLength(guiCheckBox); j++) {
-                                        if(guiCheckBox[j]->Name == val.front()) {
-                                                guiCheckBox[j]->Caption = val.back();
-                                                break;
-                                        }
-                                }
-                        } else if(tmp.AnsiPos("GROUPBOX") == 1) {
-                                val = getVarAndValue(tmp, sign);
-                                for(int j = 0; j < GetArrLength(guiGroupBox); j++) {
-                                        if(guiGroupBox[j]->Name == val.front()) {
-                                                guiGroupBox[j]->Caption = val.back();
-                                                break;
-                                        }
-                                }
-                        } else if(tmp.AnsiPos("MENUITEM") == 1) {
-                                val = getVarAndValue(tmp, sign);
-                                for(int j = 0; j < GetArrLength(guiMenuItem); j++) {
-                                        if(guiMenuItem[j]->Name == val.front()) {
-                                                guiMenuItem[j]->Caption = val.back();
-                                                break;
-                                        }
-                                }
-                        } else if(tmp.AnsiPos("WINDOW") == 1) {
-                                val = getVarAndValue(tmp, sign);
-                                for(int j = 0; j < GetArrLength(guiForm); j++) {
-                                        if(guiForm[j]->Name == val.front()) {
-                                                guiForm[j]->Caption = val.back();
-                                                break;
-                                        }
-                                }
-                        } else if(tmp.AnsiPos("RADIOBUTTON") == 1) {
-                                val = getVarAndValue(tmp, sign);
-                                for(int j = 0; j < GetArrLength(guiRadioButton); j++) {
-                                        if(guiRadioButton[j]->Name == val.front()) {
-                                                guiRadioButton[j]->Caption = val.back();
-                                                break;
-                                        }
-                                }
-                        } else if(tmp.AnsiPos("TABSHEET") == 1) {
-                                val = getVarAndValue(tmp, sign);
-                                for(int j = 0; j < GetArrLength(guiTabSheet); j++) {
-                                        if(guiTabSheet[j]->Name == val.front()) {
-                                                guiTabSheet[j]->Caption = val.back();
-                                                break;
-                                        }
-                                }
-                        }
-                        if(tmp.AnsiPos(sign)) {
-                                val = getVarAndValue(tmp, sign);
-                                String f = val.front();
-                                String b = val.back();
-                                guiStrings.push_back(guiString(f,b));
-                        }
-                }
-                Form1->StringGrid1->Cells[0][0] = WINDOW_SETTINGS->getGuiString("STRING_ID");
-                Form1->StringGrid1->Cells[1][0] = WINDOW_SETTINGS->getGuiString("STRING_NAME");
-                Form1->StringGrid1->Cells[2][0] = WINDOW_SETTINGS->getGuiString("STRING_PLAYERS");
-                Form1->StringGrid1->Cells[3][0] = WINDOW_SETTINGS->getGuiString("STRING_STATUS");
-                Form1->StringGrid1->Cells[4][0] = WINDOW_SETTINGS->getGuiString("STRING_ISLAND");
-                Form1->StringGrid1->Cells[5][0] = WINDOW_SETTINGS->getGuiString("STRING_MISSION");
-                Form1->StringGrid1->Cells[6][0] = WINDOW_SETTINGS->getGuiString("STRING_PING");
-                Form1->StringGrid2->Cells[0][0] = WINDOW_SETTINGS->getGuiString("STRING_NAME");
-                Form1->StringGrid2->Cells[1][0] = WINDOW_SETTINGS->getGuiString("STRING_SCORE");
-                Form1->StringGrid2->Cells[2][0] = WINDOW_SETTINGS->getGuiString("STRING_DEATHS");
-                Form1->StringGrid2->Cells[3][0] = WINDOW_SETTINGS->getGuiString("STRING_TEAM");
-                WINDOW_SETTINGS->StringGrid1->Cells[0][0] = WINDOW_SETTINGS->getGuiString("STRING_ID");
-                WINDOW_SETTINGS->StringGrid1->Cells[1][0] = WINDOW_SETTINGS->getGuiString("STRING_ADDRESS");
-                WINDOW_SETTINGS->StringGrid1->Cells[2][0] = WINDOW_SETTINGS->getGuiString("STRING_NAME");
-
-                if(!WINDOW_SETTINGS->COMBOBOX_OFPRES_PROFILE->Enabled) {
-                        WINDOW_SETTINGS->COMBOBOX_OFPRES_PROFILE->Text = WINDOW_SETTINGS->getGuiString("STRING_NOPROFILES");
-                }
-                if(!WINDOW_SETTINGS->COMBOBOX_OFPCWC_PROFILE->Enabled) {
-                        WINDOW_SETTINGS->COMBOBOX_OFPCWC_PROFILE->Text = WINDOW_SETTINGS->getGuiString("STRING_NOPROFILES");
-                }
-                if(!WINDOW_SETTINGS->COMBOBOX_ARMACWA_PROFILE->Enabled) {
-                        WINDOW_SETTINGS->COMBOBOX_ARMACWA_PROFILE->Text = WINDOW_SETTINGS->getGuiString("STRING_NOPROFILES");
-                }
-                WINDOW_SETTINGS->LABEL_FILTER_MISSIONNAME_BOX->Caption = Form1->LABEL_FILTER_MISSIONNAME->Caption;
-                WINDOW_SETTINGS->LABEL_FILTER_SERVERNAME_BOX->Caption = Form1->LABEL_FILTER_SERVERNAME->Caption;
-                WINDOW_SETTINGS->LABEL_FILTER_PLAYERNAME_BOX->Caption = Form1->LABEL_FILTER_PLAYERNAME->Caption;
-                WINDOW_SETTINGS->BUTTON_EDITNOTIFICATION_CANCEL->Caption = WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_CANCEL->Caption;
-                WINDOW_SETTINGS->BUTTON_EDITNOTIFICATION_EDIT->Caption = WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_EDIT->Caption;
-                WINDOW_SETTINGS->BUTTON_EDITNOTIFICATION_OK->Caption = WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_OK->Caption;
-                WINDOW_SETTINGS->BUTTON_NEWNOTIFICATION_ADD->Caption = WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_ADD->Caption;
-                WINDOW_SETTINGS->BUTTON_NEWNOTIFICATION_CLEAR->Caption = WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_CLEAR->Caption;
-                WINDOW_SETTINGS->BUTTON_NOTIFICATION_REMOVE->Caption = WINDOW_SETTINGS->BUTTON_CONFIGURATION_REMOVE->Caption;
-                WINDOW_SETTINGS->CHECKBOX_FILTER_CREATING->Caption = Form1->CHECKBOX_FILTER_CREATING->Caption;
-                WINDOW_SETTINGS->CHECKBOX_FILTER_WAITING->Caption = Form1->CHECKBOX_FILTER_WAITING->Caption;
-                WINDOW_SETTINGS->CHECKBOX_FILTER_BRIEFING->Caption = Form1->CHECKBOX_FILTER_BRIEFING->Caption;
-                WINDOW_SETTINGS->CHECKBOX_FILTER_SETTINGUP->Caption = Form1->CHECKBOX_FILTER_SETTINGUP->Caption;
-                WINDOW_SETTINGS->CHECKBOX_FILTER_PLAYING->Caption = Form1->CHECKBOX_FILTER_PLAYING->Caption;
-                WINDOW_SETTINGS->CHECKBOX_FILTER_DEBRIEFING->Caption = Form1->CHECKBOX_FILTER_DEBRIEFING->Caption;
-                WINDOW_SETTINGS->CHECKBOX_FILTER_MINPLAYERS->Caption = WINDOW_SETTINGS->getGuiString("STRING_MINIMUM");
-                WINDOW_SETTINGS->CHECKBOX_FILTER_MAXPLAYERS->Caption = WINDOW_SETTINGS->getGuiString("STRING_MAXIMUM");
-                WINDOW_SETTINGS->BUTTON_BROWSE->Caption = WINDOW_SETTINGS->getGuiString("STRING_BROWSE");
-                WINDOW_SETTINGS->BUTTON_OFPCWC_BROWSE->Caption = WINDOW_SETTINGS->getGuiString("STRING_BROWSE");
-                WINDOW_SETTINGS->BUTTON_OFPRES_BROWSE->Caption = WINDOW_SETTINGS->getGuiString("STRING_BROWSE");
-                WINDOW_SETTINGS->BUTTON_ARMACWA_BROWSE->Caption = WINDOW_SETTINGS->getGuiString("STRING_BROWSE");
-                WINDOW_SETTINGS->LABEL_FILTER_PASSWORD->Caption = Form1->LABEL_FILTER_PASSWORD->Caption;
-                WINDOW_SETTINGS->LABEL_FILTER_STATUS->Caption = Form1->LABEL_FILTER_STATUS->Caption;
-                WINDOW_SETTINGS->LABEL_NOTIFICATION_NAME->Caption = WINDOW_SETTINGS->getGuiString("STRING_NAME");
-                WINDOW_SETTINGS->LABEL_FILTER_PLAYERS->Caption = WINDOW_SETTINGS->getGuiString("STRING_PLAYERS");
-                WINDOW_SETTINGS->CHECKBOX_FILTER_WITHOUTPASSWORD->Caption = Form1->CHECKBOX_FILTER_WITHOUTPASSWORD->Caption;
-                WINDOW_SETTINGS->CHECKBOX_FILTER_WITHPASSWORD->Caption = Form1->CHECKBOX_FILTER_WITHPASSWORD->Caption;
-                WINDOW_SETTINGS->LABEL_VOLUME->Caption = WINDOW_SETTINGS->getGuiString("STRING_PLAYBACKVOLUME");
-                WINDOW_SETTINGS->LABEL_MARKINGCOLOR->Caption = WINDOW_SETTINGS->getGuiString("STRING_MARKINGCOLOR");
-                WINDOW_SETTINGS->LABEL_AUDIOFILE->Caption = WINDOW_SETTINGS->getGuiString("STRING_AUDIOFILE");
-                WINDOW_SETTINGS->LABEL_AUDIO_FROM->Caption = WINDOW_SETTINGS->getGuiString("STRING_FROM");
-                WINDOW_SETTINGS->LABEL_AUDIO_TO->Caption = WINDOW_SETTINGS->getGuiString("STRING_TO");
-                WINDOW_SETTINGS->LABEL_OFPCWC_EXECUTABLE->Caption = WINDOW_SETTINGS->getGuiString("STRING_OFPEXECUTABLE");
-                WINDOW_SETTINGS->LABEL_OFPRES_EXECUTABLE->Caption = WINDOW_SETTINGS->getGuiString("STRING_OFPEXECUTABLE");
-                WINDOW_SETTINGS->LABEL_ARMACWA_EXECUTABLE->Caption = WINDOW_SETTINGS->getGuiString("STRING_OFPEXECUTABLE");
-                WINDOW_SETTINGS->LABEL_OFPCWC_PLAYERNAME->Caption = WINDOW_SETTINGS->getGuiString("STRING_PROFILE");
-                WINDOW_SETTINGS->LABEL_OFPRES_PLAYERNAME->Caption = WINDOW_SETTINGS->getGuiString("STRING_PROFILE");
-                WINDOW_SETTINGS->LABEL_ARMACWA_PLAYERNAME->Caption = WINDOW_SETTINGS->getGuiString("STRING_PROFILE");
-
-        }
-        delete file;
-}
-
-
 /**
    Searches for languages files
  */
@@ -422,52 +290,53 @@ void TWINDOW_SETTINGS::findLanguageFiles() {
         String flags[8] = { "chinese", "czech", "german",
                         "english", "french", "dutch",
                         "polish", "russian" };
-        WINDOW_SETTINGS->ComboBox1->Clear();
+        this->ComboBox1->Clear();
         TSearchRec daten;
         if(0 == FindFirst(this->ofpm->getWorkDir() + "\\OFPM*.lang", faAnyFile, daten)) {
                 try {
                         do {
                                 for(int i = 0; i < 8; i++) {
                                         if(daten.Name.LowerCase().Pos(flags[i])) {
-                                                WINDOW_SETTINGS->ComboBox1->ItemsEx->AddItem(daten.Name, i, i, -1, -1, NULL);
+                                                this->ComboBox1->ItemsEx->AddItem(daten.Name, i, i, -1, -1, NULL);
                                                 break;
                                         }
                                 }
                         } while(FindNext(daten) == 0);
-                }__finally {
+                  }
+                  __finally {
                         FindClose(daten);
-                }
+                  }
         }
 }
 
 void TWINDOW_SETTINGS::checkConfListState() {
         bool itemSelected = false;
-        for(int i = 0; i < WINDOW_SETTINGS->LISTBOX_CONFIGURATIONS->Count; i++) {
-                if(WINDOW_SETTINGS->LISTBOX_CONFIGURATIONS->Selected[i]) {
+        for(int i = 0; i < this->LISTBOX_CONFIGURATIONS->Count; i++) {
+                if(this->LISTBOX_CONFIGURATIONS->Selected[i]) {
                         itemSelected = true;
                         break;
                 }
         }
-        bool limitReached = WINDOW_SETTINGS->LISTBOX_CONFIGURATIONS->Items->Count >= 50;
-        WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_ADD->Enabled = !limitReached;
-        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_EDIT->Enabled = itemSelected;
-        WINDOW_SETTINGS->BUTTON_CONFIGURATION_REMOVE->Enabled = itemSelected;
-        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_COPY->Enabled = itemSelected && !limitReached;
-        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_UP->Enabled = itemSelected;
-        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_DOWN->Enabled = itemSelected;
+        bool limitReached = this->LISTBOX_CONFIGURATIONS->Items->Count >= 50;
+        this->BUTTON_NEWCONFIGURATION_ADD->Enabled = !limitReached;
+        this->BUTTON_EDITCONFIGURATION_EDIT->Enabled = itemSelected;
+        this->BUTTON_CONFIGURATION_REMOVE->Enabled = itemSelected;
+        this->BUTTON_EDITCONFIGURATION_COPY->Enabled = itemSelected && !limitReached;
+        this->BUTTON_EDITCONFIGURATION_UP->Enabled = itemSelected;
+        this->BUTTON_EDITCONFIGURATION_DOWN->Enabled = itemSelected;
 }
 
 void TWINDOW_SETTINGS::exitEditMode() {
-        WINDOW_SETTINGS->LISTBOX_CONFIGURATIONS->Enabled = true;
-        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_OK->Enabled = false;
-        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_CANCEL->Enabled = false;
-        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_OK->Visible = false;
-        WINDOW_SETTINGS->BUTTON_EDITCONFIGURATION_CANCEL->Visible = false;
-        WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_ADD->Visible = true;
-        WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_ADD->Enabled = true;
-        WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_CLEAR->Visible = true;
-        WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_CLEAR->Enabled = true;
-        WINDOW_SETTINGS->BUTTON_NEWCONFIGURATION_CLEAR->Click();
+        this->LISTBOX_CONFIGURATIONS->Enabled = true;
+        this->BUTTON_EDITCONFIGURATION_OK->Enabled = false;
+        this->BUTTON_EDITCONFIGURATION_CANCEL->Enabled = false;
+        this->BUTTON_EDITCONFIGURATION_OK->Visible = false;
+        this->BUTTON_EDITCONFIGURATION_CANCEL->Visible = false;
+        this->BUTTON_NEWCONFIGURATION_ADD->Visible = true;
+        this->BUTTON_NEWCONFIGURATION_ADD->Enabled = true;
+        this->BUTTON_NEWCONFIGURATION_CLEAR->Visible = true;
+        this->BUTTON_NEWCONFIGURATION_CLEAR->Enabled = true;
+        this->BUTTON_NEWCONFIGURATION_CLEAR->Click();
         this->checkConfListState();
 }
 
@@ -483,79 +352,79 @@ void TWINDOW_SETTINGS::checkForAutoDetection(OFPGames id) {
 }
 
 void TWINDOW_SETTINGS::printPlaybackRange(AudioPosition start, AudioPosition end) {
-        WINDOW_SETTINGS->EDIT_SONGSTART_MIN->Text = IntToStr(start.getMinutes());
-        WINDOW_SETTINGS->EDIT_SONGSTART_SEC->Text = IntToStr(start.getSeconds());
-        WINDOW_SETTINGS->EDIT_SONGSTART_MILL->Text = IntToStr(start.getMilliSeconds());
-        WINDOW_SETTINGS->EDIT_SONGEND_MIN->Text = IntToStr(end.getMinutes());
-        WINDOW_SETTINGS->EDIT_SONGEND_SEC->Text = IntToStr(end.getSeconds());
-        WINDOW_SETTINGS->EDIT_SONGEND_MILL->Text = IntToStr(end.getMilliSeconds());
+        this->EDIT_SONGSTART_MIN->Text = IntToStr(start.getMinutes());
+        this->EDIT_SONGSTART_SEC->Text = IntToStr(start.getSeconds());
+        this->EDIT_SONGSTART_MILL->Text = IntToStr(start.getMilliSeconds());
+        this->EDIT_SONGEND_MIN->Text = IntToStr(end.getMinutes());
+        this->EDIT_SONGEND_SEC->Text = IntToStr(end.getSeconds());
+        this->EDIT_SONGEND_MILL->Text = IntToStr(end.getMilliSeconds());
 }
 
 void TWINDOW_SETTINGS::printPlaybackPosition(AudioPosition current) {
-        WINDOW_SETTINGS->LabelMilli->Caption = this->addLeadingZeros(current.getMilliSeconds(), 3);
-        WINDOW_SETTINGS->LabelSeconds->Caption = this->addLeadingZeros(current.getSeconds(), 2) + ":";
-        WINDOW_SETTINGS->LabelMinutes->Caption = this->addLeadingZeros(current.getMinutes(), 2) + ":";
+        this->LabelMilli->Caption = this->addLeadingZeros(current.getMilliSeconds(), 3);
+        this->LabelSeconds->Caption = this->addLeadingZeros(current.getSeconds(), 2) + ":";
+        this->LabelMinutes->Caption = this->addLeadingZeros(current.getMinutes(), 2) + ":";
 }
 
 
 void TWINDOW_SETTINGS::updateNotificationsList() {
-        WINDOW_SETTINGS->LISTBOX_NOTIFICATIONS->Clear();
+        this->LISTBOX_NOTIFICATIONS->Clear();
         for(int i = 0; i < this->ofpm->getNotificationCount(); i++) {
                 CustomNotification* notif = this->ofpm->getNotification(i);
                 if(notif != NULL) {
-                        WINDOW_SETTINGS->LISTBOX_NOTIFICATIONS->Items->AddObject(notif->getName(), (TObject *) notif);
+                        this->LISTBOX_NOTIFICATIONS->Items->AddObject(notif->getName(), (TObject *) notif);
                 }
         }
 }
  
 
 void TWINDOW_SETTINGS::checkNotificationListState() {
-        WINDOW_SETTINGS->BUTTON_EDITNOTIFICATION_EDIT->Enabled = false;
-        WINDOW_SETTINGS->BUTTON_NOTIFICATION_REMOVE->Enabled = false;
-        for(int i = 0; i < WINDOW_SETTINGS->LISTBOX_NOTIFICATIONS->Count; i++) {
-                if(WINDOW_SETTINGS->LISTBOX_NOTIFICATIONS->Selected[i]) {
-                        WINDOW_SETTINGS->BUTTON_EDITNOTIFICATION_EDIT->Enabled = true;
-                        WINDOW_SETTINGS->BUTTON_NOTIFICATION_REMOVE->Enabled = true;
+        this->BUTTON_EDITNOTIFICATION_EDIT->Enabled = false;
+        this->BUTTON_NOTIFICATION_REMOVE->Enabled = false;
+        for(int i = 0; i < this->LISTBOX_NOTIFICATIONS->Count; i++) {
+                if(this->LISTBOX_NOTIFICATIONS->Selected[i]) {
+                        this->BUTTON_EDITNOTIFICATION_EDIT->Enabled = true;
+                        this->BUTTON_NOTIFICATION_REMOVE->Enabled = true;
                         break;
                 }
         }
 }
 
 void TWINDOW_SETTINGS::updateChatSettings() {
-        WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Clear();
+        this->COMBOBOX_CHAT_USERNAME->Clear();
         for(int i = 0; i < GAMESTOTAL; i++) {
                 Game *g = this->ofpm->getGame((OFPGames)i);
                 if(g != NULL) {
                         list<String> profiles = g->findPlayerProfiles();
                         for (list<String>::iterator ci = profiles.begin(); ci != profiles.end(); ++ci) {
-                                if(WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Items->IndexOf(*ci) == -1) {
-                                        WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Items->Add(*ci);
+                                if(this->COMBOBOX_CHAT_USERNAME->Items->IndexOf(*ci) == -1) {
+                                        this->COMBOBOX_CHAT_USERNAME->Items->Add(*ci);
                                 }
                         }
                 }
         }
         String user = this->chatSettings->getUserName();
         if(!user.IsEmpty()) {
-                WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Items->Add(user);
+                this->COMBOBOX_CHAT_USERNAME->Items->Add(user);
         }
-        WINDOW_SETTINGS->COMBOBOX_CHAT_USERNAME->Text = this->chatSettings->getUserName();
-        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_ADDRESS->Text = this->chatSettings->getHost();
-        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_PORT->Text = this->chatSettings->getPort();
-        WINDOW_SETTINGS->EDIT_CHAT_IRCSERVER_CHANNEL->Text = this->chatSettings->getChannel();
-        WINDOW_SETTINGS->CHECKBOX_CHAT_AUTOCONNECT->Checked = this->chatSettings->isAutoConnectOn();
+        this->COMBOBOX_CHAT_USERNAME->Text = this->chatSettings->getUserName();
+        this->EDIT_CHAT_IRCSERVER_ADDRESS->Text = this->chatSettings->getHost();
+        this->EDIT_CHAT_IRCSERVER_PORT->Text = this->chatSettings->getPort();
+        this->EDIT_CHAT_IRCSERVER_CHANNEL->Text = this->chatSettings->getChannel();
+        this->CHECKBOX_CHAT_AUTOCONNECT->Checked = this->chatSettings->isAutoConnectOn();
 }
 
 void TWINDOW_SETTINGS::exitEditNotificationMode() {
-        WINDOW_SETTINGS->LISTBOX_NOTIFICATIONS->Enabled = true;
-        WINDOW_SETTINGS->BUTTON_EDITNOTIFICATION_OK->Enabled = false;
-        WINDOW_SETTINGS->BUTTON_EDITNOTIFICATION_CANCEL->Enabled = false;
-        WINDOW_SETTINGS->BUTTON_EDITNOTIFICATION_OK->Visible = false;
-        WINDOW_SETTINGS->BUTTON_EDITNOTIFICATION_CANCEL->Visible = false;
-        WINDOW_SETTINGS->BUTTON_NEWNOTIFICATION_ADD->Visible = true;
-        WINDOW_SETTINGS->BUTTON_NEWNOTIFICATION_ADD->Enabled = true;
-        WINDOW_SETTINGS->BUTTON_NEWNOTIFICATION_CLEAR->Visible = true;
-        WINDOW_SETTINGS->BUTTON_NEWNOTIFICATION_CLEAR->Enabled = true;
-        WINDOW_SETTINGS->BUTTON_NEWNOTIFICATION_CLEAR->Click();
+        this->LISTBOX_NOTIFICATIONS->Enabled = true;
+        this->BUTTON_EDITNOTIFICATION_OK->Enabled = false;
+        this->BUTTON_EDITNOTIFICATION_CANCEL->Enabled = false;
+        this->BUTTON_EDITNOTIFICATION_OK->Visible = false;
+        this->BUTTON_EDITNOTIFICATION_CANCEL->Visible = false;
+        this->BUTTON_NEWNOTIFICATION_ADD->Visible = true;
+        this->BUTTON_NEWNOTIFICATION_ADD->Enabled = true;
+        this->BUTTON_NEWNOTIFICATION_CLEAR->Visible = true;
+        this->BUTTON_NEWNOTIFICATION_CLEAR->Enabled = true;
+        this->BUTTON_NEWNOTIFICATION_CLEAR->Click();
         this->checkNotificationListState();
 }
 
@@ -658,17 +527,12 @@ __fastcall TWINDOW_SETTINGS::TWINDOW_SETTINGS(TComponent* Owner)
 
 void __fastcall TWINDOW_SETTINGS::FormCreate(TObject *Sender)
 {
-        #include "guiDB.cpp"
         StringGrid1->ColWidths[0] = 24;
         StringGrid1->ColWidths[1] = 134;
         StringGrid1->ColWidths[2] = 216;
         for(int i = 3; i < 7; i++) {
                 StringGrid1->ColWidths[i] = 24;
         }
-        /*
-        this->updateConfList();
-        this->updateGames();
-        */
 }
 //---------------------------------------------------------------------------
 
@@ -803,14 +667,15 @@ void __fastcall TWINDOW_SETTINGS::FormClose(TObject *Sender, TCloseAction &Actio
         if(STOP->Visible) {
                 STOP->Click();
         }
-        try {
-                int port = StrToInt(EDIT_CHAT_IRCSERVER_PORT->Text);
+
+        int port = StrToIntDef(EDIT_CHAT_IRCSERVER_PORT->Text, -1);
+        if(port > 0 && port < 65536) {
                 this->chatSettings->setSettings(EDIT_CHAT_IRCSERVER_ADDRESS->Text,
                                                 port,
                                                 EDIT_CHAT_IRCSERVER_CHANNEL->Text,
                                                 COMBOBOX_CHAT_USERNAME->Text.TrimRight(),
                                                 CHECKBOX_CHAT_AUTOCONNECT->Checked);
-        } catch (...) {}
+        }
 }
 //---------------------------------------------------------------------------
 
@@ -818,9 +683,9 @@ void __fastcall TWINDOW_SETTINGS::FormKeyDown(TObject *Sender, WORD &Key,
       TShiftState Shift)
 {
         if(Key == VK_ESCAPE) {
-                WINDOW_SETTINGS->Close();
+                this->Close();
         } else if(Key == VK_F2) {
-                WINDOW_SETTINGS->CHECKBOX_NOTIFICATIONS_ACTIVE->Checked = !WINDOW_SETTINGS->CHECKBOX_NOTIFICATIONS_ACTIVE->Checked;
+                this->CHECKBOX_NOTIFICATIONS_ACTIVE->Checked = !this->CHECKBOX_NOTIFICATIONS_ACTIVE->Checked;
         }
 }
 //---------------------------------------------------------------------------
@@ -832,7 +697,7 @@ void __fastcall TWINDOW_SETTINGS::FormShow(TObject *Sender)
         updateServerEditorList();
         this->updateGames();
         this->findLanguageFiles();
-        WINDOW_SETTINGS->ComboBox1->ItemIndex = WINDOW_SETTINGS->ComboBox1->Items->IndexOf(this->ofpm->getLanguageFile());
+        this->ComboBox1->ItemIndex = this->ComboBox1->Items->IndexOf(this->ofpm->getLanguageFile());
 }
 //---------------------------------------------------------------------------
 void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_EDITClick(TObject *Sender)
@@ -1295,16 +1160,18 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITNOTIFICATION_OKClick(
                         at->setRepeat(CHECKBOX_REPEAT->Checked);
                         at->setVolume(TrackBar1->Position);
                         int startPos = 0, endPos = 0;
-                        try {
-                                startPos =  StrToInt(EDIT_SONGSTART_MIN->Text)*60000 +
-                                StrToInt(EDIT_SONGSTART_SEC->Text)*1000 +
-                                StrToInt(EDIT_SONGSTART_MILL->Text);
-                        } catch (...) {}
-                        try {
-                                endPos =    StrToInt(EDIT_SONGEND_MIN->Text)*60000 +
-                                StrToInt(EDIT_SONGEND_SEC->Text)*1000 +
-                                StrToInt(EDIT_SONGEND_MILL->Text);
-                        } catch (...) {}
+                        int min = StrToIntDef(EDIT_SONGSTART_MIN->Text, -1);
+                        int sec = StrToIntDef(EDIT_SONGSTART_SEC->Text, -1);
+                        int mil = StrToIntDef(EDIT_SONGSTART_MILL->Text, -1);
+                        if(min > -1 && sec > -1 && mil > -1) {
+                                startPos = min*60000 + sec*1000 + mil;
+                        }
+                        min = StrToIntDef(EDIT_SONGEND_MIN->Text, -1);
+                        sec = StrToIntDef(EDIT_SONGEND_SEC->Text, -1);
+                        mil = StrToIntDef(EDIT_SONGEND_MILL->Text, -1);
+                        if(min > -1 && sec > -1 && mil > -1) {
+                                endPos = mil*60000 + sec*1000 + mil;
+                        }
                         at->setPlayLength(startPos, endPos);
                         notif->setMarkingColor(ColorBox1->Selected);
                 }
@@ -1356,14 +1223,17 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_NEWNOTIFICATION_ADDClick(
 
                 AudioTask *at = new AudioTask(audioName, this->ofpm->generateNewAudioAlias(), CHECKBOX_REPEAT->Checked);
                 at->setVolume(TrackBar1->Position);
-                try {
-                        at->setPlayLength(      StrToInt(EDIT_SONGSTART_MIN->Text)*60000 +
-                                                StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_SEC->Text)*1000 +
-                                                StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_MILL->Text),
-                                                StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_MIN->Text)*60000 +
-                                                StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_SEC->Text)*1000 +
-                                                StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_MILL->Text));
-                } catch (...) {}
+                int Smin = StrToIntDef(this->EDIT_SONGSTART_MIN->Text, -1);
+                int Ssec = StrToIntDef(this->EDIT_SONGSTART_SEC->Text, -1);
+                int Smil = StrToIntDef(this->EDIT_SONGSTART_MILL->Text, -1);
+                int Emin = StrToIntDef(this->EDIT_SONGEND_MIN->Text, -1);
+                int Esec = StrToIntDef(this->EDIT_SONGEND_SEC->Text, -1);
+                int Emil = StrToIntDef(this->EDIT_SONGEND_MILL->Text, -1);
+                if(Smin > -1 && Ssec > -1 && Smil > -1 &&
+                   Emin > -1 && Esec > -1 && Emil > -1) {
+                        at->setPlayLength(Smin*60000 + Ssec*1000 + Smil,
+                                          Emin*60000 + Esec*1000 + Emil);
+                }
                 CustomNotification *notif = new CustomNotification(notifName, sf, at, ColorToString(ColorBox1->Selected));
                 this->ofpm->addNotification(notif);
                 this->updateNotificationsList();
@@ -1418,12 +1288,17 @@ void __fastcall TWINDOW_SETTINGS::PLAYClick(TObject *Sender)
                 STOP->Visible = true;
                 AudioTask *at = new AudioTask(EDIT_NOTIFICATION_FILE->Text, "OFPM_AUDIOPREVIEW", false);
                 at->setDeleteOnEnd(true);
-                at->setPlayLength(      StrToInt(EDIT_SONGSTART_MIN->Text)*60000 +
-                                        StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_SEC->Text)*1000 +
-                                        StrToInt(WINDOW_SETTINGS->EDIT_SONGSTART_MILL->Text),
-                                        StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_MIN->Text)*60000 +
-                                        StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_SEC->Text)*1000 +
-                                        StrToInt(WINDOW_SETTINGS->EDIT_SONGEND_MILL->Text));
+                int Smin = StrToIntDef(this->EDIT_SONGSTART_MIN->Text, -1);
+                int Ssec = StrToIntDef(this->EDIT_SONGSTART_SEC->Text, -1);
+                int Smil = StrToIntDef(this->EDIT_SONGSTART_MILL->Text, -1);
+                int Emin = StrToIntDef(this->EDIT_SONGEND_MIN->Text, -1);
+                int Esec = StrToIntDef(this->EDIT_SONGEND_SEC->Text, -1);
+                int Emil = StrToIntDef(this->EDIT_SONGEND_MILL->Text, -1);
+                if(Smin > -1 && Ssec > -1 && Smil > -1 &&
+                   Emin > -1 && Esec > -1 && Emil > -1) {
+                        at->setPlayLength(Smin*60000 + Ssec*1000 + Smil,
+                                          Emin*60000 + Esec*1000 + Emil);
+                }
                 at->setVolume(TrackBar1->Position);
                 AudioPlayer *player = this->ofpm->getAudioPlayer();
                 player->addAudioTask(at);
@@ -1460,14 +1335,10 @@ void __fastcall TWINDOW_SETTINGS::STOPClick(TObject *Sender)
 
 void __fastcall TWINDOW_SETTINGS::EDIT_FILTER_MINPLAYERSChange(TObject *Sender)
 {
-        try {
-                int a = StrToInt(EDIT_FILTER_MINPLAYERS->Text);
-                if(a < UPDOWN_MINPLAYERS->Min) {
-                        EDIT_FILTER_MINPLAYERS->Text = UPDOWN_MINPLAYERS->Position;
-                } else if(a > UPDOWN_MINPLAYERS->Max) {
-                        EDIT_FILTER_MINPLAYERS->Text = UPDOWN_MINPLAYERS->Position;
-                }
-        } catch (...) {
+        int a = StrToIntDef(EDIT_FILTER_MINPLAYERS->Text, UPDOWN_MINPLAYERS->Position);
+        if(a < UPDOWN_MINPLAYERS->Min) {
+                EDIT_FILTER_MINPLAYERS->Text = UPDOWN_MINPLAYERS->Position;
+        } else if(a > UPDOWN_MINPLAYERS->Max) {
                 EDIT_FILTER_MINPLAYERS->Text = UPDOWN_MINPLAYERS->Position;
         }
 }
@@ -1475,14 +1346,10 @@ void __fastcall TWINDOW_SETTINGS::EDIT_FILTER_MINPLAYERSChange(TObject *Sender)
 
 void __fastcall TWINDOW_SETTINGS::EDIT_FILTER_MAXPLAYERSChange(TObject *Sender)
 {
-        try {
-                int a = StrToInt(EDIT_FILTER_MAXPLAYERS->Text);
-                if(a < UPDOWN_MAXPLAYERS->Min) {
-                        EDIT_FILTER_MAXPLAYERS->Text = UPDOWN_MAXPLAYERS->Position;
-                } else if(a > UPDOWN_MAXPLAYERS->Max) {
-                        EDIT_FILTER_MAXPLAYERS->Text = UPDOWN_MAXPLAYERS->Position;
-                }
-        } catch (...) {
+        int a = StrToIntDef(EDIT_FILTER_MAXPLAYERS->Text, UPDOWN_MAXPLAYERS->Position);
+        if(a < UPDOWN_MAXPLAYERS->Min) {
+                EDIT_FILTER_MAXPLAYERS->Text = UPDOWN_MAXPLAYERS->Position;
+        } else if(a > UPDOWN_MAXPLAYERS->Max) {
                 EDIT_FILTER_MAXPLAYERS->Text = UPDOWN_MAXPLAYERS->Position;
         }
 }
@@ -1490,9 +1357,7 @@ void __fastcall TWINDOW_SETTINGS::EDIT_FILTER_MAXPLAYERSChange(TObject *Sender)
 
 void __fastcall TWINDOW_SETTINGS::EDIT_SONGEND_MILLChange(TObject *Sender)
 {
-        try {
-                StrToInt(EDIT_SONGEND_MILL->Text);
-        } catch (...) {
+        if(StrToIntDef(EDIT_SONGEND_MILL->Text, -1) < 0) {
                 EDIT_SONGEND_MILL->Text = "0";
         }        
 }
@@ -1500,9 +1365,7 @@ void __fastcall TWINDOW_SETTINGS::EDIT_SONGEND_MILLChange(TObject *Sender)
 
 void __fastcall TWINDOW_SETTINGS::EDIT_SONGSTART_MINChange(TObject *Sender)
 {
-        try {
-                StrToInt(EDIT_SONGSTART_MIN->Text);
-        } catch (...) {
+        if(StrToIntDef(EDIT_SONGSTART_MIN->Text, -1) < 0) {
                 EDIT_SONGSTART_MIN->Text = "0";
         }
 }
@@ -1510,9 +1373,7 @@ void __fastcall TWINDOW_SETTINGS::EDIT_SONGSTART_MINChange(TObject *Sender)
 
 void __fastcall TWINDOW_SETTINGS::EDIT_SONGSTART_SECChange(TObject *Sender)
 {
-        try {
-                StrToInt(EDIT_SONGSTART_SEC->Text);
-        } catch (...) {
+        if(StrToIntDef(EDIT_SONGSTART_SEC->Text, -1) < 0) {
                 EDIT_SONGSTART_SEC->Text = "0";
         }
 }
@@ -1520,9 +1381,7 @@ void __fastcall TWINDOW_SETTINGS::EDIT_SONGSTART_SECChange(TObject *Sender)
 
 void __fastcall TWINDOW_SETTINGS::EDIT_SONGSTART_MILLChange(TObject *Sender)
 {
-        try {
-                StrToInt(EDIT_SONGSTART_MILL->Text);
-        } catch (...) {
+        if(StrToIntDef(EDIT_SONGSTART_MILL->Text, -1) < 0) {
                 EDIT_SONGSTART_MILL->Text = "0";
         }
 }
@@ -1530,9 +1389,7 @@ void __fastcall TWINDOW_SETTINGS::EDIT_SONGSTART_MILLChange(TObject *Sender)
 
 void __fastcall TWINDOW_SETTINGS::EDIT_SONGEND_MINChange(TObject *Sender)
 {
-        try {
-                StrToInt(EDIT_SONGEND_MIN->Text);
-        } catch (...) {
+        if(StrToIntDef(EDIT_SONGEND_MIN->Text, -1) < 0) {
                 EDIT_SONGEND_MIN->Text = "0";
         }
 }
@@ -1540,9 +1397,7 @@ void __fastcall TWINDOW_SETTINGS::EDIT_SONGEND_MINChange(TObject *Sender)
 
 void __fastcall TWINDOW_SETTINGS::EDIT_SONGEND_SECChange(TObject *Sender)
 {
-        try {
-                StrToInt(EDIT_SONGEND_SEC->Text);
-        } catch (...) {
+        if(StrToIntDef(EDIT_SONGEND_SEC->Text, -1) < 0) {
                 EDIT_SONGEND_SEC->Text = "0";
         }
 }
@@ -1596,9 +1451,7 @@ void __fastcall TWINDOW_SETTINGS::CHECKBOX_ARMACWAClick(TObject *Sender)
 void __fastcall TWINDOW_SETTINGS::EDIT_CHAT_IRCSERVER_PORTChange(
       TObject *Sender)
 {
-        try {
-                StrToInt(EDIT_CHAT_IRCSERVER_PORT->Text);
-        } catch (...) {
+        if(StrToIntDef(EDIT_CHAT_IRCSERVER_PORT->Text, -1) < 0) {
                 EDIT_CHAT_IRCSERVER_PORT->Text = IntToStr(this->chatSettings->getPort());
         }
 }
@@ -1654,7 +1507,7 @@ void __fastcall TWINDOW_SETTINGS::TABSHEET_SERVERSShow(TObject *Sender)
 void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_ADDClick(TObject *Sender)
 {
         String value;
-        if(InputQuery(WINDOW_SETTINGS->getGuiString("STRING_SERVERS_ADD_TITLE"), WINDOW_SETTINGS->getGuiString("STRING_SERVERS_ADD_PROMPT"), value)) {
+        if(InputQuery(this->languageDB->getGuiString("STRING_SERVERS_ADD_TITLE"), this->languageDB->getGuiString("STRING_SERVERS_ADD_PROMPT"), value)) {
                 if(!value.IsEmpty()) {
                         int defaultGameport = 2302;
                         Address *add = new Address();
@@ -1679,7 +1532,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_ADDClick(TObject *Sender)
                                 if(success && add->readAddress(ip + ":" + url->Strings[1], defaultGameport, false)) {
                                         this->ofpm->addServer(add->getAddress());
                                 } else {
-                                        ShowMessage(WINDOW_SETTINGS->getGuiString("STRING_SERVERS_ADDERROR") + "  " + url->Strings[0]);
+                                        ShowMessage(this->languageDB->getGuiString("STRING_SERVERS_ADDERROR") + "  " + url->Strings[0]);
                                 }
                         }
                         delete add;
@@ -1701,7 +1554,6 @@ void __fastcall TWINDOW_SETTINGS::ComboBox1Change(TObject *Sender)
         if(FileExists(this->ofpm->getWorkDir() + "\\" + file)) {
                 ComboBox1->Enabled = false;
                 this->ofpm->setLanguageFile(file);
-                updateLanguage(file);
                 ComboBox1->Enabled = true;
                 ComboBox1->SetFocus();
                 this->updateGames();
@@ -1792,7 +1644,7 @@ void __fastcall TWINDOW_SETTINGS::Timer1Timer(TObject *Sender)
 {
         if(TABSHEET_SERVERS->Visible) {
                 Timer1->Interval = 2000;
-                WINDOW_SETTINGS->updateServerEditorList();
+                this->updateServerEditorList();
         } else {
                 AudioPlayer *ap = this->ofpm->getAudioPlayer();
                 if(ap->hasAlias("OFPM_AUDIOPREVIEW")) {

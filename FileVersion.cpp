@@ -45,11 +45,7 @@ unsigned short FileVersion::buildVersion () {
 
 int FileVersion::getOFPVersion() {
 	if (!this->FixedInfo) { return 0; }
-        int outInt = 0;
-        try {
-                outInt = StrToInt(IntToStr(this->majorVersion()) + IntToStr(this->buildVersion()));
-        } catch (...) {}
-	return outInt;
+        return StrToIntDef(IntToStr(this->majorVersion()) + IntToStr(this->buildVersion()), 0);
 }
 
 String FileVersion::getOFPMonitorVersion() {

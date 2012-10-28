@@ -22,6 +22,7 @@ class Observable {
                 void SetObserver(Observer *o);
                 void RemoveObserver(Observer *o);
                 void NotifyObserver();
+                void RemoveAllObservers();
 };
 
 //---------------------------------------------------------------------------

@@ -123,9 +123,7 @@ int AudioTask::readSongLength(String file) {
                         if(!mciSendString("close LengthCheck", 0, 0, 0)) {
                                 this->opened = false;
                         }
-                        try {
-                                out = StrToInt(text);
-                        } catch (...) {}
+                        out = StrToIntDef(text, 0);
                 }
         }
         return out;
@@ -156,10 +154,10 @@ AudioPosition AudioTask::getCurrentPosition() {
         if(!this->stopped && this->started && !this->alias.IsEmpty()) {
                 char text[128];
                 if(!mciSendString(("status " + this->alias + " position").c_str(), text, 128, 0)) {
-                        try {
-                                int pos = StrToInt(String(text));
+                        int pos = StrToIntDef(String(text), -1);
+                        if(pos >= 0) {
                                 out = AudioPosition(pos);
-                        } catch (...) {}
+                        }
                 }
         }
         return out;

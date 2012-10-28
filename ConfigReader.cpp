@@ -2,9 +2,7 @@
 
 
 #pragma hdrstop
-
 #include "ConfigReader.h"
-
 //---------------------------------------------------------------------------
 
 #pragma package(smart_init)
@@ -13,7 +11,7 @@
    Returns the value of a String with the format "XYZ = VALUE"
  */
 
-String getValue(String in) {
+String ConfigEntry::getValue(String in) {
         String out = "";
         String tmp = in.Trim();
         for(int i = 1; i < tmp.Length(); i++) {
@@ -25,14 +23,6 @@ String getValue(String in) {
         return out;
 }
 
-/**
-   Converts the binary representation of true and false (1 and 0) to a bool
- */
-
-bool checkBool2(String in) {
-        return (in == "1" || in == "true");
-}
-
 ConfigEntry::ConfigEntry(String ident, DataType dt, void *dataPointer) {
         this->ident = ident;
         this->dt = dt;
@@ -42,12 +32,14 @@ ConfigEntry::ConfigEntry(String ident, DataType dt, void *dataPointer) {
 bool ConfigEntry::check(String line) {
         bool matches = (line.AnsiPos(this->ident) == 1);
         if(matches || this->ident.IsEmpty()) {
-                String value = getValue(line);
+                String value = this->getValue(line);
                 switch(this->dt) {
+                        int i;
                         case dtInt:
-                                try {
-                                        *((int*)(this->data)) = StrToInt(value);
-                                } catch (...) {}
+                                i = StrToIntDef(value, -1);
+                                if(i != -1) {
+                                        *((int*)(this->data)) = i;
+                                }
                                 break;
                         case dtFloat:
                                 try {
@@ -55,7 +47,7 @@ bool ConfigEntry::check(String line) {
                                 } catch (...) {}
                                 break;
                         case dtBool:
-                                *((bool*)(this->data)) = checkBool2(value);
+                                *((bool*)(this->data)) = StrToIntDef(value, 0);
                                 break;
                         case dtString:
                                 *((String*)(this->data)) = value;

@@ -633,6 +633,7 @@ String OFPMonitorModel::getWorkDir() {
 
 void OFPMonitorModel::setLanguageFile(String file) {
         this->languagefile = file;
+        this->NotifyObserver();
 }
 
 String OFPMonitorModel::getLanguageFile() {

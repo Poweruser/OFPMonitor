@@ -55,6 +55,8 @@ void TForm1::update(Observable *o) {
                         this->chat->loadThisChat(this->chatSettings->getChannel(), MemoChatOutput, MemoChatInput);
                         MemoChatInput->Clear();
                 }
+        } else if(o == this->languageDB) {
+                this->updateGuiLanguage();
         }
 }
 
@@ -80,6 +82,85 @@ void TForm1::setServerFilter(ServerFilter *serverFilter) {
 
 void TForm1::setGameControl(GameControl *gameControl) {
         this->gameControl = gameControl;
+}
+
+void TForm1::setLanguageDB(LanguageDB *languageDB) {
+        this->languageDB = languageDB;
+}
+
+void TForm1::updateGuiLanguage() {
+        if(this->languageDB != NULL) {
+                this->StringGrid1->Cells[0][0] = this->languageDB->getGuiString("STRING_ID");
+                this->StringGrid1->Cells[1][0] = this->languageDB->getGuiString("STRING_NAME");
+                this->StringGrid1->Cells[2][0] = this->languageDB->getGuiString("STRING_PLAYERS");
+                this->StringGrid1->Cells[3][0] = this->languageDB->getGuiString("STRING_STATUS");
+                this->StringGrid1->Cells[4][0] = this->languageDB->getGuiString("STRING_ISLAND");
+                this->StringGrid1->Cells[5][0] = this->languageDB->getGuiString("STRING_MISSION");
+                this->StringGrid1->Cells[6][0] = this->languageDB->getGuiString("STRING_PING");
+                this->StringGrid2->Cells[0][0] = this->languageDB->getGuiString("STRING_NAME");
+                this->StringGrid2->Cells[1][0] = this->languageDB->getGuiString("STRING_SCORE");
+                this->StringGrid2->Cells[2][0] = this->languageDB->getGuiString("STRING_DEATHS");
+                this->StringGrid2->Cells[3][0] = this->languageDB->getGuiString("STRING_TEAM");
+                this->BUTTON_SERVERINFO_COPYADDRESS->Caption = this->languageDB->getGuiString(BUTTON_SERVERINFO_COPYADDRESS->Name);
+                this->BUTTON_GAMECONTROL_REFRESH->Caption = this->languageDB->getGuiString(BUTTON_GAMECONTROL_REFRESH->Name);
+                this->CHECKBOX_FILTER_PLAYING->Caption = this->languageDB->getGuiString(CHECKBOX_FILTER_PLAYING->Name);
+                this->CHECKBOX_FILTER_WAITING->Caption = this->languageDB->getGuiString(CHECKBOX_FILTER_WAITING->Name);
+                this->CHECKBOX_FILTER_CREATING->Caption = this->languageDB->getGuiString(CHECKBOX_FILTER_CREATING->Name);
+                this->CHECKBOX_FILTER_BRIEFING->Caption = this->languageDB->getGuiString(CHECKBOX_FILTER_BRIEFING->Name);
+                this->CHECKBOX_FILTER_SETTINGUP->Caption = this->languageDB->getGuiString(CHECKBOX_FILTER_SETTINGUP->Name);
+                this->CHECKBOX_FILTER_DEBRIEFING->Caption = this->languageDB->getGuiString(CHECKBOX_FILTER_DEBRIEFING->Name);
+                this->CHECKBOX_FILTER_WITHPASSWORD->Caption = this->languageDB->getGuiString(CHECKBOX_FILTER_WITHPASSWORD->Name);
+                this->CHECKBOX_FILTER_WITHOUTPASSWORD->Caption = this->languageDB->getGuiString(CHECKBOX_FILTER_WITHOUTPASSWORD->Name);
+                this->CHECKBOX_GAMECONTROL_AUTOGREENUP->Caption = this->languageDB->getGuiString(CHECKBOX_GAMECONTROL_AUTOGREENUP->Name);
+                this->CHECKBOX_GAMECONTROL_RESTORE->Caption = this->languageDB->getGuiString(CHECKBOX_GAMECONTROL_RESTORE->Name);
+                this->CHECKBOX_GAMECONTROL_RESTORE_PLAYING->Caption = this->languageDB->getGuiString(CHECKBOX_GAMECONTROL_RESTORE_PLAYING->Name);
+                this->CHECKBOX_GAMECONTROL_RESTORE_WAITING->Caption = this->languageDB->getGuiString(CHECKBOX_GAMECONTROL_RESTORE_WAITING->Name);
+                this->CHECKBOX_GAMECONTROL_RESTORE_CREATING->Caption = this->languageDB->getGuiString(CHECKBOX_GAMECONTROL_RESTORE_CREATING->Name);
+                this->CHECKBOX_GAMECONTROL_RESTORE_BRIEFING->Caption = this->languageDB->getGuiString(CHECKBOX_GAMECONTROL_RESTORE_BRIEFING->Name);
+                this->CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Caption = this->languageDB->getGuiString(CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Name);
+                this->CHECKBOX_GAMECONTROL_AUTODETECT->Caption = this->languageDB->getGuiString(CHECKBOX_GAMECONTROL_AUTODETECT->Name);
+                this->LABEL_FILTER_STATUS->Caption = this->languageDB->getGuiString(LABEL_FILTER_STATUS->Name);
+                this->LABEL_FILTER_PASSWORD->Caption = this->languageDB->getGuiString(LABEL_FILTER_PASSWORD->Name);
+                this->LABEL_FILTER_MINIMUMPLAYERS->Caption = this->languageDB->getGuiString(LABEL_FILTER_MINIMUMPLAYERS->Name);
+                this->LABEL_FILTER_SERVERNAME->Caption = this->languageDB->getGuiString(LABEL_FILTER_SERVERNAME->Name);
+                this->LABEL_FILTER_MISSIONNAME->Caption = this->languageDB->getGuiString(LABEL_FILTER_MISSIONNAME->Name);
+                this->LABEL_FILTER_PLAYERNAME->Caption = this->languageDB->getGuiString(LABEL_FILTER_PLAYERNAME->Name);
+                this->LABEL_SERVERINFO_IP->Caption = this->languageDB->getGuiString(LABEL_SERVERINFO_IP->Name);
+                this->LABEL_SERVERINFO_PORT->Caption = this->languageDB->getGuiString(LABEL_SERVERINFO_PORT->Name);
+                this->LABEL_SERVERINFO_PLATFORM->Caption = this->languageDB->getGuiString(LABEL_SERVERINFO_PLATFORM->Name);
+                this->LABEL_SERVERINFO_PASSWORD->Caption = this->languageDB->getGuiString(LABEL_SERVERINFO_PASSWORD->Name);
+                this->LABEL_SERVERINFO_VERSION->Caption = this->languageDB->getGuiString(LABEL_SERVERINFO_VERSION->Name);
+                this->LABEL_SERVERINFO_EQMODREQ->Caption = this->languageDB->getGuiString(LABEL_SERVERINFO_EQMODREQ->Name);
+                this->LABEL_GAMECONTROL_PROCESS->Caption = this->languageDB->getGuiString(LABEL_GAMECONTROL_PROCESS->Name);
+                this->LABEL_GAMECONTROL_SERVER->Caption = this->languageDB->getGuiString(LABEL_GAMECONTROL_SERVER->Name);
+                this->LABEL_GAMECONTROL_EXE->Caption = this->languageDB->getGuiString(LABEL_GAMECONTROL_EXE->Name);
+                this->LABEL_GAMECONTROL_AUTOGREENUP_DELAY->Caption = this->languageDB->getGuiString(LABEL_GAMECONTROL_AUTOGREENUP_DELAY->Name);
+                this->GROUPBOX_SERVERINFO->Caption = this->languageDB->getGuiString(GROUPBOX_SERVERINFO->Name);
+                this->GROUPBOX_FILTERS->Caption = this->languageDB->getGuiString(GROUPBOX_FILTERS->Name);
+                this->GROUPBOX_GAMECONTROL_PROCESS->Caption = this->languageDB->getGuiString(GROUPBOX_GAMECONTROL_PROCESS->Name);
+                this->MENUITEM_MAINMENU_EXIT->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_EXIT->Name);
+                this->MENUITEM_MAINMENU_SETTINGS->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_SETTINGS->Name);
+                this->MENUITEM_MAINMENU_FONT->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_FONT->Name);
+                this->MENUITEM_MAINMENU_GETNEWSERVERLIST->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_GETNEWSERVERLIST->Name);
+                this->MENUITEM_POPUP_AUTOJOIN_SAMEMODS->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_AUTOJOIN_SAMEMODS->Name);
+                this->MENUITEM_POPUP_JOIN->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_JOIN->Name);
+                this->MENUITEM_POPUP_AUTOJOIN->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_AUTOJOIN->Name);
+                this->MENUITEM_POPUP_AUTOJOINB->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_AUTOJOINB->Name);
+                this->MENUITEM_POPUP_MODS->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_MODS->Name);
+                this->MENUITEM_POPUP_WATCH->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_WATCH->Name);
+                this->MENUITEM_POPUP_AUTOJOIN_NOMODS->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_AUTOJOIN_NOMODS->Name);
+                this->MENUITEM_POPUP_JOIN_SAMEMODS->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_JOIN_SAMEMODS->Name);
+                this->MENUITEM_MAINMENU_CHAT_CONNECT->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_CHAT_CONNECT->Name);
+                this->MENUITEM_MAINMENU_CHAT_DISCONNECT->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_CHAT_DISCONNECT->Name);
+                this->MENUITEM_MAINMENU_CHAT->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_CHAT->Name);
+                this->MENUITEM_POPUP_JOIN_NOMODS->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_JOIN_NOMODS->Name);
+                this->MENUITEM_MAINMENU_LOCALGAME->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_LOCALGAME->Name);
+                this->TABSHEET_SERVERINFO->Caption = this->languageDB->getGuiString(TABSHEET_SERVERINFO->Name);
+                this->TABSHEET_CHAT->Caption = this->languageDB->getGuiString(TABSHEET_CHAT->Name);
+                this->TABSHEET_GAMECONTROL->Caption = this->languageDB->getGuiString(TABSHEET_GAMECONTROL->Name);
+                this->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE->Caption = this->languageDB->getGuiString(RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE->Name);
+                this->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT->Caption = this->languageDB->getGuiString(RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT->Name);
+        }
 }
 
 float TForm1::checkIfTableRatioZero(float in, TStringGrid *grid) {
@@ -380,14 +461,14 @@ void TForm1::updateServerInfoBox(Server *srv) {
                         this->LABEL_SERVERINFO_NAME->Caption = srv->getName();
                         this->BUTTON_SERVERINFO_COPYADDRESS->Enabled = true;
                         if(srv->hasPassword()) {
-                                this->LABEL_SERVERINFO_PASSWORD_VALUE->Caption = WINDOW_SETTINGS->getGuiString("STRING_YES");
+                                this->LABEL_SERVERINFO_PASSWORD_VALUE->Caption = this->languageDB->getGuiString("STRING_YES");
                         } else {
-                                this->LABEL_SERVERINFO_PASSWORD_VALUE->Caption = WINDOW_SETTINGS->getGuiString("STRING_NO");
+                                this->LABEL_SERVERINFO_PASSWORD_VALUE->Caption = this->languageDB->getGuiString("STRING_NO");
                         }
                         if(srv->requiresEqualMod()) {
-                                this->LABEL_SERVERINFO_EQMODREQ_VALUE->Caption = WINDOW_SETTINGS->getGuiString("STRING_YES");
+                                this->LABEL_SERVERINFO_EQMODREQ_VALUE->Caption = this->languageDB->getGuiString("STRING_YES");
                         } else {
-                                this->LABEL_SERVERINFO_EQMODREQ_VALUE->Caption = WINDOW_SETTINGS->getGuiString("STRING_NO");
+                                this->LABEL_SERVERINFO_EQMODREQ_VALUE->Caption = this->languageDB->getGuiString("STRING_NO");
                         }
                         this->LABEL_SERVERINFO_VERSION_VALUE->Caption = IntToStr(srv->getRequiredVersion()) + " / " + IntToStr(srv->getActualVersion());
                         return;
@@ -471,8 +552,8 @@ void TForm1::filterChanged(bool userinput) {
                         sortList->AddObject(this->addLeadingZeros(srv->getPing(), 5), (TObject*) srv);
                 }
         }
-        this->StatusBar1->Panels->Items[0]->Text = WINDOW_SETTINGS->getGuiString("STRING_LISTED") + " " + totalServerCount;
-        this->StatusBar1->Panels->Items[1]->Text = WINDOW_SETTINGS->getGuiString("STRING_ONLINE") + " " + onlineServerCount;
+        this->StatusBar1->Panels->Items[0]->Text = this->languageDB->getGuiString("STRING_LISTED") + " " + totalServerCount;
+        this->StatusBar1->Panels->Items[1]->Text = this->languageDB->getGuiString("STRING_ONLINE") + " " + onlineServerCount;
         if(matches.size() == 0) {
                 this->setEmptyServerList();
                 this->setEmptyPlayerList();
@@ -497,7 +578,7 @@ void TForm1::filterChanged(bool userinput) {
                 if(this->selectedServer != NULL) {
                         processPlayerList(this->selectedServer);
                         updateServerInfoBox(this->selectedServer);
-                        this->CoolTrayIcon1->Hint = this->selectedServer->getName() + "     " + getGameState(this->selectedServer->getGameState()) + "     " +  String(this->selectedServer->getPlayerNum()) + " " + WINDOW_SETTINGS->getGuiString("STRING_PLAYERS");
+                        this->CoolTrayIcon1->Hint = this->selectedServer->getName() + "     " + getGameState(this->selectedServer->getGameState()) + "     " +  String(this->selectedServer->getPlayerNum()) + " " + this->languageDB->getGuiString("STRING_PLAYERS");
                 } else {
                         this->CoolTrayIcon1->Hint = "OFPMonitor";
                 }
@@ -650,8 +731,8 @@ void TForm1::setSelectedServer(Server *srv) {
 }
 
 bool TForm1::getServerPasswordDialog(String &password) {
-        String caption = WINDOW_SETTINGS->getGuiString("STRING_PASSWORDDIALOG_TITLE");
-        String text = this->selectedServer->getName() + "\n\n" + WINDOW_SETTINGS->getGuiString("STRING_PASSWORDDIALOG_PROMPT");
+        String caption = this->languageDB->getGuiString("STRING_PASSWORDDIALOG_TITLE");
+        String text = this->selectedServer->getName() + "\n\n" + this->languageDB->getGuiString("STRING_PASSWORDDIALOG_PROMPT");
         return InputQuery(caption, text, password);
 }
 
@@ -845,7 +926,6 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
         } else if(Button == mbRight && Y >= StringGrid1->DefaultRowHeight) {
                 int c = ((Y - StringGrid1->DefaultRowHeight) / (StringGrid1->DefaultRowHeight + 1)) + 1;
                 if(StringGrid1->RowCount > c) {
-                        //try {
                                 Server *srv = (Server*)(StringGrid1->Objects[0][c + (StringGrid1->TopRow - 1)]);
                                 TGridRect myRect;
                                 myRect.Left = 0;
@@ -886,10 +966,8 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
                                         }
                                         PopupMenu1->Popup(this->Left + StringGrid1->Left + X + 5,this->Top + StringGrid1->Top + Y + StringGrid1->DefaultRowHeight + 25);
                                 }
-                        //} catch (...) {}
                 }
         }
-       // StringGrid1->Refresh();
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Edit2Change(TObject *Sender)
@@ -1017,7 +1095,7 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
                 bool startGame = true;
                 bool found = srv->isPlayerOnServer(game->getProfileName(), true);
                 if(found) {
-                        int msgBoxRes = MessageBoxA(NULL, WINDOW_SETTINGS->getGuiString("STRING_PLAYER_ALREADY_ON_SERVER").c_str(),
+                        int msgBoxRes = MessageBoxA(NULL, this->languageDB->getGuiString("STRING_PLAYER_ALREADY_ON_SERVER").c_str(),
                                     "", MB_YESNO | MB_ICONQUESTION);
                         startGame = (msgBoxRes == IDYES);
                 }
@@ -1268,7 +1346,7 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
                 }
         }
         if(this->chat == NULL) {
-                this->chat = new Chat(this->chatSettings);
+                this->chat = new Chat(this->chatSettings, this->languageDB);
                 this->chat->SetObserver(this);
                 this->chatThreadHandle = CreateThread(0, 0, chatThread, this->chat, 0, 0);
         }
@@ -1441,7 +1519,7 @@ void __fastcall TForm1::StringGrid3ContextPopup(TObject *Sender,
       TPoint &MousePos, bool &Handled)
 {
         Openchat1->Visible = false;
-        Openchat1->Caption = WINDOW_SETTINGS->getGuiString("STRING_CHAT_CHATWITH");
+        Openchat1->Caption = this->languageDB->getGuiString("STRING_CHAT_CHATWITH");
         Openchat1->Hint = "";
         if(this->chat != NULL) {
                 if(this->chat->isConnected()) {
@@ -1488,7 +1566,7 @@ void __fastcall TForm1::TabControl1ContextPopup(TObject *Sender,
                 if(name.Pos("#") == 1) {
                         Close1->Hint = "";
                 } else {
-                        Close1->Caption = WINDOW_SETTINGS->getGuiString("STRING_CHAT_CLOSE");
+                        Close1->Caption = this->languageDB->getGuiString("STRING_CHAT_CLOSE");
                         Close1->Hint = name;
                         Close1->Visible = true;
                         TPoint p = TabControl1->ClientToScreen(MousePos);
@@ -1664,7 +1742,6 @@ void __fastcall TForm1::FormShow(TObject *Sender)
                         this->ofpm->queryGameSpyList();
                 }
                 this->ofpm->queryServers();
-                WINDOW_SETTINGS->updateLanguage(this->ofpm->getLanguageFile());
                 if(this->ofpm->isUpdateOnStartSet()) {
                         WINDOW_UPDATE->checkForNewVersion(false);
                 }

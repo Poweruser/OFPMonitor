@@ -12,7 +12,7 @@
       StatusChange.obj ServerTableSorter.obj PlayerTableSorter.obj 
       AudioPlayer.obj CustomNotification.obj AudioTask.obj AudioPosition.obj 
       WindowSettings.obj ChatSettings.obj ChatLog.obj Observer.obj Chat.obj 
-      ChatMessage.obj IRCClient.obj"/>
+      ChatMessage.obj IRCClient.obj LanguageDB.obj"/>
     <RESFILES value="OFPMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
@@ -42,7 +42,8 @@
   </MACROS>
   <OPTIONS>
     <IDLCFLAGS value="-Iinclude -I.. -I$(BCB)\include -I$(BCB)\include\vcl -src_suffix cpp -boa"/>
-    <CFLAG1 value="-O2 -Vx -Ve -X- -a8 -b- -d -k- -vi -O -O1 -c -tW -tWM"/>
+    <CFLAG1 value="-O2 -H=$(BCB)\lib\vcl60.csm -Hc -Vx -Ve -X- -a8 -b- -d -k- -vi -O -O1 -c 
+      -tW -tWM"/>
     <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
     <RFLAGS value=""/>
     <AFLAGS value="/mx /w2 /zn"/>
@@ -97,6 +98,7 @@
       <FILE FILENAME="Chat.cpp" FORMNAME="" UNITNAME="Chat" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="ChatMessage.cpp" FORMNAME="" UNITNAME="ChatMessage" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="IRCClient.cpp" FORMNAME="" UNITNAME="IRCClient" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="LanguageDB.cpp" FORMNAME="" UNITNAME="LanguageDB" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>
@@ -133,16 +135,12 @@ Comments=
 c:\programme\borland\cbuilder6\Bin\DCLNMF60.bpl=NetMasters Fastnet Tools
 
 [HistoryLists\hlIncludePath]
-Count=3
+Count=1
 Item0=include;..;$(BCB)\include;$(BCB)\include\vcl
-Item1=C:\Programme\Borland\CBuilder6\Projects;irc;include;..;$(BCB)\include;$(BCB)\include\vcl
-Item2=irc;include;..;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=3
+Count=1
 Item0=lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item1=C:\Programme\Borland\CBuilder6\Projects;irc;lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item2=irc;lib;..;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1

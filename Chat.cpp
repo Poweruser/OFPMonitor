@@ -6,13 +6,13 @@
 #include "Chat.h"
 #include "ChatMessage.h"
 #include <time.h>
-#include "Unit2.h"
 
 //---------------------------------------------------------------------------
 
 #pragma package(smart_init)
 
-Chat::Chat(ChatSettings *chatSettings) {
+Chat::Chat(ChatSettings *chatSettings, LanguageDB *languageDB) {
+        this->languageDB = languageDB;
         this->chatSettings = chatSettings;
         this->activeChats = new TStringList;
         this->activeChats->Sorted = true;
@@ -167,9 +167,9 @@ void Chat::connect(String userNameOverwrite) {
                                                 userNameToUse);
         }
         this->ircClient->SetObserver(this);
-        this->incomingMsg(this->chatSettings->getChannel(), WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTINGTO") +
+        this->incomingMsg(this->chatSettings->getChannel(), this->languageDB->getGuiString("STRING_CHAT_CONNECTINGTO") +
                         "  " + this->chatSettings->getHost() + ":" + String(this->chatSettings->getPort()), false);
-        this->incomingMsg(this->chatSettings->getChannel(), WINDOW_SETTINGS->getGuiString("STRING_CHAT_CHANNEL") +
+        this->incomingMsg(this->chatSettings->getChannel(), this->languageDB->getGuiString("STRING_CHAT_CHANNEL") +
                         "  " + this->chatSettings->getChannel(), false);
         ircClient->connectAndListen();
 }
@@ -233,7 +233,7 @@ void Chat::update(Observable *o) {
                 while(this->ircClient->hasPartedUsers()) {
                         String user = this->ircClient->takePartedUser();
                         String message = currentTimeString(false) + "      *******    " +
-                                user + " " + WINDOW_SETTINGS->getGuiString("STRING_CHAT_LEFT") + "    *******";
+                                user + " " + this->languageDB->getGuiString("STRING_CHAT_LEFT") + "    *******";
                         if(this->hasConversation(user)) {
                                 this->incomingMsg(user, message, true);
                         }
@@ -242,7 +242,7 @@ void Chat::update(Observable *o) {
                 while(this->ircClient->hasJoinedUsers()) {
                         String user = this->ircClient->takeJoinedUser();
                         String message = currentTimeString(false) + "      *******    " +
-                                user + " " + WINDOW_SETTINGS->getGuiString("STRING_CHAT_JOINED") + "    *******";
+                                user + " " + this->languageDB->getGuiString("STRING_CHAT_JOINED") + "    *******";
                         if(this->hasConversation(user)) {
                                 this->incomingMsg(user, message, true);
                         }
@@ -259,13 +259,13 @@ void Chat::update(Observable *o) {
                 }
                 if(this->ircClient->isConnectionLost()) {
                         this->incomingMsg(this->ircClient->getChannel(),
-                        WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTIONLOST"), true);
+                        this->languageDB->getGuiString("STRING_CHAT_CONNECTIONLOST"), true);
                 } else if(this->ircClient->isDisconnected()) {
                         this->incomingMsg(this->ircClient->getChannel(),
-                        WINDOW_SETTINGS->getGuiString("STRING_CHAT_DISCONNECTED"), true);
+                        this->languageDB->getGuiString("STRING_CHAT_DISCONNECTED"), true);
                 } else if(this->ircClient->isConnectingFailed()) {
                         this->incomingMsg(this->ircClient->getChannel(),
-                        WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTINGFAILED"), true);
+                        this->languageDB->getGuiString("STRING_CHAT_CONNECTINGFAILED"), true);
                 }
                 this->NotifyObserver();
         }

@@ -8,20 +8,22 @@
 #include "IRCClient.h"
 #include "ChatSettings.h"
 #include "ChatLog.h"
+#include "LanguageDB.h"
 #include <Grids.hpp>
 #include <ComCtrls.hpp>
 
-class Chat : public Observable, Observer {
+class Chat : public Observable, public Observer {
         private:
                 TStringList *activeChats;
                 TStringList *blockedChatUsers;
                 IRCClient *ircClient;
                 ChatSettings *chatSettings;
+                LanguageDB *languageDB;
 
                 ChatLog* getChatLog(String conversation);
 
         public:
-                Chat(ChatSettings *chatSettings);
+                Chat(ChatSettings *chatSettings, LanguageDB *languageDB);
                 ~Chat();
                 void openConversation(String conversation);
                 void closeConversation(String conversation);

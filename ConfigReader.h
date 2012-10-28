@@ -19,6 +19,8 @@ class ConfigEntry {
 
                 ConfigEntry(String ident, DataType dt, void *dataPointer);
                 bool check(String line);
+        private:
+                String getValue(String in);
 };
 
 class ConfigSection {

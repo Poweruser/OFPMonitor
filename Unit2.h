@@ -7,6 +7,8 @@
 #include "OFPMonitorModel.h"      
 #include "Server.h"
 #include "ChatSettings.h"
+#include "Observer.h"
+#include "LanguageDB.h"
 
 #include <list.h>
 
@@ -25,7 +27,7 @@
                      
 //---------------------------------------------------------------------------
 
-class TWINDOW_SETTINGS : public TForm
+class TWINDOW_SETTINGS : public TForm, public Observer
 {
 __published:	// IDE-managed Components
         TEdit *EDIT_OFPRES_EXECUTABLE;
@@ -271,6 +273,7 @@ private:	// User declarations
 
         OFPMonitorModel *ofpm;
         ChatSettings *chatSettings;
+        LanguageDB *languageDB;
 
         void TWINDOW_SETTINGS::updateConfList();
         void TWINDOW_SETTINGS::refreshGamesModList();
@@ -296,10 +299,12 @@ private:	// User declarations
 
 public:		// User declarations
         void TWINDOW_SETTINGS::setModel(OFPMonitorModel *ofpm);
-        String TWINDOW_SETTINGS::getGuiString(String ident);
         __fastcall TWINDOW_SETTINGS(TComponent* Owner);
         void TWINDOW_SETTINGS::updateLanguage(String languagefile);
-        void TWINDOW_SETTINGS::setChatSettings(ChatSettings *chatSettings);        
+        void TWINDOW_SETTINGS::setChatSettings(ChatSettings *chatSettings);
+        void TWINDOW_SETTINGS::setLanguageDB(LanguageDB *languageDB);
+        void TWINDOW_SETTINGS::update(Observable *o);
+        void TWINDOW_SETTINGS::updateGuiLanguage();
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TWINDOW_SETTINGS *WINDOW_SETTINGS;

@@ -37,3 +37,7 @@ void Observable::RemoveObserver(Observer *o) {
         this->observers->Remove(o);
 }
 
+void Observable::RemoveAllObservers() {
+        this->observers->Clear();
+};
+

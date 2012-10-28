@@ -366,10 +366,8 @@ bool Server::parseMessageToQueryAnswer(Message *msg) {
         bool failed = false;
         if(queryIdPart->Count == 2) {
                 queryAnswerId = queryIdPart->Strings[0];
-                try {
-                        queryAnswerPart = StrToInt(queryIdPart->Strings[1]);
-                        if(queryAnswerPart < 1 || queryAnswerPart > 5) { failed = true; }
-                } catch (...) { failed = true; }
+                queryAnswerPart = StrToIntDef(queryIdPart->Strings[1], 0);
+                if(queryAnswerPart < 1 || queryAnswerPart > 5) { failed = true; }
         } else { failed = true; }
         delete queryIdPart;
         if(failed) {
@@ -453,14 +451,10 @@ void Server::parseQueryAnswers() {
                                                                 pTeam = value;
                                                                 break;
                                                         case 2:
-                                                                try {
-                                                                        pScore = StrToInt(value);
-                                                                } catch(...) {}
+                                                                pScore = StrToIntDef(value, 0);
                                                                 break;
                                                         case 3:
-                                                                try {
-                                                                        pDeaths = StrToInt(value);
-                                                                } catch(...) {}
+                                                                pDeaths = StrToIntDef(value, 0);
                                                                 break;
                                                 }
                                         } else {
@@ -484,15 +478,18 @@ void Server::parseQueryAnswers() {
                         if(ident == "hostname") {
                                 this->name = value;
                         } else if(ident == "hostport") {
-                                try { this->gameport = StrToInt(value); } catch(...){}
+                                int p = StrToIntDef(value, -1);
+                                if(p > -1) { this->gameport = p; }
                         } else if(ident == "mapname") {
                                 this->island = value;
                         } else if(ident == "gametype") {
                                 this->mission = value;
                         } else if(ident == "numplayers") {
-                                try { this->players = StrToInt(value); } catch (...) {}
+                                int p = StrToIntDef(value, -1);
+                                if(p > -1) { this->players = p; }
                         } else if(ident == "maxplayers") {
-                                try { this->maxplayers = StrToInt(value); } catch (...) {}
+                                int mp = StrToIntDef(value, -1);
+                                if(mp > -1) { this->maxplayers = mp; }
                         } else if(ident == "timeleft") {
                                 this->timeleft = value;
                         } else if(ident == "param1") {
@@ -500,9 +497,11 @@ void Server::parseQueryAnswers() {
                         } else if(ident == "param2") {
                                 this->param2 = value;
                         } else if(ident == "actver") {
-                                try { this->actver = StrToInt(value); } catch (...) {}
+                                int av = StrToIntDef(value, -1);
+                                if(av > -1) { this->actver = av; }
                         } else if(ident == "reqver") {
-                                try { this->reqver = StrToInt(value); } catch (...) {}
+                                int rv = StrToIntDef(value, -1);
+                                if(rv > -1) { this->reqver = rv; }
                         } else if(ident == "mod") {
                                 String m = value;
                                 if(m.SubString(1,3) == "RES") {
@@ -513,15 +512,14 @@ void Server::parseQueryAnswers() {
                                 }
                                 this->mod = m;
                         } else if(ident == "equalModRequired") {
-                                try { this->equalMod = StrToInt(value); } catch (...) {}
+                                int emr = StrToIntDef(value, -1);
+                                if(emr > -1 && emr <= 1) { this->equalMod = emr; }
                         } else if(ident == "password") {
-                                try { this->password = StrToInt(value); } catch (...) {}
+                                int pw = StrToIntDef(value, -1);
+                                if(pw > -1 && pw <= 1) { this->password = pw; }
                         } else if(ident == "gstate") {
                                 int oldStatus = this->gamestate;
-                                int newStatus = 0;
-                                try {
-                                        newStatus = StrToInt(value);
-                                } catch (...) {}
+                                int newStatus = StrToIntDef(value, 0);
                                 this->gamestate = newStatus;
                                 if(newStatus > 0) {
                                         if(oldStatus != newStatus) {

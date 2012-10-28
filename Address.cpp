@@ -33,12 +33,8 @@
                                         String ip = ipAndPort->Strings[0];
                                         int port = defaultPort;
                                         if(ipAndPort->Count == 2) {
-                                                try {
-                                                        port = StrToInt(ipAndPort->Strings[1]);
-                                                        if(port <= 0 || port > 65535) {
-                                                                ok = false;
-                                                        }
-                                                } catch (...) {
+                                                port = StrToIntDef(ipAndPort->Strings[1], -1);
+                                                if(port <= 0 || port > 65535) {
                                                         ok = false;
                                                 }
                                         }
@@ -48,12 +44,8 @@
                                                 ok = false;
                                         }
                                         while(octets->Count > 0 && ok) {
-                                                try {
-                                                        int item = StrToInt(octets->Strings[0]);
-                                                        if(item < 0 || item > 255) {
-                                                                ok = false;
-                                                        }
-                                                } catch (...) {
+                                                int item = StrToIntDef(octets->Strings[0], -1);
+                                                if(item < 0 || item > 255) {
                                                         ok = false;
                                                 }
                                                 octets->Delete(0);

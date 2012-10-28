@@ -21,8 +21,19 @@ TWINDOW_UPDATE *WINDOW_UPDATE;
 
 void releaseMutex();
 
-String updateInformation = "https://raw.github.com/wiki/poweruser/ofpmonitor/update.txt";
-String updateLocation = "https://github.com/downloads/poweruser/ofpmonitor/";
+void TWINDOW_UPDATE::update(Observable *o) {
+        if(o == this->languageDB) {
+                this->updateGuiLanguage();
+        }
+}
+
+void TWINDOW_UPDATE::setLanguageDB(LanguageDB *languageDB) {
+        this->languageDB = languageDB;
+}
+
+void TWINDOW_UPDATE::updateGuiLanguage() {
+        this->Caption = this->languageDB->getGuiString(this->Name);
+}
 
 class UpdateTracker {
   private:
@@ -161,7 +172,7 @@ UpdateTracker *uT;
 DWORD WINAPI UpdaterThread_Step1 (LPVOID lpdwThreadParam__ ) {
                 UpdateTracker *uTracker = (UpdateTracker*) lpdwThreadParam__;
                 try {
-                        uTracker->http->Get(updateInformation, uTracker->ms);
+                        uTracker->http->Get("https://raw.github.com/wiki/poweruser/ofpmonitor/update.txt", uTracker->ms);
                 } catch (EIdException &E) {
                         uTracker->errorHappend(E.Message);
                         uTracker->step++;
@@ -183,14 +194,14 @@ DWORD WINAPI UpdaterThread_Step1 (LPVOID lpdwThreadParam__ ) {
                 TStringList *remote = sspr.split(".");
                 uTracker->newVersion = false;
                 for(int i = 0; i < local->Count && i < remote->Count; i++) {
-                        try {
-                                int l = StrToInt(local->Strings[i]);
-                                int r = StrToInt(remote->Strings[i]);
+                        int l = StrToIntDef(local->Strings[i], -1);
+                        int r = StrToIntDef(remote->Strings[i], -1);
+                        if(l >= 0 && r >= 0) {
                                 uTracker->newVersion = (r > l);
                                 if(uTracker->newVersion || (r < l)) {
-                                        break;
+                                break;
                                 }
-                        } catch (...) {
+                        } else {
                                 uTracker->newVersion = false;
                                 break;
                         }
@@ -220,7 +231,7 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                 TStringList *item = ssp.split(":");
                                 String file = item->Strings[0];
                                 String fileSize = item->Strings[1];
-                                String target = updateLocation + file;
+                                String target = "https://github.com/downloads/poweruser/ofpmonitor/" + file;
                                 uT->fs->Clear();
                                 WINDOW_UPDATE->LABEL_UPDATE_CURRENTFILE->Caption = file;
                                 bool success = false;
@@ -351,8 +362,8 @@ void __fastcall TWINDOW_UPDATE::Timer1Timer(TObject *Sender)
                         uT->thread1 = CreateThread(0, 0, UpdaterThread_Step1, uT, 0, 0);
                 } else if(uT->step == 2) {
                         if(uT->newVersion) {
-                                uT->answer = MessageDlg(WINDOW_SETTINGS->getGuiString("STRING_UPDATE1") + "  " +
-                                        uT->remoteVersion + "\n" + WINDOW_SETTINGS->getGuiString("STRING_UPDATE2"),
+                                uT->answer = MessageDlg(this->languageDB->getGuiString("STRING_UPDATE1") + "  " +
+                                        uT->remoteVersion + "\n" + this->languageDB->getGuiString("STRING_UPDATE2"),
                                         mtConfirmation, TMsgDlgButtons() << mbYes << mbNo, 0);
                                 if(uT->answer == mrYes) {
                                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Clear();
@@ -372,7 +383,7 @@ void __fastcall TWINDOW_UPDATE::Timer1Timer(TObject *Sender)
                                                 ShowMessage("Error: " + uT->errorMsg);
                                                 uT->error = false;
                                         } else {
-                                                ShowMessage(WINDOW_SETTINGS->getGuiString("STRING_UPDATE_ALREADYLATEST"));
+                                                ShowMessage(this->languageDB->getGuiString("STRING_UPDATE_ALREADYLATEST"));
                                         }
                                 }
                                 WINDOW_SETTINGS->BUTTON_UPDATE->Enabled = true;

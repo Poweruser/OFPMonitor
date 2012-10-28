@@ -2,9 +2,7 @@
 
 #include <vcl.h>
 #pragma hdrstop      
-#include "Unit2.h"
 #include "Unit3.h"
-#include "OFPMonitorModel.h"
 #include "OFPMonitorDefinitions.h"
 #include "Game.h"
 
@@ -19,6 +17,24 @@ TWINDOW_LOCALGAME *WINDOW_LOCALGAME;
 
 void TWINDOW_LOCALGAME::setModel(OFPMonitorModel *ofpm) {
         this->ofpm = ofpm;
+}
+
+void TWINDOW_LOCALGAME::setLanguageDB(LanguageDB *languageDB) {
+        this->languageDB = languageDB;
+}
+
+void TWINDOW_LOCALGAME::update(Observable *o) {
+        if(o == this->languageDB) {
+                this->updateGuiLanguage();
+        }
+}
+
+void TWINDOW_LOCALGAME::updateGuiLanguage() {
+        this->Caption = this->languageDB->getGuiString(this->Name);
+        this->BUTTON_LOCALGAME_START->Caption = this->languageDB->getGuiString(BUTTON_LOCALGAME_START->Name);
+        this->CHECKBOX_MULTIPLAYER->Caption = this->languageDB->getGuiString(CHECKBOX_MULTIPLAYER->Name);
+        this->LABEL_GAME->Caption = this->languageDB->getGuiString(LABEL_GAME->Name);
+        this->LABEL_MOD->Caption = this->languageDB->getGuiString(LABEL_MOD->Name);
 }
 
 //---------------------------------------------------------------------------
@@ -64,7 +80,7 @@ void __fastcall TWINDOW_LOCALGAME::COMBOBOX_LOCALGAMESChange(
                 Game *g = (Game*) (COMBOBOX_LOCALGAMES->Items->Objects[index]);
                 int confNum = g->getConfigurationsCount();
                 COMBOBOX_LOCALMODS->Items->Clear();
-                COMBOBOX_LOCALMODS->Items->AddObject(WINDOW_SETTINGS->getGuiString("MENUITEM_POPUP_JOIN_NOMODS"), (TObject*)(NULL));
+                COMBOBOX_LOCALMODS->Items->AddObject(this->languageDB->getGuiString("MENUITEM_POPUP_JOIN_NOMODS"), (TObject*)(NULL));
                 for(int i = 0; i < confNum; i++) {
                         Configuration *conf = g->getConfiguration(i);
                         if(conf != NULL) {
