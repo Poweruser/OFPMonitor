@@ -25,8 +25,8 @@ OFPMonitorModel::OFPMonitorModel(String settingsFile, ServerList *serverList) {
         this->queryTimer->OnTimer = this->onQueryTimer;
         this->AppWorkdir = ExtractFileDir(Application->ExeName);
         this->customNotifications = false;
-        this->interval = 3;
-        this->level = High;
+        this->interval = 5;
+        this->level = Moderate;
         this->settingsfile = settingsFile;
         this->languagefile = "";
         this->querying = false;
