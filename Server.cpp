@@ -289,14 +289,10 @@ ServerFilterResult Server::checkFilter(ServerFilter *filter) {
                                 if(missionfilter) {
                                         bool namefilter = filter->testServerName(this->name);
                                         if(namefilter) {
-                                                TStringList *pl = filter->playerNames;
-                                                bool playerfilter = (pl->Count == 0);
-                                                for(int i = 0; i < pl->Count; i++) {
-                                                        if(this->isPlayerOnServer(pl->Strings[i], false)) {
-                                                                playerfilter = true;
-                                                                break;
-                                                        }
-                                                }
+                                                TStringList *playerList = this->playerArrayToStringList();
+                                                bool playerfilter = filter->testPlayerName(playerList);
+                                                playerList->Clear();
+                                                delete playerList;
                                                 if(playerfilter) {
                                                         out = SFR_PASSED;
                                                 }
@@ -711,6 +707,16 @@ String Server::createSettingsFileEntry() {
 
 void Server::setSelectedToDisplay(bool active) {
         this->selectedToDisplay = active;
+}
+
+TStringList* Server::playerArrayToStringList() {
+        TStringList *out = new TStringList;
+        for(int i = 0; i < this->playersInArray && i < 30; i++) {
+                if(this->playerArray[i] != NULL) {
+                        out->Add(this->playerArray[i]->getName());
+                }
+        }
+        return out;
 }
 
 

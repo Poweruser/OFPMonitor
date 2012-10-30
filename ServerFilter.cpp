@@ -125,24 +125,54 @@ void ServerFilter::readSettings(TStringList *file) {
         this->NotifyObserver();
 }
 
+bool ServerFilter::doInclusionAndExclusionTest(TStringList *full, TStringList *filter) {
+        if(filter->Count == 0) { return true; }
+        for(int j = 0; j < filter->Count; j++) {
+                String filt = filter->Strings[j].Trim().LowerCase();
+                if(filt.Pos("!") == 1) {
+                        filt.Delete(1,1);
+                        for(int i = 0; i < full->Count; i++) {
+                                String str = full->Strings[i].LowerCase();
+                                if(str.Pos(filt) > 0) {
+                                        return false;
+                                }
+                        }
+                }
+        }
+        bool hasIncludes = false;
+        for(int j = 0; j < filter->Count; j++) {
+                String filt = filter->Strings[j].Trim().LowerCase();
+                if(filt.Pos("!") == 0) {
+                        hasIncludes = true;
+                        for(int i = 0; i < full->Count; i++) {
+                                String str = full->Strings[i].LowerCase();
+                                if(str.Pos(filt) > 0) {
+                                        return true;
+                                }
+                        }
+                }
+        }
+        return !hasIncludes;
+}
 
 bool ServerFilter::testMissionName(String mission) {
-        if(this->missionNames->Count == 0) { return true; }
-        for(int i = 0; i < this->missionNames->Count; i++) {
-                if(mission.LowerCase().Pos(this->missionNames->Strings[i].LowerCase()) > 0) {
-                        return true;
-                }
-        }
-        return false;
+        TStringList *str = new TStringList;
+        str->Add(mission);
+        bool result = this->doInclusionAndExclusionTest(str, this->missionNames);
+        delete str;
+        return result;
 }
+
 bool ServerFilter::testServerName(String server) {
-        if(this->serverNames->Count == 0) { return true; }
-        for(int i = 0; i < this->serverNames->Count; i++) {
-                if(server.LowerCase().Pos(this->serverNames->Strings[i].LowerCase()) > 0) {
-                        return true;
-                }
-        }
-        return false;
+        TStringList *str = new TStringList;
+        str->Add(server);
+        bool result = this->doInclusionAndExclusionTest(str, this->serverNames);
+        delete str;
+        return result;
+}
+
+bool ServerFilter::testPlayerName(TStringList *names) {
+        return this->doInclusionAndExclusionTest(names, this->playerNames);
 }
 
 void ServerFilter::setMinPlayers(int num) {

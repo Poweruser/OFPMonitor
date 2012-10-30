@@ -33,12 +33,16 @@ class ServerFilter : public Observable {
                 void readSettings(TStringList *file);
                 bool testMissionName(String mission);
                 bool testServerName(String mission);
+                bool testPlayerName(TStringList *names);
                 void setMinPlayers(int num);
                 void setMaxPlayers(int num);
                 int getBinaryStatusFilter();
                 void parseBinaryStatusFilter(int filter);
                 String concatenateFilter(TStringList *list, String splitter);
                 void getSettingsFileEntry(TStringList *settings);
+
+        private:
+                bool doInclusionAndExclusionTest(TStringList *full, TStringList *filter);
 
 };
 

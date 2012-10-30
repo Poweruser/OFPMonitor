@@ -141,6 +141,8 @@ class Server : public TObject {
                 String name;
                 int gamestate;
                 bool online;
+
+                TStringList* playerArrayToStringList();
 };
 
 //---------------------------------------------------------------------------
