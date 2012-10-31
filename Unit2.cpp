@@ -492,6 +492,14 @@ void TWINDOW_SETTINGS::updateServerEditorList() {
                                         sortlist->AddObject(srv->getAddress(), (TObject*) srv);
                                 } else if(this->serverEditorTableSorter->isNameSet()) {
                                         sortlist->AddObject(srv->getName(), (TObject*) srv);
+                                } else if(this->serverEditorTableSorter->isFavoritesSet()) {
+                                        sortlist->AddObject(IntToStr(srv->isFavorite()), (TObject*) srv);
+                                } else if(this->serverEditorTableSorter->isWatchedSet()) {
+                                        sortlist->AddObject(IntToStr(srv->isWatched()), (TObject*) srv);
+                                } else if(this->serverEditorTableSorter->isPersistentSet()) {
+                                        sortlist->AddObject(IntToStr(srv->isPersistent()), (TObject*) srv);
+                                } else if(this->serverEditorTableSorter->isBlockedSet()) {
+                                        sortlist->AddObject(IntToStr(srv->isBlocked()), (TObject*) srv);
                                 }
                         }
                 }
@@ -1630,13 +1638,21 @@ void __fastcall TWINDOW_SETTINGS::StringGrid1MouseDown(TObject *Sender,
                                         srv->setBlocked(!srv->isBlocked());
                                 }
                         }
-                } else if(column > -1 && column < 3 && row == 0) {
+                } else if(column > -1 && column < 7 && row == 0) {
                         if(column == 0) {
                                 this->serverEditorTableSorter->setID();
                         } else if(column == 1) {
                                 this->serverEditorTableSorter->setIP();
                         } else if(column == 2) {
                                 this->serverEditorTableSorter->setName();
+                        } else if(column == 3) {
+                                this->serverEditorTableSorter->setFavorites();
+                        } else if(column == 4) {
+                                this->serverEditorTableSorter->setWatched();
+                        } else if(column == 5) {
+                                this->serverEditorTableSorter->setPersistent();
+                        } else if(column == 6) {
+                                this->serverEditorTableSorter->setBlocked();
                         }
                         this->updateServerEditorList();
                 }
