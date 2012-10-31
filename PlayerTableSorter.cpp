@@ -15,6 +15,11 @@ PlayerTableSorter::PlayerTableSorter() {
         this->normalOrder = true;
 }
 
+void PlayerTableSorter::reset() {
+        this->setName();
+        this->normalOrder = true;
+}
+
 void PlayerTableSorter::setProperty(PlayerTableColumn ptc) {
         if(this->currentColumn == ptc) {
                 this->normalOrder = !this->normalOrder;
