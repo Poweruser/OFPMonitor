@@ -22,7 +22,6 @@ class IRCClient : public Observable {
                 ConnectionStatus status;
                 bool controlledShutdown;
                 bool updatePlayers;
-                bool sentVersion;
                 int timeouts;
                 String userName;
                 String ircUserName;

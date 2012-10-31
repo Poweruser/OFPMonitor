@@ -14,7 +14,6 @@
 IRCClient::IRCClient(String host, int port, String channel, String userName) {
         this->userName = userName;
         this->ircUserName = this->convertName_LocalToIrc(this->userName);
-        this->sentVersion = false;
         this->updatePlayers = false;
         this->timeouts = 0;
         this->host = host;
@@ -166,7 +165,6 @@ void IRCClient::parseReceivedData(String data) {
                                 this->remoteServer = tmp.SubString(1, position - 1);
                         }
                 }
-                bool endNameListMsg = line.Pos("End of /NAMES list");
                 bool normalMsg = line.Pos("PRIVMSG ");
 
                 String body = line;
@@ -203,9 +201,6 @@ void IRCClient::parseReceivedData(String data) {
                 } else if(body.Pos("PART ") == 1) {
                         String name = this->extractUserNameFromLine(line);
                         this->userLeft(name);
-                } else if(!this->sentVersion && endNameListMsg) {
-                        this->sentVersion = true;
-                        this->sendMessage(this->channel, "Logged in with " + Application->Title);
                 } else if(body.Pos("PRIVMSG ") == 1) {
                         bool chanMsg = body.Pos("PRIVMSG " + this->channel) == 1;
                         bool privMsg = body.Pos("PRIVMSG " + this->ircUserName) == 1;
