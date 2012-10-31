@@ -12,7 +12,7 @@
       StatusChange.obj ServerTableSorter.obj PlayerTableSorter.obj 
       AudioPlayer.obj CustomNotification.obj AudioTask.obj AudioPosition.obj 
       WindowSettings.obj ChatSettings.obj ChatLog.obj Observer.obj Chat.obj 
-      ChatMessage.obj IRCClient.obj LanguageDB.obj"/>
+      ChatMessage.obj IRCClient.obj LanguageDB.obj ServerEditorTableSorter.obj"/>
     <RESFILES value="OFPMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
@@ -99,6 +99,7 @@
       <FILE FILENAME="ChatMessage.cpp" FORMNAME="" UNITNAME="ChatMessage" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="IRCClient.cpp" FORMNAME="" UNITNAME="IRCClient" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="LanguageDB.cpp" FORMNAME="" UNITNAME="LanguageDB" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="ServerEditorTableSorter.cpp" FORMNAME="" UNITNAME="ServerEditorTableSorter" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>

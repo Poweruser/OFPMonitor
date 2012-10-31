@@ -6,6 +6,7 @@
 #include "OFPMonitorDefinitions.h"
 #include "OFPMonitorModel.h"      
 #include "Server.h"
+#include "ServerEditorTableSorter.h"
 #include "ChatSettings.h"
 #include "Observer.h"
 #include "LanguageDB.h"
@@ -269,11 +270,13 @@ __published:	// IDE-managed Components
           TMouseButton Button, TShiftState Shift, int X, int Y);
         void __fastcall BUTTON_SERVERS_REMOVEClick(TObject *Sender);
         void __fastcall Timer1Timer(TObject *Sender);
+        void __fastcall FormDestroy(TObject *Sender);
 private:	// User declarations
 
         OFPMonitorModel *ofpm;
         ChatSettings *chatSettings;
         LanguageDB *languageDB;
+        ServerEditorTableSorter *serverEditorTableSorter;
 
         void TWINDOW_SETTINGS::updateConfList();
         void TWINDOW_SETTINGS::refreshGamesModList();

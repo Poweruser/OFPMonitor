@@ -486,17 +486,28 @@ void TWINDOW_SETTINGS::updateServerEditorList() {
                 for(list<Server*>::iterator ci = allServers.begin(); ci != allServers.end(); ++ci) {
                         Server *srv = *ci;
                         if(srv != NULL) {
-                              sortlist->AddObject(this->addLeadingZeros(srv->getIndex(), 3), (TObject*) srv);
+                                if(this->serverEditorTableSorter->isIDSet()) {
+                                        sortlist->AddObject(this->addLeadingZeros(srv->getIndex(), 3), (TObject*) srv);
+                                } else if(this->serverEditorTableSorter->isIPSet()) {
+                                        sortlist->AddObject(srv->getAddress(), (TObject*) srv);
+                                } else if(this->serverEditorTableSorter->isNameSet()) {
+                                        sortlist->AddObject(srv->getName(), (TObject*) srv);
+                                }
                         }
                 }
                 int rowIndex = 0;
                 for(int i = 0; i < sortlist->Count; i++) {
                         rowIndex++;
-                        this->writeServerToStringGrid(rowIndex, (Server*)(sortlist->Objects[i]));
+                        TObject *obj = sortlist->Objects[i];
+                        if(!this->serverEditorTableSorter->isNormalOrder()) {
+                                obj = sortlist->Objects[sortlist->Count - (i + 1)];
+                        }
+                        this->writeServerToStringGrid(rowIndex, (Server*)(obj));
                 }
                 sortlist->Clear();
                 delete sortlist;
                 StringGrid1->RowCount = max(1, rowIndex + 1);
+                StringGrid1->Repaint();
                 this->BUTTON_SERVERS_REMOVE->Enabled = true;
         }
 }
@@ -533,6 +544,7 @@ void __fastcall TWINDOW_SETTINGS::FormCreate(TObject *Sender)
         for(int i = 3; i < 7; i++) {
                 StringGrid1->ColWidths[i] = 24;
         }
+        this->serverEditorTableSorter = new ServerEditorTableSorter();
 }
 //---------------------------------------------------------------------------
 
@@ -1618,6 +1630,15 @@ void __fastcall TWINDOW_SETTINGS::StringGrid1MouseDown(TObject *Sender,
                                         srv->setBlocked(!srv->isBlocked());
                                 }
                         }
+                } else if(column > -1 && column < 3 && row == 0) {
+                        if(column == 0) {
+                                this->serverEditorTableSorter->setID();
+                        } else if(column == 1) {
+                                this->serverEditorTableSorter->setIP();
+                        } else if(column == 2) {
+                                this->serverEditorTableSorter->setName();
+                        }
+                        this->updateServerEditorList();
                 }
         }
 }
@@ -1659,5 +1680,13 @@ void __fastcall TWINDOW_SETTINGS::Timer1Timer(TObject *Sender)
         }
 }
 //---------------------------------------------------------------------------
+
+
+void __fastcall TWINDOW_SETTINGS::FormDestroy(TObject *Sender)
+{
+        delete this->serverEditorTableSorter;
+}
+//---------------------------------------------------------------------------
+
 
 
