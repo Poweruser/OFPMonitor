@@ -40,7 +40,7 @@ class WindowSettings {
                 int devider;
                 bool alwaysOnTop;
                 float serverTable[WS_ServerTableColumns];
-                float playerTable[4];
+                float playerTable[WS_PlayerTableColumns];
 
 
 };

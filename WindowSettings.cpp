@@ -46,6 +46,27 @@ void WindowSettings::readSettings(TStringList *settings) {
         window->add(new ConfigEntry("ratioPlayerTable", dtString, (void*)(&ratioPT)));
         window->add(new ConfigEntry("devider", dtInt, (void*)(&(this->devider))));
         window->add(new ConfigEntry("AlwaysOnTop", dtBool, (void*)(&(this->alwaysOnTop))));
+
+        float oldSTR[WS_ServerTableColumns];
+        float oldPTR[WS_PlayerTableColumns];
+        for(int i = 0; i < WS_ServerTableColumns; i++) {
+                oldSTR[i] = 0.0f;
+        }
+        for(int i = 0; i < WS_PlayerTableColumns; i++) {
+                oldPTR[i] = 0.0f;
+        }
+        window->add(new ConfigEntry("ratioID", dtFloat, (void*)(&oldSTR[0])));
+        window->add(new ConfigEntry("ratioSN", dtFloat, (void*)(&oldSTR[1])));
+        window->add(new ConfigEntry("ratioPN", dtFloat, (void*)(&oldSTR[2])));
+        window->add(new ConfigEntry("ratioST", dtFloat, (void*)(&oldSTR[3])));
+        window->add(new ConfigEntry("ratioIS", dtFloat, (void*)(&oldSTR[4])));
+        window->add(new ConfigEntry("ratioMN", dtFloat, (void*)(&oldSTR[5])));
+        window->add(new ConfigEntry("ratioPI", dtFloat, (void*)(&oldSTR[6])));
+        window->add(new ConfigEntry("ratioPL", dtFloat, (void*)(&oldPTR[0])));
+        window->add(new ConfigEntry("ratioSC", dtFloat, (void*)(&oldPTR[1])));
+        window->add(new ConfigEntry("ratioDE", dtFloat, (void*)(&oldPTR[2])));
+        window->add(new ConfigEntry("ratioTE", dtFloat, (void*)(&oldPTR[3])));
+
         window->scan(settings, 0);
         delete window;
         if(!ratioST.IsEmpty()) {
@@ -57,16 +78,24 @@ void WindowSettings::readSettings(TStringList *settings) {
                         } catch(...) {}
                 }
                 delete ratios;
+        } else {
+                for(int i = 0; i < WS_ServerTableColumns; i++) {
+                        this->serverTable[i] = oldSTR[i];
+                }
         }
         if(!ratioPT.IsEmpty()) {
                 StringSplitter ssp(ratioPT);
                 TStringList *ratios = ssp.split(";");
-                for(int i = 0; i < ratios->Count && i < 4; i++) {
+                for(int i = 0; i < ratios->Count && i < WS_PlayerTableColumns; i++) {
                         try {
                                 this->playerTable[i] = atof(ratios->Strings[i].c_str());
                         } catch(...) {}
                 }
                 delete ratios;
+        } else {
+                for(int i = 0; i < WS_PlayerTableColumns; i++) {
+                        this->playerTable[i] = oldPTR[i];
+                }
         }
 }
 
