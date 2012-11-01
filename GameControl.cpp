@@ -63,8 +63,12 @@ bool GameControl::verifyProcess() {
 
 bool GameControl::verifyServer() {
         if(this->selectedServer != NULL) {
-                return (this->selectedServer->isOnline() &&
-                        !this->selectedServer->isBlocked());
+                bool out = this->selectedServer->isOnline() &&
+                          !this->selectedServer->isBlocked();
+                if(this->autoDetect) {
+                        out = out && (this->ofpm->findUserOnServer() == this->selectedServer);
+                }
+                return out;
         }
         return false;
 }
@@ -233,8 +237,10 @@ bool GameControl::detectServer() {
         bool detected = false;
         if(this->autoDetect) {
                 Server *svr = this->ofpm->findUserOnServer();
-                if(svr != NULL) {
+                if(svr != this->selectedServer) {
                         this->setServer(svr);
+                }
+                if(svr != NULL) {
                         detected = true;
                 }
         }
