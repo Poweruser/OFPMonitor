@@ -41,16 +41,16 @@ void FontSettings::readSettings(TStringList *file) {
         font->add(new ConfigEntry("Bold", dtBool, (void*)(&bold)));
         font->add(new ConfigEntry("Italic", dtBool, (void*)(&italic)));
         int index = font->scan(file, 0);
-        if(index < file->Count) {
-                if(bold) {
-                        this->style = this->style << fsBold;
-                }
-                if(italic) {
-                        this->style = this->style << fsItalic;
-                }
-                this->NotifyObserver();
-        }
         delete font;
+        if(this->size < 8) { this->size = 10; }
+        if(bold) {
+                this->style = this->style << fsBold;
+        }
+        if(italic) {
+                this->style = this->style << fsItalic;
+        }
+        this->NotifyObserver();
+
 }
 
 TFont* FontSettings::getFont() {
