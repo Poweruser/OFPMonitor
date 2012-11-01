@@ -40,18 +40,17 @@ void TForm1::update(Observable *o) {
                 StatusBar1->Repaint();
         } else if(o == this->chat && this->chat != NULL) {
                 MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = this->chat->isDisconnected();
-                MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = this->chat->isConnected();
+                MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = !this->chat->isDisconnected();
                 MemoChatInput->Enabled = this->chat->isConnected();
+                this->chat->writeUserList(StringGrid3);
+                this->chat->writeConversations(TabControl1);
                 if(TabControl1->TabIndex >= 0) {
                         String conversation = TabControl1->Tabs->Strings[TabControl1->TabIndex];
                         this->chat->syncChat(conversation, this->MemoChatOutput);
                 }
-                this->chat->writeUserList(StringGrid3);
-                this->chat->writeConversations(TabControl1);
                 TabControl1->Repaint();
-                if(this->chat->isConnectionLost()) {
-                        this->chat->reconnect();
-                } else if(this->chat->isDisconnected()) {
+                if(this->chat->isDisconnected()) {
+                        TabControl1->TabIndex = 0;
                         this->chat->loadThisChat(this->chatSettings->getChannel(), MemoChatOutput, MemoChatInput);
                         MemoChatInput->Clear();
                 }
@@ -810,15 +809,6 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
                 }
                 MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = this->ofpm->isGameSpyUpdateDone();
         }
-        if(this->chat != NULL && this->chatThreadHandle != NULL) {
-                if(this->chat->isDisconnected()) {
-                        this->update(this->chat);
-                        TerminateThread(this->chatThreadHandle, 0);
-                        this->chatThreadHandle = NULL;
-                        delete (this->chat);
-                        this->chat = NULL;
-                }
-        }
         this->filterChanged(false);
         if(this->gameControl != NULL) {
                 this->gameControl->ProcessMessages();
@@ -1308,28 +1298,16 @@ void __fastcall TForm1::Info1Click(TObject *Sender)
         WINDOW_INFO->ShowModal();
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::TimerIrcChatTimerTimer(TObject *Sender)
-{
-        /*
-        if(chatsettings.connectionLost == 1) {
-                chatsettings.connectionLost = 2;
-                this->incomingChatMessage(this->getChatChannel(), WINDOW_SETTINGS->getGuiString("STRING_CHAT_CONNECTIONLOST"), false);
-                MENUITEM_MAINMENU_CHAT_DISCONNECT->Click();
-                MENUITEM_MAINMENU_CHAT_CONNECT->Click();
-        } else {
-                chat_client_timercallback( this );
-        }
-        if(chatsettings.doConnect) {
-                chatsettings.doConnect = false;
-                chat_client_connect();
-        }
-        */
-}
-//---------------------------------------------------------------------------
 
 DWORD WINAPI chatThread (LPVOID lpdwThreadParam__ ) {
         Chat *chat = (Chat*) lpdwThreadParam__;
-        chat->connect("");
+        chat->connect("", true);
+        while(chat->isConnectionLost()) {
+                chat->reconnect();
+        }
+        if(chat->isConnectingFailed()) {
+                chat->disconnect();
+        }
         return 0;
 }
 //---------------------------------------------------------------------------
@@ -1341,6 +1319,9 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
         this->PageControl1->ActivePage = this->TABSHEET_CHAT;
         if(this->chat != NULL) {
                 if(this->chat->isDisconnected()) {
+                        if(this->chatThreadHandle != NULL) {
+                                TerminateThread(this->chatThreadHandle, 0);
+                        }
                         delete (this->chat);
                         this->chat = NULL;
                 }
@@ -1469,13 +1450,11 @@ void __fastcall TForm1::TabControl1DrawTab(TCustomTabControl *Control,
         r.Left += 4;
         String caption = TabControl1->Tabs->Strings[TabIndex];
         if(this->chat != NULL) {
-                if(this->chat->isConnected()) {
-                        if(TabIndex != TabControl1->TabIndex) {
-                                if(this->chat->hasConversationNewMessages(caption)) {
-                                        Control->Canvas->Font->Color = clWhite;
-                                        Control->Canvas->Brush->Color = clBlue;
-                                        Control->Canvas->FillRect(Rect);
-                                }
+                if(TabIndex != TabControl1->TabIndex) {
+                        if(this->chat->hasConversationNewMessages(caption)) {
+                                Control->Canvas->Font->Color = clWhite;
+                                Control->Canvas->Brush->Color = clBlue;
+                                Control->Canvas->FillRect(Rect);
                         }
                 }
         }
@@ -1853,5 +1832,7 @@ void __fastcall TForm1::FormDestroy(TObject *Sender)
         delete this->playerTableSorter;
 }
 //---------------------------------------------------------------------------
+
+
 
 

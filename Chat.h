@@ -21,6 +21,7 @@ class Chat : public Observable, public Observer {
                 LanguageDB *languageDB;
 
                 ChatLog* getChatLog(String conversation);
+                void closeAllConversations();
 
         public:
                 Chat(ChatSettings *chatSettings, LanguageDB *languageDB);
@@ -44,7 +45,7 @@ class Chat : public Observable, public Observer {
                 String generateUsername(String userName, bool wasConnectionLost);
                 String getUserNameInUse();
 
-                void connect(String userNameOverWrite);
+                void connect(String userNameOverWrite, bool wasConnectionLost);
                 void disconnect();
                 void reconnect();
                 bool isConnected();

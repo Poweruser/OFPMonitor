@@ -26,6 +26,7 @@ class IRCClient : public Observable {
                 String userName;
                 String ircUserName;
                 int tcpSocket;
+                bool checkStates;
                 
                 void userJoined(String userName, bool isNew);
                 void userLeft(String userName);
@@ -58,6 +59,7 @@ class IRCClient : public Observable {
                 bool isConnectingFailed();
                 void connectAndListen();
                 void disconnect();
+                bool checkStatesAllowed();
 };
 
 

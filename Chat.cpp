@@ -25,6 +25,7 @@ Chat::Chat(ChatSettings *chatSettings, LanguageDB *languageDB) {
 
 Chat::~Chat() {
         this->disconnect();
+        this->closeAllConversations();
         delete (this->activeChats);
         delete (this->blockedChatUsers);
         delete this->ircClient;
@@ -120,6 +121,14 @@ void Chat::closeConversation(String conversation) {
         this->NotifyObserver();
 }
 
+void Chat::closeAllConversations() {
+        for(int i = 0; i < this->activeChats->Count; i++) {
+                ChatLog *cl = (ChatLog*) (this->activeChats->Objects[i]);
+                delete cl;
+        }
+        this->activeChats->Clear();
+}
+
 String Chat::currentTimeString(bool full) {
         time_t rawTime;
         struct tm *timeInfo;
@@ -152,7 +161,11 @@ String Chat::generateUsername(String userName, bool wasConnectionLost) {
         return userName;
 }
 
-void Chat::connect(String userNameOverwrite) {
+void Chat::connect(String userNameOverwrite, bool clearPreviousLogs) {
+        if(clearPreviousLogs) {
+                this->closeAllConversations();
+                this->blockedChatUsers->Clear();
+        }
         String userNameToUse = this->chatSettings->getUserName();
         if(!userNameOverwrite.IsEmpty()) {
                 userNameToUse = userNameOverwrite;
@@ -171,6 +184,7 @@ void Chat::connect(String userNameOverwrite) {
                         "  " + this->chatSettings->getHost() + ":" + String(this->chatSettings->getPort()), false);
         this->incomingMsg(this->chatSettings->getChannel(), this->languageDB->getGuiString("STRING_CHAT_CHANNEL") +
                         "  " + this->chatSettings->getChannel(), false);
+        this->NotifyObserver();
         ircClient->connectAndListen();
 }
 
@@ -183,21 +197,14 @@ void Chat::reconnect() {
                 this->ircClient->disconnect();
                 delete this->ircClient;
                 this->ircClient = NULL;
-                this->connect(newUserName);
+                this->connect(newUserName, false);
         }
 }
 
 void Chat::disconnect() {
-        if(this->isConnected()) {
+        if(!this->isDisconnected()) {
                 this->ircClient->disconnect();
         }
-        this->NotifyObserver();
-        for(int i = 0; i < this->activeChats->Count; i++) {
-                ChatLog *cl = (ChatLog*) (this->activeChats->Objects[i]);
-                delete cl;
-        }
-        this->activeChats->Clear();
-        this->blockedChatUsers->Clear();
 }
 
 bool Chat::isConnected() {
@@ -257,15 +264,19 @@ void Chat::update(Observable *o) {
                                 delete msg;
                         }
                 }
-                if(this->ircClient->isConnectionLost()) {
-                        this->incomingMsg(this->ircClient->getChannel(),
-                        this->languageDB->getGuiString("STRING_CHAT_CONNECTIONLOST"), true);
-                } else if(this->ircClient->isDisconnected()) {
-                        this->incomingMsg(this->ircClient->getChannel(),
-                        this->languageDB->getGuiString("STRING_CHAT_DISCONNECTED"), true);
-                } else if(this->ircClient->isConnectingFailed()) {
-                        this->incomingMsg(this->ircClient->getChannel(),
-                        this->languageDB->getGuiString("STRING_CHAT_CONNECTINGFAILED"), true);
+                if(this->ircClient->checkStatesAllowed()) {
+                        if(this->ircClient->isConnectionLost()) {
+                                this->incomingMsg(this->ircClient->getChannel(),
+                                this->languageDB->getGuiString("STRING_CHAT_CONNECTIONLOST"), true);
+                        }
+                        if(this->ircClient->isConnectingFailed()) {
+                                this->incomingMsg(this->ircClient->getChannel(),
+                                this->languageDB->getGuiString("STRING_CHAT_CONNECTINGFAILED"), true);
+                        }
+                        if(this->ircClient->isDisconnected()) {
+                                this->incomingMsg(this->ircClient->getChannel(),
+                                this->languageDB->getGuiString("STRING_CHAT_DISCONNECTED"), true);
+                        }
                 }
                 this->NotifyObserver();
         }

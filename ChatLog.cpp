@@ -44,6 +44,10 @@ void ChatLog::loadThisChat(TMemo *outputMemo, TMemo *inputMemo) {
 
 void ChatLog::syncChat(TMemo *outputMemo) {
         int line = outputMemo->Lines->Count;
+        if(line > this->output->Count) {
+                line = 0;
+                outputMemo->Lines->Clear();
+        }
         for(int i = line; i < this->output->Count; i++) {
                 outputMemo->Lines->Add(this->output->Strings[i]);
         }

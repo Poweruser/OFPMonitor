@@ -123,7 +123,6 @@ __published:	// IDE-managed Components
         TPageControl *PageControl1;
         TTabSheet *TABSHEET_SERVERINFO;
         TTabSheet *TABSHEET_CHAT;
-        TTimer *TimerIrcChatTimer;
         TStringGrid *StringGrid3;
         TPanel *Panel2;
         TMenuItem *MENUITEM_MAINMENU_CHAT;
@@ -210,7 +209,6 @@ __published:	// IDE-managed Components
           TPoint &MousePos, bool &Handled);
         void __fastcall Splitter1Moved(TObject *Sender);
         void __fastcall Info1Click(TObject *Sender);
-        void __fastcall TimerIrcChatTimerTimer(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender);
         void __fastcall MemoChatInputChange(TObject *Sender);

@@ -21,6 +21,7 @@ IRCClient::IRCClient(String host, int port, String channel, String userName) {
         this->port = port;
         this->channel = channel;
         this->controlledShutdown = false;
+        this->checkStates = true;
         this->status = STATUS_NOTCONNECTED;
         this->userList = new TStringList;
         this->userList->Sorted = true;
@@ -62,7 +63,8 @@ bool IRCClient::isConnectionLost() {
 }
 
 bool IRCClient::isDisconnected() {
-        return (this->status == STATUS_DISCONNECTED);
+        return (this->status == STATUS_DISCONNECTED ||
+                this->isConnectingFailed());
 }
 
 bool IRCClient::isConnectingFailed() {
@@ -85,7 +87,8 @@ unsigned long IRCClient::resolv(String host) {
 }
 
 void IRCClient::connectAndListen() {
-        if(!this->isConnected()) {
+        if(this->status == STATUS_NOTCONNECTED) {
+                this->status = STATUS_CONNECTING;
                 if(this->tcpSocket) {
                         closesocket(this->tcpSocket);
                         this->tcpSocket = NULL;
@@ -108,10 +111,15 @@ void IRCClient::connectAndListen() {
                                 setsockopt(this->tcpSocket, SOL_SOCKET, SO_RCVTIMEO, (const char *)&length, sizeof(length));
                                 this->startConversation();
                                 char buff [1<<12];
-                                int receivedBytes;
+                                this->checkStates = false;
                                 do {
-                                        while(this->tcpSocket && (receivedBytes = recv(this->tcpSocket, buff, sizeof(buff), 0)) > 0) {
-                                                this->parseReceivedData(String(buff, receivedBytes));
+                                        while(this->tcpSocket) {
+                                                int receivedBytes = recv(this->tcpSocket, buff, sizeof(buff), 0);
+                                                if(receivedBytes > 0) {
+                                                        this->parseReceivedData(String(buff, receivedBytes));
+                                                } else {
+                                                        break;
+                                                }
                                         }
                                         this->timeouts++;
                                         if(this->timeouts > 5) {
@@ -126,15 +134,25 @@ void IRCClient::connectAndListen() {
                                         this->isConnected() && this->tcpSocket &&
                                         (this->sendString("PING " + this->remoteServer + " \r\n")) >= 0
                                 );
+                                this->checkStates = true;
+                        } else {
+                                this->status = STATUS_CONNECTINGFAILED;
                         }
+                } else {
+                        this->status = STATUS_CONNECTINGFAILED;
                 }
         }
         if(this->controlledShutdown) {
                 this->status = STATUS_DISCONNECTED;
         } else {
-                this->status = STATUS_CONNECTIONLOST;
-                this->NotifyObserver();
+                if(!this->isConnectingFailed()) {
+                        this->status = STATUS_CONNECTIONLOST;
+                } else {
+                        closesocket(this->tcpSocket);
+                        this->tcpSocket = NULL;
+                }
         }
+        this->NotifyObserver();
 }
 
 void IRCClient::disconnect() {
@@ -142,7 +160,6 @@ void IRCClient::disconnect() {
                 this->sendString("QUIT : \r\n");
         }
         this->controlledShutdown = true;
-        this->status = STATUS_DISCONNECTED;
         if(this->tcpSocket) {
                 closesocket(this->tcpSocket);
                 this->tcpSocket = NULL;
@@ -186,7 +203,7 @@ void IRCClient::parseReceivedData(String data) {
                 } else if(body.Pos("433 ") == 1) {
                         body.Delete(1, body.Pos(":"));
                         this->sendString("QUIT : \r\n");
-                        this->status = STATUS_CONNECTINGFAILED;
+                        this->status = STATUS_CONNECTIONLOST;
                         this->messageList->Add((TObject*)(new ChatMessage(this->remoteServer, this->channel, body, true)));
                         closesocket(this->tcpSocket);
                         this->tcpSocket = NULL;
@@ -344,6 +361,10 @@ void IRCClient::userSendsMessage(String receiver, String msg) {
         this->sendMessage(receiver, msg);
         this->messageList->Add((TObject*)(new ChatMessage(this->ircUserName, receiver, msg, false)));
         this->NotifyObserver();
+}
+
+bool IRCClient::checkStatesAllowed() {
+        return this->checkStates;
 }
 
 
