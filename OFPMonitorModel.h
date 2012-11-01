@@ -65,7 +65,6 @@ class OFPMonitorModel : public Observable {
                 void setCustomNotifications(bool on);
                 void toggleUpdateOnStart(bool on);
                 bool areCustomNotificationsOn();
-                bool isUpdateOnStartOn();
                 void setGameSpyUpdateDone(bool done);
                 void getSettingsFileEntry(TStringList *settings);
                 AudioPlayer* getAudioPlayer();

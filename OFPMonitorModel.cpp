@@ -25,6 +25,7 @@ OFPMonitorModel::OFPMonitorModel(String settingsFile, ServerList *serverList) {
         this->queryTimer->OnTimer = this->onQueryTimer;
         this->AppWorkdir = ExtractFileDir(Application->ExeName);
         this->customNotifications = false;
+        this->checkUpdateAtStart = false;
         this->interval = 5;
         this->level = Moderate;
         this->settingsfile = settingsFile;
@@ -677,10 +678,6 @@ bool OFPMonitorModel::areCustomNotificationsOn() {
 
 void OFPMonitorModel::toggleUpdateOnStart(bool on) {
         this->checkUpdateAtStart = on;
-}
-
-bool OFPMonitorModel::isUpdateOnStartOn() {
-        return this->checkUpdateAtStart;
 }
 
 int OFPMonitorModel::getVolume() {

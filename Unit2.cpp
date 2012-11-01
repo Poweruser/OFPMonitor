@@ -1498,7 +1498,7 @@ void __fastcall TWINDOW_SETTINGS::TABSHEET_GENERALShow(TObject *Sender)
 {
         UPDOWN_SERVERLIST_UPDATE->Position = this->ofpm->getInterval();
         CHECKBOX_NOTIFICATIONS_ACTIVE->Checked = this->ofpm->areCustomNotificationsOn();
-        CHECKBOX_UPDATE_CHECKATSTART->Checked = this->ofpm->isUpdateOnStartOn();
+        CHECKBOX_UPDATE_CHECKATSTART->Checked = this->ofpm->isUpdateOnStartSet();
         TRACKBAR_BANDWIDTH->Position = (int)(this->ofpm->getBandwidthUsage());
         TRACKBAR_VOLUME->Position = this->ofpm->getVolume();
 }
