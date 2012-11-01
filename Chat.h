@@ -33,6 +33,7 @@ class Chat : public Observable, public Observer {
                 TStringList* getBlockedClients();
                 bool hasConversation(String conversation);
                 bool hasConversationNewMessages(String conversation);
+                bool hasNewMessages();
                 void syncChat(String conversation, TMemo *outputMemo);
                 void loadThisChat(String conversation, TMemo *outputMemo, TMemo *inputMemo);
                 void saveCurrentInput(String conversation, TMemo *inputMemo);

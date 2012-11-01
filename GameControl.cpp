@@ -90,6 +90,7 @@ void GameControl::setProcess(ProcessInfo *p) {
 
 void GameControl::setServer(Server *srv) {
         this->selectedServer = srv;
+        this->checkCurrentData();
 }
 
 bool GameControl::matchesProcess(ProcessInfo p) {
@@ -279,16 +280,13 @@ void GameControl::checkCurrentData() {
         }
         if(this->autoDetect) {
                 if(!serverOK) {
-                        if(this->detectServer()) {
-                                this->NotifyObserver();
-                        }
+                        this->detectServer();
                 }
                 if(!processOK) {
-                        if(this->detectProcess()) {
-                                this->NotifyObserver();
-                        }
+                        this->detectProcess();
                 }
         }
+        this->NotifyObserver();
 }
 
 bool GameControl::isProcessValid() {

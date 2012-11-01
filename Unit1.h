@@ -265,6 +265,8 @@ __published:	// IDE-managed Components
         void __fastcall StatusBar1MouseDown(TObject *Sender,
           TMouseButton Button, TShiftState Shift, int X, int Y);
         void __fastcall FormDestroy(TObject *Sender);
+        void __fastcall PageControl1DrawTab(TCustomTabControl *Control,
+          int TabIndex, const TRect &Rect, bool Active);
 private:	// User declarations
         OFPMonitorModel *ofpm;
         GameControl *gameControl;

@@ -44,6 +44,9 @@ void TForm1::update(Observable *o) {
                 MemoChatInput->Enabled = this->chat->isConnected();
                 this->chat->writeUserList(StringGrid3);
                 this->chat->writeConversations(TabControl1);
+                if(this->chat->hasNewMessages()) {
+                        this->TABSHEET_CHAT->ImageIndex = 4;
+                }
                 if(TabControl1->TabIndex >= 0) {
                         String conversation = TabControl1->Tabs->Strings[TabControl1->TabIndex];
                         this->chat->syncChat(conversation, this->MemoChatOutput);
@@ -659,6 +662,7 @@ void TForm1::updateGameControlGui() {
         } else {
                 TABSHEET_GAMECONTROL->ImageIndex = 0;
         }
+        PageControl1->Repaint();
         this->CHECKBOX_GAMECONTROL_AUTODETECT->Checked = this->gameControl->isAutoDetectOn();
         this->CHECKBOX_GAMECONTROL_AUTOGREENUP->Checked = this->gameControl->isAutoGreenOn();
         this->CHECKBOX_GAMECONTROL_RESTORE->Checked = this->gameControl->isRestoreGameOn();
@@ -1835,6 +1839,42 @@ void __fastcall TForm1::FormDestroy(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
+
+
+
+
+
+void __fastcall TForm1::PageControl1DrawTab(TCustomTabControl *Control,
+      int TabIndex, const TRect &Rect, bool Active)
+{
+        int imageId = PageControl1->Pages[TabIndex]->ImageIndex;
+        String caption = PageControl1->Pages[TabIndex]->Caption;
+        TRect r = Rect;
+        r.Left += 26;
+        r.Top += 3;
+
+        bool newMsg = false;
+        if(this->chat != NULL) {
+                if(this->chat->hasNewMessages()) {
+                        newMsg = true;
+                        this->TABSHEET_CHAT->ImageIndex = 4;
+                }
+        }
+        if(!newMsg) {
+                this->TABSHEET_CHAT->ImageIndex = 2;
+        }
+        if(TabIndex == TABSHEET_CHAT->PageIndex && !Active) {
+                if(newMsg) {
+                        Control->Canvas->Font->Color = clWhite;
+                        Control->Canvas->Brush->Color = clBlue;
+                        Control->Canvas->FillRect(Rect);
+                }
+        }
+        ImageListTabIcons->Draw(PageControl1->Canvas, Rect.Left + 4, Rect.Top + 3, imageId, true);
+        DrawText(Control->Canvas->Handle, caption.c_str(),
+                -1, &r, DT_LEFT | DT_SINGLELINE );
+}
+//---------------------------------------------------------------------------
 
 
 

@@ -70,6 +70,18 @@ bool Chat::hasConversationNewMessages(String conversation) {
         return false;
 }
 
+bool Chat::hasNewMessages() {
+        bool out = false;
+        for(int i = 0; i < this->activeChats->Count; i++) {
+                ChatLog *cl = (ChatLog*) (this->activeChats->Objects[i]);
+                if(cl->hasNewMessages()) {
+                        out = true;
+                        break;
+                }
+        }
+        return out;
+}
+
 void Chat::syncChat(String conversation, TMemo *outputMemo) {
         ChatLog *cl = this->getChatLog(conversation);
         if(cl != NULL) {
