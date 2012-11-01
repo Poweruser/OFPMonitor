@@ -1772,6 +1772,8 @@ void __fastcall TForm1::UpDown1ChangingEx(TObject *Sender,
 void __fastcall TForm1::StatusBar1DrawPanel(TStatusBar *StatusBar,
       TStatusPanel *Panel, const TRect &Rect)
 {
+        StatusBar1->Canvas->Brush->Color = StatusBar1->Color;
+        StatusBar1->Canvas->FillRect(Rect);
         if(Panel->ID == 2) {
                 if(this->ofpm != NULL) {
                         int volume = this->ofpm->getVolume();
