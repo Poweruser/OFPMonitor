@@ -660,9 +660,9 @@ object Form1: TForm1
             Constraints.MaxHeight = 26
             Enabled = False
             TabOrder = 0
+            WantReturns = False
             OnChange = MemoChatInputChange
             OnKeyDown = MemoChatInputKeyDown
-            OnKeyUp = MemoChatInputKeyUp
           end
           object MemoChatOutput: TMemo
             Left = 4

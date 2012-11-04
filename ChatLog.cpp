@@ -16,6 +16,7 @@ ChatLog::ChatLog(String name) {
         this->output = new TStringList();
         this->input = new TStringList();
         this->changed = false;
+        this->linesLoaded = 0;
 }
 
 ChatLog::~ChatLog() {
@@ -31,25 +32,18 @@ void ChatLog::saveCurrentInput(TMemo *inputMemo) {
 }
 
 void ChatLog::loadThisChat(TMemo *outputMemo, TMemo *inputMemo) {
-        inputMemo->Lines->Clear();
-        outputMemo->Lines->Clear();
-        for(int i = 0; i < this->output->Count; i++) {
-                outputMemo->Lines->Add(this->output->Strings[i]);
-        }
-        for(int i = 0; i < this->input->Count; i++) {
-                inputMemo->Lines->Add(this->input->Strings[i]);
-        }
+        outputMemo->Lines->Assign(this->output);
+        this->linesLoaded = this->output->Count;
+        outputMemo->SelStart = outputMemo->Text.Length();
+        outputMemo->SelLength = 0;
+        inputMemo->Lines->Assign(this->input);
         this->changed = false;
 }
 
 void ChatLog::syncChat(TMemo *outputMemo) {
-        int line = outputMemo->Lines->Count;
-        if(line > this->output->Count) {
-                line = 0;
-                outputMemo->Lines->Clear();
-        }
-        for(int i = line; i < this->output->Count; i++) {
-                outputMemo->Lines->Add(this->output->Strings[i]);
+        while(this->linesLoaded < this->output->Count) {
+                outputMemo->Lines->Add(this->output->Strings[this->linesLoaded]);
+                this->linesLoaded++;
         }
         this->changed = false;
 }

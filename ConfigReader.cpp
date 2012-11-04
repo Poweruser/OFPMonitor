@@ -52,12 +52,32 @@ bool ConfigEntry::check(String line) {
                         case dtString:
                                 *((String*)(this->data)) = value;
                                 break;
+                        case dtStringQuoted:
+                                *((String*)(this->data)) = this->extractQuotedValue(value);
+                                break;
                         case dtServerItem:
                                 (*((list<String>*)(this->data))).push_back(line);
                                 break;
                 }
         }
         return matches;
+}
+
+String ConfigEntry::extractQuotedValue(String value) {
+        int start = value.Pos("\"");
+        if(!start) { return value; }
+        int end = 0;
+        for(int i = value.Length(); i > start; i--) {
+                if(value.SubString(i, 1) == "\"") {
+                        end = i;
+                        break;
+                }
+        }
+        if(end && start) {
+                return value.SubString(start + 1, end - (start + 1));
+        }
+        return value;
+
 }
 
 ConfigSection::ConfigSection(String name) {

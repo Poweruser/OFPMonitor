@@ -11,6 +11,7 @@ class ChatLog {
                 TStringList *output;
                 TStringList *input;
                 bool changed;
+                int linesLoaded;
 
 
         public:

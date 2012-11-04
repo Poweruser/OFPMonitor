@@ -9,7 +9,7 @@
 String getValue(String in);
 bool checkBool2(String in);
 
-enum DataType { dtInt, dtFloat, dtBool, dtString, dtServerItem};
+enum DataType { dtInt, dtFloat, dtBool, dtString, dtStringQuoted, dtServerItem};
 
 class ConfigEntry {
         public:
@@ -21,6 +21,7 @@ class ConfigEntry {
                 bool check(String line);
         private:
                 String getValue(String in);
+                String extractQuotedValue(String value);
 };
 
 class ConfigSection {

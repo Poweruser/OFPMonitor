@@ -84,7 +84,6 @@ class OFPMonitorModel : public Observable {
 
                 void __fastcall onQueryTimer(TObject *Sender);
                 void checkCustomNotifications(Server *svr);
-                String extractNameFromValue(String in);
 
                 String AppWorkdir;
                 String AppExe;

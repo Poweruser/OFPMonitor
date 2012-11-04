@@ -12,7 +12,6 @@ class ChatSettings {
                 String channel;
                 String userName;
                 bool autoConnect;
-                String extractNameFromValue(String in);
 
         public:
 

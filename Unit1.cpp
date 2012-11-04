@@ -1432,14 +1432,6 @@ void __fastcall TForm1::MemoChatInputKeyDown(TObject *Sender, WORD &Key,
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::MemoChatInputKeyUp(TObject *Sender, WORD &Key,
-      TShiftState Shift)
-{
-        if(Key == VK_RETURN) {
-                MemoChatInput->Clear();
-        }
-}
-//---------------------------------------------------------------------------
 
 void __fastcall TForm1::MENUITEM_MAINMENU_LOCALGAMEClick(TObject *Sender)
 {

@@ -81,27 +81,6 @@ bool ChatSettings::isAutoConnectOn() {
         return this->autoConnect;
 }
 
-String ChatSettings::extractNameFromValue(String in) {
-        int start = 0;
-        int end = 0;
-        for(int i = 1; i < in.Length(); i++) {
-                if(in.SubString(i, 1) == "\"") {
-                        start = i;
-                        break;
-                }
-        }
-        for(int i = in.Length(); i > start; i--) {
-                if(in.SubString(i, 1) == "\"") {
-                        end = i;
-                        break;
-                }
-        }
-        if(end && start) {
-                return in.SubString(start + 1, end - (start + 1));
-        }
-        return in;
-}
-
 void ChatSettings::readSettings(TStringList *file) {
         String user = this->userName;
         ConfigSection *chat = new ConfigSection("ChatSettings");
@@ -109,13 +88,13 @@ void ChatSettings::readSettings(TStringList *file) {
         chat->add(new ConfigEntry("Host", dtString, (void*)(&(this->host))));
         chat->add(new ConfigEntry("Port", dtInt, (void*)(&(this->port))));
         chat->add(new ConfigEntry("Channel", dtString, (void*)(&(this->channel))));
-        chat->add(new ConfigEntry("UserName", dtString, (void*)(&user)));
+        chat->add(new ConfigEntry("UserName", dtStringQuoted, (void*)(&user)));
         chat->scan(file, 0);
         delete chat;
         if(channel.SubString(1,1) != "#") {
                 channel = "#" + channel;
         }
-        this->userName = extractNameFromValue(user);
+        this->userName = user;
 }
 
 

@@ -250,7 +250,7 @@ void OFPMonitorModel::readSettings(TStringList *file) {
         String exe, player, name;
         ConfigSection *game = new ConfigSection("Game");
         game->add(new ConfigEntry("Exe", dtString, (void*)(&exe)));
-        game->add(new ConfigEntry("LastPlayer", dtString, (void*)(&player)));
+        game->add(new ConfigEntry("LastPlayer", dtStringQuoted, (void*)(&player)));
         game->add(new ConfigEntry("Name", dtString, (void*)(&name)));
         bool gameSet = false;
         while(lineIndex < file->Count) {
@@ -259,7 +259,7 @@ void OFPMonitorModel::readSettings(TStringList *file) {
                 if(lineIndex < file->Count) {
                         OFPGames gameid = getGameId(name);
                         if(isValidGameID(gameid)) {
-                                this->setGame(gameid, exe, this->extractNameFromValue(player));
+                                this->setGame(gameid, exe, player);
                                 gameSet = true;
                         }
                 }
@@ -731,26 +731,4 @@ AudioPlayer* OFPMonitorModel::getAudioPlayer() {
 void OFPMonitorModel::removeOfflineServers() {
         this->servers->removeOfflineServers();
 }
-
-String OFPMonitorModel::extractNameFromValue(String in) {
-        int start = 0;
-        int end = 0;
-        for(int i = 1; i < in.Length(); i++) {
-                if(in.SubString(i, 1) == "\"") {
-                        start = i;
-                        break;
-                }
-        }
-        for(int i = in.Length(); i > start; i--) {
-                if(in.SubString(i, 1) == "\"") {
-                        end = i;
-                        break;
-                }
-        }
-        if(end && start) {
-                return in.SubString(start + 1, end - (start + 1));
-        }
-        return in;
-}
-
 

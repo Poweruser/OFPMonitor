@@ -220,8 +220,6 @@ __published:	// IDE-managed Components
         void __fastcall TABSHEET_CHATShow(TObject *Sender);
         void __fastcall MemoChatInputKeyDown(TObject *Sender, WORD &Key,
           TShiftState Shift);
-        void __fastcall MemoChatInputKeyUp(TObject *Sender, WORD &Key,
-          TShiftState Shift);
         void __fastcall MENUITEM_MAINMENU_LOCALGAMEClick(TObject *Sender);
         void __fastcall TabControl1DrawTab(TCustomTabControl *Control,
           int TabIndex, const TRect &Rect, bool Active);
