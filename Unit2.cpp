@@ -92,7 +92,6 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->LABEL_BANDWIDTH_MODERATE->Caption = this->languageDB->getGuiString(LABEL_BANDWIDTH_MODERATE->Name);
                 this->LABEL_BANDWIDTH_LOW->Caption = this->languageDB->getGuiString(LABEL_BANDWIDTH_LOW->Name);
                 this->LABEL_BANDWIDTH_VERYLOW->Caption = this->languageDB->getGuiString(LABEL_BANDWIDTH_VERYLOW->Name);
-                this->GROUPBOX_OFPRES->Caption = this->languageDB->getGuiString(GROUPBOX_OFPRES->Name);
                 this->GROUPBOX_SERVERLIST->Caption = this->languageDB->getGuiString(GROUPBOX_SERVERLIST->Name);
                 this->GROUPBOX_LANGUAGE->Caption = this->languageDB->getGuiString(GROUPBOX_LANGUAGE->Name);
                 this->GROUPBOX_NEWCONFIGURATION->Caption = this->languageDB->getGuiString(GROUPBOX_NEWCONFIGURATION->Name);
@@ -103,7 +102,7 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->GROUPBOX_CHATSETTINGS_SERVER->Caption = this->languageDB->getGuiString(GROUPBOX_CHATSETTINGS_SERVER->Name);
                 this->GROUPBOX_BANDWIDTHCONSUMPTION->Caption = this->languageDB->getGuiString(GROUPBOX_BANDWIDTHCONSUMPTION->Name);
                 this->GROUPBOX_UPDATE->Caption = this->languageDB->getGuiString(GROUPBOX_UPDATE->Name);
-                this->GROUPBOX_VOLUME->Caption = this->languageDB->getGuiString(GROUPBOX_UPDATE->Name);
+                this->GROUPBOX_VOLUME->Caption = this->languageDB->getGuiString(GROUPBOX_VOLUME->Name);
                 this->Caption = this->languageDB->getGuiString(this->Name);
                 this->TABSHEET_GENERAL->Caption = this->languageDB->getGuiString(this->TABSHEET_GENERAL->Name);
                 this->TABSHEET_GAMES->Caption = this->languageDB->getGuiString(this->TABSHEET_GAMES->Name);

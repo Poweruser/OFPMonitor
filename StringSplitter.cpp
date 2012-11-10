@@ -26,7 +26,7 @@ TStringList* StringSplitter::split(String splitter) {
                 start = 2;
         }
         int last = start;
-        for(int i = start; i < this->str.Length(); i++) {
+        for(int i = start; i <= this->str.Length(); i++) {
                 if(this->str.SubString(i,splitter.Length()) == splitter) {
                         String part = this->str.SubString(last, i - last);
                         if(!part.IsEmpty() || this->keep) {
