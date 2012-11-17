@@ -1,4 +1,4 @@
-BUTTON_SERVERINFO_COPYADDRESS = Копировать в буфер
+BUTTON_SERVERINFO_COPYADDRESS = Копировать в буфер обмена
 BUTTON_CONFIGURATION_REMOVE = Удалить
 BUTTON_NEWCONFIGURATION_UP = Вверх
 BUTTON_NEWCONFIGURATION_DOWN = Вниз
@@ -18,7 +18,7 @@ CHECKBOX_REPEAT = Повторите
 CHECKBOX_NOTIFICATIONS_ACTIVE = Активные
 LABEL_FILTER_STATUS = Статус:
 LABEL_FILTER_PASSWORD = Пароль:
-LABEL_FILTER_MINIMUMPLAYERS = мин. Игроков:
+LABEL_FILTER_MINIMUMPLAYERS = Мин. игроков:
 LABEL_FILTER_SERVERNAME = Сервер:
 LABEL_FILTER_MISSIONNAME = Миссия:
 LABEL_FILTER_PLAYERNAME = Игрок:
@@ -53,10 +53,10 @@ MENUITEM_MAINMENU_FONT = Шрифт
 MENUITEM_MAINMENU_LOCALGAME = Локальная игра
 MENUITEM_MAINMENU_GETNEWSERVERLIST = Обновить список серверов
 MENUITEM_POPUP_JOIN = Присоединиться
-MENUITEM_POPUP_JOIN_NOMODS = Нет модов
+MENUITEM_POPUP_JOIN_NOMODS = Без модов
 MENUITEM_POPUP_JOIN_SAMEMODS = Такие же моды как и на сервере
 MENUITEM_POPUP_AUTOJOIN = Присоединиться после игры
-MENUITEM_POPUP_AUTOJOIN_NOMODS = Нет модов
+MENUITEM_POPUP_AUTOJOIN_NOMODS = Без модов
 MENUITEM_POPUP_AUTOJOIN_SAMEMODS = Такие же моды как и на сервере
 MENUITEM_POPUP_AUTOJOINB = Присоединиться после игры
 MENUITEM_POPUP_MODS = Моды
@@ -82,7 +82,7 @@ STRING_STATUS = Статус
 STRING_ISLAND = Остров
 STRING_MISSION = Миссия
 STRING_PING = Пинг
-STRING_ADDRESS = адрес
+STRING_ADDRESS = Адрес
 
 STRING_SCORE = Очки
 STRING_DEATHS = Смерти
@@ -97,7 +97,7 @@ STRING_NOPROFILES = Не найден профиль игрока
 STRING_PLAYER_ALREADY_ON_SERVER = На сервере уже есть игрок с таким именем. Вы всё равно хотите войти на сервер?
 BUTTON_EDITCONFIGURATION_EDIT = Редактировать
 BUTTON_EDITCONFIGURATION_OK = Применить
-BUTTON_EDITCONFIGURATION_CANCEL = Прервать
+BUTTON_EDITCONFIGURATION_CANCEL = Отмена
 BUTTON_EDITCONFIGURATION_UP = Вверх
 BUTTON_EDITCONFIGURATION_DOWN = Вниз
 BUTTON_EDITCONFIGURATION_COPY = Копировать
@@ -118,7 +118,7 @@ STRING_CHAT_CONNECTIONLOST = Соединение потеряно. Повторное подключение ...
 STRING_CHAT_JOINED = вступил
 STRING_CHAT_LEFT = покинул
 STRING_CHAT_CLOSE = Закрыть
-STRING_CHAT_CHATWITH = Чат с ...
+STRING_CHAT_CHATWITH = Разговор с ...
 
 STRING_BROWSE = Обзор
 STRING_OFPEXECUTABLE = Путь к EXE-файлу
@@ -136,18 +136,18 @@ CHECKBOX_CHAT_AUTOCONNECT = Подключиться на старте
 
 LABEL_GAME = Игра:
 LABEL_MOD = Конфигурация:
-CHECKBOX_MULTIPLAYER = Мультиплеер
+CHECKBOX_MULTIPLAYER = Сетевая игра
 BUTTON_LOCALGAME_START = Старт
 
-GROUPBOX_BANDWIDTHCONSUMPTION = Bandwidth
+GROUPBOX_BANDWIDTHCONSUMPTION = Бэндвич
 LABEL_BANDWIDTH_HIGH = Высокий
 LABEL_BANDWIDTH_MODERATE = Умеренный
 LABEL_BANDWIDTH_LOW = Низкий
 LABEL_BANDWIDTH_VERYLOW = Очень низкий
 
 WINDOW_UPDATE = Обновления OFPMonitor'а
-BUTTON_UPDATE = Проверить наличие обновлений
-CHECKBOX_UPDATE_CHECKATSTART = Проверить обновления при запуске
+BUTTON_UPDATE = Проверить на наличие обновлений
+CHECKBOX_UPDATE_CHECKATSTART = Проверять обновления при запуске
 GROUPBOX_UPDATE = Обновления
 STRING_UPDATE1 = Доступна новая версия:
 STRING_UPDATE2 = Вы хотите обновить OFPMonitor сейчас?
@@ -156,7 +156,7 @@ STRING_UPDATE_ALREADYLATEST = У вас уже есть последняя версия
 TABSHEET_SERVERS = Серверы
 STRING_SERVERS_ADD_TITLE = Добавление нового сервера ...
 STRING_SERVERS_ADD_PROMPT = Введите адрес сервера
-BUTTON_SERVERS_ADD = добавлять
+BUTTON_SERVERS_ADD = Добавить
 BUTTON_SERVERS_REMOVE = Удалить
 STRING_SERVERS_FAVORITE = Избранное
 STRING_SERVERS_WATCHED = Просмотренное
@@ -185,6 +185,6 @@ BUTTON_GAMECONTROL_REFRESH = Обновить списки
 
 GROUPBOX_VOLUME = Уровень звука для мониторинга серверов:
 
-STRING_PASSWORDDIALOG_TITLE = требуется пароль
+STRING_PASSWORDDIALOG_TITLE = Запаролено!
 STRING_PASSWORDDIALOG_PROMPT = Этот сервер защищен паролем. Введите его здесь:
 
