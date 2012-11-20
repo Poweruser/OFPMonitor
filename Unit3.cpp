@@ -114,12 +114,16 @@ void __fastcall TWINDOW_LOCALGAME::BUTTON_LOCALGAME_STARTClick(
         }
         bool multiPlayer = CHECKBOX_MULTIPLAYER->Checked;
         String startup = " -nosplash -nomap ";
-        if(conf != NULL && g != NULL) {
-                startup = conf->createStartLineLocal(multiPlayer, g->getProfileName());
-        } else if(multiPlayer) {
-                startup += " -host";
-        }
         if(g != NULL) {
+                if(conf != NULL) {
+                        startup = conf->createStartLineLocal(multiPlayer, g->getProfileName());
+                } else {
+                        startup += (" \"-name=" + g->getProfileName() + "\"");
+                        if(multiPlayer) {
+                                startup += " -host";
+                        }
+                }
+
                 WINDOW_LOCALGAME->Close();
                 this->ofpm->startTheGame(g, startup);
         }
