@@ -335,6 +335,7 @@ void OFPMonitorModel::readSettings(TStringList *file) {
                         sf->setMaxPlayers(maxPlayers);
                         AudioTask *task = new AudioTask(soundFile, this->generateNewAudioAlias() , repeat);
                         task->setPlayLength(start, end);
+                        task->setVolume(volume);
                         CustomNotification *notif = new CustomNotification(notifName, sf, task, color);
                         this->addNotification(notif);
                 }
