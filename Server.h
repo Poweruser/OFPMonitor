@@ -98,6 +98,7 @@ class Server : public TObject {
                 long getStatusTime();
                 String createSettingsFileEntry();
                 void setSelectedToDisplay(bool active);
+                String getAutoJoinConf();
 
         private:
                 int password;

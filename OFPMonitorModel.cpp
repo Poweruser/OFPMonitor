@@ -120,6 +120,13 @@ void OFPMonitorModel::ProcessMessages() {
                                         if(svr->isWatched()) {
                                                 this->playAudioServerStatus(sc);
                                         }
+                                        if(svr->isAutoJoin()) {
+                                                if(sc->getOldStatus() == SERVERSTATE_PLAYING &&
+                                                   sc->getCurrentStatus() != SERVERSTATE_PLAYING) {
+                                                        this->startTheGame(this->getMatchingGame(svr), svr->getAutoJoinConf());
+                                                        this->disableAutoJoin();
+                                                }
+                                        }
                                 }
                         }
                         this->checkCustomNotifications(svr);

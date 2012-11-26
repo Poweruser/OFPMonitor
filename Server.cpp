@@ -719,6 +719,10 @@ TStringList* Server::playerArrayToStringList() {
         return out;
 }
 
+String Server::getAutoJoinConf() {
+        return this->autojoinConf;
+}
+
 
 
 
