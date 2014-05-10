@@ -132,9 +132,6 @@ ProductName=OFPMonitor
 ProductVersion=1.0.0.0
 Comments=
 
-[Excluded Packages]
-c:\programme\borland\cbuilder6\Bin\DCLNMF60.bpl=NetMasters Fastnet Tools
-
 [HistoryLists\hlIncludePath]
 Count=1
 Item0=include;..;$(BCB)\include;$(BCB)\include\vcl

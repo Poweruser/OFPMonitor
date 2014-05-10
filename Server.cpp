@@ -96,6 +96,7 @@ void Server::clear() {
         this->missedQueryTurns = 1;
         this->emptyServerCounter = 0;
         this->selectedToDisplay = false;
+        this->dontTrustNumPlayers = false;
 }
 
 __fastcall Server::~Server() {
@@ -414,6 +415,8 @@ void Server::parseQueryAnswers() {
         if(!this->areQueriesComplete()) { return; }
         String id = this->queries[0].id;
         TStringList *data = new TStringList;
+        TStringList *uniquePlayers = new TStringList;
+        uniquePlayers->Duplicates = dupIgnore;
         for(int i = 0; i < 5; i++) {
                 if(id == this->queries[i].id) {
                         this->queries[i].readContent(data);
@@ -425,6 +428,7 @@ void Server::parseQueryAnswers() {
         for(int g = 0; g < data->Count; g++) {
                 all += IntToStr(g) + ": " + data->Strings[g] + "\n";
         }
+        bool queryContainsPlayers = (data->IndexOf("player_0") >= 0);
         String playerData[] = { "player_", "team_", "score_", "deaths_" };
         for(int j = 0; j + 1 < data->Count; j += 2) {
                 String ident = data->Strings[j];
@@ -459,7 +463,7 @@ void Server::parseQueryAnswers() {
                                 }
                         }
                         j += playerDataOffset;
-                        if(!(pName.IsEmpty())) {
+                        if(!(pName.IsEmpty()) && (uniquePlayers->IndexOf(pName) < 0)) {
                                 if(this->playerArray[playerCounter] == NULL) {
                                         this->playerArray[playerCounter] = new Player(pName, pScore, pDeaths, pTeam);
                                 } else {
@@ -469,6 +473,7 @@ void Server::parseQueryAnswers() {
                                         this->playerArray[playerCounter]->team = pTeam;
                                 }
                                 playerCounter++;
+                                uniquePlayers->Add(pName);
                         }
                 } else {
                         if(ident == "hostname") {
@@ -480,7 +485,7 @@ void Server::parseQueryAnswers() {
                                 this->island = value;
                         } else if(ident == "gametype") {
                                 this->mission = value;
-                        } else if(ident == "numplayers") {
+                        } else if(ident == "numplayers" && (!this->dontTrustNumPlayers || queryContainsPlayers)) {
                                 int p = StrToIntDef(value, -1);
                                 if(p > -1) { this->players = p; }
                         } else if(ident == "maxplayers") {
@@ -548,6 +553,14 @@ void Server::parseQueryAnswers() {
                 }
         }
         delete data;
+        int uP = uniquePlayers->Count;
+        if(uP < this->players && uP > 0 && uP < 20) {
+                this->players = uniquePlayers->Count;
+                this->dontTrustNumPlayers = true;
+        } else if(queryContainsPlayers) {
+                this->dontTrustNumPlayers = false;
+        }
+        delete uniquePlayers;
         if(playerCounter > 0 || this->players == 0) {
                 this->playersInArray = playerCounter;
                 for(int i = playerCounter; i < 30; i++) {
