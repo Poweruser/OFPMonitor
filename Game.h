@@ -33,6 +33,7 @@ class Game {
                 String getGameFolder();
                 String getGameExe();
                 String getGamespyToken();
+                String getGamespyKey();
                 String getFullName();
                 int getFileVersion();
                 list<String> findPlayerProfiles();
@@ -49,6 +50,7 @@ class Game {
                 TList *startupConfs;
                 list<String> exeNames;
                 String gamespyToken;
+                String gamespyKey;
 
                 String getFolder(String path);
 };

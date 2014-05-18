@@ -9,6 +9,7 @@
 #include "StringSplitter.h"
 #include <windows.h>
 #include <mmsystem.h>
+#include "ServerListLoader.h"
 
 //---------------------------------------------------------------------------
 
@@ -561,57 +562,93 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
         TStringList *selectedGames = new TStringList;
         selectedGames->Sorted = true;
         selectedGames->Duplicates = dupIgnore;
-        TStringList *allGames = new TStringList;
-        allGames->Sorted = true;
-        allGames->Duplicates = dupIgnore;
+
+        TStringList *gameTokens = new TStringList;
+        gameTokens->Sorted = true;
+        gameTokens->Duplicates = dupIgnore;
+
         for(int i = 0; i < GAMESTOTAL; i++) {
                 Game *g = main->getGame((OFPGames)i);
                 if(g != NULL) {
-                        allGames->Add(g->getGamespyToken());
                         if(g->isActive()) {
-                                selectedGames->Add(g->getGamespyToken());
+                                String token = getGameSpyTokenByGameId(g->getGameId());
+                                int tmp;
+                                if(!gameTokens->Find(token, tmp)) {
+                                        gameTokens->Add(token);
+                                        selectedGames->Add(getGameName(g->getGameId()));
+                                }
                         }
                 }
         }
         if(selectedGames->Count == 0) {
-                for(int i = 0; i < allGames->Count; i++) {
-                        selectedGames->Add(allGames->Strings[i]);
-                }
+                selectedGames->Add(getGameName(ARMACWA));
         }
 
-        delete allGames;
+        delete gameTokens;
 
         for (int k = 0; k < selectedGames->Count; k++) {
-                dnsdb(NULL);
-                strcpy(gamestr, selectedGames->Strings[k].c_str());
-                gslist_step_1(gamestr, filter);
-                peer.sin_addr.s_addr = msip;
-                peer.sin_port        = htons(msport);
-                peer.sin_family      = AF_INET;
-
-                buff = (unsigned char *) malloc(BUFFSZ + 1);
-              //  if(!buff) std_err();
-                dynsz = BUFFSZ;
-                multigamename = gamestr;
-                multigamenamep = strchr((char *)gamestr, ',');
-                if(multigamenamep) {
-                        *multigamenamep = 0;
+                String gameIdName = selectedGames->Strings[k];
+                String token = getGameSpyTokenByGameId(getGameId(gameIdName));
+                String key = getGameSpyKeyByGameId(getGameId(gameIdName));
+                if(key.IsEmpty()) {
+                        continue;
                 }
-                sd = gslist_step_2(&peer, buff, secure, gamestr, validate, filter, &enctypex_data);
-                if(sd != -1) {
-                        ipport = gslist_step_3(sd, validate, &enctypex_data, &len, &buff, &dynsz);
-                        itsok = gslist_step_4(secure, buff, &enctypex_data, &ipport, &len);
-                        ipbuffer = ipport;
-                        while(len >= 6) {
-                                ipc = myinetntoa(ipport->ip);
-                                if(!enctypex_query[0]) {
-                                        String s;
-                                        s.sprintf("%15s:%d", ipc, ntohs(ipport->port));
-                                        ServerConfigEntry *seI = new ServerConfigEntry(s.Trim());
-                                        gameSpyList->AddObject(s.Trim(), (TObject*) seI);
+                if(main->isQueryOfPowerserverSet()) {
+                        TStringList *cms = new TStringList;
+                        main->getMasterServers(cms);
+                        for(int i = 0; i < cms->Count; i++) {
+                                String serverdomain = cms->Strings[i];
+                                TStringList *returnList = NULL;
+                                ServerListLoader *loader = new ServerListLoader(500);
+                                try {
+                                        returnList = loader->getServerList(serverdomain, POWERSERVER_QUERYPORT, token, key);
+                                } catch (Exception &E) {
+                                        ShowMessage(E.Message);
                                 }
-                                ipport++;
-                                len -= 6;
+                                if(returnList != NULL) {
+                                        for(int j = 0; j < returnList->Count; j++) {
+                                                String address = returnList->Strings[j];
+                                                ServerConfigEntry *seI = new ServerConfigEntry(address.Trim());
+                                                gameSpyList->AddObject(address.Trim(), (TObject*) seI);
+                                        }
+                                        delete returnList;
+                                }
+                                delete loader;
+                        }
+                        delete cms;
+                }
+                if(main->isQueryOfGamespySet()) {
+                        dnsdb(NULL);
+                        strcpy(gamestr, token.c_str());
+                        gslist_step_1(gamestr, filter);
+                        peer.sin_addr.s_addr = msip;
+                        peer.sin_port        = htons(msport);
+                        peer.sin_family      = AF_INET;
+
+                        buff = (unsigned char *) malloc(BUFFSZ + 1);
+                        //  if(!buff) std_err();
+                        dynsz = BUFFSZ;
+                        multigamename = gamestr;
+                        multigamenamep = strchr((char *)gamestr, ',');
+                        if(multigamenamep) {
+                                *multigamenamep = 0;
+                        }
+                        sd = gslist_step_2(&peer, buff, secure, gamestr, validate, filter, &enctypex_data);
+                        if(sd != -1) {
+                                ipport = gslist_step_3(sd, validate, &enctypex_data, &len, &buff, &dynsz);
+                                itsok = gslist_step_4(secure, buff, &enctypex_data, &ipport, &len);
+                                ipbuffer = ipport;
+                                while(len >= 6) {
+                                        ipc = myinetntoa(ipport->ip);
+                                        if(!enctypex_query[0]) {
+                                                String s;
+                                                s.sprintf("%15s:%d", ipc, ntohs(ipport->port));
+                                                ServerConfigEntry *seI = new ServerConfigEntry(s.Trim());
+                                                gameSpyList->AddObject(s.Trim(), (TObject*) seI);
+                                        }
+                                        ipport++;
+                                        len -= 6;
+                                }
                         }
                 }
         }

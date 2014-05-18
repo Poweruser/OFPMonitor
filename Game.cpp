@@ -14,6 +14,7 @@ Game::Game(OFPGames id) {
         this->game = id;
         this->exeNames = getExesByGameId(id);
         this->gamespyToken = getGameSpyTokenByGameId(id);
+        this->gamespyKey = getGameSpyKeyByGameId(id);
         this->fullName = getFullGameNameByGameId(id);
         this->set = false;
         this->exe = "";
@@ -184,6 +185,10 @@ String Game::createDefaultStartLine(String ip, int port, String mods, String pas
 
 String Game::getGamespyToken() {
         return this->gamespyToken;
+}
+
+String Game::getGamespyKey() {
+        return this->gamespyKey;
 }
 
 String Game::getFullName() {

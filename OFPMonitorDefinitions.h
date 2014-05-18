@@ -12,6 +12,8 @@
 #define SERVERSTATE_BRIEFING 13
 #define SERVERSTATE_PLAYING 14
 
+#define POWERSERVER_QUERYPORT 28900
+
 enum OFPGames {OFPCWC=0, OFPRES=1, ARMACWA=2, GAMESTOTAL=3, UNKNOWNGAME=4 };
 
 
@@ -147,6 +149,19 @@ String getGameSpyTokenByGameId(OFPGames gameid) {
 		case OFPRES:
 		case ARMACWA:
 			out = "opflashr";
+	}
+	return out;
+}
+
+String getGameSpyKeyByGameId(OFPGames gameid) {
+	String out = "";
+	switch(gameid) {
+		default:
+		case OFPCWC:
+			break;
+		case OFPRES:
+		case ARMACWA:
+			out = "Y3k7x1";
 	}
 	return out;
 }

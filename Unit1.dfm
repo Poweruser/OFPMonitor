@@ -933,7 +933,6 @@ object Form1: TForm1
     end
     object MENUITEM_MAINMENU_SERVERLIST: TMenuItem
       Caption = 'Server list'
-      ShortCut = 116
       object MENUITEM_MAINMENU_SERVERLIST_GAMESPY: TMenuItem
         AutoCheck = True
         Caption = 'Query Gamespy'

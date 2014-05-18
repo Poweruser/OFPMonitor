@@ -1872,8 +1872,10 @@ void __fastcall TForm1::PageControl1DrawTab(TCustomTabControl *Control,
 
 void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
 {
-        MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = false;
-        this->ofpm->queryGameSpyList();
+        if(this->ofpm->isGameSpyUpdateDone()) {
+                MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = false;
+                this->ofpm->queryGameSpyList();
+        }
 }
 //---------------------------------------------------------------------------
 
