@@ -26,8 +26,8 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     Top = 0
     Width = 505
     Height = 473
-    ActivePage = TABSHEET_GENERAL
-    TabIndex = 0
+    ActivePage = TABSHEET_MASTERSERVERS
+    TabIndex = 6
     TabOrder = 0
     object TABSHEET_GENERAL: TTabSheet
       Caption = 'General'
@@ -1612,44 +1612,44 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
       Caption = 'Master servers'
       ImageIndex = 6
       OnShow = TABSHEET_MASTERSERVERSShow
-      object GroupBox1: TGroupBox
+      object GROUPBOX_MASTERSERVERS: TGroupBox
         Left = 8
         Top = 8
         Width = 481
-        Height = 193
+        Height = 169
         Caption = ' Community hosted Masterservers  '
         TabOrder = 0
         object BUTTON_MASTERSERVERS_ADD: TButton
           Left = 8
           Top = 24
           Width = 185
-          Height = 25
+          Height = 50
           Caption = 'Add domain'
           TabOrder = 0
           OnClick = BUTTON_MASTERSERVERS_ADDClick
         end
         object BUTTON_MASTERSERVERS_REMOVE: TButton
           Left = 8
-          Top = 56
+          Top = 78
           Width = 185
-          Height = 25
+          Height = 50
           Caption = 'Remove domain'
           TabOrder = 1
           OnClick = BUTTON_MASTERSERVERS_REMOVEClick
         end
         object LISTBOX_MASTERSERVERS: TListBox
           Left = 200
-          Top = 16
+          Top = 24
           Width = 273
-          Height = 169
+          Height = 105
           ItemHeight = 13
           TabOrder = 2
           OnClick = LISTBOX_MASTERSERVERSClick
         end
         object CHECKBOX_MASTERSERVERS_UPDATEONSTART: TCheckBox
           Left = 8
-          Top = 90
-          Width = 177
+          Top = 138
+          Width = 465
           Height = 17
           Caption = 'Update list on start'
           TabOrder = 3

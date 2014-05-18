@@ -187,3 +187,11 @@ GROUPBOX_VOLUME = Le niveau de volume pour les serveurs surveillés:
 
 STRING_PASSWORDDIALOG_TITLE = Mot de passe requis
 STRING_PASSWORDDIALOG_PROMPT = Ce serveur est protégé par mot. Saisissez-le ici:
+
+MENUITEM_MAINMENU_SERVERLIST_GAMESPY = Query the Gamespy master server
+MENUITEM_MAINMENU_SERVERLIST_POWERSERVER = Query the community master servers
+TABSHEET_MASTERSERVERS = Master servers
+GROUPBOX_MASTERSERVERS = Community master servers
+BUTTON_MASTERSERVERS_ADD = Add new server domain
+BUTTON_MASTERSERVERS_REMOVE = Remove server domain
+CHECKBOX_MASTERSERVERS_UPDATEONSTART = Update master server list at start

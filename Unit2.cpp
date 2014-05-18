@@ -73,12 +73,15 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->BUTTON_UPDATE->Caption = this->languageDB->getGuiString(BUTTON_UPDATE->Name);
                 this->BUTTON_SERVERS_ADD->Caption = this->languageDB->getGuiString(BUTTON_SERVERS_ADD->Name);
                 this->BUTTON_SERVERS_REMOVE->Caption = this->languageDB->getGuiString(BUTTON_SERVERS_REMOVE->Name);
+                this->BUTTON_MASTERSERVERS_ADD->Caption = this->languageDB->getGuiString(BUTTON_MASTERSERVERS_ADD->Name);
+                this->BUTTON_MASTERSERVERS_REMOVE->Caption = this->languageDB->getGuiString(BUTTON_MASTERSERVERS_REMOVE->Name);
                 this->CHECKBOX_NEWCONFIGURATION_NOSPLASH->Caption = this->languageDB->getGuiString(CHECKBOX_NEWCONFIGURATION_NOSPLASH->Name);
                 this->CHECKBOX_NEWCONFIGURATION_NOMAP->Caption = this->languageDB->getGuiString(CHECKBOX_NEWCONFIGURATION_NOMAP->Name);
                 this->CHECKBOX_REPEAT->Caption = this->languageDB->getGuiString(CHECKBOX_REPEAT->Name);
                 this->CHECKBOX_NOTIFICATIONS_ACTIVE->Caption = this->languageDB->getGuiString(CHECKBOX_NOTIFICATIONS_ACTIVE->Name);
                 this->CHECKBOX_CHAT_AUTOCONNECT->Caption = this->languageDB->getGuiString(CHECKBOX_CHAT_AUTOCONNECT->Name);
                 this->CHECKBOX_UPDATE_CHECKATSTART->Caption = this->languageDB->getGuiString(CHECKBOX_UPDATE_CHECKATSTART->Name);
+                this->CHECKBOX_MASTERSERVERS_UPDATEONSTART->Caption = this->languageDB->getGuiString(CHECKBOX_MASTERSERVERS_UPDATEONSTART->Name);
                 this->LABEL_SERVERLIST_INTERVAL->Caption = this->languageDB->getGuiString(LABEL_SERVERLIST_INTERVAL->Name);
                 this->LABEL_NEWCONFIGURATION_MODFOLDERS->Caption = this->languageDB->getGuiString(LABEL_NEWCONFIGURATION_MODFOLDERS->Name);
                 this->LABEL_NEWCONFIGURATION_LABEL->Caption = this->languageDB->getGuiString(LABEL_NEWCONFIGURATION_LABEL->Name);
@@ -103,6 +106,7 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->GROUPBOX_BANDWIDTHCONSUMPTION->Caption = this->languageDB->getGuiString(GROUPBOX_BANDWIDTHCONSUMPTION->Name);
                 this->GROUPBOX_UPDATE->Caption = this->languageDB->getGuiString(GROUPBOX_UPDATE->Name);
                 this->GROUPBOX_VOLUME->Caption = this->languageDB->getGuiString(GROUPBOX_VOLUME->Name);
+                this->GROUPBOX_MASTERSERVERS->Caption = this->languageDB->getGuiString(GROUPBOX_MASTERSERVERS->Name);
                 this->Caption = this->languageDB->getGuiString(this->Name);
                 this->TABSHEET_GENERAL->Caption = this->languageDB->getGuiString(this->TABSHEET_GENERAL->Name);
                 this->TABSHEET_GAMES->Caption = this->languageDB->getGuiString(this->TABSHEET_GAMES->Name);
@@ -110,6 +114,7 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->TABSHEET_NOTIFICATIONS->Caption = this->languageDB->getGuiString(this->TABSHEET_NOTIFICATIONS->Name);
                 this->TABSHEET_CHATSETTINGS->Caption = this->languageDB->getGuiString(this->TABSHEET_CHATSETTINGS->Name);
                 this->TABSHEET_SERVERS->Caption = this->languageDB->getGuiString(this->TABSHEET_SERVERS->Name);
+                this->TABSHEET_MASTERSERVERS->Caption = this->languageDB->getGuiString(this->TABSHEET_MASTERSERVERS->Name);
                 this->StringGrid1->Cells[0][0] = this->languageDB->getGuiString("STRING_ID");
                 this->StringGrid1->Cells[1][0] = this->languageDB->getGuiString("STRING_ADDRESS");
                 this->StringGrid1->Cells[2][0] = this->languageDB->getGuiString("STRING_NAME");

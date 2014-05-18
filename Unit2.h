@@ -190,7 +190,7 @@ __published:	// IDE-managed Components
         TStringGrid *StringGrid1;
         TTimer *Timer1;
         TTabSheet *TABSHEET_MASTERSERVERS;
-        TGroupBox *GroupBox1;
+        TGroupBox *GROUPBOX_MASTERSERVERS;
         TButton *BUTTON_MASTERSERVERS_ADD;
         TButton *BUTTON_MASTERSERVERS_REMOVE;
         TListBox *LISTBOX_MASTERSERVERS;
