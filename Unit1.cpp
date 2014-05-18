@@ -217,6 +217,11 @@ void TForm1::updateFontOfGui(TFont *font) {
         WINDOW_UPDATE->Font->Charset = font->Charset;
 }
 
+void TForm1::updateMainMenuSettings() {
+        this->MENUITEM_MAINMENU_SERVERLIST_GAMESPY->Checked = this->ofpm->isQueryOfGamespySet();
+        this->MENUITEM_MAINMENU_SERVERLIST_POWERSERVER->Checked = this->ofpm->isQueryOfPowerserverSet();
+}
+
 void TForm1::updateFilterOfGui() {
         this->Edit3->Text = IntToStr(this->serverFilter->minPlayers);
         this->UpDown1->Position = this->serverFilter->minPlayers;
@@ -1245,12 +1250,6 @@ void __fastcall TForm1::MENUITEM_MAINMENU_EXITClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
-{
-        MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = false;
-        this->ofpm->queryGameSpyList();
-}
-//---------------------------------------------------------------------------
 void __fastcall TForm1::MENUITEM_MAINMENU_FONTClick(TObject *Sender)
 {
         FontDialog1->Font = StringGrid1->Font;
@@ -1713,6 +1712,7 @@ void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
 void __fastcall TForm1::FormShow(TObject *Sender)
 {
         if(this->ofpm != NULL) {
+                this->updateMainMenuSettings();
                 if(!this->ofpm->getTotalServerCount()) {
                         this->ofpm->queryGameSpyList();
                 }
@@ -1868,5 +1868,23 @@ void __fastcall TForm1::PageControl1DrawTab(TCustomTabControl *Control,
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
+{
+        MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = false;
+        this->ofpm->queryGameSpyList();
+}
+//---------------------------------------------------------------------------
 
+void __fastcall TForm1::MENUITEM_MAINMENU_SERVERLIST_GAMESPYClick(TObject *Sender)
+{
+        this->ofpm->setQueryOfGamespy(MENUITEM_MAINMENU_SERVERLIST_GAMESPY->Checked);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::MENUITEM_MAINMENU_SERVERLIST_POWERSERVERClick(
+      TObject *Sender)
+{
+        this->ofpm->setQueryOfPowerserver(MENUITEM_MAINMENU_SERVERLIST_POWERSERVER->Checked);
+}
+//---------------------------------------------------------------------------
 

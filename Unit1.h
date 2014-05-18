@@ -102,7 +102,7 @@ __published:	// IDE-managed Components
         TMainMenu *MainMenu1;
         TMenuItem *MENUITEM_MAINMENU_EXIT;
         TMenuItem *MENUITEM_MAINMENU_SETTINGS;
-        TMenuItem *MENUITEM_MAINMENU_GETNEWSERVERLIST;
+        TMenuItem *MENUITEM_MAINMENU_SERVERLIST;
         TFontDialog *FontDialog1;
         TMenuItem *MENUITEM_MAINMENU_FONT;
         TMenuItem *MENUITEM_POPUP_AUTOJOIN;
@@ -168,6 +168,10 @@ __published:	// IDE-managed Components
         TImageList *ImageListNotification;
         TImageList *ImageListBandwidth;
         TImageList *ImageListPinned;
+        TMenuItem *MENUITEM_MAINMENU_GETNEWSERVERLIST;
+        TMenuItem *MENUITEM_MAINMENU_SERVERLIST_GAMESPY;
+        TMenuItem *MENUITEM_MAINMENU_SERVERLIST_POWERSERVER;
+        TMenuItem *N1;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
@@ -200,7 +204,6 @@ __published:	// IDE-managed Components
           int ARow, TRect &Rect, TGridDrawState State);
         void __fastcall MENUITEM_MAINMENU_SETTINGSClick(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_EXITClick(TObject *Sender);
-        void __fastcall MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_FONTClick(TObject *Sender);
         void __fastcall FormResize(TObject *Sender);
         void __fastcall FontDialog1Apply(TObject *Sender, HWND Wnd);
@@ -265,6 +268,10 @@ __published:	// IDE-managed Components
         void __fastcall FormDestroy(TObject *Sender);
         void __fastcall PageControl1DrawTab(TCustomTabControl *Control,
           int TabIndex, const TRect &Rect, bool Active);
+        void __fastcall MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender);
+        void __fastcall MENUITEM_MAINMENU_SERVERLIST_GAMESPYClick(TObject *Sender);
+        void __fastcall MENUITEM_MAINMENU_SERVERLIST_POWERSERVERClick(
+          TObject *Sender);
 private:	// User declarations
         OFPMonitorModel *ofpm;
         GameControl *gameControl;
@@ -317,6 +324,7 @@ public:		// User declarations
         __fastcall TForm1(TComponent* Owner);
         void TForm1::update(Observable *o);
         void TForm1::updateGuiLanguage();
+        void TForm1::updateMainMenuSettings();
 
 };
 //---------------------------------------------------------------------------

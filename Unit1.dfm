@@ -459,7 +459,7 @@ object Form1: TForm1
           Width = 345
           Height = 24
           Style = csDropDownList
-          ItemHeight = 16
+          ItemHeight = 0
           TabOrder = 0
           OnChange = ComboBox1Change
         end
@@ -469,7 +469,7 @@ object Form1: TForm1
           Width = 345
           Height = 24
           Style = csDropDownList
-          ItemHeight = 16
+          ItemHeight = 0
           Sorted = True
           TabOrder = 1
           OnChange = ComboBox2Change
@@ -931,10 +931,29 @@ object Form1: TForm1
       Caption = 'Local game'
       OnClick = MENUITEM_MAINMENU_LOCALGAMEClick
     end
-    object MENUITEM_MAINMENU_GETNEWSERVERLIST: TMenuItem
-      Caption = 'Get new Server list'
+    object MENUITEM_MAINMENU_SERVERLIST: TMenuItem
+      Caption = 'Server list'
       ShortCut = 116
-      OnClick = MENUITEM_MAINMENU_GETNEWSERVERLISTClick
+      object MENUITEM_MAINMENU_SERVERLIST_GAMESPY: TMenuItem
+        AutoCheck = True
+        Caption = 'Query Gamespy'
+        Checked = True
+        OnClick = MENUITEM_MAINMENU_SERVERLIST_GAMESPYClick
+      end
+      object MENUITEM_MAINMENU_SERVERLIST_POWERSERVER: TMenuItem
+        AutoCheck = True
+        Caption = 'Query community servers'
+        Checked = True
+        OnClick = MENUITEM_MAINMENU_SERVERLIST_POWERSERVERClick
+      end
+      object N1: TMenuItem
+        Caption = '-'
+      end
+      object MENUITEM_MAINMENU_GETNEWSERVERLIST: TMenuItem
+        Caption = 'Get new Server list '
+        ShortCut = 116
+        OnClick = MENUITEM_MAINMENU_GETNEWSERVERLISTClick
+      end
     end
     object MENUITEM_MAINMENU_CHAT: TMenuItem
       Caption = 'Chat'

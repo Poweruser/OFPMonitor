@@ -189,6 +189,12 @@ __published:	// IDE-managed Components
         TButton *BUTTON_SERVERS_REMOVE;
         TStringGrid *StringGrid1;
         TTimer *Timer1;
+        TTabSheet *TABSHEET_MASTERSERVERS;
+        TGroupBox *GroupBox1;
+        TButton *BUTTON_MASTERSERVERS_ADD;
+        TButton *BUTTON_MASTERSERVERS_REMOVE;
+        TListBox *LISTBOX_MASTERSERVERS;
+        TCheckBox *CHECKBOX_MASTERSERVERS_UPDATEONSTART;
         void __fastcall BUTTON_OFPRES_BROWSEClick(TObject *Sender);
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialogGameFileCanClose(TObject *Sender,
@@ -271,6 +277,12 @@ __published:	// IDE-managed Components
         void __fastcall BUTTON_SERVERS_REMOVEClick(TObject *Sender);
         void __fastcall Timer1Timer(TObject *Sender);
         void __fastcall FormDestroy(TObject *Sender);
+        void __fastcall BUTTON_MASTERSERVERS_ADDClick(TObject *Sender);
+        void __fastcall TABSHEET_MASTERSERVERSShow(TObject *Sender);
+        void __fastcall CHECKBOX_MASTERSERVERS_UPDATEONSTARTClick(
+          TObject *Sender);
+        void __fastcall BUTTON_MASTERSERVERS_REMOVEClick(TObject *Sender);
+        void __fastcall LISTBOX_MASTERSERVERSClick(TObject *Sender);
 private:	// User declarations
 
         OFPMonitorModel *ofpm;
@@ -281,6 +293,7 @@ private:	// User declarations
         void TWINDOW_SETTINGS::updateConfList();
         void TWINDOW_SETTINGS::refreshGamesModList();
         void TWINDOW_SETTINGS::updateGames();
+        void TWINDOW_SETTINGS::updateMasterServerSettings();
         void TWINDOW_SETTINGS::checkForAutoDetection(OFPGames id);
         void TWINDOW_SETTINGS::checkNotificationListState();
         void TWINDOW_SETTINGS::exitEditNotificationMode();

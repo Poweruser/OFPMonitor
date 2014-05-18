@@ -1705,3 +1705,65 @@ void __fastcall TWINDOW_SETTINGS::FormDestroy(TObject *Sender)
 
 
 
+void __fastcall TWINDOW_SETTINGS::BUTTON_MASTERSERVERS_ADDClick(TObject *Sender)
+{
+        AnsiString input = InputBox("Add server domain", "Enter a new master server domain", "");
+        if(!input.IsEmpty()) {
+                this->ofpm->addMasterServer(input);
+        }
+        this->updateMasterServerSettings();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::TABSHEET_MASTERSERVERSShow(
+      TObject *Sender)
+{
+        this->updateMasterServerSettings();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::CHECKBOX_MASTERSERVERS_UPDATEONSTARTClick(
+      TObject *Sender)
+{
+        this->ofpm->setUpdateOfMasterServersOnStart(CHECKBOX_MASTERSERVERS_UPDATEONSTART->Checked);
+}
+//---------------------------------------------------------------------------
+
+void TWINDOW_SETTINGS::updateMasterServerSettings() {
+        CHECKBOX_MASTERSERVERS_UPDATEONSTART->Checked = this->ofpm->isUpdateOfMasterServersOnStartSet();
+        TStringList *ms = new TStringList;
+        this->ofpm->getMasterServers(ms);
+        LISTBOX_MASTERSERVERS->Clear();
+        for(int i = 0; i < ms->Count; i++) {
+                LISTBOX_MASTERSERVERS->Items->Add(ms->Strings[i]);
+        }
+        BUTTON_MASTERSERVERS_REMOVE->Enabled = false;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::BUTTON_MASTERSERVERS_REMOVEClick(
+      TObject *Sender)
+{
+        for(int i = 0; i < LISTBOX_MASTERSERVERS->Count; i++) {
+                if(LISTBOX_MASTERSERVERS->Selected[i]) {
+                        this->ofpm->removeMasterServer(LISTBOX_MASTERSERVERS->Items->Strings[i]);
+                        break;
+                }
+        }
+        this->updateMasterServerSettings();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::LISTBOX_MASTERSERVERSClick(
+      TObject *Sender)
+{
+        for(int i = 0; i < LISTBOX_MASTERSERVERS->Count; i++) {
+                if(LISTBOX_MASTERSERVERS->Selected[i]) {
+                        BUTTON_MASTERSERVERS_REMOVE->Enabled = true;
+                        return;
+                }
+        }
+        BUTTON_MASTERSERVERS_REMOVE->Enabled = false;
+}
+//---------------------------------------------------------------------------
+

@@ -61,6 +61,15 @@ class OFPMonitorModel : public Observable {
                 String getSettingsFile();
                 String getLanguageFile();
                 bool isUpdateOnStartSet();
+                bool isUpdateOfMasterServersOnStartSet();
+                void setUpdateOfMasterServersOnStart(bool on);
+                bool isQueryOfGamespySet();
+                bool isQueryOfPowerserverSet();
+                void setQueryOfGamespy(bool on);
+                void setQueryOfPowerserver(bool on);
+                void addMasterServer(String domain);
+                void removeMasterServer(String domain);
+                void getMasterServers(TStringList *domains);
                 String generateNewAudioAlias();
                 void setCustomNotifications(bool on);
                 void toggleUpdateOnStart(bool on);
@@ -76,6 +85,7 @@ class OFPMonitorModel : public Observable {
                 list<QueryRequest*> serversToQuery;
                 list<StatusChange*> statusChanges;
                 TList *notifications;
+                TStringList *masterServers;
                 TTimer *queryTimer;
                 AudioPlayer *audioPlayer;
                 ServerList *servers;
@@ -90,6 +100,9 @@ class OFPMonitorModel : public Observable {
                 int interval;
                 bool customNotifications;
                 bool checkUpdateAtStart;
+                bool checkMasterServersAtStart;
+                bool queryGamespy;
+                bool queryPowerserver;
                 Game *games[GAMESTOTAL];
                 String settingsfile;
                 String languagefile;

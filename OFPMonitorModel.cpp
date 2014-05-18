@@ -18,6 +18,9 @@ OFPMonitorModel::OFPMonitorModel(String settingsFile, ServerList *serverList) {
         this->servers = serverList;
         this->net = new UDPNetwork();
         this->notifications = new TList;
+        this->masterServers = new TStringList;
+        this->masterServers->Duplicates = dupIgnore;
+        this->masterServers->Sorted = true;
         this->audioPlayer = new AudioPlayer();
         this->queryTimer = new TTimer(NULL);
         this->queryTimer->Enabled = false;
@@ -25,7 +28,10 @@ OFPMonitorModel::OFPMonitorModel(String settingsFile, ServerList *serverList) {
         this->queryTimer->OnTimer = this->onQueryTimer;
         this->AppWorkdir = ExtractFileDir(Application->ExeName);
         this->customNotifications = false;
-        this->checkUpdateAtStart = false;
+        this->checkUpdateAtStart = true;
+        this->checkMasterServersAtStart = true;
+        this->queryGamespy = true;
+        this->queryPowerserver = true;
         this->interval = 5;
         this->level = Moderate;
         this->settingsfile = settingsFile;
@@ -242,6 +248,9 @@ void OFPMonitorModel::readSettings(TStringList *file) {
         general->add(new ConfigEntry("customNotifications", dtBool, (void*)(&(this->customNotifications))));
         general->add(new ConfigEntry("BandwidthUsage", dtInt, (void*)(&(this->level))));
         general->add(new ConfigEntry("checkUpdateAtStart", dtBool, (void*)(&(this->checkUpdateAtStart))));
+        general->add(new ConfigEntry("checkMasterServersAtStart", dtBool, (void*)(&(this->checkMasterServersAtStart))));
+        general->add(new ConfigEntry("queryGamespy", dtBool, (void*)(&(this->queryGamespy))));
+        general->add(new ConfigEntry("queryPowerserver", dtBool, (void*)(&(this->queryPowerserver))));
         general->add(new ConfigEntry("Volume", dtInt, (void*)(&(this->volume))));
         general->scan(file, 0);
         delete general;
@@ -251,6 +260,17 @@ void OFPMonitorModel::readSettings(TStringList *file) {
                 if(FileExists(this->getWorkDir() + "\\" + english)) {
                         this->setLanguageFile(english);
                 }
+        }
+
+        std::list<String> masterServerList;
+        ConfigSection *servers = new ConfigSection("MasterServers");
+        servers->add(new ConfigEntry("", dtServerItem, (void*)(&masterServerList)));
+        servers->scan(file, 0);
+        delete servers;
+        while(masterServerList.size() > 0) {
+                String s = masterServerList.front();
+                this->masterServers->Add(s);
+                masterServerList.pop_front();
         }
         
         int lineIndex = 0;
@@ -661,6 +681,30 @@ bool OFPMonitorModel::isUpdateOnStartSet() {
         return this->checkUpdateAtStart;
 }
 
+bool OFPMonitorModel::isUpdateOfMasterServersOnStartSet() {
+        return this->checkMasterServersAtStart;
+}
+
+void OFPMonitorModel::setUpdateOfMasterServersOnStart(bool on) {
+        this->checkMasterServersAtStart = on;
+}
+
+bool OFPMonitorModel::isQueryOfGamespySet() {
+        return this->queryGamespy;
+}
+
+bool OFPMonitorModel::isQueryOfPowerserverSet() {
+        return this->queryPowerserver;
+}
+
+void OFPMonitorModel::setQueryOfGamespy(bool on) {
+        this->queryGamespy = on;
+}
+
+void OFPMonitorModel::setQueryOfPowerserver(bool on) {
+        this->queryPowerserver = on;
+}
+
 String OFPMonitorModel::generateNewAudioAlias() {
         this->aliasCounter++;
         return ("OFPM_NOTIFICATION_" + IntToStr(this->aliasCounter));
@@ -715,6 +759,9 @@ void OFPMonitorModel::getSettingsFileEntry(TStringList *settings) {
         settings->Add("customNotifications = " + IntToStr(this->customNotifications));
         settings->Add("BandwidthUsage = " + IntToStr(this->level));
         settings->Add("checkUpdateAtStart = " + IntToStr(this->checkUpdateAtStart));
+        settings->Add("checkMasterServersAtStart = " + IntToStr(this->checkMasterServersAtStart));
+        settings->Add("queryGamespy = " + IntToStr(this->queryGamespy));
+        settings->Add("queryPowerserver = " + IntToStr(this->queryPowerserver));
         settings->Add("Volume = " + IntToStr(this->volume));
         settings->Add("[\\General]");
         for(int i = 0; i < GAMESTOTAL; i++) {
@@ -730,6 +777,12 @@ void OFPMonitorModel::getSettingsFileEntry(TStringList *settings) {
                 }
         }
         this->servers->getSettingsFileEntry(settings);
+
+        settings->Add("[MasterServers]");
+        for(int i = 0; i < this->masterServers->Count; i++) {
+                settings->Add(this->masterServers->Strings[i]);
+        }
+        settings->Add("[\\MasterServers]");
 }
 
 AudioPlayer* OFPMonitorModel::getAudioPlayer() {
@@ -738,5 +791,27 @@ AudioPlayer* OFPMonitorModel::getAudioPlayer() {
 
 void OFPMonitorModel::removeOfflineServers() {
         this->servers->removeOfflineServers();
+}
+
+void OFPMonitorModel::addMasterServer(String domain) {
+        if(!domain.IsEmpty()) {
+                this->masterServers->Add(domain);
+        }
+}
+void OFPMonitorModel::removeMasterServer(String domain) {
+        int index = -1;
+        do {
+                index = this->masterServers->IndexOf(domain);
+                if(index >= 0) {
+                        this->masterServers->Delete(index);
+                }
+        } while(index >= 0);
+}
+
+void OFPMonitorModel::getMasterServers(TStringList *domains) {
+        domains->Clear();
+        for(int i = 0; i < this->masterServers->Count; i++) {
+                domains->Add(this->masterServers->Strings[i]);
+        }
 }
 

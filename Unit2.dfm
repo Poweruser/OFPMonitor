@@ -265,7 +265,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 313
           Height = 21
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 1
           OnChange = COMBOBOX_OFPCWC_PROFILEChange
         end
@@ -289,7 +289,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 0
             Top = 0
             Width = 56
-            Height = 13
+            Height = 14
             Align = alLeft
             Caption = 'Executable:'
           end
@@ -297,7 +297,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 365
             Top = 0
             Width = 84
-            Height = 13
+            Height = 14
             Align = alRight
             Caption = 'Detected version:'
             Transparent = True
@@ -348,7 +348,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
           Font.Style = []
-          ItemHeight = 0
+          ItemHeight = 13
           ParentFont = False
           TabOrder = 1
           OnChange = COMBOBOX_OFPRES_PROFILEChange
@@ -364,7 +364,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 0
             Top = 0
             Width = 56
-            Height = 13
+            Height = 14
             Align = alLeft
             Caption = 'Executable:'
             Transparent = True
@@ -373,7 +373,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 365
             Top = 0
             Width = 84
-            Height = 13
+            Height = 14
             Align = alRight
             Caption = 'Detected version:'
             Transparent = True
@@ -409,7 +409,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Width = 313
           Height = 21
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 1
           OnChange = COMBOBOX_ARMACWA_PROFILEChange
         end
@@ -433,7 +433,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 0
             Top = 0
             Width = 56
-            Height = 13
+            Height = 14
             Align = alLeft
             Caption = 'Executable:'
             Transparent = True
@@ -442,7 +442,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Left = 365
             Top = 0
             Width = 84
-            Height = 13
+            Height = 14
             Align = alRight
             Caption = 'Detected version:'
             Transparent = True
@@ -725,7 +725,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 449
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         OnChange = ComboBox2Change
       end
@@ -1593,7 +1593,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Top = 32
           Width = 209
           Height = 21
-          ItemHeight = 0
+          ItemHeight = 13
           MaxLength = 14
           Sorted = True
           TabOrder = 0
@@ -1608,23 +1608,75 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         end
       end
     end
+    object TABSHEET_MASTERSERVERS: TTabSheet
+      Caption = 'Master servers'
+      ImageIndex = 6
+      OnShow = TABSHEET_MASTERSERVERSShow
+      object GroupBox1: TGroupBox
+        Left = 8
+        Top = 8
+        Width = 481
+        Height = 193
+        Caption = ' Community hosted Masterservers  '
+        TabOrder = 0
+        object BUTTON_MASTERSERVERS_ADD: TButton
+          Left = 8
+          Top = 24
+          Width = 185
+          Height = 25
+          Caption = 'Add domain'
+          TabOrder = 0
+          OnClick = BUTTON_MASTERSERVERS_ADDClick
+        end
+        object BUTTON_MASTERSERVERS_REMOVE: TButton
+          Left = 8
+          Top = 56
+          Width = 185
+          Height = 25
+          Caption = 'Remove domain'
+          TabOrder = 1
+          OnClick = BUTTON_MASTERSERVERS_REMOVEClick
+        end
+        object LISTBOX_MASTERSERVERS: TListBox
+          Left = 200
+          Top = 16
+          Width = 273
+          Height = 169
+          ItemHeight = 13
+          TabOrder = 2
+          OnClick = LISTBOX_MASTERSERVERSClick
+        end
+        object CHECKBOX_MASTERSERVERS_UPDATEONSTART: TCheckBox
+          Left = 8
+          Top = 90
+          Width = 177
+          Height = 17
+          Caption = 'Update list on start'
+          TabOrder = 3
+          OnClick = CHECKBOX_MASTERSERVERS_UPDATEONSTARTClick
+        end
+      end
+    end
   end
   object OpenDialogGameFile: TOpenDialog
     Filter = 'OFP:R (FLASHPOINTRESISTANCE.EXE)|FLASHPOINTRESISTANCE.EXE'
     Options = [ofPathMustExist, ofFileMustExist, ofNoNetworkButton, ofDontAddToRecent]
     OptionsEx = [ofExNoPlacesBar]
     OnCanClose = OpenDialogGameFileCanClose
-    Left = 360
+    Left = 8
+    Top = 440
   end
   object OpenDialogAudioFile: TOpenDialog
     Filter = 'Audio File (mp3, wav)|*.mp3;*.wav'
     Options = [ofReadOnly, ofHideReadOnly, ofNoNetworkButton, ofEnableSizing, ofDontAddToRecent]
     OnCanClose = OpenDialogAudioFileCanClose
-    Left = 392
+    Left = 40
+    Top = 440
   end
   object ImageListPropertyIcons: TImageList
     DrawingStyle = dsTransparent
-    Left = 456
+    Left = 104
+    Top = 440
     Bitmap = {
       494C010104000900040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
@@ -2030,7 +2082,8 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
       000000000000}
   end
   object ImageListFlags: TImageList
-    Left = 424
+    Left = 72
+    Top = 440
     Bitmap = {
       494C010108000900040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
@@ -2438,7 +2491,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
   object Timer1: TTimer
     Enabled = False
     OnTimer = Timer1Timer
-    Left = 456
-    Top = 32
+    Left = 136
+    Top = 440
   end
 end
