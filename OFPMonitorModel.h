@@ -52,7 +52,7 @@ class OFPMonitorModel : public Observable {
                 void addNotification(CustomNotification *notif);
                 void removeNotification(CustomNotification *notif);
                 int getNotificationCount();
-                TColor getMarkingColor(Server *svr);
+                TColor getMarkingColor(int serverID);
                 void queryGameSpyList();
                 bool isGameSpyUpdateDone();
                 void getAllAppTitlesOfGames(TStringList *list);
@@ -94,7 +94,7 @@ class OFPMonitorModel : public Observable {
                 HANDLE getServerListThread;
 
                 void __fastcall onQueryTimer(TObject *Sender);
-                void checkCustomNotifications(Server *svr);
+                void checkCustomNotifications(int serverID);
 
                 String AppWorkdir;
                 String AppExe;

@@ -137,7 +137,7 @@ void OFPMonitorModel::ProcessMessages() {
                                         }
                                 }
                         }
-                        this->checkCustomNotifications(svr);
+                        this->checkCustomNotifications(svr->getServerID());
                 }
         }
         if(this->audioPlayer != NULL) {
@@ -171,10 +171,11 @@ void OFPMonitorModel::ProcessMessages() {
         this->processing = false;
 }
 
-void OFPMonitorModel::checkCustomNotifications(Server *svr) {
+void OFPMonitorModel::checkCustomNotifications(int serverID) {
         for(int i = 0; i < this->notifications->Count; i++) {
                 CustomNotification *cN = this->getNotification(i);
-                if(cN != NULL) {
+                Server *svr = this->getServerByID(serverID);
+                if(cN != NULL && svr != NULL) {
                         String ident = svr->getGamespyAddress();
                         bool alreadySet = cN->hasClient(ident);
                         if(this->customNotifications) {
@@ -544,11 +545,12 @@ void OFPMonitorModel::addNotification(CustomNotification *customN) {
         }
 }
 
-TColor OFPMonitorModel::getMarkingColor(Server *svr) {
+TColor OFPMonitorModel::getMarkingColor(int serverID) {
         TColor out = clNone;
         for(int i = 0; i < this->notifications->Count; i++) {
                 CustomNotification *cN = this->getNotification(i);
-                if(cN != NULL) {
+                Server *svr = this->getServerByID(serverID);
+                if(cN != NULL && svr != NULL) {
                         if(cN->hasClient(svr->getGamespyAddress())) {
                                 out = cN->getMarkingColor();
                                 break;

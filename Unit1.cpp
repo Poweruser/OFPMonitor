@@ -1258,7 +1258,7 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
                 if(srv != NULL) {
                         TColor mark = clNone;
                         if(this->ofpm != NULL) {
-                                mark = this->ofpm->getMarkingColor(srv);
+                                mark = this->ofpm->getMarkingColor(srv->getServerID());
                         }
                         if(     mark != clNone ||
                                 srv->isWatched() ||
