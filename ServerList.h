@@ -17,6 +17,7 @@ class ServerList {
                 bool hasServer(String address);
                 Server* getServer(String address);
                 Server* getServer(int index);
+                Server* getServerByID(int serverID);
                 bool addServer(String address);
                 bool addServer(ServerConfigEntry entry);
                 bool removeServer(String address);
@@ -30,7 +31,7 @@ class ServerList {
 
         private:
                 TStringList *list;
-                int indexCounter;
+                int serverIDCounter;
                 Address checkAddressValid(String address);
 };
 

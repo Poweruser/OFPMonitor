@@ -470,7 +470,7 @@ void TWINDOW_SETTINGS::setEmptyServerEditorList() {
 }
 
 void TWINDOW_SETTINGS::writeServerToStringGrid(int rowIndex, Server *srv) {
-        this->StringGrid1->Cells[0][rowIndex] = " " + IntToStr(srv->getIndex());
+        this->StringGrid1->Cells[0][rowIndex] = " " + IntToStr(srv->getServerID());
         this->StringGrid1->Objects[0][rowIndex] = (TObject*) srv;
         this->StringGrid1->Cells[1][rowIndex] = srv->getAddress();
         this->StringGrid1->Cells[2][rowIndex] = srv->getName();
@@ -491,7 +491,7 @@ void TWINDOW_SETTINGS::updateServerEditorList() {
                         Server *srv = *ci;
                         if(srv != NULL) {
                                 if(this->serverEditorTableSorter->isIDSet()) {
-                                        sortlist->AddObject(this->addLeadingZeros(srv->getIndex(), 3), (TObject*) srv);
+                                        sortlist->AddObject(this->addLeadingZeros(srv->getServerID(), 3), (TObject*) srv);
                                 } else if(this->serverEditorTableSorter->isIPSet()) {
                                         sortlist->AddObject(srv->getAddress(), (TObject*) srv);
                                 } else if(this->serverEditorTableSorter->isNameSet()) {

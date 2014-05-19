@@ -251,7 +251,7 @@ void TForm1::updateFilterOfGui() {
 }
 
 void TForm1::writeServerToStringGrid(int rowIndex, Server *srv) {
-        this->StringGrid1->Cells[0][rowIndex] = " " + IntToStr(srv->getIndex());
+        this->StringGrid1->Cells[0][rowIndex] = " " + IntToStr(srv->getServerID());
         this->StringGrid1->Objects[0][rowIndex] = (TObject*) srv;
         this->StringGrid1->Cells[1][rowIndex] = srv->getName();
                 /*
@@ -556,7 +556,7 @@ void TForm1::filterChanged(bool userinput) {
                 }
 
                 if(this->serverTableSorter->isIdSet()) {
-                        sortList->AddObject(this->addLeadingZeros(srv->getIndex(), 3), (TObject*) srv);
+                        sortList->AddObject(this->addLeadingZeros(srv->getServerID(), 3), (TObject*) srv);
                 } else if(this->serverTableSorter->isNameSet()) {
                         sortList->AddObject(srv->getName(), (TObject*) srv);
                 } else if(this->serverTableSorter->isPlayersSet()) {

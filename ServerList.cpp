@@ -14,7 +14,7 @@
 
 
 ServerList::ServerList() {
-        this->indexCounter = 0;
+        this->serverIDCounter = 0;
         this->list = new TStringList;
         this->list->Sorted = true;
         this->list->Duplicates = dupIgnore;
@@ -54,11 +54,21 @@ Server* ServerList::getServer(int index) {
         return srv;
 }
 
+Server* ServerList::getServerByID(int serverID) {
+        for(int i = 0; i < this->list->Count; i++) {
+                Server *svr = this->getServer(i);
+                if(svr->getServerID() == serverID) {
+                        return svr;
+                }
+        }
+        return NULL;
+}
+
 bool ServerList::addServer(ServerConfigEntry entry) {
         Address add = this->checkAddressValid(entry.address);
         if(add.isValid() && !this->hasServer(add.getAddress())) {
-                int index = this->indexCounter++;
-                this->list->AddObject(add.getAddress(), (TObject*)(new Server(index, add.getIP(), add.getPort(), entry)));
+                int id = this->serverIDCounter++;
+                this->list->AddObject(add.getAddress(), (TObject*)(new Server(id, add.getIP(), add.getPort(), entry)));
                 return true;
         }
         return false;
@@ -67,8 +77,8 @@ bool ServerList::addServer(ServerConfigEntry entry) {
 bool ServerList::addServer(String address) {
         Address add = this->checkAddressValid(address);
         if(add.isValid() && !this->hasServer(add.getAddress())) {
-                int index = this->indexCounter++;
-                this->list->AddObject(add.getAddress(), (TObject*)(new Server(index, add.getIP(), add.getPort())));
+                int id = this->serverIDCounter++;
+                this->list->AddObject(add.getAddress(), (TObject*)(new Server(id, add.getIP(), add.getPort())));
                 return true;
         }
         return false;

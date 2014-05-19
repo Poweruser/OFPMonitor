@@ -36,26 +36,26 @@ ServerConfigEntry::ServerConfigEntry(String address) {
         this->autojoinConf = "";
 }
 
-__fastcall Server::Server(int index, String ip, int port) {
+__fastcall Server::Server(int serverID, String ip, int port) {
         this->watch = false;
         this->favorite = false;
         this->persistent = false;
         this->blocked = false;
         this->clear();
-        this->index = index;
+        this->serverID = serverID;
         this->ip = ip;
         this->timeouts = 0;
         this->ping = 0;
         this->gamespyport = port;
 }
 
-__fastcall Server::Server(int index, String ip, int port, ServerConfigEntry entry) {
+__fastcall Server::Server(int serverID, String ip, int port, ServerConfigEntry entry) {
         this->watch = entry.watch;
         this->favorite = entry.favorite;
         this->persistent = entry.persistent;
         this->blocked = entry.blocked;
         this->clear();
-        this->index = index;
+        this->serverID = serverID;
         this->ip = ip;
         this->timeouts = 0;
         this->ping = 0;
@@ -590,8 +590,8 @@ String Server::getName() {
         return this->name;
 }
 
-int Server::getIndex() {
-        return this->index;
+int Server::getServerID() {
+        return this->serverID;
 }
 
 int Server::getPlayerNum() {

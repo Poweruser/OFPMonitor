@@ -35,8 +35,8 @@ class ServerConfigEntry {
 
 class Server : public TObject {
         public:
-                __fastcall Server(int index, String ip, int port);
-                __fastcall Server(int index, String ip, int port, ServerConfigEntry entry);
+                __fastcall Server(int serverID, String ip, int port);
+                __fastcall Server(int serverID, String ip, int port, ServerConfigEntry entry);
                 __fastcall ~Server();
                 
                 /**
@@ -71,7 +71,7 @@ class Server : public TObject {
                 String getMission();
                 int getPing();
                 String getName();
-                int getIndex();
+                int getServerID();
                 int getGameState();
                 int getPlayerNum();
                 int getPlayerNumOfPlayerList();
@@ -126,7 +126,7 @@ class Server : public TObject {
                 QueryAnswer queries[5];
                 int missedQueryTurns;
                 int emptyServerCounter;
-                int index;
+                int serverID;
                 int gamespyport;
                 int gameport;
                 int ping;
