@@ -52,11 +52,13 @@ list<String> getExesByGameId(OFPGames gameid) {
                 	exes.push_back("OperationFlashpointbeta.exe");
 			break;
 		case OFPRES:
-                	exes.push_back("FLASHPOINTRESISTANCE.EXE");
+			exes.push_back("fwatch.exe");
+			exes.push_back("FLASHPOINTRESISTANCE.EXE");
                 	exes.push_back("OFP.exe");
                 	exes.push_back("FLASHPOINTBETA.EXE");
 			break;
 		case ARMACWA:
+			exes.push_back("fwatchCWA.exe");
                 	exes.push_back("ColdWarAssault.exe");
 	}
 	return exes;
