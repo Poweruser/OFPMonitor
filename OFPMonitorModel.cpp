@@ -606,7 +606,7 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
                         for(int i = 0; i < cms->Count; i++) {
                                 String serverdomain = cms->Strings[i];
                                 TStringList *returnList = NULL;
-                                ServerListLoader *loader = new ServerListLoader(500);
+                                ServerListLoader *loader = new ServerListLoader(5000);
                                 try {
                                         returnList = loader->getServerList(serverdomain, POWERSERVER_QUERYPORT, token, key);
                                 } catch (Exception &E) {
