@@ -676,8 +676,10 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
 }
 
 void OFPMonitorModel::queryGameSpyList() {
-        this->gameSpyUpdateDone = false;
-        this->getServerListThread = CreateThread(0, 0, gamespyQuery_ThreadProc, (void*)this, 0, 0);
+        if(this->isGameSpyUpdateDone()) {
+                this->gameSpyUpdateDone = false;
+                this->getServerListThread = CreateThread(0, 0, gamespyQuery_ThreadProc, (void*)this, 0, 0);
+        }
 }
 
 bool OFPMonitorModel::isGameSpyUpdateDone() {
