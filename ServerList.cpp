@@ -79,9 +79,11 @@ bool ServerList::removeServer(String address) {
         if(this->list->Find(address, index)) {
                 Server *svr = this->getServer(index);
                 this->list->Delete(index);
+                /*
                 if(svr != NULL) {
                         delete svr;
                 }
+                */
                 return true;
         }
         return false;
