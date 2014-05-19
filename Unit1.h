@@ -281,8 +281,8 @@ private:	// User declarations
         WindowSettings *windowSettings;
         ServerTableSorter *serverTableSorter;
         PlayerTableSorter *playerTableSorter;
-        Server* selectedServer;
-        Server* selectedServerForPopUp;
+        int selectedServerID;
+        int selectedServerIDForPopUp;
         ChatSettings *chatSettings;
         Chat* chat;
         LanguageDB *languageDB;
@@ -294,10 +294,10 @@ private:	// User declarations
         void TForm1::updateFilterOfGui();
         void TForm1::updateGameControlGui();
         void TForm1::updateFontOfGui(TFont *font);
-        void TForm1::writeServerToStringGrid(int rowIndex, Server *srv);
-        void TForm1::processPlayerList(Server *srv);
+        void TForm1::writeServerToStringGrid(int rowIndex, int serverID);
+        void TForm1::processPlayerList(int serverID);
         void TForm1::writePlayerToStringGrid(int rowIndex, Player *p);
-        void TForm1::updateServerInfoBox(Server *srv);
+        void TForm1::updateServerInfoBox(int serverID);
         void TForm1::filterChanged(bool userinput);
         void TForm1::setEmptyServerList();
         void TForm1::setEmptyPlayerList();
@@ -320,7 +320,7 @@ public:		// User declarations
         void TForm1::setChatSettings(ChatSettings *chatSettings);
         void TForm1::setLanguageDB(LanguageDB *languageDB);
         void TForm1::applyWindowSettings();
-        void TForm1::setSelectedServer(Server *srv);
+        void TForm1::setSelectedServer(int serverID);
         void TForm1::setAlwaysOnTop(bool active);
         void TForm1::toggleAlwaysOnTop();
         __fastcall TForm1(TComponent* Owner);

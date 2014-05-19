@@ -17,7 +17,7 @@ GameControl::GameControl(OFPMonitorModel *ofpm) {
         this->autoGreenUpTimer = new TTimer(NULL);
         this->autoGreenUpTimer->Enabled = false;
         this->autoGreenUpTimer->OnTimer = this->onTimer;
-        this->selectedServer = NULL;
+        this->selectedServerID = NULL_SERVERID;
         this->restoreGame = false;
         this->restoreOnCreating = false;
         this->restoreOnWaiting = false;
@@ -62,11 +62,12 @@ bool GameControl::verifyProcess() {
 }
 
 bool GameControl::verifyServer() {
-        if(this->selectedServer != NULL) {
-                bool out = this->selectedServer->isOnline() &&
-                          !this->selectedServer->isBlocked();
+        if(this->selectedServerID >= 0) {
+                Server *srv = this->ofpm->getServerByID(this->selectedServerID);
+                bool out = srv->isOnline() &&
+                          !srv->isBlocked();
                 if(this->autoDetect) {
-                        out = out && (this->ofpm->findUserOnServer() == this->selectedServer);
+                        out = out && (this->ofpm->findUserOnServer() == this->selectedServerID);
                 }
                 return out;
         }
@@ -92,8 +93,8 @@ void GameControl::setProcess(ProcessInfo *p) {
         this->proc.moduleName = p->moduleName;
 }
 
-void GameControl::setServer(Server *srv) {
-        this->selectedServer = srv;
+void GameControl::setServer(int serverID) {
+        this->selectedServerID = serverID;
         this->checkCurrentData();
 }
 
@@ -106,13 +107,24 @@ bool GameControl::matchesProcess(ProcessInfo *p) {
 }
 
 bool GameControl::matchesServer(String serverAddress) {
-        if(this->selectedServer == NULL) { return false; }
-        return this->selectedServer->equals(serverAddress);
+        if(this->selectedServerID >= 0) {
+                Server *srv = this->ofpm->getServerByID(this->selectedServerID);
+                if(srv != NULL) {
+                        return srv->equals(serverAddress);
+                }
+        }
+        return false;
 }
 
-bool GameControl::matchesServer(Server *srv) {
-        if(this->selectedServer == NULL) { return false; }
-        return this->selectedServer->equals(srv);
+bool GameControl::matchesServer(int serverID) {
+        if(this->selectedServerID >= 0) {
+                Server *srv = this->ofpm->getServerByID(this->selectedServerID);
+                Server *other = this->ofpm->getServerByID(serverID);
+                if(srv != NULL && other != NULL) {
+                        return srv->equals(other);
+                }
+        }
+        return false;
 }
 
 void GameControl::ProcessMessages() {
@@ -206,9 +218,12 @@ void GameControl::setGreenUpDelay(int delay) {
 
 void GameControl::sendGreenUpMessage() {
         if(this->verifyProcess() && this->verifyServer()) {
-                if(this->selectedServer->getCurrentGameState() == SERVERSTATE_BRIEFING) {
-                        SendMessage(this->proc.hWindow, WM_KEYDOWN, VK_RETURN, NULL);
-                        SendMessage(this->proc.hWindow, WM_KEYUP  , VK_RETURN, NULL);
+                Server *srv = this->ofpm->getServerByID(this->selectedServerID);
+                if(srv != NULL) {
+                        if(srv->getCurrentGameState() == SERVERSTATE_BRIEFING) {
+                                SendMessage(this->proc.hWindow, WM_KEYDOWN, VK_RETURN, NULL);
+                                SendMessage(this->proc.hWindow, WM_KEYUP  , VK_RETURN, NULL);
+                        }
                 }
         }
 }                
@@ -236,11 +251,11 @@ String GameControl::checkBool(bool in) {
 bool GameControl::detectServer() {
         bool detected = false;
         if(this->autoDetect) {
-                Server *svr = this->ofpm->findUserOnServer();
-                if(svr != this->selectedServer) {
-                        this->setServer(svr);
+                int serverID = this->ofpm->findUserOnServer();
+                if(serverID != this->selectedServerID) {
+                        this->setServer(serverID);
                 }
-                if(svr != NULL) {
+                if(serverID >= 0) {
                         detected = true;
                 }
         }

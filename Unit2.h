@@ -305,7 +305,7 @@ private:	// User declarations
         void TWINDOW_SETTINGS::checkConfListState();
         void TWINDOW_SETTINGS::exitEditMode();
         void TWINDOW_SETTINGS::updateModFolderList(String ofpfolder);
-        void TWINDOW_SETTINGS::writeServerToStringGrid(int rowIndex, Server *srv);
+        void TWINDOW_SETTINGS::writeServerToStringGrid(int rowIndex, int serverID);
         void TWINDOW_SETTINGS::setEmptyServerEditorList();
         String TWINDOW_SETTINGS::addLeadingZeros(int number, int length);
         void TWINDOW_SETTINGS::updateServerEditorList();

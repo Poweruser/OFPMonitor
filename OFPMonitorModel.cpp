@@ -130,7 +130,7 @@ void OFPMonitorModel::ProcessMessages() {
                                         if(svr->isAutoJoin()) {
                                                 if(sc->getOldStatus() == SERVERSTATE_PLAYING &&
                                                    sc->getCurrentStatus() != SERVERSTATE_PLAYING) {
-                                                        this->startTheGame(this->getMatchingGame(svr), svr->getAutoJoinConf());
+                                                        this->startTheGame(this->getMatchingGame(svr->getServerID()), svr->getAutoJoinConf());
                                                         this->disableAutoJoin();
                                                 }
                                         }
@@ -199,20 +199,20 @@ void OFPMonitorModel::queryServers() {
         this->queryTimer->Enabled = true;
 }
 
-Server* OFPMonitorModel::findUserOnServer() {
+int OFPMonitorModel::findUserOnServer() {
         for(int i = 0; i < this->servers->getServerCount(); i++) {
                 Server *svr = this->servers->getServer(i);
                 if(svr != NULL) {
-                        Game *g = this->getMatchingGame(svr);
+                        Game *g = this->getMatchingGame(svr->getServerID());
                         if(g != NULL) {
                                 String profile = g->getProfileName();
                                 if(svr->isPlayerOnServer(profile, true)) {
-                                        return svr;
+                                        return svr->getServerID();
                                 }
                         }
                 }
         }
-        return NULL;
+        return -1;
 }
 
 void OFPMonitorModel::setInterval(int seconds) {
@@ -405,8 +405,12 @@ Game* OFPMonitorModel::getMatchingGame(int actVer, int reqVer) {
         return out;
 }
 
-Game* OFPMonitorModel::getMatchingGame(Server *srv) {
-        return this->getMatchingGame(srv->getActualVersion(), srv->getRequiredVersion());
+Game* OFPMonitorModel::getMatchingGame(int serverID) {
+        Server *srv = this->getServerByID(serverID);
+        if(srv != NULL) {
+                return this->getMatchingGame(srv->getActualVersion(), srv->getRequiredVersion());
+        }
+        return NULL;
 } 
 
 bool OFPMonitorModel::hasServerStatusChanged() {
@@ -422,18 +426,18 @@ StatusChange* OFPMonitorModel::takeStatusChange() {
         return sc;
 }
 
-list<Server*> OFPMonitorModel::getAllMatchingServers(ServerFilter *filter) {
-        list<Server*> matchingServers;
+list<int> OFPMonitorModel::getAllMatchingServers(ServerFilter *filter) {
+        list<int> matchingServers;
         for(int i = 0; i < this->servers->getServerCount(); i++) {
                 Server *srv = this->servers->getServer(i);
                 if(srv != NULL) {
                         if(filter != NULL) {
                                 ServerFilterResult sfr = srv->checkFilter(filter);
                                 if(sfr > SFR_NOTPASSED) {
-                                        matchingServers.push_back(srv);
+                                        matchingServers.push_back(srv->getServerID());
                                 }
                         } else {
-                                matchingServers.push_back(srv);
+                                matchingServers.push_back(srv->getServerID());
                         }
                 }
         }
@@ -871,4 +875,8 @@ void OFPMonitorModel::parseMasterServerFile(TStringList *list) {
                 this->removeMasterServer(masterServerList.front());
                 masterServerList.pop_front();
         }
+}
+
+Server* OFPMonitorModel::getServerByID(int serverID) {
+        return this->servers->getServerByID(serverID);
 }

@@ -27,11 +27,11 @@ class GameControl : public Observable {
                 bool isRestoreGameOn();
                 bool isAutoDetectOn();
                 void setProcess(ProcessInfo *p);
-                void setServer(Server *srv);
+                void setServer(int serverID);
                 bool matchesProcess(ProcessInfo p);
                 bool matchesProcess(ProcessInfo *p);
                 bool matchesServer(String address);
-                bool matchesServer(Server *srv);
+                bool matchesServer(int serverID);
                 void setGreenUpRepeat(bool enabled);
                 bool getGreenUpRepeat();
                 int getGreenUpDelay();
@@ -47,7 +47,7 @@ class GameControl : public Observable {
         private:
                 OFPMonitorModel *ofpm;
                 TTimer *autoGreenUpTimer;
-                Server *selectedServer;
+                int selectedServerID;
                 ProcessInfo proc;
                 bool autoDetect;
                 bool autoGreenUp;

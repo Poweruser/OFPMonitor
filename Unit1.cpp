@@ -250,35 +250,38 @@ void TForm1::updateFilterOfGui() {
         this->CHECKBOX_FILTER_WITHOUTPASSWORD->Checked = this->serverFilter->withoutPassword;
 }
 
-void TForm1::writeServerToStringGrid(int rowIndex, Server *srv) {
-        this->StringGrid1->Cells[0][rowIndex] = " " + IntToStr(srv->getServerID());
-        this->StringGrid1->Objects[0][rowIndex] = (TObject*) srv;
-        this->StringGrid1->Cells[1][rowIndex] = srv->getName();
-                /*
-                   Because of some unknown reason, the maximum number of players,
-                   reported by the server in a query, is 2 higher than it should be
-                */
-        this->StringGrid1->Cells[2][rowIndex] = IntToStr(srv->getPlayerNum()) + " / " + IntToStr(srv->getMaxPlayerNum() - 2);
-        String gs = this->getGameState(srv->getGameState());
-        long Stime = srv->getStatusTime();
-        if(Stime > 0) {
-                gs += " " + this->calcElapsedTime(Stime, time(0));
-        }
-        this->StringGrid1->Cells[3][rowIndex] = gs;
-        this->StringGrid1->Cells[4][rowIndex] = srv->getIsland();
-        this->StringGrid1->Cells[5][rowIndex] = srv->getMission();
-        String pingField = IntToStr(srv->getPing());
-        if(srv->hasTimedOut()) {
-                pingField = " --- ";
-        }
-        this->StringGrid1->Cells[6][rowIndex] = pingField;
-        if(srv->equals(this->selectedServer)) {
-                TGridRect myRect;
-                myRect.Left = 0;
-                myRect.Top = rowIndex;
-                myRect.Right = StringGrid1->ColCount - 1;
-                myRect.Bottom = rowIndex;
-                this->StringGrid1->Selection = myRect;
+void TForm1::writeServerToStringGrid(int rowIndex, int serverID) {
+        Server *srv = this->ofpm->getServerByID(serverID);
+        if(srv != NULL) {
+                this->StringGrid1->Cells[0][rowIndex] = " " + IntToStr(srv->getServerID());
+                this->StringGrid1->Objects[0][rowIndex] = (TObject*) srv->getServerID();
+                this->StringGrid1->Cells[1][rowIndex] = srv->getName();
+                        /*
+                          Because of some unknown reason, the maximum number of players,
+                          reported by the server in a query, is 2 higher than it should be
+                        */
+                this->StringGrid1->Cells[2][rowIndex] = IntToStr(srv->getPlayerNum()) + " / " + IntToStr(srv->getMaxPlayerNum() - 2);
+                String gs = this->getGameState(srv->getGameState());
+                long Stime = srv->getStatusTime();
+                if(Stime > 0) {
+                        gs += " " + this->calcElapsedTime(Stime, time(0));
+                }
+                this->StringGrid1->Cells[3][rowIndex] = gs;
+                this->StringGrid1->Cells[4][rowIndex] = srv->getIsland();
+                this->StringGrid1->Cells[5][rowIndex] = srv->getMission();
+                String pingField = IntToStr(srv->getPing());
+                if(srv->hasTimedOut()) {
+                        pingField = " --- ";
+                }
+                this->StringGrid1->Cells[6][rowIndex] = pingField;
+                if(srv->getServerID() == this->selectedServerID) {
+                        TGridRect myRect;
+                        myRect.Left = 0;
+                        myRect.Top = rowIndex;
+                        myRect.Right = StringGrid1->ColCount - 1;
+                        myRect.Bottom = rowIndex;
+                        this->StringGrid1->Selection = myRect;
+                }
         }
 }
 
@@ -394,7 +397,7 @@ void TForm1::setEmptyPlayerList() {
            couldnt be found   
  */
 
-void TForm1::processPlayerList(Server *srv) {
+void TForm1::processPlayerList(int serverID) {
         TStringList *plist = new TStringList;
         plist->Sorted = true;
         plist->CaseSensitive = true;
@@ -403,10 +406,10 @@ void TForm1::processPlayerList(Server *srv) {
         plistNegScore->Sorted = true;
         plistNegScore->CaseSensitive = true;
         plistNegScore->Duplicates = dupAccept;
-        Server *selected = srv;
+        Server *selected = this->ofpm->getServerByID(serverID);
         if(selected == NULL) {
                 int row = this->StringGrid1->Selection.BottomRight.Y;
-                selected = (Server*) (this->StringGrid1->Objects[0][row]);
+                selected = this->ofpm->getServerByID((int) (this->StringGrid1->Objects[0][row]));
         }
         if(selected != NULL) {
                 int availablePlayers = selected->getPlayerNumOfPlayerList();
@@ -471,7 +474,8 @@ void TForm1::processPlayerList(Server *srv) {
    @index  the index of the server
  */
 
-void TForm1::updateServerInfoBox(Server *srv) {
+void TForm1::updateServerInfoBox(int serverID) {
+        Server *srv = this->ofpm->getServerByID(serverID);
         if(srv != NULL) {
                 if(srv->isOnline()) {
                         this->LABEL_SERVERINFO_IP_VALUE->Caption = srv->getIP();
@@ -516,12 +520,11 @@ void TForm1::filterChanged(bool userinput) {
         }
         filterChanging = true;
 
-        if(this->selectedServer == NULL) {
+        if(this->selectedServerID == NULL_SERVERID) {
                 int row = this->StringGrid1->Selection.BottomRight.Y;
                 String z = this->StringGrid1->Cells[0][row];
                 if(!z.IsEmpty()) {
-                        Server *srv = (Server*)(this->StringGrid1->Objects[0][row]);
-                        this->setSelectedServer(srv);
+                        this->setSelectedServer((int) (this->StringGrid1->Objects[0][row]));
                 }
         }
 
@@ -538,15 +541,19 @@ void TForm1::filterChanged(bool userinput) {
         flist->CaseSensitive = true;
         flist->Duplicates = dupAccept;
         TStringList *sortList;
-        list<Server*> matches;
+        list<int> matches;
         String totalServerCount = "", onlineServerCount = "";
         if(this->ofpm != NULL) {
                 matches = this->ofpm->getAllMatchingServers(this->serverFilter);
                 totalServerCount = IntToStr(this->ofpm->getTotalServerCount());
                 onlineServerCount = IntToStr(this->ofpm->getOnlineServerCount());
         }
-        for (list<Server*>::iterator si = matches.begin(); si != matches.end(); ++si) {
-                Server *srv = *si;
+        for (list<int>::iterator si = matches.begin(); si != matches.end(); ++si) {
+                int serverID = *si;
+                Server *srv = this->ofpm->getServerByID(serverID);
+                if(srv == NULL) {
+                        continue;
+                }
                 if(srv->isFavorite()) {
                         sortList = flist;
                 } else if(srv->isAutoJoin()) {
@@ -556,19 +563,19 @@ void TForm1::filterChanged(bool userinput) {
                 }
 
                 if(this->serverTableSorter->isIdSet()) {
-                        sortList->AddObject(this->addLeadingZeros(srv->getServerID(), 3), (TObject*) srv);
+                        sortList->AddObject(this->addLeadingZeros(srv->getServerID(), 3), (TObject*) srv->getServerID());
                 } else if(this->serverTableSorter->isNameSet()) {
                         sortList->AddObject(srv->getName(), (TObject*) srv);
                 } else if(this->serverTableSorter->isPlayersSet()) {
-                        sortList->AddObject(this->addLeadingZeros(srv->getPlayerNum(), 3), (TObject*) srv);
+                        sortList->AddObject(this->addLeadingZeros(srv->getPlayerNum(), 3), (TObject*) srv->getServerID());
                 } else if(this->serverTableSorter->isStatusSet()) {
-                        sortList->AddObject(srv->getGameState(), (TObject*) srv);
+                        sortList->AddObject(srv->getGameState(), (TObject*) srv->getServerID());
                 } else if(this->serverTableSorter->isIslandSet()) {
-                        sortList->AddObject(srv->getIsland(), (TObject*) srv);
+                        sortList->AddObject(srv->getIsland(), (TObject*) srv->getServerID());
                 } else if(this->serverTableSorter->isMissionSet()) {
-                        sortList->AddObject(srv->getMission(), (TObject*) srv);
+                        sortList->AddObject(srv->getMission(), (TObject*) srv->getServerID());
                 } else if(this->serverTableSorter->isPingSet()) {
-                        sortList->AddObject(this->addLeadingZeros(srv->getPing(), 5), (TObject*) srv);
+                        sortList->AddObject(this->addLeadingZeros(srv->getPing(), 5), (TObject*) srv->getServerID());
                 }
         }
         this->StatusBar1->Panels->Items[0]->Text = this->languageDB->getGuiString("STRING_LISTED") + " " + totalServerCount;
@@ -586,18 +593,19 @@ void TForm1::filterChanged(bool userinput) {
                 for(int j = 0; j < 3; j++) {
                         for(int i = 0; i < array[j]->Count; i++) {
                                 rowIndex++;
-                                TObject *obj = array[j]->Objects[i];
+                                TObject *serverID = array[j]->Objects[i];
                                 if(!this->serverTableSorter->isNormalOrder()) {
-                                        obj = array[j]->Objects[array[j]->Count - (i + 1)];
+                                        serverID = array[j]->Objects[array[j]->Count - (i + 1)];
                                 }
-                                this->writeServerToStringGrid(rowIndex, (Server*)obj);
+                                this->writeServerToStringGrid(rowIndex, (int)serverID);
                         }
                 }
                 this->StringGrid1->RowCount = max(1, rowIndex + 1);
-                if(this->selectedServer != NULL) {
-                        processPlayerList(this->selectedServer);
-                        updateServerInfoBox(this->selectedServer);
-                        this->CoolTrayIcon1->Hint = this->selectedServer->getName() + "     " + getGameState(this->selectedServer->getGameState()) + "     " +  String(this->selectedServer->getPlayerNum()) + " " + this->languageDB->getGuiString("STRING_PLAYERS");
+                Server *srv = this->ofpm->getServerByID(this->selectedServerID);
+                if(srv != NULL) {
+                        processPlayerList(this->selectedServerID);
+                        updateServerInfoBox(this->selectedServerID);
+                        this->CoolTrayIcon1->Hint = srv->getName() + "     " + getGameState(srv->getGameState()) + "     " +  String(srv->getPlayerNum()) + " " + this->languageDB->getGuiString("STRING_PLAYERS");
                 } else {
                         this->CoolTrayIcon1->Hint = "OFPMonitor";
                 }
@@ -650,15 +658,15 @@ void TForm1::updateGameControlGui() {
                 this->ComboBox1Change(ComboBox1);
                 Label9->Caption = "";
         }
-        Server *selSrv = NULL;
+        int selSrv = NULL_SERVERID;
         bool foundServer;
         if(this->ComboBox2->ItemIndex > -1) {
-                selSrv = (Server*) (this->ComboBox2->Items->Objects[this->ComboBox2->ItemIndex]);
+                selSrv = (int) (this->ComboBox2->Items->Objects[this->ComboBox2->ItemIndex]);
         }
         if(!(foundServer = this->gameControl->matchesServer(selSrv))) {
                 for(int i = 0; i < this->ComboBox2->Items->Count; i++) {
-                        Server *srv = (Server*) (this->ComboBox2->Items->Objects[i]);
-                        if(this->gameControl->matchesServer(srv)) {
+                        Server *srv = this->ofpm->getServerByID((int) (this->ComboBox2->Items->Objects[i]));
+                        if(this->gameControl->matchesServer(srv->getServerID())) {
                                 this->ComboBox2->ItemIndex = i;
                                 this->ComboBox2Change(ComboBox2);
                                 foundServer = true;
@@ -740,19 +748,30 @@ void TForm1::applyWindowSettingsRatios() {
         }
 }
 
-void TForm1::setSelectedServer(Server *srv) {
-        if(this->selectedServer != NULL) {
-                this->selectedServer->setSelectedToDisplay(false);
+void TForm1::setSelectedServer(int serverID) {
+        if(this->selectedServerID >= 0) {
+                Server *srv = this->ofpm->getServerByID(this->selectedServerID);
+                if(srv != NULL) {
+                        srv->setSelectedToDisplay(false);
+                }
         }
-        this->selectedServer = srv;
-        if(this->selectedServer != NULL) {
-                this->selectedServer->setSelectedToDisplay(true);
+        this->selectedServerID = serverID;
+        if(this->selectedServerID >= 0) {
+                Server *srv = this->ofpm->getServerByID(this->selectedServerID);
+                if(srv != NULL) {
+                        srv->setSelectedToDisplay(true);
+                }
         }
 }
 
 bool TForm1::getServerPasswordDialog(String &password) {
         String caption = this->languageDB->getGuiString("STRING_PASSWORDDIALOG_TITLE");
-        String text = this->selectedServer->getName() + "\n\n" + this->languageDB->getGuiString("STRING_PASSWORDDIALOG_PROMPT");
+        Server *srv = this->ofpm->getServerByID(this->selectedServerID);
+        String text = "";
+        if(srv != NULL) {
+                text = srv->getName() + "\n\n";
+        }
+        text += this->languageDB->getGuiString("STRING_PASSWORDDIALOG_PROMPT");
         return InputQuery(caption, text, password);
 }
 
@@ -804,14 +823,14 @@ void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
         String z = (StringGrid1->Cells[0][ARow]).Trim();
         TObject *to = (StringGrid1->Objects[0][ARow]);
         if(!z.IsEmpty()) {
-                Server *srv = (Server*)to;
-                this->setSelectedServer(srv);
-                if(srv != NULL) {
-                        this->processPlayerList(srv);
-                        this->updateServerInfoBox(srv);
+                int serverID = (int)to;
+                this->setSelectedServer(serverID);
+                if(serverID >= 0) {
+                        this->processPlayerList(serverID);
+                        this->updateServerInfoBox(serverID);
                 }
         } else {
-                this->setSelectedServer(NULL);
+                this->setSelectedServer(NULL_SERVERID);
                 this->setEmptyPlayerList();
         }
 }
@@ -937,18 +956,19 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
         } else if(Button == mbRight && Y >= StringGrid1->DefaultRowHeight) {
                 int c = ((Y - StringGrid1->DefaultRowHeight) / (StringGrid1->DefaultRowHeight + 1)) + 1;
                 if(StringGrid1->RowCount > c) {
-                                Server *srv = (Server*)(StringGrid1->Objects[0][c + (StringGrid1->TopRow - 1)]);
+                                int serverID = (int)(StringGrid1->Objects[0][c + (StringGrid1->TopRow - 1)]);
                                 TGridRect myRect;
                                 myRect.Left = 0;
                                 myRect.Top = c + (StringGrid1->TopRow - 1);
                                 myRect.Right = StringGrid1->ColCount - 1;
                                 myRect.Bottom = c + (StringGrid1->TopRow - 1);
                                 this->StringGrid1->Selection = myRect;
+                                Server *srv = this->ofpm->getServerByID(serverID);
                                 if(srv != NULL) {
-                                        this->setSelectedServer(srv);
-                                        this->selectedServerForPopUp = srv;
-                                        processPlayerList(srv);
-                                        updateServerInfoBox(srv);
+                                        this->setSelectedServer(srv->getServerID());
+                                        this->selectedServerIDForPopUp = srv->getServerID();
+                                        processPlayerList(srv->getServerID());
+                                        updateServerInfoBox(srv->getServerID());
                                         StringSplitter ssp(srv->getMod());
                                         ssp.setKeepEmptyParts(false);
                                         TStringList *mods = ssp.split(";");
@@ -1020,7 +1040,8 @@ void __fastcall TForm1::Edit4Change(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
 {
-        Server *srv = this->selectedServerForPopUp;
+        int serverID = this->selectedServerIDForPopUp;
+        Server *srv = this->ofpm->getServerByID(serverID);
         int additionalItems = 2;
 
         TMenuItem *join;
@@ -1035,18 +1056,26 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
                 if(i == 0) {
                         join->OnClick = ClickJoinButton;
                         autojoin->OnClick = ClickAutoJoinConfButton;
-                        join->Enabled = !(srv->requiresEqualMod() && srv->hasMods());
+                        if(srv != NULL) {
+                                join->Enabled = !(srv->requiresEqualMod() && srv->hasMods());
+                        } else {
+                                join->Enabled = false;
+                        }
                         autojoin->Enabled = join->Enabled;
                         join->Visible = true;
                         autojoin->Visible = true;
                 } else if(i == 1) {
                         join->OnClick = ClickJoinButton;
                         autojoin->OnClick = ClickAutoJoinConfButton;
-                        join->Visible = srv->requiresEqualMod() && srv->hasMods();
+                        if(srv != NULL) {
+                                join->Visible = srv->requiresEqualMod() && srv->hasMods();
+                        } else {
+                                join->Visible = false;
+                        }
                         autojoin->Visible = join->Visible;
                 }
         }
-        Game *game = this->ofpm->getMatchingGame(srv);
+        Game *game = this->ofpm->getMatchingGame(serverID);
         bool validGame = (game != NULL);
         MENUITEM_POPUP_JOIN->Enabled = validGame;
         MENUITEM_POPUP_AUTOJOIN->Enabled = validGame;
@@ -1081,7 +1110,11 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
                                         autojoin->Visible = true;
                                         autojoin->OnClick = ClickAutoJoinConfButton;
 
-                                        join->Enabled = !srv->requiresEqualMod() || (srv->requiresEqualMod() && srv->doesModMatch(conf->createModLine()));
+                                        if(srv != NULL) {
+                                                join->Enabled = !srv->requiresEqualMod() || (srv->requiresEqualMod() && srv->doesModMatch(conf->createModLine()));
+                                        } else {
+                                                join->Enabled = false;
+                                        }
                                         autojoin->Enabled = join->Enabled;
                                         handled = true;
                                 }
@@ -1099,8 +1132,8 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
 void __fastcall TForm1::ClickJoinButton(TObject *Sender)
 {
         this->ofpm->disableAutoJoin();
-        Server *srv = this->selectedServerForPopUp;
-        Game *game = this->ofpm->getMatchingGame(srv);
+        Server *srv = this->ofpm->getServerByID(this->selectedServerIDForPopUp);
+        Game *game = this->ofpm->getMatchingGame(this->selectedServerIDForPopUp);
         int tag = ((TMenuItem*)Sender)->Tag;
         if(srv != NULL && game != NULL) {
                 bool startGame = true;
@@ -1145,8 +1178,8 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
 {
         this->ofpm->disableAutoJoin();
         int tag = ((TMenuItem*)Sender)->Tag;
-        Server *srv = this->selectedServerForPopUp;
-        Game *game = this->ofpm->getMatchingGame(srv);
+        Server *srv = this->ofpm->getServerByID(this->selectedServerIDForPopUp);
+        Game *game = this->ofpm->getMatchingGame(this->selectedServerIDForPopUp);
         if(game != NULL && srv != NULL) {
                 String autoJoinLine = "";
                 bool inputOk = true;
@@ -1181,7 +1214,7 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::ClickWatchButton(TObject *Sender)
 {
-        Server *srv = this->selectedServerForPopUp;
+        Server *srv = this->ofpm->getServerByID(this->selectedServerIDForPopUp);
         if(srv != NULL) {
                 TMenuItem *a = (TMenuItem *) Sender;
                 a->Checked = !(a->Checked);
@@ -1221,7 +1254,7 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
       int ARow, TRect &Rect, TGridDrawState State)
 {
         if(ACol > 0 && ARow > 0 && !(StringGrid1->Cells[0][ARow]).Trim().IsEmpty()) {
-                Server *srv = (Server*)(StringGrid1->Objects[0][ARow]);
+                Server *srv = this->ofpm->getServerByID((int)(StringGrid1->Objects[0][ARow]));
                 if(srv != NULL) {
                         TColor mark = clNone;
                         if(this->ofpm != NULL) {
@@ -1616,9 +1649,9 @@ void __fastcall TForm1::ComboBox1Change(TObject *Sender)
 void __fastcall TForm1::ComboBox2Change(TObject *Sender)
 {
         if(ComboBox2->ItemIndex > -1) {
-                Server *srv = (Server*) (ComboBox2->Items->Objects[ComboBox2->ItemIndex]);
+                Server *srv = this->ofpm->getServerByID((int) (ComboBox2->Items->Objects[ComboBox2->ItemIndex]));
                 if(srv != NULL) {
-                        this->gameControl->setServer(srv);
+                        this->gameControl->setServer(srv->getServerID());
                 }
         }
 }
@@ -1705,15 +1738,18 @@ void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
         delete m;
         ComboBox2->Clear();
         ServerFilter *sf = new ServerFilter();
-        list<Server*> servers = this->ofpm->getAllMatchingServers(sf);
+        list<int> servers = this->ofpm->getAllMatchingServers(sf);
         delete sf;
 
-        for (list<Server*>::iterator si = servers.begin(); si != servers.end(); ++si) {
-                Server *srv = *si;
-                if(srv->isOnline()) {
-                        ComboBox2->Items->AddObject(srv->getName(), (TObject*) srv);
-                        if(this->gameControl->matchesServer(srv)) {
-                                ComboBox2->ItemIndex = ComboBox2->Items->Count - 1;
+        for (list<int>::iterator si = servers.begin(); si != servers.end(); ++si) {
+                int serverID = *si;
+                Server *srv = this->ofpm->getServerByID(serverID);
+                if(srv != NULL) {
+                        if(srv->isOnline()) {
+                                ComboBox2->Items->AddObject(srv->getName(), (TObject*) (srv->getServerID()));
+                                if(this->gameControl->matchesServer(srv->getServerID())) {
+                                        ComboBox2->ItemIndex = ComboBox2->Items->Count - 1;
+                                }
                         }
                 }
         }

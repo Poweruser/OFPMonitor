@@ -12,6 +12,8 @@
 #include "ServerFilter.h"
 #include "StatusChange.h"
 
+#define NULL_SERVERID -1
+
 class ServerConfigEntry {
         public:
         	String address;

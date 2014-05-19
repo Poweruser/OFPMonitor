@@ -469,15 +469,18 @@ void TWINDOW_SETTINGS::setEmptyServerEditorList() {
         this->StringGrid1->RowCount = 2;
 }
 
-void TWINDOW_SETTINGS::writeServerToStringGrid(int rowIndex, Server *srv) {
-        this->StringGrid1->Cells[0][rowIndex] = " " + IntToStr(srv->getServerID());
-        this->StringGrid1->Objects[0][rowIndex] = (TObject*) srv;
-        this->StringGrid1->Cells[1][rowIndex] = srv->getAddress();
-        this->StringGrid1->Cells[2][rowIndex] = srv->getName();
+void TWINDOW_SETTINGS::writeServerToStringGrid(int rowIndex, int serverID) {
+        Server *srv = this->ofpm->getServerByID(serverID);
+        if(srv != NULL) {
+                this->StringGrid1->Cells[0][rowIndex] = " " + IntToStr(srv->getServerID());
+                this->StringGrid1->Objects[0][rowIndex] = (TObject*) srv->getServerID();
+                this->StringGrid1->Cells[1][rowIndex] = srv->getAddress();
+                this->StringGrid1->Cells[2][rowIndex] = srv->getName();
+        }
 }
 
 void TWINDOW_SETTINGS::updateServerEditorList() {
-        list<Server*> allServers = this->ofpm->getAllMatchingServers(NULL);
+        list<int> allServers = this->ofpm->getAllMatchingServers(NULL);
         if(allServers.size() == 0) {
                 this->setEmptyServerEditorList();
                 this->BUTTON_SERVERS_REMOVE->Enabled = false;
@@ -487,34 +490,35 @@ void TWINDOW_SETTINGS::updateServerEditorList() {
                 sortlist->CaseSensitive = true;
                 sortlist->Duplicates = dupAccept;
 
-                for(list<Server*>::iterator ci = allServers.begin(); ci != allServers.end(); ++ci) {
-                        Server *srv = *ci;
+                for(list<int>::iterator ci = allServers.begin(); ci != allServers.end(); ++ci) {
+                        int serverID = *ci;
+                        Server *srv = this->ofpm->getServerByID(serverID);
                         if(srv != NULL) {
                                 if(this->serverEditorTableSorter->isIDSet()) {
-                                        sortlist->AddObject(this->addLeadingZeros(srv->getServerID(), 3), (TObject*) srv);
+                                        sortlist->AddObject(this->addLeadingZeros(srv->getServerID(), 3), (TObject*) srv->getServerID());
                                 } else if(this->serverEditorTableSorter->isIPSet()) {
-                                        sortlist->AddObject(srv->getAddress(), (TObject*) srv);
+                                        sortlist->AddObject(srv->getAddress(), (TObject*) srv->getServerID());
                                 } else if(this->serverEditorTableSorter->isNameSet()) {
-                                        sortlist->AddObject(srv->getName(), (TObject*) srv);
+                                        sortlist->AddObject(srv->getName(), (TObject*) srv->getServerID());
                                 } else if(this->serverEditorTableSorter->isFavoritesSet()) {
-                                        sortlist->AddObject(IntToStr(srv->isFavorite()), (TObject*) srv);
+                                        sortlist->AddObject(IntToStr(srv->isFavorite()), (TObject*) srv->getServerID());
                                 } else if(this->serverEditorTableSorter->isWatchedSet()) {
-                                        sortlist->AddObject(IntToStr(srv->isWatched()), (TObject*) srv);
+                                        sortlist->AddObject(IntToStr(srv->isWatched()), (TObject*) srv->getServerID());
                                 } else if(this->serverEditorTableSorter->isPersistentSet()) {
-                                        sortlist->AddObject(IntToStr(srv->isPersistent()), (TObject*) srv);
+                                        sortlist->AddObject(IntToStr(srv->isPersistent()), (TObject*) srv->getServerID());
                                 } else if(this->serverEditorTableSorter->isBlockedSet()) {
-                                        sortlist->AddObject(IntToStr(srv->isBlocked()), (TObject*) srv);
+                                        sortlist->AddObject(IntToStr(srv->isBlocked()), (TObject*) srv->getServerID());
                                 }
                         }
                 }
                 int rowIndex = 0;
                 for(int i = 0; i < sortlist->Count; i++) {
                         rowIndex++;
-                        TObject *obj = sortlist->Objects[i];
+                        TObject *serverID = sortlist->Objects[i];
                         if(!this->serverEditorTableSorter->isNormalOrder()) {
-                                obj = sortlist->Objects[sortlist->Count - (i + 1)];
+                                serverID = sortlist->Objects[sortlist->Count - (i + 1)];
                         }
-                        this->writeServerToStringGrid(rowIndex, (Server*)(obj));
+                        this->writeServerToStringGrid(rowIndex, (int) serverID);
                 }
                 sortlist->Clear();
                 delete sortlist;
@@ -1590,7 +1594,8 @@ void __fastcall TWINDOW_SETTINGS::StringGrid1DrawCell(TObject *Sender,
 {
         if(ACol > 2 && ACol < 7 && ARow > 0) {
                 if(!(StringGrid1->Cells[0][ARow]).Trim().IsEmpty()) {
-                        Server *srv = (Server*)(StringGrid1->Objects[0][ARow]);
+                        int serverID = (int)(StringGrid1->Objects[0][ARow]);
+                        Server *srv = this->ofpm->getServerByID(serverID);
                         if(srv != NULL) {
                                 TColor mark = clNone;
                                 if(ACol == 3 && srv->isFavorite()) {
@@ -1630,7 +1635,8 @@ void __fastcall TWINDOW_SETTINGS::StringGrid1MouseDown(TObject *Sender,
                 int column = -1, row = -1;
                 StringGrid1->MouseToCell(X, Y, column, row);
                 if(column > 2 && column < 7 && row > 0) {
-                        Server *srv = (Server*) (StringGrid1->Objects[0][row]);
+                        int serverID = (int)(StringGrid1->Objects[0][row]);
+                        Server *srv = this->ofpm->getServerByID(serverID);
                         if(srv != NULL) {
                                 if(column == 3) {
                                         srv->setFavorite(!srv->isFavorite());
@@ -1668,11 +1674,10 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_REMOVEClick(TObject *Sender)
 {
         TGridRect sel = StringGrid1->Selection;
         if(sel.Top == sel.Bottom && sel.Top > 0) {
-                Server *srv = (Server*) (StringGrid1->Objects[0][sel.Top]);
+                int serverID = (int)(StringGrid1->Objects[0][sel.Top]);
+                Server *srv = this->ofpm->getServerByID(serverID);
                 if(srv != NULL) {
-                        if(!this->ofpm->removeServer(srv->getGamespyAddress())) {
-                                ShowMessage("failed");
-                        }
+                        this->ofpm->removeServer(srv->getGamespyAddress());
                 }
         }
         this->updateServerEditorList();
