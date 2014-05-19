@@ -13,7 +13,7 @@
       AudioPlayer.obj CustomNotification.obj AudioTask.obj AudioPosition.obj 
       WindowSettings.obj ChatSettings.obj ChatLog.obj Observer.obj Chat.obj 
       ChatMessage.obj IRCClient.obj LanguageDB.obj ServerEditorTableSorter.obj 
-      ServerListLoader.obj"/>
+      ServerListLoader.obj HttpsDownloader.obj"/>
     <RESFILES value="OFPMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
@@ -36,13 +36,14 @@
     <USERDEFINES value=""/>
     <SYSDEFINES value="NO_STRICT"/>
     <MAINSOURCE value="OFPMonitor.cpp"/>
-    <INCLUDEPATH value="include;..;$(BCB)\include;$(BCB)\include\vcl"/>
-    <LIBPATH value="lib;..;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <INCLUDEPATH value="&quot;C:\Program Files (x86)\Borland\CBuilder6\Projects&quot;;include;..;$(BCB)\include;$(BCB)\include\vcl"/>
+    <LIBPATH value="&quot;C:\Program Files (x86)\Borland\CBuilder6\Projects&quot;;lib;..;$(BCB)\lib\obj;$(BCB)\lib"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <OTHERFILES value=""/>
   </MACROS>
   <OPTIONS>
-    <IDLCFLAGS value="-Iinclude -I.. -I$(BCB)\include -I$(BCB)\include\vcl -src_suffix cpp -boa"/>
+    <IDLCFLAGS value="-I&quot;C:\Program Files (x86)\Borland\CBuilder6\Projects&quot; -Iinclude -I.. 
+      -I$(BCB)\include -I$(BCB)\include\vcl -src_suffix cpp -boa"/>
     <CFLAG1 value="-O2 -H=$(BCB)\lib\vcl60.csm -Hc -Vx -Ve -X- -a8 -b- -d -k- -vi -O -O1 -c 
       -tW -tWM"/>
     <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
@@ -102,6 +103,7 @@
       <FILE FILENAME="LanguageDB.cpp" FORMNAME="" UNITNAME="LanguageDB" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="ServerEditorTableSorter.cpp" FORMNAME="" UNITNAME="ServerEditorTableSorter" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="ServerListLoader.cpp" FORMNAME="" UNITNAME="ServerListLoader" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="HttpsDownloader.cpp" FORMNAME="" UNITNAME="HttpsDownloader" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>

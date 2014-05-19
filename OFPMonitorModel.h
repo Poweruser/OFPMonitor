@@ -77,7 +77,7 @@ class OFPMonitorModel : public Observable {
                 void setGameSpyUpdateDone(bool done);
                 void getSettingsFileEntry(TStringList *settings);
                 AudioPlayer* getAudioPlayer();
-
+                void parseMasterServerFile(TStringList *list);
 
         private:
                 bool processing;

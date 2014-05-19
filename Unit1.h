@@ -15,6 +15,7 @@
 #include "Chat.h"
 #include "Observer.h"
 #include "LanguageDB.h"
+#include "HttpsDownloader.h"
 
 #include <list.h>
 
@@ -287,6 +288,7 @@ private:	// User declarations
         LanguageDB *languageDB;
         bool filterChanging;
         HANDLE chatThreadHandle;
+        HttpsDownloader *downloader;
 
         float TForm1::checkIfTableRatioZero(float in, TStringGrid *grid);
         void TForm1::updateFilterOfGui();

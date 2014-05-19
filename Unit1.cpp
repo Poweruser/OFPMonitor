@@ -59,6 +59,16 @@ void TForm1::update(Observable *o) {
                 }
         } else if(o == this->languageDB) {
                 this->updateGuiLanguage();
+        } else if(o == this->downloader) {
+                if(!this->downloader->checkError()) {
+                        TStringList *list = new TStringList;
+                        this->downloader->getFile(list);
+                        this->ofpm->parseMasterServerFile(list);
+                        delete list;
+                        this->downloader->RemoveObserver(this);
+                        delete this->downloader;
+                        this->downloader = NULL;
+                }
         }
 }
 
@@ -1721,6 +1731,11 @@ void __fastcall TForm1::FormShow(TObject *Sender)
                 this->ofpm->queryServers();
                 if(this->ofpm->isUpdateOnStartSet()) {
                         WINDOW_UPDATE->checkForNewVersion(false);
+                }
+                if(this->ofpm->isUpdateOfMasterServersOnStartSet()) {
+                        this->downloader = new HttpsDownloader("https://raw.githubusercontent.com/wiki/poweruser/ofpmonitor/masterservers.txt");
+                        this->downloader->SetObserver(this);
+                        this->downloader->start();
                 }
         }
         this->updateFilterOfGui();

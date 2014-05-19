@@ -852,3 +852,23 @@ void OFPMonitorModel::getMasterServers(TStringList *domains) {
         }
 }
 
+void OFPMonitorModel::parseMasterServerFile(TStringList *list) {
+        std::list<String> masterServerList;
+        ConfigSection *servers = new ConfigSection("Online");
+        servers->add(new ConfigEntry("", dtServerItem, (void*)(&masterServerList)));
+        servers->scan(list, 0);
+        delete servers;
+        while(masterServerList.size() > 0) {
+                this->addMasterServer(masterServerList.front());
+                masterServerList.pop_front();
+        }
+
+        servers = new ConfigSection("Offline");
+        servers->add(new ConfigEntry("", dtServerItem, (void*)(&masterServerList)));
+        servers->scan(list, 0);
+        delete servers;
+        while(masterServerList.size() > 0) {
+                this->removeMasterServer(masterServerList.front());
+                masterServerList.pop_front();
+        }
+}
