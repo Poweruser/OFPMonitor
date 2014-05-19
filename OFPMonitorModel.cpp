@@ -212,7 +212,7 @@ int OFPMonitorModel::findUserOnServer() {
                         }
                 }
         }
-        return -1;
+        return NULL_SERVERID;
 }
 
 void OFPMonitorModel::setInterval(int seconds) {

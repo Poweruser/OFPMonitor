@@ -64,12 +64,15 @@ bool GameControl::verifyProcess() {
 bool GameControl::verifyServer() {
         if(this->selectedServerID >= 0) {
                 Server *srv = this->ofpm->getServerByID(this->selectedServerID);
-                bool out = srv->isOnline() &&
-                          !srv->isBlocked();
-                if(this->autoDetect) {
-                        out = out && (this->ofpm->findUserOnServer() == this->selectedServerID);
+                if(srv != NULL) {
+                        bool out = srv->isOnline() && !srv->isBlocked();
+                        if(this->autoDetect) {
+                                out = out && (this->ofpm->findUserOnServer() == this->selectedServerID);
+                        }
+                        return out;
+                } else {
+                        this->selectedServerID = NULL_SERVERID;
                 }
-                return out;
         }
         return false;
 }
