@@ -7,13 +7,13 @@
 
 #pragma package(smart_init)
 
-QueryRequest::QueryRequest(Server *svr, String query) {
-        this->svr = svr;
+QueryRequest::QueryRequest(int serverID, String query) {
+        this->serverID = serverID;
         this->query = query;
 }
 
-Server* QueryRequest::getServer() {
-        return this->svr;
+int QueryRequest::getServerID() {
+        return this->serverID;
 }
 
 String QueryRequest::getQuery() {

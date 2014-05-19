@@ -139,7 +139,7 @@ void ServerList::createQueryRequests(std::list<QueryRequest*> &queryList, Bandwi
         for(int i = 0; i < this->list->Count; i++) {
                 Server *svr = this->getServer(i);
                 if(svr != NULL) {
-                        queryList.push_back(new QueryRequest(svr, svr->decideQuery(bU)));
+                        queryList.push_back(new QueryRequest(svr->getServerID(), svr->decideQuery(bU)));
                 }
         }
 }

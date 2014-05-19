@@ -83,7 +83,8 @@ void __fastcall OFPMonitorModel::onQueryTimer(TObject *Sender) {
 
                         QueryRequest *qr = this->serversToQuery.front();
 
-                        Server *svr = qr->getServer();
+                        int serverID = qr->getServerID();
+                        Server *svr = this->getServerByID(serverID);
                         if(svr != NULL) {
                                 bool success = true;
                                 if(!(qr->getQuery().IsEmpty())) {

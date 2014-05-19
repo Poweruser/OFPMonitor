@@ -8,12 +8,12 @@
 
 class QueryRequest {
         public:
-                QueryRequest(Server *svr, String query);
-                Server* getServer();
+                QueryRequest(int serverID, String query);
+                int getServerID();
                 String getQuery();
 
         private:
-                Server *svr;
+                int serverID;
                 String query;
 
 };
