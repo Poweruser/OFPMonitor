@@ -62,16 +62,14 @@ TStringList* ServerListLoader::getServerList(String masterServerDomain, int port
                 if(pos >= 0 && ((pos + 13) <= incomingText.Length())) {
                         String secure = incomingText.SubString(pos + 8, 6);
                         int enctype = 2;
-                        char *dest = NULL;
+                        char *dest = new char[89];
                         String validate = "";
                         try {
-                                dest = gsseckey(NULL, secure.c_str(), this->gamekey.c_str(), enctype);
+                                gsseckey(dest, secure.c_str(), this->gamekey.c_str(), enctype);
                                 validate = String(dest);
-                                free(dest);
+                                delete dest;
                         } catch (Exception &E) {
-                                if(dest != NULL) {
-                                        free(dest);
-                                }
+                                delete dest;
                                 return ips;
                         }
                         String reply = "\\gamename\\";
