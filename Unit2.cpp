@@ -1796,7 +1796,10 @@ void __fastcall TWINDOW_SETTINGS::SaveDialog1CanClose(TObject *Sender,
                 String title = this->languageDB->getGuiString("STRING_EXPORT_DIALOGTITLE");
                 String replace = this->languageDB->getGuiString("STRING_EXPORT_DIALOGREPLACE");
                 String merge = this->languageDB->getGuiString("STRING_EXPORT_DIALOGMERGE");
-                int result = Application->MessageBox(prompt + "\n\n " + replace + "\n " + merge, title, MB_YESNOCANCEL | MB_ICONQUESTION);
+                String message = prompt + "\n\n ";
+                message += replace + "\n ";
+                message += merge;
+                int result = Application->MessageBox(message.c_str(), title.c_str(), MB_YESNOCANCEL | MB_ICONQUESTION);
                 if(result == IDNO) {
                         toSave->LoadFromFile(selectedFile);
                 } else if(result == IDCANCEL) {

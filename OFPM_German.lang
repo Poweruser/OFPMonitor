@@ -195,3 +195,8 @@ GROUPBOX_MASTERSERVERS = Community Masterserver
 BUTTON_MASTERSERVERS_ADD = Serverdomain hinzufügen
 BUTTON_MASTERSERVERS_REMOVE = Serverdomain entfernen
 CHECKBOX_MASTERSERVERS_UPDATEONSTART = Masterserverliste beim Start aktualisieren
+
+STRING_EXPORT_DIALOGPROMPT = Die ausgewählte Datei existiert bereits. Soll die Datei ersetzt werden?
+STRING_EXPORT_DIALOGTITLE = Serverliste exportieren ...
+STRING_EXPORT_DIALOGREPLACE = Ja: Die Datei wird ersetzt
+STRING_EXPORT_DIALOGMERGE = Nein: Die Serverliste wird zur vorhandenen Datei hinzugefügt
