@@ -1717,7 +1717,9 @@ void __fastcall TWINDOW_SETTINGS::FormDestroy(TObject *Sender)
 
 void __fastcall TWINDOW_SETTINGS::BUTTON_MASTERSERVERS_ADDClick(TObject *Sender)
 {
-        AnsiString input = InputBox("Add server domain", "Enter a new master server domain", "");
+        String title = this->languageDB->getGuiString("STRING_MASTERSERVERS_DIALOGTITLE");
+        String message = this->languageDB->getGuiString("STRING_MASTERSERVERS_DIALOGPROMPT");
+        AnsiString input = InputBox(title, message, "");
         if(!input.IsEmpty()) {
                 this->ofpm->addMasterServer(input);
         }

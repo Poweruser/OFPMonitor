@@ -195,3 +195,10 @@ GROUPBOX_MASTERSERVERS = Community master servers
 BUTTON_MASTERSERVERS_ADD = Add new server domain
 BUTTON_MASTERSERVERS_REMOVE = Remove server domain
 CHECKBOX_MASTERSERVERS_UPDATEONSTART = Update master server list at start
+STRING_MASTERSERVERS_DIALOGPROMPT = Enter a new master server domain
+STRING_MASTERSERVERS_DIALOGTITLE = Add server domain
+
+STRING_EXPORT_DIALOGPROMPT = The selected file already exists. Do you want to replace the file?
+STRING_EXPORT_DIALOGTITLE = Export server list ...
+STRING_EXPORT_DIALOGREPLACE = Yes: The file is replaced
+STRING_EXPORT_DIALOGMERGE = No: The server list is merged into the existing file
