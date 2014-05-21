@@ -735,28 +735,28 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
       ImageIndex = 5
       OnShow = TABSHEET_SERVERSShow
       object BUTTON_SERVERS_ADD: TButton
-        Left = 3
+        Left = 8
         Top = 8
-        Width = 100
-        Height = 25
+        Width = 150
+        Height = 41
         Caption = 'Add'
         TabOrder = 0
         OnClick = BUTTON_SERVERS_ADDClick
       end
       object BUTTON_SERVERS_REMOVE: TButton
-        Left = 103
+        Left = 172
         Top = 8
-        Width = 100
-        Height = 25
+        Width = 150
+        Height = 41
         Caption = 'Remove'
         TabOrder = 1
         OnClick = BUTTON_SERVERS_REMOVEClick
       end
       object StringGrid1: TStringGrid
         Left = 0
-        Top = 40
+        Top = 56
         Width = 497
-        Height = 403
+        Height = 387
         ColCount = 7
         DefaultRowHeight = 21
         FixedCols = 0
@@ -779,6 +779,15 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           25
           28
           29)
+      end
+      object BUTTON_SERVERS_EXPORT: TButton
+        Left = 336
+        Top = 8
+        Width = 150
+        Height = 41
+        Caption = 'Export to file ...'
+        TabOrder = 3
+        OnClick = BUTTON_SERVERS_EXPORTClick
       end
     end
     object TABSHEET_NOTIFICATIONS: TTabSheet
@@ -2492,6 +2501,13 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     Enabled = False
     OnTimer = Timer1Timer
     Left = 136
+    Top = 440
+  end
+  object SaveDialog1: TSaveDialog
+    FileName = 'hosts.txt'
+    Options = [ofHideReadOnly, ofExtensionDifferent, ofPathMustExist, ofEnableSizing, ofDontAddToRecent]
+    OnCanClose = SaveDialog1CanClose
+    Left = 168
     Top = 440
   end
 end

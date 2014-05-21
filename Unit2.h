@@ -195,6 +195,8 @@ __published:	// IDE-managed Components
         TButton *BUTTON_MASTERSERVERS_REMOVE;
         TListBox *LISTBOX_MASTERSERVERS;
         TCheckBox *CHECKBOX_MASTERSERVERS_UPDATEONSTART;
+        TButton *BUTTON_SERVERS_EXPORT;
+        TSaveDialog *SaveDialog1;
         void __fastcall BUTTON_OFPRES_BROWSEClick(TObject *Sender);
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialogGameFileCanClose(TObject *Sender,
@@ -283,6 +285,9 @@ __published:	// IDE-managed Components
           TObject *Sender);
         void __fastcall BUTTON_MASTERSERVERS_REMOVEClick(TObject *Sender);
         void __fastcall LISTBOX_MASTERSERVERSClick(TObject *Sender);
+        void __fastcall BUTTON_SERVERS_EXPORTClick(TObject *Sender);
+        void __fastcall SaveDialog1CanClose(TObject *Sender,
+          bool &CanClose);
 private:	// User declarations
 
         OFPMonitorModel *ofpm;

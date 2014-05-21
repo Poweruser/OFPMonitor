@@ -1777,3 +1777,47 @@ void __fastcall TWINDOW_SETTINGS::LISTBOX_MASTERSERVERSClick(
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_EXPORTClick(TObject *Sender)
+{
+        SaveDialog1->InitialDir = this->ofpm->getWorkDir();
+        SaveDialog1->FileName = "hosts.txt";
+        SaveDialog1->Filter = "Any file|*.*";
+        SaveDialog1->Execute();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::SaveDialog1CanClose(TObject *Sender,
+      bool &CanClose)
+{
+        String selectedFile = SaveDialog1->FileName;
+        TStringList *toSave = new TStringList;
+        if(FileExists(selectedFile)) {
+                String prompt = this->languageDB->getGuiString("STRING_EXPORT_DIALOGPROMPT");
+                String title = this->languageDB->getGuiString("STRING_EXPORT_DIALOGTITLE");
+                String replace = this->languageDB->getGuiString("STRING_EXPORT_DIALOGREPLACE");
+                String merge = this->languageDB->getGuiString("STRING_EXPORT_DIALOGMERGE");
+                int result = Application->MessageBox(prompt + "\n\n " + replace + "\n " + merge, title, MB_YESNOCANCEL | MB_ICONQUESTION);
+                if(result == IDNO) {
+                        toSave->LoadFromFile(selectedFile);
+                } else if(result == IDCANCEL) {
+                        delete toSave;
+                        return;
+                }
+        }
+        list<int> servers = this->ofpm->getAllMatchingServers(NULL);
+        for(list<int>::iterator ci = servers.begin(); ci != servers.end(); ++ci) {
+                int serverID = *ci;
+                Server *srv = this->ofpm->getServerByID(serverID);
+                if(srv != NULL) {
+                        String address = srv->getAddress();
+                        int index = toSave->IndexOf(address);
+                        if(index < 0) {
+                                toSave->Add(address);
+                        }
+                }
+        }
+        toSave->SaveToFile(selectedFile);
+        delete toSave;
+}
+//---------------------------------------------------------------------------
+
