@@ -26,8 +26,8 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     Top = 0
     Width = 505
     Height = 473
-    ActivePage = TABSHEET_MASTERSERVERS
-    TabIndex = 6
+    ActivePage = TABSHEET_GENERAL
+    TabIndex = 0
     TabOrder = 0
     object TABSHEET_GENERAL: TTabSheet
       Caption = 'General'
