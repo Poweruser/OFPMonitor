@@ -666,11 +666,13 @@ void TForm1::updateGameControlGui() {
         if(!(foundServer = this->gameControl->matchesServer(selSrv))) {
                 for(int i = 0; i < this->ComboBox2->Items->Count; i++) {
                         Server *srv = this->ofpm->getServerByID((int) (this->ComboBox2->Items->Objects[i]));
-                        if(this->gameControl->matchesServer(srv->getServerID())) {
-                                this->ComboBox2->ItemIndex = i;
-                                this->ComboBox2Change(ComboBox2);
-                                foundServer = true;
-                                break;
+                        if(srv != NULL) {
+                                if(this->gameControl->matchesServer(srv->getServerID())) {
+                                        this->ComboBox2->ItemIndex = i;
+                                        this->ComboBox2Change(ComboBox2);
+                                        foundServer = true;
+                                        break;
+                                }
                         }
                 }
         }
