@@ -19,6 +19,7 @@ class Chat : public Observable, public Observer {
                 IRCClient *ircClient;
                 ChatSettings *chatSettings;
                 LanguageDB *languageDB;
+                String notification;
 
                 ChatLog* getChatLog(String conversation);
                 void closeAllConversations();
@@ -38,6 +39,7 @@ class Chat : public Observable, public Observer {
                 void loadThisChat(String conversation, TMemo *outputMemo, TMemo *inputMemo);
                 void saveCurrentInput(String conversation, TMemo *inputMemo);
                 void incomingMsg(String conversation, String msg, bool control);
+                void incomingMsg(String conversation, String sender, String dateTime, String msg, bool control);
                 void userSendsMessage(String conversation, String msg);
                 void update(Observable *o);
                 void writeUserList(TStringGrid *grid);
@@ -45,6 +47,8 @@ class Chat : public Observable, public Observer {
                 String currentTimeString(bool full);
                 String generateUsername(String userName, bool wasConnectionLost);
                 String getUserNameInUse();
+                bool hasNotification();
+                String takeNotification();
 
                 void connect(String userNameOverWrite, bool wasConnectionLost);
                 void disconnect();

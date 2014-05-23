@@ -21,6 +21,7 @@ Chat::Chat(ChatSettings *chatSettings, LanguageDB *languageDB) {
         this->blockedChatUsers->Sorted = true;
         this->blockedChatUsers->Duplicates = dupIgnore;
         this->ircClient = NULL;
+        this->notification = "";
 }
 
 Chat::~Chat() {
@@ -104,13 +105,35 @@ void Chat::saveCurrentInput(String conversation, TMemo *inputMemo) {
 }
 
 void Chat::incomingMsg(String conversation, String msg, bool control) {
+        this->incomingMsg(conversation, "", "", msg, control);
+}
+
+void Chat::incomingMsg(String conversation, String sender, String dateTime, String msg, bool control) {
+        String formatedMessage = msg;
+        if(!sender.IsEmpty()) {
+                formatedMessage = sender + ": " + formatedMessage;
+        }
+        if(!dateTime.IsEmpty()) {
+                formatedMessage = dateTime + " - " + formatedMessage;
+        }
         ChatLog *cl = this->getChatLog(conversation);
         if(cl != NULL) {
-                cl->incomingMsg(msg, control);
+                cl->incomingMsg(formatedMessage, control);
         } else {
                 cl = new ChatLog(conversation);
                 this->activeChats->AddObject(conversation, (TObject*) cl);
-                cl->incomingMsg(msg, control);
+                cl->incomingMsg(formatedMessage, control);
+        }
+        if(!control && sender != this->getUserNameInUse()) {
+                this->notification = this->languageDB->getGuiString("STRING_CHAT_CHANNEL") + "  ";
+                this->notification += conversation;
+                this->notification += "\n";
+                if(sender != conversation) {
+                        this->notification += dateTime + " - ";
+                        this->notification += sender + "\n";
+                }
+                this->notification += "\n";
+                this->notification += msg;
         }
 }
 
@@ -193,9 +216,9 @@ void Chat::connect(String userNameOverwrite, bool clearPreviousLogs) {
         }
         this->ircClient->SetObserver(this);
         this->incomingMsg(this->chatSettings->getChannel(), this->languageDB->getGuiString("STRING_CHAT_CONNECTINGTO") +
-                        "  " + this->chatSettings->getHost() + ":" + String(this->chatSettings->getPort()), false);
+                        "  " + this->chatSettings->getHost() + ":" + String(this->chatSettings->getPort()), true);
         this->incomingMsg(this->chatSettings->getChannel(), this->languageDB->getGuiString("STRING_CHAT_CHANNEL") +
-                        "  " + this->chatSettings->getChannel(), false);
+                        "  " + this->chatSettings->getChannel(), true);
         this->NotifyObserver();
         ircClient->connectAndListen();
 }
@@ -271,7 +294,7 @@ void Chat::update(Observable *o) {
                         ChatMessage *msg = this->ircClient->takeMessage();
                         if(msg != NULL) {
                                 if(!this->isClientBlocked(msg->getSender())) {
-                                        this->incomingMsg(msg->getChannel(), currentTimeString(false) + " - " + msg->getSender() + ": " + msg->getMessage(), msg->isControlMsg());
+                                        this->incomingMsg(msg->getChannel(), msg->getSender(), currentTimeString(false), msg->getMessage(), msg->isControlMsg());
                                 }
                                 delete msg;
                         }
@@ -344,4 +367,14 @@ String Chat::getUserNameInUse() {
                 out = this->ircClient->getUserNameInUse();
         }
         return out;
+}
+
+bool Chat::hasNotification() {
+        return !this->notification.IsEmpty();
+}
+
+String Chat::takeNotification() {
+        String output = this->notification;
+        this->notification = "";
+        return output;
 }

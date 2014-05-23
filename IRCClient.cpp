@@ -51,7 +51,7 @@ ConnectionStatus IRCClient::getConnectionStatus() {
 }
 
 String IRCClient::getUserNameInUse() {
-        return this->userName;
+        return this->ircUserName;
 }
 
 bool IRCClient::isConnected() {

@@ -27,6 +27,18 @@
 
 TForm1 *Form1;
 
+void TForm1::ChatNotification(String msg) {
+        this->CoolTrayIcon1->HideBalloonHint();
+        if(!msg.IsEmpty()) {
+                this->CoolTrayIcon1->ShowBalloonHint(WideString("OFPMonitor " + TABSHEET_CHAT->Caption), WideString(msg + "\n"), bitInfo, 10);
+        }
+}
+
+bool TForm1::isInForeground() {
+        void *handle = GetForegroundWindow();
+        return (handle == this->Handle);
+}
+
 void TForm1::update(Observable *o) {
         if(o == this->fontSettings) {
                 TFont *f = this->fontSettings->getFont();
@@ -46,6 +58,12 @@ void TForm1::update(Observable *o) {
                 this->chat->writeConversations(TabControl1);
                 if(this->chat->hasNewMessages()) {
                         this->TABSHEET_CHAT->ImageIndex = 4;
+                }
+                if(this->chat->hasNotification()) {
+                        String n = this->chat->takeNotification();
+                        if(!n.IsEmpty() && !this->isInForeground()) {
+                                this->ChatNotification(n);
+                        }
                 }
                 if(TabControl1->TabIndex >= 0) {
                         String conversation = TabControl1->Tabs->Strings[TabControl1->TabIndex];

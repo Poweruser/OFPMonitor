@@ -308,6 +308,8 @@ private:	// User declarations
         String TForm1::calcElapsedTime(long a, long b);
         String TForm1::addLeadingZeros(int number, int length);
         void TForm1::copyToClipBoard (String msg);
+        void TForm1::ChatNotification(String msg);
+        bool TForm1::isInForeground();
 
 public:		// User declarations
         void TForm1::readServerList(list<ServerConfigEntry> &in);
