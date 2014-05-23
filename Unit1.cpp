@@ -844,21 +844,17 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
         Timer1->Tag = i;
         Application->ProcessMessages();
         if(this->ofpm != NULL) {
-                bool noPendingUpdate = this->ofpm->isGameSpyUpdateDone();
-                if(noPendingUpdate) {
-                        this->ofpm->ProcessMessages();
-                        if(i >= this->ofpm->getInterval()) {
-                                this->ofpm->queryServers();
-                                Timer1->Tag = 0;
-                        }
-                        this->filterChanged(false);
-                        if(this->gameControl != NULL) {
-                                this->gameControl->ProcessMessages();
-                        }
+                this->ofpm->ProcessMessages();
+                if(i >= this->ofpm->getInterval()) {
+                        this->ofpm->queryServers();
+                        Timer1->Tag = 0;
                 }
                 MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = this->ofpm->isGameSpyUpdateDone();
         }
-
+        this->filterChanged(false);
+        if(this->gameControl != NULL) {
+                this->gameControl->ProcessMessages();
+        }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
