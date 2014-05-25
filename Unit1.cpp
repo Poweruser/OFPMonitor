@@ -601,7 +601,7 @@ void TForm1::filterChanged(bool userinput) {
         if(matches.size() == 0) {
                 this->setEmptyServerList();
                 this->setEmptyPlayerList();
-                this->updateServerInfoBox(NULL);
+                this->updateServerInfoBox(NULL_SERVERID);
         } else {
                 int rowIndex = 0;
                 TStringList *array[3];
