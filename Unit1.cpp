@@ -583,7 +583,7 @@ void TForm1::filterChanged(bool userinput) {
                 if(this->serverTableSorter->isIdSet()) {
                         sortList->AddObject(this->addLeadingZeros(srv->getServerID(), 3), (TObject*) srv->getServerID());
                 } else if(this->serverTableSorter->isNameSet()) {
-                        sortList->AddObject(srv->getName(), (TObject*) srv);
+                        sortList->AddObject(srv->getName(), (TObject*) srv->getServerID());
                 } else if(this->serverTableSorter->isPlayersSet()) {
                         sortList->AddObject(this->addLeadingZeros(srv->getPlayerNum(), 3), (TObject*) srv->getServerID());
                 } else if(this->serverTableSorter->isStatusSet()) {
