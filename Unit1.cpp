@@ -1047,7 +1047,7 @@ void __fastcall TForm1::StringGrid2MouseDown(TObject *Sender,
                         } else if(X < col3) {
                                 playerTableSorter->setTeam();
                         }
-                        processPlayerList(NULL);
+                        processPlayerList(NULL_SERVERID);
                 }
         }
 }
