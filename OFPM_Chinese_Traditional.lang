@@ -188,6 +188,7 @@ GROUPBOX_VOLUME = Volume level for watched servers
 STRING_PASSWORDDIALOG_TITLE = Password required
 STRING_PASSWORDDIALOG_PROMPT = This server is password-protected. Enter it here:
 
+MENUITEM_MAINMENU_SERVERLIST = Server list
 MENUITEM_MAINMENU_SERVERLIST_GAMESPY = Query the Gamespy master server
 MENUITEM_MAINMENU_SERVERLIST_POWERSERVER = Query the community master servers
 TABSHEET_MASTERSERVERS = Master servers

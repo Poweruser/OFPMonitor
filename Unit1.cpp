@@ -172,6 +172,7 @@ void TForm1::updateGuiLanguage() {
                 this->MENUITEM_MAINMENU_SETTINGS->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_SETTINGS->Name);
                 this->MENUITEM_MAINMENU_FONT->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_FONT->Name);
                 this->MENUITEM_MAINMENU_GETNEWSERVERLIST->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_GETNEWSERVERLIST->Name);
+                this->MENUITEM_MAINMENU_SERVERLIST->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_SERVERLIST->Name);
                 this->MENUITEM_MAINMENU_SERVERLIST_GAMESPY->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_SERVERLIST_GAMESPY->Name);
                 this->MENUITEM_MAINMENU_SERVERLIST_POWERSERVER->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_SERVERLIST_POWERSERVER->Name);
                 this->MENUITEM_POPUP_AUTOJOIN_SAMEMODS->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_AUTOJOIN_SAMEMODS->Name);

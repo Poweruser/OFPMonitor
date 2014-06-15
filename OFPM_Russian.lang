@@ -188,6 +188,7 @@ GROUPBOX_VOLUME = Уровень звука для мониторинга серверов:
 STRING_PASSWORDDIALOG_TITLE = Запаролено!
 STRING_PASSWORDDIALOG_PROMPT = Этот сервер защищен паролем. Введите его здесь:
 
+MENUITEM_MAINMENU_SERVERLIST = Server list
 MENUITEM_MAINMENU_SERVERLIST_GAMESPY = Query the Gamespy master server
 MENUITEM_MAINMENU_SERVERLIST_POWERSERVER = Query the community master servers
 TABSHEET_MASTERSERVERS = Master servers

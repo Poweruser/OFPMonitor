@@ -188,6 +188,7 @@ GROUPBOX_VOLUME = Lautstärke für beobachtete Server:
 STRING_PASSWORDDIALOG_TITLE = Passwort benötigt
 STRING_PASSWORDDIALOG_PROMPT = Dieser Server ist passwortgeschützt. Geben Sie es hier ein:
 
+MENUITEM_MAINMENU_SERVERLIST = Serverliste
 MENUITEM_MAINMENU_SERVERLIST_GAMESPY = Gamespy Masterserver abrufen
 MENUITEM_MAINMENU_SERVERLIST_POWERSERVER = Community Masterserver abrufen
 TABSHEET_MASTERSERVERS = Masterserver

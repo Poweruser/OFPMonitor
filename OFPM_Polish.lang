@@ -188,6 +188,7 @@ GROUPBOX_VOLUME = Glosnosc dzwieku dla obserwowanych serwerów:
 STRING_PASSWORDDIALOG_TITLE = Wymagane haslo
 STRING_PASSWORDDIALOG_PROMPT = Ten serwer jest zabezpieczony haslem. Wprowadz go tutaj:
 
+MENUITEM_MAINMENU_SERVERLIST = Server list
 MENUITEM_MAINMENU_SERVERLIST_GAMESPY = Query the Gamespy master server
 MENUITEM_MAINMENU_SERVERLIST_POWERSERVER = Query the community master servers
 TABSHEET_MASTERSERVERS = Master servers

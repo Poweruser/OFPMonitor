@@ -188,6 +188,7 @@ GROUPBOX_VOLUME = Hlasitost zvuku servery pro sledované:
 STRING_PASSWORDDIALOG_TITLE = Je vyžadováno heslo
 STRING_PASSWORDDIALOG_PROMPT = Tento server je chránen heslem. Zadejte jej zde:
 
+MENUITEM_MAINMENU_SERVERLIST = Server list
 MENUITEM_MAINMENU_SERVERLIST_GAMESPY = Query the Gamespy master server
 MENUITEM_MAINMENU_SERVERLIST_POWERSERVER = Query the community master servers
 TABSHEET_MASTERSERVERS = Master servers

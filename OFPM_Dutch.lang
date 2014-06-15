@@ -188,6 +188,7 @@ GROUPBOX_VOLUME = Volumeniveau voor gecontroleerde servers:
 STRING_PASSWORDDIALOG_TITLE = Wachtwoord vereist
 STRING_PASSWORDDIALOG_PROMPT = Deze server is beveiligd met een wachtwoord. Voer het hier:
 
+MENUITEM_MAINMENU_SERVERLIST = Server list
 MENUITEM_MAINMENU_SERVERLIST_GAMESPY = Query the Gamespy master server
 MENUITEM_MAINMENU_SERVERLIST_POWERSERVER = Query the community master servers
 TABSHEET_MASTERSERVERS = Master servers
