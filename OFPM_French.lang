@@ -163,6 +163,7 @@ STRING_SERVERS_WATCHED = Surveillés
 STRING_SERVERS_PERSISTENT = Persistants
 STRING_SERVERS_BLOCKED = Bloquée
 STRING_SERVERS_ADDERROR = Impossible de résoudre: 
+BUTTON_SERVERS_EXPORT = Export to file ...
 
 TABSHEET_GAMECONTROL = Automatisation
 GROUPBOX_GAMECONTROL_PROCESS = Process de jeu et serveur

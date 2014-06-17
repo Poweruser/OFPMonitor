@@ -73,6 +73,7 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->BUTTON_UPDATE->Caption = this->languageDB->getGuiString(BUTTON_UPDATE->Name);
                 this->BUTTON_SERVERS_ADD->Caption = this->languageDB->getGuiString(BUTTON_SERVERS_ADD->Name);
                 this->BUTTON_SERVERS_REMOVE->Caption = this->languageDB->getGuiString(BUTTON_SERVERS_REMOVE->Name);
+                this->BUTTON_SERVERS_EXPORT->Caption = this->languageDB->getGuiString(BUTTON_SERVERS_EXPORT->Name);
                 this->BUTTON_MASTERSERVERS_ADD->Caption = this->languageDB->getGuiString(BUTTON_MASTERSERVERS_ADD->Name);
                 this->BUTTON_MASTERSERVERS_REMOVE->Caption = this->languageDB->getGuiString(BUTTON_MASTERSERVERS_REMOVE->Name);
                 this->CHECKBOX_NEWCONFIGURATION_NOSPLASH->Caption = this->languageDB->getGuiString(CHECKBOX_NEWCONFIGURATION_NOSPLASH->Name);
