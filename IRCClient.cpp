@@ -341,7 +341,11 @@ void IRCClient::startConversation() {
 }
 
 void IRCClient::sendMessage(String receiver, String msg) {
-        String str = "PRIVMSG " + receiver + " :" + msg + "\r\n";
+        String userMessage = msg;
+        if(userMessage.Length() > 450) {
+                userMessage = userMessage.SubString(0, 450);
+        }
+        String str = "PRIVMSG " + receiver + " :" + userMessage + "\r\n";
         this->sendString(str);
 }
 

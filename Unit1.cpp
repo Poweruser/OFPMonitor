@@ -1411,17 +1411,6 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::MemoChatInputChange(TObject *Sender)
-{
-        while(MemoChatInput->Lines->Count > 3) {
-                int start = MemoChatInput->SelStart;
-                int length = MemoChatInput->SelLength;
-                MemoChatInput->Lines->Delete(MemoChatInput->Lines->Count - 1);
-                MemoChatInput->SelStart = start;
-                MemoChatInput->SelLength = length;
-        }
-}
-//---------------------------------------------------------------------------
 void __fastcall TForm1::StringGrid3MouseDown(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
@@ -1479,8 +1468,16 @@ void __fastcall TForm1::MemoChatInputKeyDown(TObject *Sender, WORD &Key,
 {
         if(Key == VK_RETURN) {
                 String input = "";
+                int characterCount = 0;
                 for(int i = 0; i < this->MemoChatInput->Lines->Count; i++) {
-                        input += this->MemoChatInput->Lines->Strings[i];
+                        String line = this->MemoChatInput->Lines->Strings[i];
+                        int length = line.Length();
+                        if(characterCount + length <= 450) {
+                                input += line;
+                                characterCount += length;
+                        } else {
+                                break;
+                        }
                 }
                 MemoChatInput->Clear();
                 if(!input.Trim().IsEmpty()) {

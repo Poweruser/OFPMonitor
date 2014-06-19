@@ -215,7 +215,6 @@ __published:	// IDE-managed Components
         void __fastcall Info1Click(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender);
-        void __fastcall MemoChatInputChange(TObject *Sender);
         void __fastcall StringGrid3MouseDown(TObject *Sender,
           TMouseButton Button, TShiftState Shift, int X, int Y);
         void __fastcall StringGrid3DrawCell(TObject *Sender, int ACol,

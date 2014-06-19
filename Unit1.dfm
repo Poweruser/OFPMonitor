@@ -659,9 +659,9 @@ object Form1: TForm1
             Align = alBottom
             Constraints.MaxHeight = 26
             Enabled = False
+            MaxLength = 450
             TabOrder = 0
             WantReturns = False
-            OnChange = MemoChatInputChange
             OnKeyDown = MemoChatInputKeyDown
           end
           object MemoChatOutput: TMemo
