@@ -48,7 +48,7 @@ TStringList* ServerListLoader::getServerList(String masterServerDomain, int port
                 int bufferSize = 128;
                 char *buf = new char[bufferSize];
                 String incomingText = "";
-                int len = 0;
+                int len;
                 try {
                         len = this->stream->Read(buf, bufferSize - 1);
                         buf[len] = 0;
@@ -111,7 +111,6 @@ TStringList* ServerListLoader::getServerList(String masterServerDomain, int port
                                         return ips;
                                 }
                         }
-                        int bytesReceived = 0, completeLength;
                         if(this->stream->WaitForData(this->timeout)) {
                                 char *header = new char[8];
                                 try {
@@ -124,10 +123,12 @@ TStringList* ServerListLoader::getServerList(String masterServerDomain, int port
                                 ipv4 = (ipv4 << 4) | header[1];
                                 ipv4 = (ipv4 << 4) | header[2];
                                 ipv4 = (ipv4 << 4) | header[3];
+                                /*
                                 int ipv6 = header[4];
                                 ipv6 = (ipv6 << 4) | header[5];
                                 ipv6 = (ipv6 << 4) | header[6];
                                 ipv6 = (ipv6 << 4) | header[7];
+                                */
                                 delete header;
                                 int received = 0, buflen = 6;
                                 unsigned char *ipBuf = new unsigned char[buflen];

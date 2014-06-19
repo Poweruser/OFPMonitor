@@ -845,7 +845,7 @@ void OFPMonitorModel::addMasterServer(String domain) {
         }
 }
 void OFPMonitorModel::removeMasterServer(String domain) {
-        int index = -1;
+        int index;
         do {
                 index = this->masterServers->IndexOf(domain);
                 if(index >= 0) {

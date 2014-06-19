@@ -40,7 +40,7 @@ void FontSettings::readSettings(TStringList *file) {
         font->add(new ConfigEntry("Size", dtInt, (void*)(&(this->size))));
         font->add(new ConfigEntry("Bold", dtBool, (void*)(&bold)));
         font->add(new ConfigEntry("Italic", dtBool, (void*)(&italic)));
-        int index = font->scan(file, 0);
+        font->scan(file, 0);
         delete font;
         if(this->size < 8) { this->size = 10; }
         if(bold) {

@@ -42,6 +42,7 @@ DWORD WINAPI DownloadThread (LPVOID lpdwThreadParam__ ) {
                 downloader->error = true;
         }
         downloader->NotifyObserver();
+        return 0;
 }
 
 void HttpsDownloader::start() {

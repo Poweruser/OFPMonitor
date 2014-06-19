@@ -182,7 +182,6 @@ void IRCClient::parseReceivedData(String data) {
                                 this->remoteServer = tmp.SubString(1, position - 1);
                         }
                 }
-                bool normalMsg = line.Pos("PRIVMSG ");
 
                 String body = line;
                 body.Delete(1, body.Pos(" "));
@@ -219,7 +218,6 @@ void IRCClient::parseReceivedData(String data) {
                         String name = this->extractUserNameFromLine(line);
                         this->userLeft(name);
                 } else if(body.Pos("PRIVMSG ") == 1) {
-                        bool chanMsg = body.Pos("PRIVMSG " + this->channel) == 1;
                         bool privMsg = body.Pos("PRIVMSG " + this->ircUserName) == 1;
                         String sender = this->convertName_IrcToLocal(this->extractUserNameFromLine(line));
                         String channel = this->channel;
