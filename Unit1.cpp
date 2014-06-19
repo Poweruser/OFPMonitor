@@ -77,16 +77,16 @@ void TForm1::update(Observable *o) {
                 }
         } else if(o == this->languageDB) {
                 this->updateGuiLanguage();
-        } else if(o == this->downloader) {
+        } else if(o == this->downloader && this->downloader != NULL) {
                 if(!this->downloader->checkError()) {
                         TStringList *list = new TStringList;
                         this->downloader->getFile(list);
                         this->ofpm->parseMasterServerFile(list);
                         delete list;
                         this->downloader->RemoveObserver(this);
-                        delete this->downloader;
-                        this->downloader = NULL;
                 }
+                delete this->downloader;
+                this->downloader = NULL;
         }
 }
 
