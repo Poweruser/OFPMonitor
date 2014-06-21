@@ -1,6 +1,7 @@
 #include "FileVersion.h"
 
 FileVersion::FileVersion(String file) {
+        this->VersionInfo = NULL;
         int size = GetFileVersionInfoSize (file.c_str(), NULL);
 	if (size > 0) {
         	this->VersionInfo = new char [size];
@@ -16,6 +17,7 @@ FileVersion::FileVersion(String file) {
 FileVersion::~FileVersion() {
         if(this->VersionInfo != NULL) {
         	delete this->VersionInfo;
+                this->VersionInfo = NULL;
         }
 }
 
