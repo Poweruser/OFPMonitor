@@ -48,7 +48,6 @@ class Game {
                 String fullName;
                 int version;
                 TList *startupConfs;
-                list<String> exeNames;
                 String gamespyToken;
                 String gamespyKey;
 

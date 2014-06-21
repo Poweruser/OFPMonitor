@@ -12,7 +12,6 @@
 
 Game::Game(OFPGames id) {
         this->game = id;
-        this->exeNames = getExesByGameId(id, false);
         this->gamespyToken = getGameSpyTokenByGameId(id);
         this->gamespyKey = getGameSpyKeyByGameId(id);
         this->fullName = getFullGameNameByGameId(id);
