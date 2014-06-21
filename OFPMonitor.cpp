@@ -43,17 +43,6 @@ void releaseMutex() {
         CloseHandle(hMutex);
 }
 
-String getExeFromFullPath(String in) {
-        String out = in;
-        for(int i = in.Length() - 1; i >= 0; i--) {
-                if(in.SubString(i,1) == "\\") {
-                        out = in.SubString(i + 1, in.Length() - i);
-                        break;
-                }
-        }
-        return out;
-}
-
 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
         if(MyAppAlreadyRunning()) {
@@ -61,7 +50,7 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
                 TStringList *startsWith = new TStringList();
                 startsWith->Add("OFPMonitor");
                 TStringList *moduleIncludes = new TStringList();
-                moduleIncludes->Add(getExeFromFullPath(Application->ExeName));
+                moduleIncludes->Add(ExtractFileName(Application->ExeName));
                 if(finder->enumerate(startsWith, moduleIncludes)) {
                         ProcessInfo p = finder->output.front();
                         SendMessage(p.hWindow, WM_KEYDOWN, VK_F13, NULL);
