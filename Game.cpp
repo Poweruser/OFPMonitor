@@ -90,11 +90,10 @@ void Game::queryVersion() {
                 String fileToQuery = "";
                 String file = ExtractFileName(this->exe);
                 if(isFileFWatch(file)) {
-                        String path = ExtractFileDir(this->exe);
+                        String path = ExtractFilePath(this->exe);
                         list<String> exeList = getExesByGameId(this->game, false);
                         for(list<String>::iterator ci = exeList.begin(); ci != exeList.end(); ++ci) {
                                 String fullPath = path;
-                                fullPath += "\\";
                                 fullPath += (*ci);
                                 if(FileExists(fullPath)) {
                                         fileToQuery = fullPath;
