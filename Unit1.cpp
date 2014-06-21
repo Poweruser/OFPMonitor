@@ -1740,7 +1740,7 @@ void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
         TStringList *m = new TStringList();
         if(this->ofpm != NULL) {
                 this->ofpm->getAllAppTitlesOfGames(s);
-                this->ofpm->getAllExesOfGames(m);
+                this->ofpm->getAllExesOfGames(m, false);
         }
         if(pf->enumerate(s, m)) {
                 for (list<ProcessInfo>::iterator proc = pf->output.begin(); proc != pf->output.end(); ++proc) {

@@ -12,7 +12,7 @@
 
 Game::Game(OFPGames id) {
         this->game = id;
-        this->exeNames = getExesByGameId(id);
+        this->exeNames = getExesByGameId(id, false);
         this->gamespyToken = getGameSpyTokenByGameId(id);
         this->gamespyKey = getGameSpyKeyByGameId(id);
         this->fullName = getFullGameNameByGameId(id);
@@ -50,7 +50,7 @@ void Game::autodetect(String exe) {
 }
 
 void Game::autodetect(String exe, String player) {
-        list<String> exes = getExePathsByGameId(this->game);
+        list<String> exes = getExePathsByGameId(this->game, false);
         if(!exe.IsEmpty()) { exes.push_front(exe); }
         for(list<String>::iterator ci = exes.begin(); ci != exes.end(); ++ci) {
                 if(FileExists(*ci)) {
@@ -88,7 +88,24 @@ void Game::detectPlayer(String setP) {
 
 void Game::queryVersion() {
         if(FileExists(this->exe)) {
-                FileVersion *fv = new FileVersion(this->exe);
+                String fileToQuery = "";
+                String file = ExtractFileName(this->exe);
+                if(isFileFWatch(file)) {
+                        String path = ExtractFileDir(this->exe);
+                        list<String> exeList = getExesByGameId(this->game, false);
+                        for(list<String>::iterator ci = exeList.begin(); ci != exeList.end(); ++ci) {
+                                String fullPath = path;
+                                fullPath += "\\";
+                                fullPath += (*ci);
+                                if(FileExists(fullPath)) {
+                                        fileToQuery = fullPath;
+                                        break;
+                                }
+                        }
+                } else {
+                        fileToQuery = this->exe;
+                }
+                FileVersion *fv = new FileVersion(fileToQuery);
                 this->version = fv->getOFPVersion();
                 delete fv;
         }

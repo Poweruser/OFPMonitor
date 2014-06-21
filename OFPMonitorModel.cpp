@@ -692,9 +692,9 @@ void OFPMonitorModel::getAllAppTitlesOfGames(TStringList *titleList) {
         }
 }
 
-void OFPMonitorModel::getAllExesOfGames(TStringList *exeList) {
+void OFPMonitorModel::getAllExesOfGames(TStringList *exeList, bool includeFWatch) {
         for(int i = 0; i < GAMESTOTAL; i++) {
-                list<String> exes = getExesByGameId((OFPGames)i);
+                list<String> exes = getExesByGameId((OFPGames)i, includeFWatch);
                 while(exes.size() > 0) {
                         exeList->Add(exes.front());
                         exes.pop_front();

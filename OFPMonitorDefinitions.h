@@ -44,7 +44,7 @@ bool isValidGameID(OFPGames gameid) {
 }
 
 
-list<String> getExesByGameId(OFPGames gameid) {
+list<String> getExesByGameId(OFPGames gameid, bool includeFWatch) {
         list<String> exes;
 	switch(gameid) {
 		case OFPCWC:
@@ -52,16 +52,25 @@ list<String> getExesByGameId(OFPGames gameid) {
                 	exes.push_back("OperationFlashpointbeta.exe");
 			break;
 		case OFPRES:
-			exes.push_back("fwatch.exe");
+                        if(includeFWatch) {
+                                exes.push_back("fwatch.exe");
+                        }
 			exes.push_back("FLASHPOINTRESISTANCE.EXE");
                 	exes.push_back("OFP.exe");
                 	exes.push_back("FLASHPOINTBETA.EXE");
 			break;
 		case ARMACWA:
-			exes.push_back("fwatchCWA.exe");
+                        if(includeFWatch) {
+                                exes.push_back("fwatchCWA.exe");
+                        }
                 	exes.push_back("ColdWarAssault.exe");
 	}
 	return exes;
+}
+
+bool isFileFWatch(String fileName) {
+        String lowercase = fileName.LowerCase();
+        return (lowercase == "fwatch.exe" || lowercase == "fwatchcwa.exe");
 }
 
 String getAppTitleByGameId(OFPGames gameid) {
@@ -132,9 +141,9 @@ String getGamePathFromRegistryByGameId(OFPGames gameid) {
 	return GetRegistryValue(HKEY_LOCAL_MACHINE, getRegistryPathByGameId(gameid), "Main");
 }
 
-list<String> getExePathsByGameId(OFPGames gameid) {
+list<String> getExePathsByGameId(OFPGames gameid, bool includeFWatch) {
 	String path = getGamePathFromRegistryByGameId(gameid);
-	list<String> exes = getExesByGameId(gameid);
+	list<String> exes = getExesByGameId(gameid, includeFWatch);
 	list<String> out;
 	for(list<String>::iterator ci = exes.begin(); ci != exes.end(); ++ci) {
 		out.push_back(path + "\\" + (*ci));

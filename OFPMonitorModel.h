@@ -56,7 +56,7 @@ class OFPMonitorModel : public Observable {
                 void queryGameSpyList();
                 bool isGameSpyUpdateDone();
                 void getAllAppTitlesOfGames(TStringList *list);
-                void getAllExesOfGames(TStringList *list);
+                void getAllExesOfGames(TStringList *list, bool includeFWatch);
                 String getWorkDir();
                 void setLanguageFile(String file);
                 String getSettingsFile();

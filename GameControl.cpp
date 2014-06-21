@@ -277,7 +277,7 @@ bool GameControl::detectProcess() {
                 startsWith->Add(getAppTitleByGameId(ARMACWA));
                 TStringList *modules = new TStringList();
                 for(int i = 0; i < GAMESTOTAL; i++) {
-                        list<String> exes = getExesByGameId((OFPGames)i);
+                        list<String> exes = getExesByGameId((OFPGames)i, false);
                         while(exes.size() > 0) {
                                 modules->Add(exes.front());
                                 exes.pop_front();

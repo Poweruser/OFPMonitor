@@ -535,7 +535,7 @@ void TWINDOW_SETTINGS::setChatSettings(ChatSettings *chatSettings) {
 
 String buildOpenDialogFilter(OFPGames gameid) {
         String filter = getFullGameNameByGameId(gameid) + "|";
-        list<String> exes = getExesByGameId(gameid);
+        list<String> exes = getExesByGameId(gameid, true);
         while(exes.size() > 0) {
                 filter += exes.front();
                 exes.pop_front();
