@@ -31,7 +31,7 @@ OFPMonitorModel::OFPMonitorModel(String settingsFile, ServerList *serverList) {
         this->customNotifications = false;
         this->checkUpdateAtStart = true;
         this->checkMasterServersAtStart = true;
-        this->queryGamespy = true;
+        this->queryGamespy = false;
         this->queryPowerserver = true;
         this->interval = 5;
         this->level = Moderate;
@@ -624,6 +624,11 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
                         }
                         delete cms;
                 }
+
+                /*
+                  When it is certain that no replacement for gamespy will emerge using their servers
+                  and protocol, then this query code can be removed. For now it is just disabled
+
                 if(main->isQueryOfGamespySet()) {
                         dnsdb(NULL);
                         strcpy(gamestr, token.c_str());
@@ -658,6 +663,7 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
                                 }
                         }
                 }
+                */
         }
         if(gameSpyList->Count > 0) {
                 main->removeOfflineServers();

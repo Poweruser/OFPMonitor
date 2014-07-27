@@ -936,7 +936,8 @@ object Form1: TForm1
       object MENUITEM_MAINMENU_SERVERLIST_GAMESPY: TMenuItem
         AutoCheck = True
         Caption = 'Query Gamespy'
-        Checked = True
+        Enabled = False
+        Visible = False
         OnClick = MENUITEM_MAINMENU_SERVERLIST_GAMESPYClick
       end
       object MENUITEM_MAINMENU_SERVERLIST_POWERSERVER: TMenuItem
