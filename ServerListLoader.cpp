@@ -112,22 +112,22 @@ TStringList* ServerListLoader::getServerList(String masterServerDomain, int port
                                 }
                         }
                         if(this->stream->WaitForData(this->timeout)) {
-                                char *header = new char[8];
+                                unsigned char *header = new unsigned char[8];
                                 try {
                                         this->stream->ReadBuffer(header, 8);
                                 } catch (Exception &E) {
                                         delete header;
                                         return ips;
                                 }
-                                int ipv4 = header[0];
-                                ipv4 = (ipv4 << 4) | header[1];
-                                ipv4 = (ipv4 << 4) | header[2];
-                                ipv4 = (ipv4 << 4) | header[3];
+                                int ipv4 = 0;
+                                for(int i = 0; i < 4; i++) {
+                                        ipv4 = (ipv4 << 8) | header[i];
+                                }
                                 /*
-                                int ipv6 = header[4];
-                                ipv6 = (ipv6 << 4) | header[5];
-                                ipv6 = (ipv6 << 4) | header[6];
-                                ipv6 = (ipv6 << 4) | header[7];
+                                int ipv6 = 0;
+                                for(int i = 4; i < 8; i++) {
+                                        ipv6 = (ipv6 << 8) | header[i];
+                                }
                                 */
                                 delete header;
                                 int received = 0, buflen = 6;
