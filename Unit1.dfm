@@ -543,7 +543,7 @@ object Form1: TForm1
           Associate = Edit5
           Min = 10
           Max = 360
-          Increment = 10
+          Increment = 5
           Position = 10
           TabOrder = 3
           Thousands = False
