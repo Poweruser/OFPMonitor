@@ -173,6 +173,9 @@ __published:	// IDE-managed Components
         TMenuItem *MENUITEM_MAINMENU_SERVERLIST_GAMESPY;
         TMenuItem *MENUITEM_MAINMENU_SERVERLIST_POWERSERVER;
         TMenuItem *N1;
+        TGroupBox *GROUPBOX_OVERWRITE_MASTERSERVER;
+        TCheckBox *CHECKBOX_GAMECONTROL_OVERWRITE_MASTERSERVER;
+        TComboBox *COMBOBOX_OVERWRITE_MASTERSERVER;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall StringGrid1SelectCell(TObject *Sender, int ACol,
           int ARow, bool &CanSelect);
@@ -272,6 +275,9 @@ __published:	// IDE-managed Components
         void __fastcall MENUITEM_MAINMENU_SERVERLIST_GAMESPYClick(TObject *Sender);
         void __fastcall MENUITEM_MAINMENU_SERVERLIST_POWERSERVERClick(
           TObject *Sender);
+        void __fastcall COMBOBOX_OVERWRITE_MASTERSERVERChange(
+          TObject *Sender);
+        void __fastcall CHECKBOX_GAMECONTROL_OVERWRITE_MASTERSERVERClick(TObject *Sender);
 private:	// User declarations
         OFPMonitorModel *ofpm;
         GameControl *gameControl;

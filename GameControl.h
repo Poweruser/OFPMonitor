@@ -26,6 +26,7 @@ class GameControl : public Observable {
                 bool isAutoGreenOn();
                 bool isRestoreGameOn();
                 bool isAutoDetectOn();
+                bool isOverwriteMasterServerOn();
                 void setProcess(ProcessInfo *p);
                 void setServer(int serverID);
                 bool matchesProcess(ProcessInfo p);
@@ -37,11 +38,15 @@ class GameControl : public Observable {
                 int getGreenUpDelay();
                 void enableAutoGreenUp(bool enabled);
                 void enableRestoreGame(bool enabled);
+                void enableMasterServerOverwrite(bool enabled);
+                void setMasterServer(String masterserver);
+                String getSelectedMasterServer();
                 void setAutoDetect(bool enabled);
                 void setGreenUpDelay(int delay);
                 void readSettings(TStringList *file);
                 void ProcessMessages();
                 void getSettingsFileEntry(TStringList *settings);
+                void checkCurrentData();
 
 
         private:
@@ -50,6 +55,8 @@ class GameControl : public Observable {
                 int selectedServerID;
                 ProcessInfo proc;
                 bool autoDetect;
+                String selectedMasterServer;
+                bool masterServerOverwrite;
                 bool autoGreenUp;
                 int greenUpDelay;
                 bool greenUpRepeat;
@@ -57,11 +64,11 @@ class GameControl : public Observable {
                 String checkBool(bool in);
                 bool detectServer();
                 bool detectProcess();
-                void checkCurrentData();
                 bool isProcessValid();
                 void __fastcall onTimer(TObject *Sender);
                 void sendGreenUpMessage();
                 void statusChange(StatusChange *statusChange);
+                void overwriteMasterServer(String masterserver);
 };
 
 

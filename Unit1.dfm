@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 424
-  Top = 233
+  Left = 731
+  Top = 245
   Width = 666
   Height = 500
   HorzScrollBar.Visible = False
@@ -423,40 +423,40 @@ object Form1: TForm1
         Left = 3
         Top = 0
         Width = 644
-        Height = 116
+        Height = 100
         Caption = 'Game process and Server '
         TabOrder = 0
         object LABEL_GAMECONTROL_PROCESS: TLabel
           Left = 16
-          Top = 40
+          Top = 24
           Width = 92
           Height = 16
           Caption = 'Game process:'
         end
         object LABEL_GAMECONTROL_SERVER: TLabel
           Left = 16
-          Top = 68
+          Top = 52
           Width = 43
           Height = 16
           Caption = 'Server:'
         end
         object Label9: TLabel
           Left = 136
-          Top = 94
+          Top = 78
           Width = 3
           Height = 16
         end
         object LABEL_GAMECONTROL_EXE: TLabel
           Left = 16
-          Top = 94
+          Top = 78
           Width = 70
           Height = 16
           Caption = 'Executable:'
         end
         object ComboBox1: TComboBox
-          Left = 136
-          Top = 36
-          Width = 345
+          Left = 128
+          Top = 20
+          Width = 329
           Height = 24
           Style = csDropDownList
           ItemHeight = 0
@@ -464,9 +464,9 @@ object Form1: TForm1
           OnChange = ComboBox1Change
         end
         object ComboBox2: TComboBox
-          Left = 136
-          Top = 65
-          Width = 345
+          Left = 128
+          Top = 49
+          Width = 329
           Height = 24
           Style = csDropDownList
           ItemHeight = 0
@@ -475,19 +475,19 @@ object Form1: TForm1
           OnChange = ComboBox2Change
         end
         object CHECKBOX_GAMECONTROL_AUTODETECT: TCheckBox
-          Left = 136
+          Left = 464
           Top = 18
-          Width = 497
+          Width = 177
           Height = 17
           Caption = 'Automatic detection'
           TabOrder = 2
           OnClick = CHECKBOX_GAMECONTROL_AUTODETECTClick
         end
         object BUTTON_GAMECONTROL_REFRESH: TButton
-          Left = 488
+          Left = 464
           Top = 36
-          Width = 145
-          Height = 53
+          Width = 169
+          Height = 37
           Caption = 'Refresh Lists'
           TabOrder = 3
           OnClick = BUTTON_GAMECONTROL_REFRESHClick
@@ -495,20 +495,20 @@ object Form1: TForm1
       end
       object GROUPBOX_GAMECONTROL_AUTOGREENUP: TGroupBox
         Left = 3
-        Top = 116
+        Top = 104
         Width = 318
-        Height = 124
+        Height = 85
         TabOrder = 1
         object LABEL_GAMECONTROL_AUTOGREENUP_DELAY: TLabel
           Left = 16
-          Top = 40
+          Top = 30
           Width = 102
           Height = 16
           Caption = 'Delay (seconds):'
         end
         object RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE: TRadioButton
           Left = 16
-          Top = 72
+          Top = 48
           Width = 113
           Height = 17
           Caption = 'Only once'
@@ -517,7 +517,7 @@ object Form1: TForm1
         end
         object RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT: TRadioButton
           Left = 16
-          Top = 88
+          Top = 64
           Width = 169
           Height = 17
           Caption = 'Repeat until game start'
@@ -527,8 +527,8 @@ object Form1: TForm1
           OnClick = RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEATClick
         end
         object Edit5: TEdit
-          Left = 224
-          Top = 36
+          Left = 216
+          Top = 28
           Width = 33
           Height = 24
           ReadOnly = True
@@ -536,8 +536,8 @@ object Form1: TForm1
           Text = '10'
         end
         object UpDown2: TUpDown
-          Left = 257
-          Top = 36
+          Left = 249
+          Top = 28
           Width = 16
           Height = 24
           Associate = Edit5
@@ -562,15 +562,15 @@ object Form1: TForm1
       end
       object GROUPBOX_GAMECONTROL_RESTORE: TGroupBox
         Left = 326
-        Top = 116
+        Top = 104
         Width = 323
-        Height = 124
+        Height = 85
         BiDiMode = bdLeftToRight
         ParentBiDiMode = False
         TabOrder = 2
         object CHECKBOX_GAMECONTROL_RESTORE_CREATING: TCheckBox
-          Left = 24
-          Top = 32
+          Left = 16
+          Top = 30
           Width = 169
           Height = 17
           Caption = 'Creating'
@@ -578,8 +578,8 @@ object Form1: TForm1
           OnClick = CHECKBOX_GAMECONTROL_RESTORE_CREATINGClick
         end
         object CHECKBOX_GAMECONTROL_RESTORE_WAITING: TCheckBox
-          Left = 24
-          Top = 48
+          Left = 16
+          Top = 46
           Width = 169
           Height = 17
           Caption = 'Waiting'
@@ -587,8 +587,8 @@ object Form1: TForm1
           OnClick = CHECKBOX_GAMECONTROL_RESTORE_WAITINGClick
         end
         object CHECKBOX_GAMECONTROL_RESTORE_BRIEFING: TCheckBox
-          Left = 24
-          Top = 64
+          Left = 16
+          Top = 62
           Width = 169
           Height = 17
           Caption = 'Briefing'
@@ -596,18 +596,18 @@ object Form1: TForm1
           OnClick = CHECKBOX_GAMECONTROL_RESTORE_BRIEFINGClick
         end
         object CHECKBOX_GAMECONTROL_RESTORE_PLAYING: TCheckBox
-          Left = 24
-          Top = 80
-          Width = 169
+          Left = 160
+          Top = 46
+          Width = 161
           Height = 17
           Caption = 'Playing'
           TabOrder = 3
           OnClick = CHECKBOX_GAMECONTROL_RESTORE_PLAYINGClick
         end
         object CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING: TCheckBox
-          Left = 24
-          Top = 96
-          Width = 169
+          Left = 160
+          Top = 62
+          Width = 161
           Height = 17
           Caption = 'Debriefing'
           TabOrder = 4
@@ -621,6 +621,32 @@ object Form1: TForm1
           Caption = 'Restore game on'
           TabOrder = 5
           OnClick = CHECKBOX_GAMECONTROL_RESTOREClick
+        end
+      end
+      object GROUPBOX_OVERWRITE_MASTERSERVER: TGroupBox
+        Left = 3
+        Top = 189
+        Width = 646
+        Height = 51
+        TabOrder = 3
+        object CHECKBOX_GAMECONTROL_OVERWRITE_MASTERSERVER: TCheckBox
+          Left = 4
+          Top = 10
+          Width = 317
+          Height = 17
+          Caption = 'Overwrite master server address'
+          TabOrder = 0
+          OnClick = CHECKBOX_GAMECONTROL_OVERWRITE_MASTERSERVERClick
+        end
+        object COMBOBOX_OVERWRITE_MASTERSERVER: TComboBox
+          Left = 328
+          Top = 16
+          Width = 305
+          Height = 24
+          Style = csDropDownList
+          ItemHeight = 0
+          TabOrder = 1
+          OnChange = COMBOBOX_OVERWRITE_MASTERSERVERChange
         end
       end
     end

@@ -6,6 +6,7 @@
 #include "GameControl.h"
 #include "OFPMonitorDefinitions.h"
 #include "ConfigReader.h"
+#include "FileVersion.h"
 
 //---------------------------------------------------------------------------
 
@@ -26,6 +27,8 @@ GameControl::GameControl(OFPMonitorModel *ofpm) {
         this->restoreOnDebriefing = false;
         this->autoDetect = false;
         this->autoGreenUp = false;
+        this->selectedMasterServer = "";
+        this->masterServerOverwrite = false;
         this->greenUpDelay = 10;
         this->greenUpRepeat = false;
 }
@@ -89,11 +92,18 @@ bool GameControl::isAutoDetectOn() {
         return this->autoDetect;
 }
 
+bool GameControl::isOverwriteMasterServerOn() {
+        return this->masterServerOverwrite;
+}
+
 void GameControl::setProcess(ProcessInfo *p) {
         this->proc.pid = p->pid;
         this->proc.hWindow = p->hWindow;
         this->proc.title = p->title;
         this->proc.moduleName = p->moduleName;
+        if(this->masterServerOverwrite) {
+                this->overwriteMasterServer(this->selectedMasterServer);
+        }
 }
 
 void GameControl::setServer(int serverID) {
@@ -202,6 +212,14 @@ void GameControl::enableRestoreGame(bool enabled) {
         this->checkCurrentData();
 }
 
+void GameControl::enableMasterServerOverwrite(bool enabled) {
+        this->masterServerOverwrite = enabled;
+        this->checkCurrentData();
+        if(enabled && this->isProcessValid() && !this->selectedMasterServer.IsEmpty()) {
+                this->overwriteMasterServer(this->selectedMasterServer);
+        }
+}
+
 void GameControl::setAutoDetect(bool enabled) {
         this->autoDetect = enabled;
         this->checkCurrentData();
@@ -243,6 +261,7 @@ void GameControl::getSettingsFileEntry(TStringList *settings) {
         settings->Add("RestoreOnBriefing = " + IntToStr(this->restoreOnBriefing));
         settings->Add("RestoreOnPlaying = " + IntToStr(this->restoreOnPlaying));
         settings->Add("RestoreOnDebriefing = " + IntToStr(this->restoreOnDebriefing));
+        settings->Add("OverwriteMasterServer = " + IntToStr(this->masterServerOverwrite));
         settings->Add("[\\Automation]");
 }
 
@@ -336,8 +355,58 @@ void GameControl::readSettings(TStringList *file) {
         automation->add(new ConfigEntry("RestoreOnBriefing", dtBool, (void*)(&(this->restoreOnBriefing))));
         automation->add(new ConfigEntry("RestoreOnPlaying", dtBool, (void*)(&(this->restoreOnPlaying))));
         automation->add(new ConfigEntry("RestoreOnDebriefing", dtBool, (void*)(&(this->restoreOnDebriefing))));
+        automation->add(new ConfigEntry("OverwriteMasterServer", dtBool, (void*)(&(this->masterServerOverwrite))));
         automation->scan(file, 0);
         delete automation;
+}
+
+void GameControl::setMasterServer(String masterserver) {
+        this->selectedMasterServer = masterserver;
+        if(this->isProcessValid() && !masterserver.IsEmpty()) {
+                this->overwriteMasterServer(masterserver);
+        }
+}
+
+String GameControl::getSelectedMasterServer() {
+        return this->selectedMasterServer;
+}
+
+void GameControl::overwriteMasterServer(String masterserver) {
+        if(this->verifyProcess()) {
+                HANDLE phandle = NULL;
+                phandle = OpenProcess(PROCESS_ALL_ACCESS, 0, this->proc.pid);
+                if(phandle != NULL) {
+                        FileVersion *fVersion = new FileVersion(this->proc.moduleName);
+                        int ofpVersion = fVersion->getOFPVersion();
+                        delete fVersion;
+                        int offset1 = 0;
+                        if(this->proc.title == getAppTitleByGameId(ARMACWA) && ofpVersion == 199) {
+                                offset1 = 0x756530;
+                        } else if(this->proc.title == getAppTitleByGameId(OFPRES) && ofpVersion == 196) {
+                                offset1 = 0x76EBC0;
+                        }
+                        if(offset1 != 0) {
+                                String master = masterserver;
+                                if(master.IsEmpty()) {
+                                        TStringList *list = new TStringList;
+                                        this->ofpm->getMasterServers(list);
+                                        if(list->Count > 0) {
+                                                master = list->Strings[0];
+                                        }
+                                        delete list;
+                                }
+                                if(!master.IsEmpty()) {
+                                        master += " ";
+                                        int length = master.Length();
+                                        char *data = master.c_str();
+                                        data[length - 1] = 0;
+                                        SIZE_T stBytes = 0;
+                                        WriteProcessMemory(phandle, (LPVOID)offset1, data, length, &stBytes);
+                                }
+                        }
+                        CloseHandle(phandle);
+                }
+        }
 }
 
 

@@ -149,6 +149,7 @@ void TForm1::updateGuiLanguage() {
                 this->CHECKBOX_GAMECONTROL_RESTORE_BRIEFING->Caption = this->languageDB->getGuiString(CHECKBOX_GAMECONTROL_RESTORE_BRIEFING->Name);
                 this->CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Caption = this->languageDB->getGuiString(CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Name);
                 this->CHECKBOX_GAMECONTROL_AUTODETECT->Caption = this->languageDB->getGuiString(CHECKBOX_GAMECONTROL_AUTODETECT->Name);
+                this->CHECKBOX_GAMECONTROL_OVERWRITE_MASTERSERVER->Caption = this->languageDB->getGuiString(CHECKBOX_GAMECONTROL_OVERWRITE_MASTERSERVER->Name);
                 this->LABEL_FILTER_STATUS->Caption = this->languageDB->getGuiString(LABEL_FILTER_STATUS->Name);
                 this->LABEL_FILTER_PASSWORD->Caption = this->languageDB->getGuiString(LABEL_FILTER_PASSWORD->Name);
                 this->LABEL_FILTER_MINIMUMPLAYERS->Caption = this->languageDB->getGuiString(LABEL_FILTER_MINIMUMPLAYERS->Name);
@@ -720,9 +721,24 @@ void TForm1::updateGameControlGui() {
         this->CHECKBOX_GAMECONTROL_RESTORE_BRIEFING->Checked = this->gameControl->restoreOnBriefing;
         this->CHECKBOX_GAMECONTROL_RESTORE_PLAYING->Checked = this->gameControl->restoreOnPlaying;
         this->CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Checked = this->gameControl->restoreOnDebriefing;
+        this->CHECKBOX_GAMECONTROL_OVERWRITE_MASTERSERVER->Checked = this->gameControl->isOverwriteMasterServerOn();
         this->UpDown2->Position = this->gameControl->getGreenUpDelay();
         this->ComboBox1->Enabled = !(this->ComboBox1->Items->Count == 0);
         this->ComboBox2->Enabled = !(this->ComboBox2->Items->Count == 0);
+
+        String selMaster = this->gameControl->getSelectedMasterServer();
+        bool foundSelection = false;
+        TComboBox *list = COMBOBOX_OVERWRITE_MASTERSERVER;
+        for(int i = 0; i < list->Items->Count; i++) {
+                if(selMaster == list->Items->Strings[i]) {
+                        list->ItemIndex = i;
+                        foundSelection = true;
+                        break;
+                }
+        }
+        if(!foundSelection && list->Items->Count > 0) {
+                list->ItemIndex = 0;
+        }
 }
 
 
@@ -867,6 +883,7 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
                 if(i >= this->ofpm->getInterval()) {
                         this->ofpm->queryServers();
                         Timer1->Tag = 0;
+                        this->gameControl->checkCurrentData();
                 }
                 MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = this->ofpm->isGameSpyUpdateDone();
         }
@@ -1771,6 +1788,15 @@ void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
                         }
                 }
         }
+
+        TComboBox *list = COMBOBOX_OVERWRITE_MASTERSERVER;
+        list->Clear();
+        TStringList *masterServerList = new TStringList;
+        this->ofpm->getMasterServers(masterServerList);
+        for(int i = 0; i < masterServerList->Count; i++) {
+                list->Items->Add(masterServerList->Strings[i]);
+        }
+        delete masterServerList;
         this->updateGameControlGui();
 }
 //---------------------------------------------------------------------------
@@ -1958,6 +1984,22 @@ void __fastcall TForm1::MENUITEM_MAINMENU_SERVERLIST_POWERSERVERClick(
       TObject *Sender)
 {
         this->ofpm->setQueryOfPowerserver(MENUITEM_MAINMENU_SERVERLIST_POWERSERVER->Checked);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::COMBOBOX_OVERWRITE_MASTERSERVERChange(TObject *Sender)
+{
+        int index = COMBOBOX_OVERWRITE_MASTERSERVER->ItemIndex;
+        if(index >= 0 && index < COMBOBOX_OVERWRITE_MASTERSERVER->Items->Count) {
+                String selected = COMBOBOX_OVERWRITE_MASTERSERVER->Items->Strings[index];
+                this->gameControl->setMasterServer(selected);
+        }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::CHECKBOX_GAMECONTROL_OVERWRITE_MASTERSERVERClick(TObject *Sender)
+{
+        this->gameControl->enableMasterServerOverwrite(CHECKBOX_GAMECONTROL_OVERWRITE_MASTERSERVER->Checked);
 }
 //---------------------------------------------------------------------------
 
