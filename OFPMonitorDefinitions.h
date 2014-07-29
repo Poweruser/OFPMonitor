@@ -141,6 +141,25 @@ String getGamePathFromRegistryByGameId(OFPGames gameid) {
 	return GetRegistryValue(HKEY_LOCAL_MACHINE, getRegistryPathByGameId(gameid), "Main");
 }
 
+list<String> getStreamRegistryPath() {
+        list<String> out;
+        out.push_back("SOFTWARE");
+        out.push_back("Valve");
+        out.push_back("Steam");
+        return out;
+}
+
+String getGamePathOfSteamVersion() {
+        String steamInstallPath = GetRegistryValue(HKEY_LOCAL_MACHINE, getStreamRegistryPath(), "InstallPath");
+        if(!steamInstallPath.IsEmpty()) {
+                if(steamInstallPath.SubString(steamInstallPath.Length(), 1) != "\\") {
+                        steamInstallPath += "\\";
+                }
+                steamInstallPath += "SteamApps\\common\\ARMA Cold War Assault";
+        }
+        return steamInstallPath;
+}
+
 list<String> getExePathsByGameId(OFPGames gameid, bool includeFWatch) {
 	String path = getGamePathFromRegistryByGameId(gameid);
 	list<String> exes = getExesByGameId(gameid, includeFWatch);
@@ -148,6 +167,14 @@ list<String> getExePathsByGameId(OFPGames gameid, bool includeFWatch) {
 	for(list<String>::iterator ci = exes.begin(); ci != exes.end(); ++ci) {
 		out.push_back(path + "\\" + (*ci));
 	}
+        if(gameid == ARMACWA) {
+                String steampath = getGamePathOfSteamVersion();
+                if(!steampath.IsEmpty()) {
+                        for(list<String>::iterator ci = exes.begin(); ci != exes.end(); ++ci) {
+                                out.push_back(steampath + "\\" + (*ci));
+	                }
+                }
+        }
 	return out;
 }
 
