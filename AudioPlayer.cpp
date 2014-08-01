@@ -65,7 +65,6 @@ bool AudioPlayer::hasAlias(String alias) {
 bool AudioPlayer::addAudioTask(AudioTask *task) {
         if(!this->hasAlias(task->getAlias())) {
                 this->tasks->Add((void*)task);
-                task->play();
                 this->audioTimer->Enabled = true;
                 return true;
         }
@@ -89,7 +88,9 @@ bool AudioPlayer::checkTasks() {
                 AudioTask *t = this->getTask(i);
                 if(t != NULL) {
                         hasJob = true;
-                        if(t->hasEnded()) {
+                        if(!t->hasInitiatedPlay()) {
+                                t->play();
+                        } else if(t->hasEnded()) {
                                 t->stop();
                                 if(t->isRepeatOn()) {
                                                 t->reset();
@@ -126,7 +127,6 @@ void AudioPlayer::restartTask(String alias) {
         AudioTask *at = this->getTask(alias);
         if(at != NULL) {
                 at->reset();
-                at->play();
         }                  
 }
 
