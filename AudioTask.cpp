@@ -21,6 +21,7 @@ AudioTask::AudioTask(String file, String alias, bool repeat) {
         this->stopped = false;
         this->started = false;
         this->deleteOnEnd = false;
+        this->initiatedPlay = false;
 }
 
 void AudioTask::setFile(String file) {
@@ -52,6 +53,7 @@ int AudioTask::getVolume() {
 }
 
 void AudioTask::play() {
+        this->initiatedPlay = true;
         if(FileExists(this->file) && !this->alias.IsEmpty()) {
                 if(mciSendString(("Open \"" + this->file + "\" alias " + this->alias + " type MPEGVideo").c_str(),0,0,0)) {
                         this->error = true;
@@ -107,6 +109,7 @@ void AudioTask::reset() {
                 this->started = false;
                 this->stop();
         }
+        this->initiatedPlay = false;
         this->opened = false;
         this->stopped = false;
         this->error = false;
@@ -161,6 +164,10 @@ AudioPosition AudioTask::getCurrentPosition() {
                 }
         }
         return out;
+}
+
+bool AudioTask::hasInitiatedPlay() {
+        return this->initiatedPlay;
 }
 
 

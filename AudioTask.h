@@ -27,6 +27,7 @@ class AudioTask {
                 void setDeleteOnEnd(bool active);
                 bool isDeleteOnEndSet();
                 AudioPosition getCurrentPosition();
+                bool hasInitiatedPlay();
 
         private:
                 bool error;
@@ -40,6 +41,7 @@ class AudioTask {
                 int start;
                 int end;
                 bool deleteOnEnd;
+                bool initiatedPlay;
 
                 int readSongLength(String file);
 };
