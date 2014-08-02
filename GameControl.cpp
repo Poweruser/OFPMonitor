@@ -386,16 +386,20 @@ void GameControl::overwriteMasterServer(String masterserver) {
                                 offset1 = 0x76EBC0;
                         }
                         if(offset1 != 0) {
+                                int lengthLimit = 63;
                                 String master = masterserver;
                                 if(master.IsEmpty()) {
                                         TStringList *list = new TStringList;
                                         this->ofpm->getMasterServers(list);
-                                        if(list->Count > 0) {
-                                                master = list->Strings[0];
+                                        for(int i = 0; i < list->Count; i++) {
+                                                if(list->Strings[i].Length() <= lengthLimit) {
+                                                        master = list->Strings[i];
+                                                        break;
+                                                }
                                         }
                                         delete list;
                                 }
-                                if(!master.IsEmpty()) {
+                                if(!master.IsEmpty() && master.Length() <= lengthLimit) {
                                         master += " ";
                                         int length = master.Length();
                                         char *data = master.c_str();
