@@ -134,6 +134,13 @@ LABEL_CHAT_IRCSERVER_CHANNEL = Kanal:
 BUTTON_CHAT_SETDEFAULT = Standardserver setzen
 CHECKBOX_CHAT_AUTOCONNECT = Beim Start verbinden
 
+GROUPBOX_CHATSETTINGS_NOTIFICATIONS = Benachrichtigungen bei eingehenden Chatnachrichten
+CHECKBOX_CHATSETTINGS_BALLONHINT = Hinweis beim Taskleistensymbol einblenden
+CHECKBOX_CHATSETTINGS_AUDIONOTIFICATION = Abspielen einer Audiodatei:
+BUTTON_CHATSETTINGS_BROWSEAUDIOFILE = Durchsuchen ...
+BUTTON_CHATSETTINGS_CLEARAUDIOFILE = Zurücksetzen
+STRING_NO_FILE_SELECTED = Keine Datei ausgewählt
+
 LABEL_GAME = Spiel:
 LABEL_MOD = Konfiguration:
 CHECKBOX_MULTIPLAYER = Mehrspieler

@@ -18,6 +18,9 @@ ChatSettings::ChatSettings() {
         this->userName = "";
         this->autoConnect = false;        
         this->setDefault();
+        this->displayBallonHint = true;
+        this->audioNotification = false;
+        this->audioFile = "";
 }
 
 ChatSettings::ChatSettings(String host, int port, String channel, String userName, bool ac) {
@@ -58,6 +61,9 @@ void ChatSettings::getSettingsFileEntry(TStringList *settings) {
         }
         settings->Add("UserName = " + n);
         settings->Add("AutoConnect = " + IntToStr(this->autoConnect));
+        settings->Add("ShowBallonHint = " + IntToStr(this->displayBallonHint));
+        settings->Add("AudioNotification = " + IntToStr(this->audioNotification));
+        settings->Add("AudioFile = \"" + this->audioFile + "\"");
         settings->Add("[\\ChatSettings]");
 }
 
@@ -89,6 +95,9 @@ void ChatSettings::readSettings(TStringList *file) {
         chat->add(new ConfigEntry("Port", dtInt, (void*)(&(this->port))));
         chat->add(new ConfigEntry("Channel", dtString, (void*)(&(this->channel))));
         chat->add(new ConfigEntry("UserName", dtStringQuoted, (void*)(&user)));
+        chat->add(new ConfigEntry("ShowBallonHint", dtBool, (void*)(&(this->displayBallonHint))));
+        chat->add(new ConfigEntry("AudioNotification", dtBool, (void*)(&(this->audioNotification))));
+        chat->add(new ConfigEntry("AudioFile", dtStringQuoted, (void*)(&(this->audioFile))));
         chat->scan(file, 0);
         delete chat;
         if(channel.SubString(1,1) != "#") {
@@ -97,4 +106,29 @@ void ChatSettings::readSettings(TStringList *file) {
         this->userName = user;
 }
 
+bool ChatSettings::isBallonHintOn() {
+        return this->displayBallonHint;
+}
+
+bool ChatSettings::isAudioNotificationOn() {
+        return this->audioNotification;
+}
+
+void ChatSettings::setBallonHint(bool enabled) {
+        this->displayBallonHint = enabled;
+}
+
+void ChatSettings::setAudioNotification(bool enabled) {
+        this->audioNotification = enabled;
+}
+
+String ChatSettings::getNotificationSoundFile() {
+        return this->audioFile;
+}
+
+void ChatSettings::setNotificationSoundFile(String file) {
+        if(file.IsEmpty() || FileExists(file)) {
+                this->audioFile = file;
+        }
+}
 

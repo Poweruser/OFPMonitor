@@ -197,6 +197,13 @@ __published:	// IDE-managed Components
         TCheckBox *CHECKBOX_MASTERSERVERS_UPDATEONSTART;
         TButton *BUTTON_SERVERS_EXPORT;
         TSaveDialog *SaveDialog1;
+        TGroupBox *GROUPBOX_CHATSETTINGS_NOTIFICATIONS;
+        TCheckBox *CHECKBOX_CHATSETTINGS_BALLONHINT;
+        TBevel *Bevel1;
+        TButton *BUTTON_CHATSETTINGS_BROWSEAUDIOFILE;
+        TLabel *LABEL_CHATSETTINGS_SELECTEDAUDIOFILE;
+        TButton *BUTTON_CHATSETTINGS_CLEARAUDIOFILE;
+        TCheckBox *CHECKBOX_CHATSETTINGS_AUDIONOTIFICATION;
         void __fastcall BUTTON_OFPRES_BROWSEClick(TObject *Sender);
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialogGameFileCanClose(TObject *Sender,
@@ -288,6 +295,15 @@ __published:	// IDE-managed Components
         void __fastcall BUTTON_SERVERS_EXPORTClick(TObject *Sender);
         void __fastcall SaveDialog1CanClose(TObject *Sender,
           bool &CanClose);
+        void __fastcall BUTTON_CHATSETTINGS_BROWSEAUDIOFILEClick(
+          TObject *Sender);
+        void __fastcall CHECKBOX_CHATSETTINGS_BALLONHINTClick(
+          TObject *Sender);
+        void __fastcall BUTTON_CHATSETTINGS_CLEARAUDIOFILEClick(
+          TObject *Sender);
+        void __fastcall CHECKBOX_CHATSETTINGS_AUDIONOTIFICATIONClick(
+          TObject *Sender);
+        void __fastcall TABSHEET_CHATSETTINGSShow(TObject *Sender);
 private:	// User declarations
 
         OFPMonitorModel *ofpm;

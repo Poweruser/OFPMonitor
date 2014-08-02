@@ -1516,6 +1516,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     object TABSHEET_CHATSETTINGS: TTabSheet
       Caption = 'Chat'
       ImageIndex = 4
+      OnShow = TABSHEET_CHATSETTINGSShow
       object GROUPBOX_CHATSETTINGS_SERVER: TGroupBox
         Left = 8
         Top = 80
@@ -1614,6 +1615,62 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Height = 17
           Caption = 'Autoconnect on startup'
           TabOrder = 1
+        end
+      end
+      object GROUPBOX_CHATSETTINGS_NOTIFICATIONS: TGroupBox
+        Left = 8
+        Top = 200
+        Width = 481
+        Height = 129
+        Caption = 'Notifications on incoming messages '
+        TabOrder = 2
+        object Bevel1: TBevel
+          Left = 10
+          Top = 48
+          Width = 460
+          Height = 2
+        end
+        object LABEL_CHATSETTINGS_SELECTEDAUDIOFILE: TLabel
+          Left = 16
+          Top = 72
+          Width = 457
+          Height = 13
+        end
+        object CHECKBOX_CHATSETTINGS_BALLONHINT: TCheckBox
+          Left = 16
+          Top = 24
+          Width = 449
+          Height = 17
+          Caption = 'Display ballon hint at the tray icon'
+          TabOrder = 0
+          OnClick = CHECKBOX_CHATSETTINGS_BALLONHINTClick
+        end
+        object BUTTON_CHATSETTINGS_BROWSEAUDIOFILE: TButton
+          Left = 12
+          Top = 90
+          Width = 101
+          Height = 31
+          Caption = 'Browse'
+          TabOrder = 1
+          OnClick = BUTTON_CHATSETTINGS_BROWSEAUDIOFILEClick
+        end
+        object BUTTON_CHATSETTINGS_CLEARAUDIOFILE: TButton
+          Left = 112
+          Top = 90
+          Width = 101
+          Height = 31
+          Caption = 'Clear'
+          TabOrder = 2
+          OnClick = BUTTON_CHATSETTINGS_CLEARAUDIOFILEClick
+        end
+        object CHECKBOX_CHATSETTINGS_AUDIONOTIFICATION: TCheckBox
+          Left = 16
+          Top = 54
+          Width = 457
+          Height = 17
+          Caption = 'Play audio file:'
+          TabOrder = 3
+          OnClick = CHECKBOX_CHATSETTINGS_AUDIONOTIFICATIONClick
         end
       end
     end

@@ -9,6 +9,8 @@
 #include "ConfigReader.h"
 #include "StringSplitter.h"
 #include "OFPMonitorDefinitions.h"
+#include "AudioTask.h"
+#include "AudioPlayer.h"
 
 #include <vcl.h>
 #include <list.h>
@@ -61,8 +63,19 @@ void TForm1::update(Observable *o) {
                 }
                 if(this->chat->hasNotification()) {
                         String n = this->chat->takeNotification();
-                        if(!n.IsEmpty() && !this->isInForeground()) {
-                                this->ChatNotification(n);
+                        if(!this->isInForeground()) {
+                                if(this->chatSettings->isBallonHintOn() && !n.IsEmpty()) {
+                                        this->ChatNotification(n);
+                                }
+                                if(this->chatSettings->isAudioNotificationOn()) {
+                                        String audioFile = this->chatSettings->getNotificationSoundFile();
+                                        if(!audioFile.IsEmpty() && FileExists(audioFile)) {
+                                                AudioPlayer *player = this->ofpm->getAudioPlayer();
+                                                AudioTask *at = new AudioTask(audioFile, "OFPM_CHATNOTIFICATION", false);
+                                                at->setDeleteOnEnd(true);
+                                                player->addAudioTask(at);
+                                        }
+                                }
                         }
                 }
                 if(TabControl1->TabIndex >= 0) {

@@ -12,6 +12,9 @@ class ChatSettings {
                 String channel;
                 String userName;
                 bool autoConnect;
+                String audioFile;
+                bool audioNotification;
+                bool displayBallonHint;
 
         public:
 
@@ -26,6 +29,12 @@ class ChatSettings {
                 void getSettingsFileEntry(TStringList *settings);
                 void readSettings(TStringList *file);
                 void setDefault();
+                bool isBallonHintOn();
+                bool isAudioNotificationOn();
+                void setBallonHint(bool enabled);
+                void setAudioNotification(bool enabled);
+                String getNotificationSoundFile();
+                void setNotificationSoundFile(String file);
 };
 //---------------------------------------------------------------------------
 #endif

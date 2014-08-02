@@ -17,6 +17,8 @@ TWINDOW_SETTINGS *WINDOW_SETTINGS;
 #include "FileVersion.h"
 #include "ConfigReader.h"
 
+enum OPENDIALOG_AUDIOFILE_TAG { ODAFT_Notifications, ODAFT_ChatSettings };
+
 extern unsigned long resolv(char *host) ; 
 
 void TWINDOW_SETTINGS::setModel(OFPMonitorModel *ofpm) {
@@ -70,6 +72,8 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->BUTTON_EDITCONFIGURATION_DOWN->Caption = this->languageDB->getGuiString(BUTTON_EDITCONFIGURATION_DOWN->Name);
                 this->BUTTON_EDITCONFIGURATION_COPY->Caption = this->languageDB->getGuiString(BUTTON_EDITCONFIGURATION_COPY->Name);
                 this->BUTTON_CHAT_SETDEFAULT->Caption = this->languageDB->getGuiString(BUTTON_CHAT_SETDEFAULT->Name);
+                this->BUTTON_CHATSETTINGS_BROWSEAUDIOFILE->Caption = this->languageDB->getGuiString(BUTTON_CHATSETTINGS_BROWSEAUDIOFILE->Name);
+                this->BUTTON_CHATSETTINGS_CLEARAUDIOFILE->Caption = this->languageDB->getGuiString(BUTTON_CHATSETTINGS_CLEARAUDIOFILE->Name);
                 this->BUTTON_UPDATE->Caption = this->languageDB->getGuiString(BUTTON_UPDATE->Name);
                 this->BUTTON_SERVERS_ADD->Caption = this->languageDB->getGuiString(BUTTON_SERVERS_ADD->Name);
                 this->BUTTON_SERVERS_REMOVE->Caption = this->languageDB->getGuiString(BUTTON_SERVERS_REMOVE->Name);
@@ -81,6 +85,8 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->CHECKBOX_REPEAT->Caption = this->languageDB->getGuiString(CHECKBOX_REPEAT->Name);
                 this->CHECKBOX_NOTIFICATIONS_ACTIVE->Caption = this->languageDB->getGuiString(CHECKBOX_NOTIFICATIONS_ACTIVE->Name);
                 this->CHECKBOX_CHAT_AUTOCONNECT->Caption = this->languageDB->getGuiString(CHECKBOX_CHAT_AUTOCONNECT->Name);
+                this->CHECKBOX_CHATSETTINGS_BALLONHINT->Caption = this->languageDB->getGuiString(CHECKBOX_CHATSETTINGS_BALLONHINT->Name);
+                this->CHECKBOX_CHATSETTINGS_AUDIONOTIFICATION->Caption = this->languageDB->getGuiString(CHECKBOX_CHATSETTINGS_AUDIONOTIFICATION->Name);
                 this->CHECKBOX_UPDATE_CHECKATSTART->Caption = this->languageDB->getGuiString(CHECKBOX_UPDATE_CHECKATSTART->Name);
                 this->CHECKBOX_MASTERSERVERS_UPDATEONSTART->Caption = this->languageDB->getGuiString(CHECKBOX_MASTERSERVERS_UPDATEONSTART->Name);
                 this->LABEL_SERVERLIST_INTERVAL->Caption = this->languageDB->getGuiString(LABEL_SERVERLIST_INTERVAL->Name);
@@ -104,6 +110,7 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->GROUPBOX_NOTIFICATIONS->Caption = this->languageDB->getGuiString(GROUPBOX_NOTIFICATIONS->Name);
                 this->GROUPBOX_CHATSETTINGS_GENERAL->Caption = this->languageDB->getGuiString(GROUPBOX_CHATSETTINGS_GENERAL->Name);
                 this->GROUPBOX_CHATSETTINGS_SERVER->Caption = this->languageDB->getGuiString(GROUPBOX_CHATSETTINGS_SERVER->Name);
+                this->GROUPBOX_CHATSETTINGS_NOTIFICATIONS->Caption = this->languageDB->getGuiString(GROUPBOX_CHATSETTINGS_NOTIFICATIONS->Name);
                 this->GROUPBOX_BANDWIDTHCONSUMPTION->Caption = this->languageDB->getGuiString(GROUPBOX_BANDWIDTHCONSUMPTION->Name);
                 this->GROUPBOX_UPDATE->Caption = this->languageDB->getGuiString(GROUPBOX_UPDATE->Name);
                 this->GROUPBOX_VOLUME->Caption = this->languageDB->getGuiString(GROUPBOX_VOLUME->Name);
@@ -417,6 +424,14 @@ void TWINDOW_SETTINGS::updateChatSettings() {
         this->EDIT_CHAT_IRCSERVER_PORT->Text = this->chatSettings->getPort();
         this->EDIT_CHAT_IRCSERVER_CHANNEL->Text = this->chatSettings->getChannel();
         this->CHECKBOX_CHAT_AUTOCONNECT->Checked = this->chatSettings->isAutoConnectOn();
+        this->CHECKBOX_CHATSETTINGS_BALLONHINT->Checked = this->chatSettings->isBallonHintOn();
+        this->CHECKBOX_CHATSETTINGS_AUDIONOTIFICATION->Checked = this->chatSettings->isAudioNotificationOn();
+        String file = this->chatSettings->getNotificationSoundFile();
+        if(file.IsEmpty()) {
+                this->LABEL_CHATSETTINGS_SELECTEDAUDIOFILE->Caption = this->languageDB->getGuiString("STRING_NO_FILE_SELECTED");
+        } else {
+                this->LABEL_CHATSETTINGS_SELECTEDAUDIOFILE->Caption = this->chatSettings->getNotificationSoundFile();
+        }
 }
 
 void TWINDOW_SETTINGS::exitEditNotificationMode() {
@@ -993,6 +1008,7 @@ void __fastcall TWINDOW_SETTINGS::TABSHEET_MODSShow(TObject *Sender)
 
 void __fastcall TWINDOW_SETTINGS::BUTTON_BROWSEClick(TObject *Sender)
 {
+        OpenDialogAudioFile->Tag = ODAFT_Notifications;
         OpenDialogAudioFile->Execute();
         STOP->Click();
 }
@@ -1003,10 +1019,15 @@ void __fastcall TWINDOW_SETTINGS::OpenDialogAudioFileCanClose(TObject *Sender,
 {
         String file = OpenDialogAudioFile->FileName;
         if(FileExists(file)) {
-                EDIT_NOTIFICATION_FILE->Text = file;
-                AudioTask *at = new AudioTask(file, this->ofpm->generateNewAudioAlias(), false);
-                printPlaybackRange(at->getStartTime(), at->getEndTime());
-                delete at;
+                if(OpenDialogAudioFile->Tag == ODAFT_Notifications) {
+                        EDIT_NOTIFICATION_FILE->Text = file;
+                        AudioTask *at = new AudioTask(file, this->ofpm->generateNewAudioAlias(), false);
+                        printPlaybackRange(at->getStartTime(), at->getEndTime());
+                        delete at;
+                } else if(OpenDialogAudioFile->Tag == ODAFT_ChatSettings) {
+                        this->chatSettings->setNotificationSoundFile(file);
+                        LABEL_CHATSETTINGS_SELECTEDAUDIOFILE->Caption = file;
+                }
         }
 }
 //---------------------------------------------------------------------------
@@ -1824,6 +1845,44 @@ void __fastcall TWINDOW_SETTINGS::SaveDialog1CanClose(TObject *Sender,
         }
         toSave->SaveToFile(selectedFile);
         delete toSave;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::BUTTON_CHATSETTINGS_BROWSEAUDIOFILEClick(
+      TObject *Sender)
+{
+        OpenDialogAudioFile->Tag = ODAFT_ChatSettings;
+        OpenDialogAudioFile->Execute();
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TWINDOW_SETTINGS::CHECKBOX_CHATSETTINGS_BALLONHINTClick(
+      TObject *Sender)
+{
+        this->chatSettings->setBallonHint(CHECKBOX_CHATSETTINGS_BALLONHINT->Checked);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::BUTTON_CHATSETTINGS_CLEARAUDIOFILEClick(
+      TObject *Sender)
+{
+        this->chatSettings->setNotificationSoundFile("");
+        this->updateChatSettings();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::CHECKBOX_CHATSETTINGS_AUDIONOTIFICATIONClick(
+      TObject *Sender)
+{
+        this->chatSettings->setAudioNotification(CHECKBOX_CHATSETTINGS_AUDIONOTIFICATION->Checked);        
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::TABSHEET_CHATSETTINGSShow(
+      TObject *Sender)
+{
+        updateChatSettings();
 }
 //---------------------------------------------------------------------------
 
