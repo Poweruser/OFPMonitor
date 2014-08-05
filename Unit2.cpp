@@ -299,15 +299,15 @@ void TWINDOW_SETTINGS::updateGames() {
  */
 
 void TWINDOW_SETTINGS::findLanguageFiles() {
-        String flags[8] = { "chinese", "czech", "german",
+        String flags[9] = { "chinese", "czech", "german",
                         "english", "french", "dutch",
-                        "polish", "russian" };
+                        "polish", "russian", "spanish" };
         this->ComboBox1->Clear();
         TSearchRec daten;
         if(0 == FindFirst(this->ofpm->getWorkDir() + "\\OFPM*.lang", faAnyFile, daten)) {
                 try {
                         do {
-                                for(int i = 0; i < 8; i++) {
+                                for(int i = 0; i < 9; i++) {
                                         if(daten.Name.LowerCase().Pos(flags[i])) {
                                                 this->ComboBox1->ItemsEx->AddItem(daten.Name, i, i, -1, -1, NULL);
                                                 break;
