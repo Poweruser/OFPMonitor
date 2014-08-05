@@ -7,6 +7,7 @@
 #include <winsock2.h>
 #include "ChatMessage.h"
 #include "StringSplitter.h"
+#include <DateUtils.hpp>
 //---------------------------------------------------------------------------
 
 #pragma package(smart_init)
@@ -113,11 +114,15 @@ void IRCClient::connectAndListen() {
                                 char buff [1<<12];
                                 this->checkStates = false;
                                 do {
+                                        TDateTime startedReceiving = Now();
                                         while(this->tcpSocket) {
                                                 int receivedBytes = recv(this->tcpSocket, buff, sizeof(buff), 0);
                                                 if(receivedBytes > 0) {
                                                         this->parseReceivedData(String(buff, receivedBytes));
                                                 } else {
+                                                        break;
+                                                }
+                                                if(SecondsBetween(Now(), startedReceiving) >= 30) {
                                                         break;
                                                 }
                                         }
