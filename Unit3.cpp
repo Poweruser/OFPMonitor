@@ -118,10 +118,10 @@ void __fastcall TWINDOW_LOCALGAME::BUTTON_LOCALGAME_STARTClick(
                 if(conf != NULL) {
                         startup = conf->createStartLineLocal(multiPlayer, g->getProfileName());
                 } else {
-                        startup += (" \"-name=" + g->getProfileName() + "\"");
                         if(multiPlayer) {
                                 startup += " -host";
                         }
+                        startup += (" \"-name=" + g->getProfileName() + "\"");
                 }
 
                 WINDOW_LOCALGAME->Close();
