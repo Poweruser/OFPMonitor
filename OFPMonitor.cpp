@@ -43,8 +43,13 @@ void releaseMutex() {
         CloseHandle(hMutex);
 }
 
+TResourceStream* createResourceStreamToDefaultLanguageFile(HINSTANCE hInstance) {
+        return new TResourceStream((int)hInstance, "DefaultLanguage", RT_RCDATA);
+}
+
 WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
+        bool languageFileExists = true;
         if(MyAppAlreadyRunning()) {
                 ProcessFinder *finder = new ProcessFinder();
                 TStringList *startsWith = new TStringList();
@@ -64,9 +69,13 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
         } else {
                 String langFile = ExtractFileDir(Application->ExeName) + "\\OFPM_English.lang";
                 if(!FileExists(langFile)) {
-                        TResourceStream *rs = new TResourceStream((int)hInstance, "DefaultLanguage", RT_RCDATA);
+                        TResourceStream *rs = createResourceStreamToDefaultLanguageFile(hInstance);
                         rs->Position = 0;
-                        rs->SaveToFile(langFile);
+                        try {
+                                rs->SaveToFile(langFile);
+                        } catch(Exception &E) {
+                                languageFileExists = false;
+                        }
                         delete rs;
                 }
 
@@ -110,6 +119,12 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
         ServerFilter *serverFilter = new ServerFilter();
         ChatSettings *chatSettings = new ChatSettings();
         LanguageDB *languageDB = new LanguageDB();
+        if(!languageFileExists) {
+                TResourceStream *rs = createResourceStreamToDefaultLanguageFile(hInstance);
+                rs->Position = 0;
+                languageDB->loadResourceStream(rs);
+                delete rs;
+        }
 
         TStringList *file = new TStringList;
         bool existingSettingsFileWasLoaded = true;

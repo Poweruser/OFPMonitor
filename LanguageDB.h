@@ -26,6 +26,7 @@ class LanguageDB : public Observable, public Observer  {
                 String currentFile;
                 void clearMap();
                 bool loadFile(String file);
+                void fillMapFromStringList(TStringList *list);
 
         public:
                 LanguageDB();
@@ -34,6 +35,7 @@ class LanguageDB : public Observable, public Observer  {
                 String getGuiString(String ident);
                 void setModel(OFPMonitorModel *ofpm);
                 void update(Observable *o);
+                void loadResourceStream(TResourceStream *stream);
 };
 
 //---------------------------------------------------------------------------

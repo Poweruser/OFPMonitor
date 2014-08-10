@@ -82,27 +82,39 @@ void LanguageDB::update(Observable *o) {
 }
 
 bool LanguageDB::loadFile(String file) {
-        String sign = "=";
         bool out = false;
         if(FileExists(file)) {
-                LineParser *lp = new LineParser();
                 TStringList *list = new TStringList;
                 try {
                         list->LoadFromFile(file);
                 } catch (Exception &E) {
                         ShowMessage(E.Message);
+                        delete list;
                         return false;
                 }
-                this->clearMap();                
-                for(int i = 0; i < list->Count; i++) {
-                        if(lp->parseLine(list->Strings[i].Trim(), sign)) {
-                                this->map->AddObject(lp->getIdent(), (TObject*) new String(lp->getValue()));
-                        }
-                }
+                this->fillMapFromStringList(list);
                 list->Clear();
                 delete list;
-                delete lp;
                 out = true;
         }
         return out;
+}
+
+void LanguageDB::fillMapFromStringList(TStringList *list) {
+        LineParser *lp = new LineParser();
+        this->clearMap();
+        String sign = "=";
+        for(int i = 0; i < list->Count; i++) {
+                if(lp->parseLine(list->Strings[i].Trim(), sign)) {
+                        this->map->AddObject(lp->getIdent(), (TObject*) new String(lp->getValue()));
+                }
+        }
+        delete lp;
+}
+
+void LanguageDB::loadResourceStream(TResourceStream *stream) {
+        TStringList *list = new TStringList;
+        list->LoadFromStream(stream);
+        this->fillMapFromStringList(list);
+        delete list;
 }
