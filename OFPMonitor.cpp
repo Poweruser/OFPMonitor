@@ -77,22 +77,23 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
                 String soundDir = ExtractFileDir(Application->ExeName) + "\\sound\\";
                 if(!DirectoryExists(soundDir)) {
-                        CreateDir(soundDir);
-                        for(int i = 1; i <= 5; i++) {
-                                String files[5] = { "creating.wav", "waiting.wav", "briefing.wav", "playing.wav", "debriefing.wav" };
-                                String fileName = soundDir + files[i - 1];
-                                if(!FileExists(fileName)) {
-                                        HMODULE hModule = GetModuleHandle(NULL);
-                                        HRSRC resourceInfo = FindResource(hModule, MAKEINTRESOURCE(i), "WAVE");
-                                        if(hModule && resourceInfo) {
-                                                HGLOBAL data = LoadResource(hModule, resourceInfo);
-                                                DWORD size = SizeofResource(hModule, resourceInfo);
-                                                if(data && size > 0) {
-                                                        TMemoryStream *ms = new TMemoryStream();
-                                                        ms->WriteBuffer(data, size);
-                                                        ms->SaveToFile(fileName);
-                                                        ms->Clear();
-                                                        delete ms;
+                        if(CreateDir(soundDir)) {
+                                for(int i = 1; i <= 5; i++) {
+                                        String files[5] = { "creating.wav", "waiting.wav", "briefing.wav", "playing.wav", "debriefing.wav" };
+                                        String fileName = soundDir + files[i - 1];
+                                        if(!FileExists(fileName)) {
+                                                HMODULE hModule = GetModuleHandle(NULL);
+                                                HRSRC resourceInfo = FindResource(hModule, MAKEINTRESOURCE(i), "WAVE");
+                                                if(hModule && resourceInfo) {
+                                                        HGLOBAL data = LoadResource(hModule, resourceInfo);
+                                                        DWORD size = SizeofResource(hModule, resourceInfo);
+                                                        if(data && size > 0) {
+                                                                TMemoryStream *ms = new TMemoryStream();
+                                                                ms->WriteBuffer(data, size);
+                                                                ms->SaveToFile(fileName);
+                                                                ms->Clear();
+                                                                delete ms;
+                                                        }
                                                 }
                                         }
                                 }
