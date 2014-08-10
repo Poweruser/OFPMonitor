@@ -111,11 +111,15 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
         LanguageDB *languageDB = new LanguageDB();
 
         TStringList *file = new TStringList;
+        bool existingSettingsFileWasLoaded = true;
         if(FileExists(settingsFile)) {
                 try {
                         file->LoadFromFile(settingsFile);
                 } catch (Exception &E) {
-                        ShowMessage(E.Message);
+                        existingSettingsFileWasLoaded = false;
+                        String message = "Unable to load the settings file. Saving of settings is disabled.\nException message: ";
+                        message += E.Message;
+                        ShowMessage(message);
                 }
         }
         sL->readSettings(file);
@@ -143,6 +147,7 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
                 Form1->setGameControl(gameControl);
                 Form1->setLanguageDB(languageDB);
                 Form1->setModel(ofpm);
+                Form1->enableSavingOfSettings(existingSettingsFileWasLoaded);
                 WINDOW_SETTINGS->setLanguageDB(languageDB);
                 WINDOW_LOCALGAME->setLanguageDB(languageDB);
                 WINDOW_INFO->setLanguageDB(languageDB);
@@ -165,16 +170,7 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
                 WINDOW_LOCALGAME->setModel(ofpm);
                 Form1->applyWindowSettings();
                 Application->Run();
-
-                TStringList *settings = new TStringList;
-                ofpm->getSettingsFileEntry(settings);
-                serverFilter->getSettingsFileEntry(settings);
-                gameControl->getSettingsFileEntry(settings);
-                fontSettings->getSettingsFileEntry(settings);
-                windowSettings->getSettingsFileEntry(settings);
-                chatSettings->getSettingsFileEntry(settings);
-                settings->SaveToFile(ofpm->getSettingsFile());
-                delete settings;
+                Form1->saveSettings();
         } catch (Exception &exception) {
                 Application->ShowException(&exception);
         } catch (...) {

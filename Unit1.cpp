@@ -842,6 +842,35 @@ void TForm1::toggleAlwaysOnTop() {
         this->setAlwaysOnTop(!this->windowSettings->isAlwaysOnTopSet());
 }
 
+void TForm1::enableSavingOfSettings(bool enabled) {
+        this->allowSavingOfSettings = enabled;
+}
+
+void TForm1::saveSettings() {
+        if(this->allowSavingOfSettings &&
+           this->ofpm != NULL &&
+           this->serverFilter != NULL &&
+           this->gameControl != NULL &&
+           this->fontSettings != NULL &&
+           this->windowSettings != NULL &&
+           this->chatSettings != NULL) {
+                TStringList *settings = new TStringList;
+                this->ofpm->getSettingsFileEntry(settings);
+                this->serverFilter->getSettingsFileEntry(settings);
+                this->gameControl->getSettingsFileEntry(settings);
+                this->fontSettings->getSettingsFileEntry(settings);
+                this->windowSettings->getSettingsFileEntry(settings);
+                this->chatSettings->getSettingsFileEntry(settings);
+                try {
+                        settings->SaveToFile(ofpm->getSettingsFile());
+                } catch(Exception &E) {
+                        String bla = "bla" + E.Message;
+                        ShowMessage(bla);
+                }
+                delete settings;
+        }
+}
+
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
@@ -863,6 +892,13 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         this->filterChanging = false;
         this->chat = NULL;
         this->chatThreadHandle = NULL;
+        this->ofpm = NULL;
+        this->serverFilter = NULL;
+        this->gameControl = NULL;
+        this->fontSettings = NULL;
+        this->windowSettings = NULL;
+        this->chatSettings = NULL;
+        this->allowSavingOfSettings = true;
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)

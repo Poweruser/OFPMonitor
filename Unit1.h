@@ -294,6 +294,7 @@ private:	// User declarations
         bool filterChanging;
         HANDLE chatThreadHandle;
         HttpsDownloader *downloader;
+        bool allowSavingOfSettings;
 
         float TForm1::checkIfTableRatioZero(float in, TStringGrid *grid);
         void TForm1::updateFilterOfGui();
@@ -334,6 +335,8 @@ public:		// User declarations
         void TForm1::update(Observable *o);
         void TForm1::updateGuiLanguage();
         void TForm1::updateMainMenuSettings();
+        void TForm1::enableSavingOfSettings(bool enabled);
+        void TForm1::saveSettings();
 
 };
 //---------------------------------------------------------------------------
