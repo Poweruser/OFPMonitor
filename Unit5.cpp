@@ -260,37 +260,43 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                         if(String(uT->fs->Size) == fileSize) {
                                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + file);
                                                 String fileOnDisk = uT->getUpdateDir() + "\\" + file;
-                                                uT->fs->SaveToFile(fileOnDisk);
-                                                if(fileOnDisk.SubString(fileOnDisk.Length() - 3, 4) == ".rar") {
-                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   Extracting " + file + " ...");
+                                                try {
+                                                        uT->fs->SaveToFile(fileOnDisk);
+                                                } catch(Exception &E) {
+                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   Could not write " + file + " to disk: " + E.Message);
+                                                }
+                                                if(FileExists(fileOnDisk)) {
+                                                        if(fileOnDisk.SubString(fileOnDisk.Length() - 3, 4) == ".rar") {
+                                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   Extracting " + file + " ...");
 
-                                                        RAROpenArchiveDataEx rarArchive;
-                                                        memset(&rarArchive, 0, sizeof(rarArchive));
-                                                        rarArchive.ArcName = fileOnDisk.c_str();
-                                                        rarArchive.OpenMode = RAR_OM_EXTRACT;
-                                                        rarArchive.CmtBuf = NULL;
-                                                        rarArchive.CmtBufSize = 0;
-                                                        rarArchive.CmtSize = 0;
-                                                        rarArchive.Callback = NULL;
+                                                                RAROpenArchiveDataEx rarArchive;
+                                                                memset(&rarArchive, 0, sizeof(rarArchive));
+                                                                rarArchive.ArcName = fileOnDisk.c_str();
+                                                                rarArchive.OpenMode = RAR_OM_EXTRACT;
+                                                                rarArchive.CmtBuf = NULL;
+                                                                rarArchive.CmtBufSize = 0;
+                                                                rarArchive.CmtSize = 0;
+                                                                rarArchive.Callback = NULL;
 
-                                                        HANDLE rarHandle = RAROpenArchiveEx(&rarArchive);
-                                                        RARHeaderDataEx rarHeader;
-                                                        int retHeader;
-                                                        while((retHeader = RARReadHeaderEx(rarHandle, &rarHeader)) == 0) {
-                                                                RARProcessFile(rarHandle,RAR_EXTRACT,uT->getUpdateDir().c_str(),NULL);
-                                                                uT->filesToInstall->Add(rarHeader.FileName);
-                                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("      " + String(rarHeader.FileName));
+                                                                HANDLE rarHandle = RAROpenArchiveEx(&rarArchive);
+                                                                RARHeaderDataEx rarHeader;
+                                                                int retHeader;
+                                                                while((retHeader = RARReadHeaderEx(rarHandle, &rarHeader)) == 0) {
+                                                                        RARProcessFile(rarHandle,RAR_EXTRACT,uT->getUpdateDir().c_str(),NULL);
+                                                                        uT->filesToInstall->Add(rarHeader.FileName);
+                                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("      " + String(rarHeader.FileName));
+                                                                }
+                                                                if(retHeader == ERAR_BAD_DATA) {
+                                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("      " + String(rarHeader.FileName) + " - archive damaged, extraction aborted");
+                                                                }
+                                                                int ret = RARCloseArchive(rarHandle);
+                                                                if(ret != 0) {
+                                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("close error");
+                                                                }
+                                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   ... done.");
+                                                        } else {
+                                                                uT->filesToInstall->Add(file);
                                                         }
-                                                        if(retHeader == ERAR_BAD_DATA) {
-                                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("      " + String(rarHeader.FileName) + " - archive damaged, extraction aborted");
-                                                        }
-                                                        int ret = RARCloseArchive(rarHandle);
-                                                        if(ret != 0) {
-                                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("close error");
-                                                        }
-                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   ... done.");
-                                                } else {
-                                                        uT->filesToInstall->Add(file);
                                                 }
                                         } else {
                                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + file + " - invalid file size: " + String(uT->fs->Size) + " expected: " + fileSize);
@@ -330,7 +336,10 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
 
                         try {
                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->SaveToFile(uT->getMainDir() + "\\updateLog.txt");
-                        } catch(Exception &E) {}
+                        } catch(Exception &E) {
+                                String message = E.Message;
+                                ShowMessage(message);
+                        }
                         uTracker->updateDone = true;
                 } else {
                         uTracker->updateDone = false;
