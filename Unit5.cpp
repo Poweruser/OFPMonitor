@@ -215,8 +215,19 @@ DWORD WINAPI UpdaterThread_Step1 (LPVOID lpdwThreadParam__ ) {
 
 DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
         UpdateTracker *uTracker = (UpdateTracker*) lpdwThreadParam__;
-                if(uTracker->newVersion && uTracker->answer == mrYes) {
-
+                if(!DirectoryExists(uTracker->getUpdateDir())) {
+                        if(!CreateDir(uTracker->getUpdateDir())) {
+                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Could not create the update folder " + uTracker->getBackupDir());
+                        }
+                }
+                if(!DirectoryExists(uT->getBackupDir())) {
+                        if(!CreateDir(uT->getBackupDir())) {
+                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Could not create the backup folder " + uTracker->getBackupDir());
+                        }
+                }
+                if(uTracker->newVersion && uTracker->answer == mrYes &&
+                   DirectoryExists(uTracker->getUpdateDir()) &&
+                   DirectoryExists(uT->getBackupDir())) {
                         int begin = uTracker->stringList->IndexOf("[DownloadLocation]");
                         int end = uTracker->stringList->IndexOf("[\\DownloadLocation]");
                         String location = "";
@@ -230,9 +241,6 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
 
                         begin = uTracker->stringList->IndexOf("[Release]");
                         end = uTracker->stringList->IndexOf("[\\Release]");
-                        if(!DirectoryExists(uTracker->getUpdateDir())) {
-                                CreateDir(uTracker->getUpdateDir());
-                        }
                         WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Max = end - (begin + 1);
                         WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Position = 0;
                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Downloading files ...");
@@ -309,9 +317,6 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                         }
                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("... done.");
                         if(!failedToDownloadAFile) {
-                                if(!DirectoryExists(uT->getBackupDir())) {
-                                        CreateDir(uT->getBackupDir());
-                                }
 
                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Installing files ...");
                                                 
