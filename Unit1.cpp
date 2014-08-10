@@ -871,6 +871,29 @@ void TForm1::saveSettings() {
         }
 }
 
+bool TForm1::startUp() {
+        if(this->ofpm == NULL) {
+                return false;
+        }
+        this->updateFilterOfGui();
+        this->updateMainMenuSettings();
+        this->ofpm->queryServers();
+        if(this->ofpm->isUpdateOnStartSet()) {
+                WINDOW_UPDATE->checkForNewVersion(false);
+        }
+        if(this->ofpm->isUpdateOfMasterServersOnStartSet()) {
+                this->downloader = new HttpsDownloader("https://raw.githubusercontent.com/wiki/poweruser/ofpmonitor/masterservers.txt");
+                this->downloader->SetObserver(this);
+                this->downloader->start();
+        } else if(!this->ofpm->getTotalServerCount()) {
+                this->ofpm->queryGameSpyList();
+        }
+        if(this->chatSettings != NULL && this->chatSettings->isAutoConnectOn()) {
+                this->MENUITEM_MAINMENU_CHAT_CONNECT->Click();
+        }
+        return true;
+}
+
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
@@ -899,6 +922,7 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         this->windowSettings = NULL;
         this->chatSettings = NULL;
         this->allowSavingOfSettings = true;
+        this->startUpDone = false;
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
@@ -1855,23 +1879,8 @@ void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
 
 void __fastcall TForm1::FormShow(TObject *Sender)
 {
-        if(this->ofpm != NULL) {
-                this->updateMainMenuSettings();
-                this->ofpm->queryServers();
-                if(this->ofpm->isUpdateOnStartSet()) {
-                        WINDOW_UPDATE->checkForNewVersion(false);
-                }
-                if(this->ofpm->isUpdateOfMasterServersOnStartSet()) {
-                        this->downloader = new HttpsDownloader("https://raw.githubusercontent.com/wiki/poweruser/ofpmonitor/masterservers.txt");
-                        this->downloader->SetObserver(this);
-                        this->downloader->start();
-                } else if(!this->ofpm->getTotalServerCount()) {
-                        this->ofpm->queryGameSpyList();
-                }
-        }
-        this->updateFilterOfGui();
-        if(this->chatSettings->isAutoConnectOn()) {
-                this->MENUITEM_MAINMENU_CHAT_CONNECT->Click();
+        if(!this->startUpDone) {
+                this->startUpDone = Form1->startUp();
         }
 }
 //---------------------------------------------------------------------------

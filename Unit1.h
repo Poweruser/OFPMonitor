@@ -295,6 +295,7 @@ private:	// User declarations
         HANDLE chatThreadHandle;
         HttpsDownloader *downloader;
         bool allowSavingOfSettings;
+        bool startUpDone;
 
         float TForm1::checkIfTableRatioZero(float in, TStringGrid *grid);
         void TForm1::updateFilterOfGui();
@@ -316,6 +317,7 @@ private:	// User declarations
         void TForm1::copyToClipBoard (String msg);
         void TForm1::ChatNotification(String msg);
         bool TForm1::isInForeground();
+        bool TForm1::startUp();
 
 public:		// User declarations
         void TForm1::readServerList(list<ServerConfigEntry> &in);
