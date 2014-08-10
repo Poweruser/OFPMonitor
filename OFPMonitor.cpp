@@ -99,7 +99,9 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
                                                         if(data && size > 0) {
                                                                 TMemoryStream *ms = new TMemoryStream();
                                                                 ms->WriteBuffer(data, size);
-                                                                ms->SaveToFile(fileName);
+                                                                try {
+                                                                        ms->SaveToFile(fileName);
+                                                                } catch(Exception &E) {}
                                                                 ms->Clear();
                                                                 delete ms;
                                                         }

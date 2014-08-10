@@ -328,7 +328,9 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("... done.");
                         }
 
-                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->SaveToFile(uT->getMainDir() + "\\updateLog.txt");
+                        try {
+                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->SaveToFile(uT->getMainDir() + "\\updateLog.txt");
+                        } catch(Exception &E) {}
                         uTracker->updateDone = true;
                 } else {
                         uTracker->updateDone = false;
