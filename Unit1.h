@@ -32,6 +32,7 @@
 #include <Dialogs.hpp>
 #include "CoolTrayIcon.hpp"
 #include <ImgList.hpp>
+#include <DateUtils.hpp>
 
 //---------------------------------------------------------------------------
 
@@ -295,6 +296,7 @@ private:	// User declarations
         HANDLE chatThreadHandle;
         HttpsDownloader *downloader;
         bool allowSavingOfSettings;
+        TDateTime lastAutoSave;
         bool startUpDone;
 
         float TForm1::checkIfTableRatioZero(float in, TStringGrid *grid);

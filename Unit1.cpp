@@ -864,6 +864,7 @@ void TForm1::saveSettings() {
                 try {
                         settings->SaveToFile(ofpm->getSettingsFile());
                 } catch(Exception &E) {}
+                this->lastAutoSave = Now();
                 delete settings;
         }
 }
@@ -920,6 +921,7 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         this->chatSettings = NULL;
         this->allowSavingOfSettings = true;
         this->startUpDone = false;
+        this->lastAutoSave = Now();
 }
 //---------------------------------------------------------------------------
 __fastcall TForm1::TForm1(TComponent* Owner)
@@ -963,6 +965,9 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
         this->filterChanged(false);
         if(this->gameControl != NULL) {
                 this->gameControl->ProcessMessages();
+        }
+        if(this->allowSavingOfSettings && MinutesBetween(Now(), this->lastAutoSave) >= 30) {
+                this->saveSettings();
         }
 }
 //---------------------------------------------------------------------------
