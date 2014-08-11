@@ -863,10 +863,7 @@ void TForm1::saveSettings() {
                 this->chatSettings->getSettingsFileEntry(settings);
                 try {
                         settings->SaveToFile(ofpm->getSettingsFile());
-                } catch(Exception &E) {
-                        String bla = "bla" + E.Message;
-                        ShowMessage(bla);
-                }
+                } catch(Exception &E) {}
                 delete settings;
         }
 }
