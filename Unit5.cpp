@@ -76,7 +76,7 @@ class UpdateTracker {
                 this->answer = mrNo;
                 this->step = 1;
                 this->error = false;
-                this->errorMsg = "default";
+                this->errorMsg = "";
                 this->http = new TIdHTTP(WINDOW_UPDATE);
                 this->ssl = new TIdSSLIOHandlerSocketOpenSSL(WINDOW_UPDATE);
                 this->http->HandleRedirects = true;
@@ -161,7 +161,9 @@ class UpdateTracker {
 
         void errorHappend(String msg) {
                 this->error = true;
-                this->errorMsg = msg;
+                if(this->errorMsg.IsEmpty()) {
+                        this->errorMsg = msg;
+                }
                 this->newVersion = false;
         }
 
@@ -217,12 +219,16 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
         UpdateTracker *uTracker = (UpdateTracker*) lpdwThreadParam__;
                 if(!DirectoryExists(uTracker->getUpdateDir())) {
                         if(!CreateDir(uTracker->getUpdateDir())) {
-                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Could not create the update folder " + uTracker->getBackupDir());
+                                String error = "Could not create the update folder " + uTracker->getBackupDir();
+                                uTracker->errorHappend(error);
+                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add(error);
                         }
                 }
                 if(!DirectoryExists(uT->getBackupDir())) {
                         if(!CreateDir(uT->getBackupDir())) {
-                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Could not create the backup folder " + uTracker->getBackupDir());
+                                String error = "Could not create the backup folder " + uTracker->getBackupDir();
+                                uTracker->errorHappend(error);
+                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add(error);
                         }
                 }
                 if(uTracker->newVersion && uTracker->answer == mrYes &&
@@ -261,7 +267,9 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                                 uT->http->Get(target, uT->fs);
                                                 success = true;
                                         } catch (EIdException &E) {
-                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   Could not download: " + target + " - Reason: " + E.Message);
+                                                String error = "Could not download: " + target + " - Reason: " + E.Message;
+                                                uT->errorHappend(error);
+                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + error);
                                         }
                                 }
                                 if(success) {
@@ -271,7 +279,9 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                                 try {
                                                         uT->fs->SaveToFile(fileOnDisk);
                                                 } catch(Exception &E) {
-                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   Could not write " + file + " to disk: " + E.Message);
+                                                        String error = "Error while writing " + file + " to disk: " + E.Message;
+                                                        uT->errorHappend(error);
+                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + error);
                                                 }
                                                 if(FileExists(fileOnDisk)) {
                                                         if(fileOnDisk.SubString(fileOnDisk.Length() - 3, 4) == ".rar") {
@@ -295,7 +305,9 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                                                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("      " + String(rarHeader.FileName));
                                                                 }
                                                                 if(retHeader == ERAR_BAD_DATA) {
-                                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("      " + String(rarHeader.FileName) + " - archive damaged, extraction aborted");
+                                                                        String error = String(rarHeader.FileName) + " - Archive damaged, extraction aborted";
+                                                                        uT->errorHappend(error);
+                                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("      " + error);
                                                                 }
                                                                 int ret = RARCloseArchive(rarHandle);
                                                                 if(ret != 0) {
@@ -307,7 +319,9 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                                         }
                                                 }
                                         } else {
-                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + file + " - invalid file size: " + String(uT->fs->Size) + " expected: " + fileSize);
+                                                String error = "Invalid file size for file " + file + " (" + String(uT->fs->Size) + " Bytes). Expected size: " + fileSize + " Bytes";
+                                                uT->errorHappend(error);
+                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + error);
                                         }
                                 } else {
                                         failedToDownloadAFile = true;
@@ -342,12 +356,8 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                         try {
                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->SaveToFile(uT->getMainDir() + "\\updateLog.txt");
                         } catch(Exception &E) {
-                                String message = E.Message;
-                                ShowMessage(message);
+                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Error while saving the update log: " + E.Message);
                         }
-                        uTracker->updateDone = true;
-                } else {
-                        uTracker->updateDone = false;
                 }
                 uTracker->updateDone = true;
                 uTracker->step++;
@@ -414,7 +424,7 @@ void __fastcall TWINDOW_UPDATE::Timer1Timer(TObject *Sender)
                                 }
                         } else {
                                 if(uT->userTriggered) {
-                                        if(uT->error) {
+                                        if(uT->didErrorHappen()) {
                                                 ShowMessage("Error: " + uT->errorMsg);
                                                 uT->error = false;
                                         } else {
@@ -426,12 +436,25 @@ void __fastcall TWINDOW_UPDATE::Timer1Timer(TObject *Sender)
                 } else if(uT->step == 3) {
                         if(uT->updateDone) {
                                 Timer1->Enabled = false;
-                                String targetExe = uT->getApplicationExe();
-                                String targetDir = uT->getMainDir();
-                                delete uT;
-                                releaseMutex();
-                                Form1->Close();
-                                ShellExecute(NULL, "open", PChar(targetExe.c_str()), PChar(""), PChar(targetDir.c_str()), SW_NORMAL);
+                                if(uT->didErrorHappen()) {
+                                        String message = "Update failed!\n\nFirst error: ";
+                                        message += uT->errorMsg;
+                                        message += "\nCheck the update log file " + uT->getMainDir() + "\\updateLog.txt for other errors as well.";
+                                        ShowMessage(message);
+                                        WINDOW_UPDATE->Hide();
+                                        Form1->Enabled = true;
+                                        WINDOW_SETTINGS->BUTTON_UPDATE->Enabled = true;
+                                        Form1->CoolTrayIcon1->IconVisible = true;
+                                        Form1->Show();
+                                } else {
+                                        String targetExe = uT->getApplicationExe();
+                                        String targetDir = uT->getMainDir();
+                                        delete uT;
+                                        uT = NULL;
+                                        releaseMutex();
+                                        Form1->Close();
+                                        ShellExecute(NULL, "open", PChar(targetExe.c_str()), PChar(""), PChar(targetDir.c_str()), SW_NORMAL);
+                                }
                         }
                 }
         }
@@ -443,6 +466,7 @@ void __fastcall TWINDOW_UPDATE::FormClose(TObject *Sender,
 {
         if(uT != NULL) {
                 delete uT;
+                uT = NULL;
         }
 }
 //---------------------------------------------------------------------------
