@@ -1567,6 +1567,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_ADDClick(TObject *Sender)
                 if(!value.IsEmpty()) {
                         int defaultGameport = 2302;
                         Address *add = new Address();
+                        value = value.Trim();
                         if(add->readAddress(value, defaultGameport, false)) {
                                 this->ofpm->addServer(add->getAddress());
                         } else {
