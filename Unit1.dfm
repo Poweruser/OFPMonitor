@@ -959,22 +959,6 @@ object Form1: TForm1
     end
     object MENUITEM_MAINMENU_SERVERLIST: TMenuItem
       Caption = 'Server list'
-      object MENUITEM_MAINMENU_SERVERLIST_GAMESPY: TMenuItem
-        AutoCheck = True
-        Caption = 'Query Gamespy'
-        Enabled = False
-        Visible = False
-        OnClick = MENUITEM_MAINMENU_SERVERLIST_GAMESPYClick
-      end
-      object MENUITEM_MAINMENU_SERVERLIST_POWERSERVER: TMenuItem
-        AutoCheck = True
-        Caption = 'Query community servers'
-        Checked = True
-        OnClick = MENUITEM_MAINMENU_SERVERLIST_POWERSERVERClick
-      end
-      object N1: TMenuItem
-        Caption = '-'
-      end
       object MENUITEM_MAINMENU_GETNEWSERVERLIST: TMenuItem
         Caption = 'Get new Server list '
         ShortCut = 116

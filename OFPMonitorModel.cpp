@@ -4,7 +4,6 @@
 #pragma hdrstop
 
 #include "OFPMonitorModel.h"
-#include ".\gamespy\msquery_header.h"
 #include "ConfigReader.h"
 #include "StringSplitter.h"
 #include <windows.h>
@@ -31,8 +30,6 @@ OFPMonitorModel::OFPMonitorModel(String settingsFile, ServerList *serverList) {
         this->customNotifications = false;
         this->checkUpdateAtStart = true;
         this->checkMasterServersAtStart = true;
-        this->queryGamespy = false;
-        this->queryPowerserver = true;
         this->interval = 5;
         this->level = Moderate;
         this->settingsfile = settingsFile;
@@ -252,8 +249,6 @@ void OFPMonitorModel::readSettings(TStringList *file) {
         general->add(new ConfigEntry("BandwidthUsage", dtInt, (void*)(&(this->level))));
         general->add(new ConfigEntry("checkUpdateAtStart", dtBool, (void*)(&(this->checkUpdateAtStart))));
         general->add(new ConfigEntry("checkMasterServersAtStart", dtBool, (void*)(&(this->checkMasterServersAtStart))));
-        general->add(new ConfigEntry("queryGamespy", dtBool, (void*)(&(this->queryGamespy))));
-        general->add(new ConfigEntry("queryPowerserver", dtBool, (void*)(&(this->queryPowerserver))));
         general->add(new ConfigEntry("Volume", dtInt, (void*)(&(this->volume))));
         general->scan(file, 0);
         delete general;
@@ -600,70 +595,28 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
                 if(key.IsEmpty()) {
                         continue;
                 }
-                if(main->isQueryOfPowerserverSet()) {
-                        TStringList *cms = new TStringList;
-                        main->getMasterServers(cms);
-                        for(int i = 0; i < cms->Count; i++) {
-                                String serverdomain = cms->Strings[i];
-                                TStringList *returnList = NULL;
-                                ServerListLoader *loader = new ServerListLoader(5000);
-                                try {
-                                        returnList = loader->getServerList(serverdomain, POWERSERVER_QUERYPORT, token, key);
-                                } catch (Exception &E) {
-                                        ShowMessage(E.Message);
-                                }
-                                if(returnList != NULL) {
-                                        for(int j = 0; j < returnList->Count; j++) {
-                                                String address = returnList->Strings[j];
-                                                ServerConfigEntry *seI = new ServerConfigEntry(address.Trim());
-                                                gameSpyList->AddObject(address.Trim(), (TObject*) seI);
-                                        }
-                                        delete returnList;
-                                }
-                                delete loader;
+                TStringList *cms = new TStringList;
+                main->getMasterServers(cms);
+                for(int i = 0; i < cms->Count; i++) {
+                        String serverdomain = cms->Strings[i];
+                        TStringList *returnList = NULL;
+                        ServerListLoader *loader = new ServerListLoader(5000);
+                        try {
+                                returnList = loader->getServerList(serverdomain, POWERSERVER_QUERYPORT, token, key);
+                        } catch (Exception &E) {
+                                ShowMessage(E.Message);
                         }
-                        delete cms;
+                        if(returnList != NULL) {
+                                for(int j = 0; j < returnList->Count; j++) {
+                                        String address = returnList->Strings[j];
+                                        ServerConfigEntry *seI = new ServerConfigEntry(address.Trim());
+                                        gameSpyList->AddObject(address.Trim(), (TObject*) seI);
+                                }
+                                delete returnList;
+                        }
+                        delete loader;
                 }
-
-                /*
-                  When it is certain that no replacement for gamespy will emerge using their servers
-                  and protocol, then this query code can be removed. For now it is just disabled
-
-                if(main->isQueryOfGamespySet()) {
-                        dnsdb(NULL);
-                        strcpy(gamestr, token.c_str());
-                        gslist_step_1(gamestr, filter);
-                        peer.sin_addr.s_addr = msip;
-                        peer.sin_port        = htons(msport);
-                        peer.sin_family      = AF_INET;
-
-                        buff = (unsigned char *) malloc(BUFFSZ + 1);
-                        //  if(!buff) std_err();
-                        dynsz = BUFFSZ;
-                        multigamename = gamestr;
-                        multigamenamep = strchr((char *)gamestr, ',');
-                        if(multigamenamep) {
-                                *multigamenamep = 0;
-                        }
-                        sd = gslist_step_2(&peer, buff, secure, gamestr, validate, filter, &enctypex_data);
-                        if(sd != -1) {
-                                ipport = gslist_step_3(sd, validate, &enctypex_data, &len, &buff, &dynsz);
-                                itsok = gslist_step_4(secure, buff, &enctypex_data, &ipport, &len);
-                                ipbuffer = ipport;
-                                while(len >= 6) {
-                                        ipc = myinetntoa(ipport->ip);
-                                        if(!enctypex_query[0]) {
-                                                String s;
-                                                s.sprintf("%15s:%d", ipc, ntohs(ipport->port));
-                                                ServerConfigEntry *seI = new ServerConfigEntry(s.Trim());
-                                                gameSpyList->AddObject(s.Trim(), (TObject*) seI);
-                                        }
-                                        ipport++;
-                                        len -= 6;
-                                }
-                        }
-                }
-                */
+                delete cms;
         }
         if(gameSpyList->Count > 0) {
                 main->removeOfflineServers();
@@ -741,22 +694,6 @@ void OFPMonitorModel::setUpdateOfMasterServersOnStart(bool on) {
         this->checkMasterServersAtStart = on;
 }
 
-bool OFPMonitorModel::isQueryOfGamespySet() {
-        return this->queryGamespy;
-}
-
-bool OFPMonitorModel::isQueryOfPowerserverSet() {
-        return this->queryPowerserver;
-}
-
-void OFPMonitorModel::setQueryOfGamespy(bool on) {
-        this->queryGamespy = on;
-}
-
-void OFPMonitorModel::setQueryOfPowerserver(bool on) {
-        this->queryPowerserver = on;
-}
-
 String OFPMonitorModel::generateNewAudioAlias() {
         this->aliasCounter++;
         return ("OFPM_NOTIFICATION_" + IntToStr(this->aliasCounter));
@@ -812,8 +749,6 @@ void OFPMonitorModel::getSettingsFileEntry(TStringList *settings) {
         settings->Add("BandwidthUsage = " + IntToStr(this->level));
         settings->Add("checkUpdateAtStart = " + IntToStr(this->checkUpdateAtStart));
         settings->Add("checkMasterServersAtStart = " + IntToStr(this->checkMasterServersAtStart));
-        settings->Add("queryGamespy = " + IntToStr(this->queryGamespy));
-        settings->Add("queryPowerserver = " + IntToStr(this->queryPowerserver));
         settings->Add("Volume = " + IntToStr(this->volume));
         settings->Add("[\\General]");
         for(int i = 0; i < GAMESTOTAL; i++) {

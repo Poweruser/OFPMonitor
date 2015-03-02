@@ -171,9 +171,6 @@ __published:	// IDE-managed Components
         TImageList *ImageListBandwidth;
         TImageList *ImageListPinned;
         TMenuItem *MENUITEM_MAINMENU_GETNEWSERVERLIST;
-        TMenuItem *MENUITEM_MAINMENU_SERVERLIST_GAMESPY;
-        TMenuItem *MENUITEM_MAINMENU_SERVERLIST_POWERSERVER;
-        TMenuItem *N1;
         TGroupBox *GROUPBOX_OVERWRITE_MASTERSERVER;
         TCheckBox *CHECKBOX_GAMECONTROL_OVERWRITE_MASTERSERVER;
         TComboBox *COMBOBOX_OVERWRITE_MASTERSERVER;
@@ -273,9 +270,6 @@ __published:	// IDE-managed Components
         void __fastcall PageControl1DrawTab(TCustomTabControl *Control,
           int TabIndex, const TRect &Rect, bool Active);
         void __fastcall MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender);
-        void __fastcall MENUITEM_MAINMENU_SERVERLIST_GAMESPYClick(TObject *Sender);
-        void __fastcall MENUITEM_MAINMENU_SERVERLIST_POWERSERVERClick(
-          TObject *Sender);
         void __fastcall COMBOBOX_OVERWRITE_MASTERSERVERChange(
           TObject *Sender);
         void __fastcall CHECKBOX_GAMECONTROL_OVERWRITE_MASTERSERVERClick(TObject *Sender);
@@ -338,7 +332,6 @@ public:		// User declarations
         __fastcall TForm1(TComponent* Owner);
         void TForm1::update(Observable *o);
         void TForm1::updateGuiLanguage();
-        void TForm1::updateMainMenuSettings();
         void TForm1::enableSavingOfSettings(bool enabled);
         void TForm1::saveSettings();
 

@@ -190,8 +190,6 @@ void TForm1::updateGuiLanguage() {
                 this->MENUITEM_MAINMENU_FONT->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_FONT->Name);
                 this->MENUITEM_MAINMENU_GETNEWSERVERLIST->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_GETNEWSERVERLIST->Name);
                 this->MENUITEM_MAINMENU_SERVERLIST->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_SERVERLIST->Name);
-                this->MENUITEM_MAINMENU_SERVERLIST_GAMESPY->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_SERVERLIST_GAMESPY->Name);
-                this->MENUITEM_MAINMENU_SERVERLIST_POWERSERVER->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_SERVERLIST_POWERSERVER->Name);
                 this->MENUITEM_POPUP_AUTOJOIN_SAMEMODS->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_AUTOJOIN_SAMEMODS->Name);
                 this->MENUITEM_POPUP_JOIN->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_JOIN->Name);
                 this->MENUITEM_POPUP_AUTOJOIN->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_AUTOJOIN->Name);
@@ -263,11 +261,6 @@ void TForm1::updateFontOfGui(TFont *font) {
         WINDOW_SETTINGS->Font->Charset = font->Charset;
         WINDOW_LOCALGAME->Font->Charset = font->Charset;
         WINDOW_UPDATE->Font->Charset = font->Charset;
-}
-
-void TForm1::updateMainMenuSettings() {
-        this->MENUITEM_MAINMENU_SERVERLIST_GAMESPY->Checked = this->ofpm->isQueryOfGamespySet();
-        this->MENUITEM_MAINMENU_SERVERLIST_POWERSERVER->Checked = this->ofpm->isQueryOfPowerserverSet();
 }
 
 void TForm1::updateFilterOfGui() {
@@ -874,7 +867,6 @@ bool TForm1::startUp() {
                 return false;
         }
         this->updateFilterOfGui();
-        this->updateMainMenuSettings();
         this->ofpm->queryServers();
         if(this->ofpm->isUpdateOnStartSet()) {
                 WINDOW_UPDATE->checkForNewVersion(false);
@@ -2033,19 +2025,6 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
                 MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = false;
                 this->ofpm->queryGameSpyList();
         }
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TForm1::MENUITEM_MAINMENU_SERVERLIST_GAMESPYClick(TObject *Sender)
-{
-        this->ofpm->setQueryOfGamespy(MENUITEM_MAINMENU_SERVERLIST_GAMESPY->Checked);
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TForm1::MENUITEM_MAINMENU_SERVERLIST_POWERSERVERClick(
-      TObject *Sender)
-{
-        this->ofpm->setQueryOfPowerserver(MENUITEM_MAINMENU_SERVERLIST_POWERSERVER->Checked);
 }
 //---------------------------------------------------------------------------
 

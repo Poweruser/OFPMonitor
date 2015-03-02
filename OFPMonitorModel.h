@@ -64,10 +64,6 @@ class OFPMonitorModel : public Observable {
                 bool isUpdateOnStartSet();
                 bool isUpdateOfMasterServersOnStartSet();
                 void setUpdateOfMasterServersOnStart(bool on);
-                bool isQueryOfGamespySet();
-                bool isQueryOfPowerserverSet();
-                void setQueryOfGamespy(bool on);
-                void setQueryOfPowerserver(bool on);
                 void addMasterServer(String domain);
                 void removeMasterServer(String domain);
                 void getMasterServers(TStringList *domains);
@@ -102,8 +98,6 @@ class OFPMonitorModel : public Observable {
                 bool customNotifications;
                 bool checkUpdateAtStart;
                 bool checkMasterServersAtStart;
-                bool queryGamespy;
-                bool queryPowerserver;
                 Game *games[GAMESTOTAL];
                 String settingsfile;
                 String languagefile;

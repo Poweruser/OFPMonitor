@@ -19,7 +19,19 @@ TWINDOW_SETTINGS *WINDOW_SETTINGS;
 
 enum OPENDIALOG_AUDIOFILE_TAG { ODAFT_Notifications, ODAFT_ChatSettings };
 
-extern unsigned long resolv(char *host) ; 
+unsigned long resolv(char *host) {
+    struct      hostent *hp;
+    unsigned long   host_ip;
+
+    host_ip = inet_addr(host);
+    if(host_ip == htonl(INADDR_NONE)) {
+        hp = gethostbyname(host);
+        if(!hp) {
+		return INADDR_NONE;
+        } else host_ip = *(unsigned long *)(hp->h_addr);
+    }
+    return(host_ip);
+}
 
 void TWINDOW_SETTINGS::setModel(OFPMonitorModel *ofpm) {
         this->ofpm = ofpm;
