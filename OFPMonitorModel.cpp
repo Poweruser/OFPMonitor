@@ -41,6 +41,7 @@ OFPMonitorModel::OFPMonitorModel(String settingsFile, ServerList *serverList) {
         this->volume = 100;
         this->shuttingDown = false;
         this->gameSpyUpdateDone = true;
+        this->dropOfflineServersOnUpdate = true;
         this->aliasCounter = 0;
         this->processing = false;
 }
@@ -635,8 +636,13 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
 }
 
 void OFPMonitorModel::queryGameSpyList() {
+        this->queryGameSpyList(true);
+}
+
+void OFPMonitorModel::queryGameSpyList(bool dropOfflineServers) {
         if(this->isGameSpyUpdateDone()) {
                 this->gameSpyUpdateDone = false;
+                this->dropOfflineServersOnUpdate = dropOfflineServersOnUpdate;
                 this->getServerListThread = CreateThread(0, 0, gamespyQuery_ThreadProc, (void*)this, 0, 0);
         }
 }
@@ -739,6 +745,9 @@ bool OFPMonitorModel::removeServer(String address) {
 
 void OFPMonitorModel::setGameSpyUpdateDone(bool done) {
         this->gameSpyUpdateDone = done;
+        if(done) {
+                this->dropOfflineServersOnUpdate = true;
+        }
 }
 
 void OFPMonitorModel::getSettingsFileEntry(TStringList *settings) {
@@ -777,7 +786,9 @@ AudioPlayer* OFPMonitorModel::getAudioPlayer() {
 }
 
 void OFPMonitorModel::removeOfflineServers() {
-        this->servers->removeOfflineServers();
+        if(this->dropOfflineServersOnUpdate) {
+                this->servers->removeOfflineServers();
+        }
 }
 
 void OFPMonitorModel::addMasterServer(String domain) {

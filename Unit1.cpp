@@ -97,9 +97,7 @@ void TForm1::update(Observable *o) {
                         this->ofpm->parseMasterServerFile(list);
                         delete list;
                         this->downloader->RemoveObserver(this);
-                        if(!this->ofpm->getTotalServerCount()) {
-                                this->ofpm->queryGameSpyList();
-                        }
+                        this->ofpm->queryGameSpyList(false);
                 }
                 delete this->downloader;
                 this->downloader = NULL;
@@ -875,8 +873,8 @@ bool TForm1::startUp() {
                 this->downloader = new HttpsDownloader("https://raw.githubusercontent.com/wiki/poweruser/ofpmonitor/masterservers.txt");
                 this->downloader->SetObserver(this);
                 this->downloader->start();
-        } else if(!this->ofpm->getTotalServerCount()) {
-                this->ofpm->queryGameSpyList();
+        } else {
+                this->ofpm->queryGameSpyList(false);
         }
         if(this->chatSettings != NULL && this->chatSettings->isAutoConnectOn()) {
                 this->MENUITEM_MAINMENU_CHAT_CONNECT->Click();

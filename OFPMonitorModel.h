@@ -54,6 +54,7 @@ class OFPMonitorModel : public Observable {
                 int getNotificationCount();
                 TColor getMarkingColor(int serverID);
                 void queryGameSpyList();
+                void queryGameSpyList(bool dropOfflineServers);
                 bool isGameSpyUpdateDone();
                 void getAllAppTitlesOfGames(TStringList *list);
                 void getAllExesOfGames(TStringList *list, bool includeFWatch);
@@ -105,6 +106,7 @@ class OFPMonitorModel : public Observable {
                 int volume;
                 bool shuttingDown;
                 bool gameSpyUpdateDone;
+                bool dropOfflineServersOnUpdate;
                 int aliasCounter;
 };
 
