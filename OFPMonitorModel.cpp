@@ -40,7 +40,7 @@ OFPMonitorModel::OFPMonitorModel(String settingsFile, ServerList *serverList) {
         }
         this->volume = 100;
         this->shuttingDown = false;
-        this->gameSpyUpdateDone = true;
+        this->serverListUpdateDone = true;
         this->dropOfflineServersOnUpdate = true;
         this->aliasCounter = 0;
         this->processing = false;
@@ -556,7 +556,7 @@ TColor OFPMonitorModel::getMarkingColor(int serverID) {
         return out;
 }
 
-DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
+DWORD WINAPI masterServerQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
         OFPMonitorModel *main = (OFPMonitorModel*) lpdwThreadParam__; 
         TStringList *updateList = new TStringList;
         updateList->Sorted = true;
@@ -632,24 +632,24 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
 
         delete updateList;
         delete selectedGames;
-        main->setGameSpyUpdateDone(true);
+        main->setServerListUpdateDone(true);
         return 0;
 }
 
-void OFPMonitorModel::queryGameSpyList() {
-        this->queryGameSpyList(true);
+void OFPMonitorModel::queryNewServerList() {
+        this->queryNewServerList(true);
 }
 
-void OFPMonitorModel::queryGameSpyList(bool dropOfflineServers) {
-        if(this->isGameSpyUpdateDone()) {
-                this->gameSpyUpdateDone = false;
+void OFPMonitorModel::queryNewServerList(bool dropOfflineServers) {
+        if(this->isServerListUpdateDone()) {
+                this->serverListUpdateDone = false;
                 this->dropOfflineServersOnUpdate = dropOfflineServersOnUpdate;
-                this->getServerListThread = CreateThread(0, 0, gamespyQuery_ThreadProc, (void*)this, 0, 0);
+                this->getServerListThread = CreateThread(0, 0, masterServerQuery_ThreadProc, (void*)this, 0, 0);
         }
 }
 
-bool OFPMonitorModel::isGameSpyUpdateDone() {
-        return this->gameSpyUpdateDone;
+bool OFPMonitorModel::isServerListUpdateDone() {
+        return this->serverListUpdateDone;
 }
 
 void OFPMonitorModel::getAllAppTitlesOfGames(TStringList *titleList) {
@@ -744,8 +744,8 @@ bool OFPMonitorModel::removeServer(String address) {
         return (this->servers->removeServer(address));
 }
 
-void OFPMonitorModel::setGameSpyUpdateDone(bool done) {
-        this->gameSpyUpdateDone = done;
+void OFPMonitorModel::setServerListUpdateDone(bool done) {
+        this->serverListUpdateDone = done;
         if(done) {
                 this->dropOfflineServersOnUpdate = true;
         }

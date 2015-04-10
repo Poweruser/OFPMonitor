@@ -52,7 +52,7 @@ void TForm1::update(Observable *o) {
                 this->updateFilterOfGui();
         } else if(o == this->ofpm) {
                 StatusBar1->Repaint();
-                if(!this->ofpm->isGameSpyUpdateDone()) {
+                if(!this->ofpm->isServerListUpdateDone()) {
                         this->skipTimerWaitInterval();
                 }
         } else if(o == this->chat && this->chat != NULL) {
@@ -100,7 +100,7 @@ void TForm1::update(Observable *o) {
                         this->ofpm->parseMasterServerFile(list);
                         delete list;
                         this->downloader->RemoveObserver(this);
-                        this->ofpm->queryGameSpyList(false);
+                        this->ofpm->queryNewServerList(false);
                 }
                 delete this->downloader;
                 this->downloader = NULL;
@@ -877,7 +877,7 @@ bool TForm1::startUp() {
                 this->downloader->SetObserver(this);
                 this->downloader->start();
         } else {
-                this->ofpm->queryGameSpyList(false);
+                this->ofpm->queryNewServerList(false);
         }
         if(this->chatSettings != NULL && this->chatSettings->isAutoConnectOn()) {
                 this->MENUITEM_MAINMENU_CHAT_CONNECT->Click();
@@ -958,7 +958,7 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
                         Timer1->Tag = 0;
                         this->gameControl->checkCurrentData();
                 }
-                MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = this->ofpm->isGameSpyUpdateDone();
+                MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = this->ofpm->isServerListUpdateDone();
         }
         this->filterChanged(false);
         if(this->gameControl != NULL) {
@@ -2027,9 +2027,9 @@ void __fastcall TForm1::PageControl1DrawTab(TCustomTabControl *Control,
 
 void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
 {
-        if(this->ofpm->isGameSpyUpdateDone()) {
+        if(this->ofpm->isServerListUpdateDone()) {
                 MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = false;
-                this->ofpm->queryGameSpyList();
+                this->ofpm->queryNewServerList();
         }
 }
 //---------------------------------------------------------------------------

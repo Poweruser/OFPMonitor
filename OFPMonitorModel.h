@@ -53,9 +53,9 @@ class OFPMonitorModel : public Observable {
                 void removeNotification(CustomNotification *notif);
                 int getNotificationCount();
                 TColor getMarkingColor(int serverID);
-                void queryGameSpyList();
-                void queryGameSpyList(bool dropOfflineServers);
-                bool isGameSpyUpdateDone();
+                void queryNewServerList();
+                void queryNewServerList(bool dropOfflineServers);
+                bool isServerListUpdateDone();
                 void getAllAppTitlesOfGames(TStringList *list);
                 void getAllExesOfGames(TStringList *list, bool includeFWatch);
                 String getWorkDir();
@@ -72,7 +72,7 @@ class OFPMonitorModel : public Observable {
                 void setCustomNotifications(bool on);
                 void toggleUpdateOnStart(bool on);
                 bool areCustomNotificationsOn();
-                void setGameSpyUpdateDone(bool done);
+                void setServerListUpdateDone(bool done);
                 void getSettingsFileEntry(TStringList *settings);
                 AudioPlayer* getAudioPlayer();
                 void parseMasterServerFile(TStringList *list);
@@ -105,7 +105,7 @@ class OFPMonitorModel : public Observable {
                 BandwidthUsage level;
                 int volume;
                 bool shuttingDown;
-                bool gameSpyUpdateDone;
+                bool serverListUpdateDone;
                 bool dropOfflineServersOnUpdate;
                 int aliasCounter;
 };
