@@ -558,9 +558,9 @@ TColor OFPMonitorModel::getMarkingColor(int serverID) {
 
 DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
         OFPMonitorModel *main = (OFPMonitorModel*) lpdwThreadParam__; 
-        TStringList *gameSpyList = new TStringList;
-        gameSpyList->Sorted = true;
-        gameSpyList->Duplicates = dupIgnore;
+        TStringList *updateList = new TStringList;
+        updateList->Sorted = true;
+        updateList->Duplicates = dupIgnore;
 
         TStringList *selectedGames = new TStringList;
         selectedGames->Sorted = true;
@@ -611,7 +611,7 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
                                 for(int j = 0; j < returnList->Count; j++) {
                                         String address = returnList->Strings[j];
                                         ServerConfigEntry *seI = new ServerConfigEntry(address.Trim());
-                                        gameSpyList->AddObject(address.Trim(), (TObject*) seI);
+                                        updateList->AddObject(address.Trim(), (TObject*) seI);
                                 }
                                 delete returnList;
                         }
@@ -619,18 +619,18 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
                 }
                 delete cms;
         }
-        if(gameSpyList->Count > 0) {
+        if(updateList->Count > 0) {
                 main->removeOfflineServers();
-                while(gameSpyList->Count > 0) {
-                        ServerConfigEntry *p = (ServerConfigEntry*) (gameSpyList->Objects[0]);
+                while(updateList->Count > 0) {
+                        ServerConfigEntry *p = (ServerConfigEntry*) (updateList->Objects[0]);
                         main->addServer(*p);
-                        gameSpyList->Delete(0);
+                        updateList->Delete(0);
                         delete p;
                 }
                 main->NotifyObserver();
         }
 
-        delete gameSpyList;
+        delete updateList;
         delete selectedGames;
         main->setGameSpyUpdateDone(true);
         return 0;
