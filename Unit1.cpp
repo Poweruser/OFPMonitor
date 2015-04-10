@@ -52,6 +52,9 @@ void TForm1::update(Observable *o) {
                 this->updateFilterOfGui();
         } else if(o == this->ofpm) {
                 StatusBar1->Repaint();
+                if(!this->ofpm->isGameSpyUpdateDone()) {
+                        this->skipTimerWaitInterval();
+                }
         } else if(o == this->chat && this->chat != NULL) {
                 MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = this->chat->isDisconnected();
                 MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = !this->chat->isDisconnected();
@@ -882,6 +885,11 @@ bool TForm1::startUp() {
         return true;
 }
 
+void TForm1::skipTimerWaitInterval() {
+        if(this->ofpm != NULL) {
+                Form1->Timer1->Tag = this->ofpm->getInterval();
+        }
+}
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {

@@ -334,6 +334,7 @@ public:		// User declarations
         void TForm1::updateGuiLanguage();
         void TForm1::enableSavingOfSettings(bool enabled);
         void TForm1::saveSettings();
+        void TForm1::skipTimerWaitInterval();
 
 };
 //---------------------------------------------------------------------------

@@ -627,6 +627,7 @@ DWORD WINAPI gamespyQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
                         gameSpyList->Delete(0);
                         delete p;
                 }
+                main->NotifyObserver();
         }
 
         delete gameSpyList;
