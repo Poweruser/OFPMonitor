@@ -473,6 +473,8 @@ void OFPMonitorModel::playAudioServerStatus(StatusChange *status) {
         String alias = status->getServerAddress();
         int resourceIndex = 0;
         switch(status->getCurrentStatus()) {
+                case SERVERSTATE_EDITING:
+                case SERVERSTATE_UNDEFINED:
                 case SERVERSTATE_CREATING:
                         file += "creating";
                         resourceIndex = 1;

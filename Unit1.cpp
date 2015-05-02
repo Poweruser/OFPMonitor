@@ -337,6 +337,8 @@ void TForm1::writePlayerToStringGrid(int rowIndex, Player *p) {
 String TForm1::getGameState (int i) {
         String out = IntToStr(i);
         switch (i) {
+                case SERVERSTATE_UNDEFINED:
+                case SERVERSTATE_EDITING:
                 case SERVERSTATE_CREATING:
                         out = this->CHECKBOX_FILTER_CREATING->Caption;
                         break;

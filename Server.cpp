@@ -277,6 +277,8 @@ ServerFilterResult Server::checkFilter(ServerFilter *filter) {
                 }
                 if(this->players >= filter->minPlayers && maxPlayersPass) {
                         if(((this->gamestate == SERVERSTATE_CREATING && filter->creating) ||
+                            (this->gamestate == SERVERSTATE_UNDEFINED && filter->creating) ||
+                            (this->gamestate == SERVERSTATE_EDITING && filter->creating) ||
                             (this->gamestate == SERVERSTATE_WAITING && filter->waiting) ||
                             (this->gamestate == SERVERSTATE_SETTINGUP && filter->settingup) ||
                             (this->gamestate == SERVERSTATE_BRIEFING && filter->briefing) ||
