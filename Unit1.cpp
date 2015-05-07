@@ -289,8 +289,9 @@ void TForm1::writeServerToStringGrid(int rowIndex, int serverID) {
                         /*
                           Because of some unknown reason, the maximum number of players,
                           reported by the server in a query, is 2 higher than it should be
+                          And for local hosts, it is 0
                         */
-                this->StringGrid1->Cells[2][rowIndex] = IntToStr(srv->getPlayerNum()) + " / " + IntToStr(srv->getMaxPlayerNum() - 2);
+                this->StringGrid1->Cells[2][rowIndex] = IntToStr(srv->getPlayerNum()) + " / " + IntToStr(Max(0, srv->getMaxPlayerNum() - 2));
                 String gs = this->getGameState(srv->getGameState());
                 long Stime = srv->getStatusTime();
                 if(Stime > 0) {
