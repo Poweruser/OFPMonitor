@@ -24,8 +24,7 @@
       lib\ofpmonitor\UDPNetwork.obj lib\ofpmonitor\Unit1.obj 
       lib\ofpmonitor\Unit2.obj lib\ofpmonitor\Unit3.obj lib\ofpmonitor\Unit4.obj 
       lib\ofpmonitor\Unit5.obj lib\ofpmonitor\WindowSettings.obj"/>
-    <RESFILES value="resources\OFPMonitor.res resources\wavefiles.res 
-      resources\DefaultLanguage.res"/>
+    <RESFILES value="resources\wavefiles.res resources\DefaultLanguage.res OFPMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
     <DEFFILE value=""/>
@@ -71,10 +70,10 @@
     <OTHERFILES value=""/>
   </LINKER>
   <FILELIST>
-      <FILE FILENAME="resources\OFPMonitor.res" FORMNAME="" UNITNAME="OFPMonitor.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="resources\wavefiles.res" FORMNAME="" UNITNAME="wavefiles.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="resources\DefaultLanguage.res" FORMNAME="" UNITNAME="DefaultLanguage.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="OFPMonitor.cpp" FORMNAME="" UNITNAME="OFPMonitor" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="OFPMonitor.res" FORMNAME="" UNITNAME="OFPMonitor.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\psapi.lib" FORMNAME="" UNITNAME="psapi.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\unrar.lib" FORMNAME="" UNITNAME="unrar.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\Address.cpp" FORMNAME="" UNITNAME="Address.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
@@ -124,7 +123,7 @@
 
   <IDEOPTIONS>
 [Version Info]
-IncludeVerInfo=0
+IncludeVerInfo=1
 AutoIncBuild=0
 MajorVer=1
 MinorVer=7
