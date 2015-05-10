@@ -4,21 +4,33 @@
   <MACROS>
     <VERSION value="BCB.06.00"/>
     <PROJECT value="OFPMonitor.exe"/>
-    <OBJFILES value="OFPMonitor.obj Unit1.obj Unit2.obj Unit4.obj FileVersion.obj Unit3.obj 
-      Unit5.obj Address.obj QueryAnswer.obj Server.obj Player.obj Message.obj 
-      ProcessFinder.obj ConfigReader.obj ServerList.obj StringSplitter.obj 
-      OFPMonitorModel.obj UDPNetwork.obj QueryRequest.obj Game.obj 
-      Configuration.obj GameControl.obj ServerFilter.obj FontSettings.obj 
-      StatusChange.obj ServerTableSorter.obj PlayerTableSorter.obj 
-      AudioPlayer.obj CustomNotification.obj AudioTask.obj AudioPosition.obj 
-      WindowSettings.obj ChatSettings.obj ChatLog.obj Observer.obj Chat.obj 
-      ChatMessage.obj IRCClient.obj LanguageDB.obj ServerEditorTableSorter.obj 
-      ServerListLoader.obj HttpsDownloader.obj"/>
-    <RESFILES value="OFPMonitor.res"/>
+    <OBJFILES value="OFPMonitor.obj lib\ofpmonitor\Address.obj lib\ofpmonitor\AudioPlayer.obj 
+      lib\ofpmonitor\AudioPosition.obj lib\ofpmonitor\AudioTask.obj 
+      lib\ofpmonitor\Chat.obj lib\ofpmonitor\ChatLog.obj 
+      lib\ofpmonitor\ChatMessage.obj lib\ofpmonitor\ChatSettings.obj 
+      lib\ofpmonitor\ConfigReader.obj lib\ofpmonitor\Configuration.obj 
+      lib\ofpmonitor\CustomNotification.obj lib\ofpmonitor\FileVersion.obj 
+      lib\ofpmonitor\FontSettings.obj lib\ofpmonitor\Game.obj 
+      lib\ofpmonitor\GameControl.obj lib\ofpmonitor\HttpsDownloader.obj 
+      lib\ofpmonitor\IRCClient.obj lib\ofpmonitor\LanguageDB.obj 
+      lib\ofpmonitor\Message.obj lib\ofpmonitor\Observer.obj 
+      lib\ofpmonitor\OFPMonitorModel.obj lib\ofpmonitor\Player.obj 
+      lib\ofpmonitor\PlayerTableSorter.obj lib\ofpmonitor\ProcessFinder.obj 
+      lib\ofpmonitor\QueryAnswer.obj lib\ofpmonitor\QueryRequest.obj 
+      lib\ofpmonitor\Server.obj lib\ofpmonitor\ServerEditorTableSorter.obj 
+      lib\ofpmonitor\ServerFilter.obj lib\ofpmonitor\ServerList.obj 
+      lib\ofpmonitor\ServerListLoader.obj lib\ofpmonitor\ServerTableSorter.obj 
+      lib\ofpmonitor\StatusChange.obj lib\ofpmonitor\StringSplitter.obj 
+      lib\ofpmonitor\UDPNetwork.obj lib\ofpmonitor\Unit1.obj 
+      lib\ofpmonitor\Unit2.obj lib\ofpmonitor\Unit3.obj lib\ofpmonitor\Unit4.obj 
+      lib\ofpmonitor\Unit5.obj lib\ofpmonitor\WindowSettings.obj"/>
+    <RESFILES value="resources\OFPMonitor.res resources\wavefiles.res 
+      resources\DefaultLanguage.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
     <DEFFILE value=""/>
-    <RESDEPEN value="$(RESFILES) Unit1.dfm Unit2.dfm Unit4.dfm Unit3.dfm Unit5.dfm"/>
+    <RESDEPEN value="$(RESFILES) lib\ofpmonitor\Unit1.dfm lib\ofpmonitor\Unit2.dfm 
+      lib\ofpmonitor\Unit3.dfm lib\ofpmonitor\Unit4.dfm lib\ofpmonitor\Unit5.dfm"/>
     <LIBFILES value="lib\psapi.lib lib\unrar.lib"/>
     <LIBRARIES value="IndyProtocols60.lib IndySystem60.lib IndyCore60.lib CoolTrayIcon.lib 
       bcbsmp.lib vclx.lib rtl.lib vcl.lib"/>
@@ -26,7 +38,7 @@
       IndySystem60.lib IndyProtocols60.lib"/>
     <PACKAGES value="vcl.bpi rtl.bpi bcbsmp.bpi IndyCore60.bpi IndyProtocols60.bpi 
       IndySystem60.bpi CoolTrayIcon.bpi"/>
-    <PATHCPP value=".;"/>
+    <PATHCPP value=".;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor"/>
     <PATHPAS value=".;"/>
     <PATHRC value=".;"/>
     <PATHASM value=".;"/>
@@ -36,13 +48,14 @@
     <USERDEFINES value=""/>
     <SYSDEFINES value="NO_STRICT"/>
     <MAINSOURCE value="OFPMonitor.cpp"/>
-    <INCLUDEPATH value="include;..;$(BCB)\include;$(BCB)\include\vcl"/>
-    <LIBPATH value="lib;..;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <INCLUDEPATH value="lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl"/>
+    <LIBPATH value="lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <OTHERFILES value=""/>
   </MACROS>
   <OPTIONS>
-    <IDLCFLAGS value="-Iinclude -I.. -I$(BCB)\include -I$(BCB)\include\vcl -src_suffix cpp -boa"/>
+    <IDLCFLAGS value="-Ilib\ofpmonitor -Iinclude -I.. -I$(BCB)\include -I$(BCB)\include\vcl 
+      -src_suffix cpp -boa"/>
     <CFLAG1 value="-O2 -H=$(BCB)\lib\vcl60.csm -Hc -Vx -Ve -X- -a8 -b- -d -k- -vi -O -O1 -c 
       -tW -tWM"/>
     <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
@@ -58,58 +71,60 @@
     <OTHERFILES value=""/>
   </LINKER>
   <FILELIST>
-      <FILE FILENAME="OFPMonitor.res" FORMNAME="" UNITNAME="OFPMonitor.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="resources\OFPMonitor.res" FORMNAME="" UNITNAME="OFPMonitor.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="resources\wavefiles.res" FORMNAME="" UNITNAME="wavefiles.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="resources\DefaultLanguage.res" FORMNAME="" UNITNAME="DefaultLanguage.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="OFPMonitor.cpp" FORMNAME="" UNITNAME="OFPMonitor" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="Unit1.cpp" FORMNAME="Form1" UNITNAME="Unit1" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="Unit2.cpp" FORMNAME="WINDOW_SETTINGS" UNITNAME="Unit2" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\psapi.lib" FORMNAME="" UNITNAME="psapi.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="Unit4.cpp" FORMNAME="WINDOW_INFO" UNITNAME="Unit4" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="FileVersion.cpp" FORMNAME="" UNITNAME="FileVersion" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="Unit3.cpp" FORMNAME="WINDOW_LOCALGAME" UNITNAME="Unit3" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="Unit5.cpp" FORMNAME="WINDOW_UPDATE" UNITNAME="Unit5" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="Address.cpp" FORMNAME="" UNITNAME="Address" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\unrar.lib" FORMNAME="" UNITNAME="unrar.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="QueryAnswer.cpp" FORMNAME="" UNITNAME="QueryAnswer" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="Server.cpp" FORMNAME="" UNITNAME="Server" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="Player.cpp" FORMNAME="" UNITNAME="Player" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="Message.cpp" FORMNAME="" UNITNAME="Message" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="ProcessFinder.cpp" FORMNAME="" UNITNAME="ProcessFinder" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="ConfigReader.cpp" FORMNAME="" UNITNAME="ConfigReader" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="ServerList.cpp" FORMNAME="" UNITNAME="ServerList" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="StringSplitter.cpp" FORMNAME="" UNITNAME="StringSplitter" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="OFPMonitorModel.cpp" FORMNAME="" UNITNAME="OFPMonitorModel" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="UDPNetwork.cpp" FORMNAME="" UNITNAME="UDPNetwork" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="QueryRequest.cpp" FORMNAME="" UNITNAME="QueryRequest" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="Game.cpp" FORMNAME="" UNITNAME="Game" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="Configuration.cpp" FORMNAME="" UNITNAME="Configuration" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="GameControl.cpp" FORMNAME="" UNITNAME="GameControl" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="ServerFilter.cpp" FORMNAME="" UNITNAME="ServerFilter" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="FontSettings.cpp" FORMNAME="" UNITNAME="FontSettings" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="StatusChange.cpp" FORMNAME="" UNITNAME="StatusChange" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="ServerTableSorter.cpp" FORMNAME="" UNITNAME="ServerTableSorter" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="PlayerTableSorter.cpp" FORMNAME="" UNITNAME="PlayerTableSorter" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="AudioPlayer.cpp" FORMNAME="" UNITNAME="AudioPlayer" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="CustomNotification.cpp" FORMNAME="" UNITNAME="CustomNotification" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="AudioTask.cpp" FORMNAME="" UNITNAME="AudioTask" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="AudioPosition.cpp" FORMNAME="" UNITNAME="AudioPosition" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="WindowSettings.cpp" FORMNAME="" UNITNAME="WindowSettings" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="ChatSettings.cpp" FORMNAME="" UNITNAME="ChatSettings" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="ChatLog.cpp" FORMNAME="" UNITNAME="ChatLog" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="Observer.cpp" FORMNAME="" UNITNAME="Observer" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="Chat.cpp" FORMNAME="" UNITNAME="Chat" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="ChatMessage.cpp" FORMNAME="" UNITNAME="ChatMessage" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="IRCClient.cpp" FORMNAME="" UNITNAME="IRCClient" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="LanguageDB.cpp" FORMNAME="" UNITNAME="LanguageDB" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="ServerEditorTableSorter.cpp" FORMNAME="" UNITNAME="ServerEditorTableSorter" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="ServerListLoader.cpp" FORMNAME="" UNITNAME="ServerListLoader" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="HttpsDownloader.cpp" FORMNAME="" UNITNAME="HttpsDownloader" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Address.cpp" FORMNAME="" UNITNAME="Address.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\AudioPlayer.cpp" FORMNAME="" UNITNAME="AudioPlayer.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\AudioPosition.cpp" FORMNAME="" UNITNAME="AudioPosition.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\AudioTask.cpp" FORMNAME="" UNITNAME="AudioTask.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Chat.cpp" FORMNAME="" UNITNAME="Chat.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ChatLog.cpp" FORMNAME="" UNITNAME="ChatLog.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ChatMessage.cpp" FORMNAME="" UNITNAME="ChatMessage.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ChatSettings.cpp" FORMNAME="" UNITNAME="ChatSettings.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ConfigReader.cpp" FORMNAME="" UNITNAME="ConfigReader.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Configuration.cpp" FORMNAME="" UNITNAME="Configuration.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\CustomNotification.cpp" FORMNAME="" UNITNAME="CustomNotification.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\FileVersion.cpp" FORMNAME="" UNITNAME="FileVersion.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\FontSettings.cpp" FORMNAME="" UNITNAME="FontSettings.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Game.cpp" FORMNAME="" UNITNAME="Game.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\GameControl.cpp" FORMNAME="" UNITNAME="GameControl.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\HttpsDownloader.cpp" FORMNAME="" UNITNAME="HttpsDownloader.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\IRCClient.cpp" FORMNAME="" UNITNAME="IRCClient.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\LanguageDB.cpp" FORMNAME="" UNITNAME="LanguageDB.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Message.cpp" FORMNAME="" UNITNAME="Message.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Observer.cpp" FORMNAME="" UNITNAME="Observer.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\OFPMonitorModel.cpp" FORMNAME="" UNITNAME="OFPMonitorModel.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Player.cpp" FORMNAME="" UNITNAME="Player.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\PlayerTableSorter.cpp" FORMNAME="" UNITNAME="PlayerTableSorter.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ProcessFinder.cpp" FORMNAME="" UNITNAME="ProcessFinder.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\QueryAnswer.cpp" FORMNAME="" UNITNAME="QueryAnswer.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\QueryRequest.cpp" FORMNAME="" UNITNAME="QueryRequest.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Server.cpp" FORMNAME="" UNITNAME="Server.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ServerEditorTableSorter.cpp" FORMNAME="" UNITNAME="ServerEditorTableSorter.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ServerFilter.cpp" FORMNAME="" UNITNAME="ServerFilter.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ServerList.cpp" FORMNAME="" UNITNAME="ServerList.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ServerListLoader.cpp" FORMNAME="" UNITNAME="ServerListLoader.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ServerTableSorter.cpp" FORMNAME="" UNITNAME="ServerTableSorter.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\StatusChange.cpp" FORMNAME="" UNITNAME="StatusChange.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\StringSplitter.cpp" FORMNAME="" UNITNAME="StringSplitter.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\UDPNetwork.cpp" FORMNAME="" UNITNAME="UDPNetwork.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Unit1.cpp" FORMNAME="Form1" UNITNAME="Unit1" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Unit2.cpp" FORMNAME="WINDOW_SETTINGS" UNITNAME="Unit2" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Unit3.cpp" FORMNAME="WINDOW_LOCALGAME" UNITNAME="Unit3" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Unit4.cpp" FORMNAME="WINDOW_INFO" UNITNAME="Unit4" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Unit5.cpp" FORMNAME="WINDOW_UPDATE" UNITNAME="Unit5" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\WindowSettings.cpp" FORMNAME="" UNITNAME="WindowSettings.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>
 
   <IDEOPTIONS>
 [Version Info]
-IncludeVerInfo=1
+IncludeVerInfo=0
 AutoIncBuild=0
 MajorVer=1
 MinorVer=7
@@ -136,12 +151,14 @@ ProductVersion=1.0.0.0
 Comments=
 
 [HistoryLists\hlIncludePath]
-Count=1
-Item0=include;..;$(BCB)\include;$(BCB)\include\vcl
+Count=2
+Item0=lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl
+Item1=include;..;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=1
-Item0=lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Count=2
+Item0=lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item1=lib;..;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1

@@ -18,14 +18,12 @@
 #include "Unit5.h"
 #pragma hdrstop
 
-#pragma resource "DefaultLanguage.res"
-
 //---------------------------------------------------------------------------
-USEFORM("Unit1.cpp", Form1);
-USEFORM("Unit2.cpp", WINDOW_SETTINGS);
-USEFORM("Unit4.cpp", WINDOW_INFO);
-USEFORM("Unit3.cpp", WINDOW_LOCALGAME);
-USEFORM("Unit5.cpp", WINDOW_UPDATE);
+USEFORM("lib\ofpmonitor\Unit1.cpp", Form1);
+USEFORM("lib\ofpmonitor\Unit2.cpp", WINDOW_SETTINGS);
+USEFORM("lib\ofpmonitor\Unit3.cpp", WINDOW_LOCALGAME);
+USEFORM("lib\ofpmonitor\Unit4.cpp", WINDOW_INFO);
+USEFORM("lib\ofpmonitor\Unit5.cpp", WINDOW_UPDATE);
 //---------------------------------------------------------------------------
 HANDLE hMutex;
 

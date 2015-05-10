@@ -24,7 +24,6 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma link "CoolTrayIcon"
-#pragma resource "wavefiles.res"
 #pragma resource "*.dfm"
 
 TForm1 *Form1;
