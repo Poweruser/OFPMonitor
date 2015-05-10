@@ -52,7 +52,7 @@ OFPMonitorModel::~OFPMonitorModel() {
         this->queryTimer->Enabled = false;
         delete (this->queryTimer);
         delete (this->net);
-        while(this->notifications->Count < 0) {
+        while(this->notifications->Count > 0) {
                 CustomNotification *cN = (CustomNotification*) (this->notifications->First());
                 this->notifications->Delete(0);
                 delete cN;
