@@ -5,6 +5,7 @@
 #include <unrar.h>
 #include "FileVersion.h"
 #include "StringSplitter.h"
+#include <IdHashMessageDigest.hpp>
 #pragma hdrstop
 
 #include "Unit1.h"
@@ -18,6 +19,13 @@
 #pragma link "IdSSL"
 #pragma resource "*.dfm"
 TWINDOW_UPDATE *WINDOW_UPDATE;
+
+#define SECTION_HEADER_START "[Header]"
+#define SECTION_HEADER_END "[\\Header]"
+#define SECTION_LOCATION_START "[DownloadLocation]"
+#define SECTION_LOCATION_END "[\\DownloadLocation]"
+#define SECTION_RELEASE_START "[Release2]"
+#define SECTION_RELEASE_END "[\\Release2]"
 
 void releaseMutex();
 
@@ -183,8 +191,8 @@ DWORD WINAPI UpdaterThread_Step1 (LPVOID lpdwThreadParam__ ) {
                 }
                 uTracker->ms->Position = 0;
                 uTracker->stringList->LoadFromStream(uTracker->ms);
-                int begin = uTracker->stringList->IndexOf("[Header)");
-                int end = uTracker->stringList->IndexOf("[\\Header]");
+                int begin = uTracker->stringList->IndexOf(SECTION_HEADER_START);
+                int end = uTracker->stringList->IndexOf(SECTION_HEADER_END);
                 for(int i = begin + 1; i < end; i++) {
                         if(uTracker->stringList->Strings[i].SubString(1,7) == "Version") {
                                 uTracker->remoteVersion = uTracker->getValue(uTracker->stringList->Strings[i]);
@@ -234,8 +242,8 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                 if(uTracker->newVersion && uTracker->answer == mrYes &&
                    DirectoryExists(uTracker->getUpdateDir()) &&
                    DirectoryExists(uT->getBackupDir())) {
-                        int begin = uTracker->stringList->IndexOf("[DownloadLocation]");
-                        int end = uTracker->stringList->IndexOf("[\\DownloadLocation]");
+                        int begin = uTracker->stringList->IndexOf(SECTION_LOCATION_START);
+                        int end = uTracker->stringList->IndexOf(SECTION_LOCATION_END);
                         String location = "";
                         for(int i = begin + 1; i < end; i++) {
                                 String line = uT->stringList->Strings[i].Trim();
@@ -245,8 +253,8 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                 }
                         }
 
-                        begin = uTracker->stringList->IndexOf("[Release]");
-                        end = uTracker->stringList->IndexOf("[\\Release]");
+                        begin = uTracker->stringList->IndexOf(SECTION_RELEASE_START);
+                        end = uTracker->stringList->IndexOf(SECTION_RELEASE_END);
                         WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Max = end - (begin + 1);
                         WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Position = 0;
                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Downloading files ...");
@@ -256,24 +264,48 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                 StringSplitter ssp(uT->stringList->Strings[i].Trim());
                                 TStringList *item = ssp.split("#");
                                 bool success = false;
-                                String fileSize = "", file = "";
-                                if(item->Count == 2) {
-                                        file = item->Strings[0];
-                                        String target = location + file;
-                                        fileSize = item->Strings[1];
-                                        uT->fs->Clear();
-                                        WINDOW_UPDATE->LABEL_UPDATE_CURRENTFILE->Caption = file;
-                                        try {
-                                                uT->http->Get(target, uT->fs);
-                                                success = true;
-                                        } catch (EIdException &E) {
-                                                String error = "Could not download: " + target + " - Reason: " + E.Message;
-                                                uT->errorHappend(error);
-                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + error);
+                                String fileSize = "", fileHash = "", file = "";
+                                for(int element = 0; element < item->Count; element++) {
+                                        String target, error;
+                                        switch(element) {
+                                                case 0:
+                                                        file = item->Strings[element];
+                                                        target = location + file;
+                                                        uT->fs->Clear();
+                                                        WINDOW_UPDATE->LABEL_UPDATE_CURRENTFILE->Caption = file;
+                                                        try {
+                                                                uT->http->Get(target, uT->fs);
+                                                                success = true;
+                                                        } catch (EIdException &E) {
+                                                                error = "Could not download: " + target + " - Reason: " + E.Message;
+                                                                uT->errorHappend(error);
+                                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + error);
+                                                        }
+                                                        break;
+                                                case 1:
+                                                        fileSize = item->Strings[element];
+                                                        break;
+                                                case 2:
+                                                        fileHash = item->Strings[element];
+                                                        break;
+                                                default:
+                                                        break;
                                         }
                                 }
                                 if(success) {
-                                        if(String(uT->fs->Size) == fileSize) {
+                                        boolean sizeOk = fileSize.IsEmpty() || (String(uT->fs->Size) == fileSize);
+                                        boolean hashOk = fileHash.IsEmpty();
+                                        String calculatedHash = "";
+                                        if(!hashOk) {
+                                                TIdHashMessageDigest5 *md5 = new TIdHashMessageDigest5();
+                                                int streamPosition = uT->fs->Position;
+                                                uT->fs->Position = 0;
+                                                calculatedHash = md5->HashStreamAsHex(uT->fs);
+                                                uT->fs->Position = streamPosition;
+                                                delete md5;
+                                                hashOk = (calculatedHash.LowerCase() == fileHash.LowerCase());
+                                        }
+                                        if(sizeOk && hashOk) {
                                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + file);
                                                 String fileOnDisk = uT->getUpdateDir() + "\\" + file;
                                                 try {
@@ -318,8 +350,12 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                                                 uT->filesToInstall->Add(file);
                                                         }
                                                 }
-                                        } else {
+                                        } else if(!sizeOk) {
                                                 String error = "Invalid file size for file " + file + " (" + String(uT->fs->Size) + " Bytes). Expected size: " + fileSize + " Bytes";
+                                                uT->errorHappend(error);
+                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + error);
+                                        } else if(!hashOk) {
+                                                String error = "The file " + file + " is damaged. It's current MD5 hash " + calculatedHash + " does not match the expected hash " + fileHash;
                                                 uT->errorHappend(error);
                                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + error);
                                         }
