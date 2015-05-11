@@ -186,6 +186,7 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
                 WINDOW_SETTINGS->setChatSettings(chatSettings);
                 WINDOW_LOCALGAME->setModel(ofpm);
                 Form1->applyWindowSettings();
+                Form1->checkIfWindowIsReachable();
                 if(!settingsFileExists) {
                         Form1->saveSettings();
                 }

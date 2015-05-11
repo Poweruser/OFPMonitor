@@ -892,6 +892,13 @@ void TForm1::skipTimerWaitInterval() {
                 Form1->Timer1->Tag = this->ofpm->getInterval();
         }
 }
+
+void TForm1::checkIfWindowIsReachable() {
+        HMONITOR monitorHandle = MonitorFromWindow(this->Handle, MONITOR_DEFAULTTONULL);
+        if(monitorHandle == NULL) {
+                this->Position = poScreenCenter;
+        }
+}
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
@@ -1884,6 +1891,7 @@ void __fastcall TForm1::FormShow(TObject *Sender)
         if(!this->startUpDone) {
                 this->startUpDone = Form1->startUp();
         }
+        this->checkIfWindowIsReachable();
 }
 //---------------------------------------------------------------------------
 
