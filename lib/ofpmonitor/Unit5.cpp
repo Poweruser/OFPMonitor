@@ -24,8 +24,8 @@ TWINDOW_UPDATE *WINDOW_UPDATE;
 #define SECTION_HEADER_END "[\\Header]"
 #define SECTION_LOCATION_START "[DownloadLocation]"
 #define SECTION_LOCATION_END "[\\DownloadLocation]"
-#define SECTION_RELEASE_START "[Release2]"
-#define SECTION_RELEASE_END "[\\Release2]"
+#define SECTION_RELEASE_START "[ReleaseMD5]"
+#define SECTION_RELEASE_END "[\\ReleaseMD5]"
 
 void releaseMutex();
 
