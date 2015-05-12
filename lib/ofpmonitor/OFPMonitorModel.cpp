@@ -30,6 +30,7 @@ OFPMonitorModel::OFPMonitorModel(String settingsFile, ServerList *serverList) {
         this->customNotifications = false;
         this->checkUpdateAtStart = true;
         this->checkMasterServersAtStart = true;
+        this->masterServerOnlineList = "";
         this->interval = 5;
         this->level = Moderate;
         this->settingsfile = settingsFile;
@@ -263,9 +264,15 @@ void OFPMonitorModel::readSettings(TStringList *file) {
 
         std::list<String> masterServerList;
         ConfigSection *servers = new ConfigSection("MasterServers");
+        servers->add(new ConfigEntry("OnlineList", dtString, (void*)(&(this->masterServerOnlineList))));
         servers->add(new ConfigEntry("", dtServerItem, (void*)(&masterServerList)));
         servers->scan(file, 0);
         delete servers;
+
+        if(this->masterServerOnlineList.Trim().IsEmpty()) {
+                this->masterServerOnlineList = "https://raw.githubusercontent.com/wiki/poweruser/ofpmonitor/masterservers.txt";
+        }
+
         while(masterServerList.size() > 0) {
                 String s = masterServerList.front();
                 this->masterServers->Add(s);
@@ -778,6 +785,7 @@ void OFPMonitorModel::getSettingsFileEntry(TStringList *settings) {
         this->servers->getSettingsFileEntry(settings);
 
         settings->Add("[MasterServers]");
+        settings->Add("OnlineList = " + this->masterServerOnlineList);
         for(int i = 0; i < this->masterServers->Count; i++) {
                 settings->Add(this->masterServers->Strings[i]);
         }
@@ -814,6 +822,10 @@ void OFPMonitorModel::getMasterServers(TStringList *domains) {
         for(int i = 0; i < this->masterServers->Count; i++) {
                 domains->Add(this->masterServers->Strings[i]);
         }
+}
+
+String OFPMonitorModel::getMasterServerOnlineListURL() {
+        return this->masterServerOnlineList;
 }
 
 void OFPMonitorModel::parseMasterServerFile(TStringList *list) {

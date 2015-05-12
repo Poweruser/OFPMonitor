@@ -875,7 +875,7 @@ bool TForm1::startUp() {
                 WINDOW_UPDATE->checkForNewVersion(false);
         }
         if(this->ofpm->isUpdateOfMasterServersOnStartSet()) {
-                this->downloader = new HttpsDownloader("https://raw.githubusercontent.com/wiki/poweruser/ofpmonitor/masterservers.txt");
+                this->downloader = new HttpsDownloader(this->ofpm->getMasterServerOnlineListURL());
                 this->downloader->SetObserver(this);
                 this->downloader->start();
         } else {

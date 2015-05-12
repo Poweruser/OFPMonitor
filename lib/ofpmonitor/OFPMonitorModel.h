@@ -68,6 +68,7 @@ class OFPMonitorModel : public Observable {
                 void addMasterServer(String domain);
                 void removeMasterServer(String domain);
                 void getMasterServers(TStringList *domains);
+                String getMasterServerOnlineListURL();
                 String generateNewAudioAlias();
                 void setCustomNotifications(bool on);
                 void toggleUpdateOnStart(bool on);
@@ -99,6 +100,7 @@ class OFPMonitorModel : public Observable {
                 bool customNotifications;
                 bool checkUpdateAtStart;
                 bool checkMasterServersAtStart;
+                String masterServerOnlineList;
                 Game *games[GAMESTOTAL];
                 String settingsfile;
                 String languagefile;
