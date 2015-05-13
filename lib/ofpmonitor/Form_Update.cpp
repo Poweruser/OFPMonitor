@@ -69,14 +69,8 @@ class UpdateTracker {
         bool error;
         String errorMsg;
         int answer;
-        TForm1 *form1;
-        TWINDOW_UPDATE *window_update;
-        TWINDOW_SETTINGS *window_settings;
 
         UpdateTracker (bool userTriggered) {
-                this->form1 = Form1;
-                this->window_update = WINDOW_UPDATE;
-                this->window_settings = WINDOW_SETTINGS;
                 this->userTriggered = userTriggered;
                 this->working = false;
                 this->updateDone = false;
@@ -468,9 +462,9 @@ void __fastcall TWINDOW_UPDATE::Timer1Timer(TObject *Sender)
                                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Clear();
                                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Updating from version " + uT->localVersion + " to " + uT->remoteVersion);
                                         WINDOW_SETTINGS->Hide();
-                                        Form1->CoolTrayIcon1->IconVisible = false;
-                                        Form1->Enabled = false;
-                                        Form1->Hide();
+                                        WINDOW_MAIN->CoolTrayIcon1->IconVisible = false;
+                                        WINDOW_MAIN->Enabled = false;
+                                        WINDOW_MAIN->Hide();
                                         WINDOW_UPDATE->Show();
                                         uT->thread2 = CreateThread(0, 0, UpdaterThread_Step2, uT, 0, 0);
                                 } else {
@@ -507,13 +501,13 @@ void __fastcall TWINDOW_UPDATE::Timer1Timer(TObject *Sender)
                                         message += "\nCheck the update log file " + targetDir + "\\updateLog.txt for other errors as well.";
                                         ShowMessage(message);
                                         WINDOW_UPDATE->Hide();
-                                        Form1->Enabled = true;
+                                        WINDOW_MAIN->Enabled = true;
                                         WINDOW_SETTINGS->BUTTON_UPDATE->Enabled = true;
-                                        Form1->CoolTrayIcon1->IconVisible = true;
-                                        Form1->Show();
+                                        WINDOW_MAIN->CoolTrayIcon1->IconVisible = true;
+                                        WINDOW_MAIN->Show();
                                 } else {
                                         releaseMutex();
-                                        Form1->Close();
+                                        WINDOW_MAIN->Close();
                                         ShellExecute(NULL, "open", PChar(targetExe.c_str()), PChar(""), PChar(targetDir.c_str()), SW_NORMAL);
                                 }
                         }

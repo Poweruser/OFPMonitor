@@ -1,4 +1,4 @@
-object Form1: TForm1
+object WINDOW_MAIN: TWINDOW_MAIN
   Left = 731
   Top = 245
   Width = 666

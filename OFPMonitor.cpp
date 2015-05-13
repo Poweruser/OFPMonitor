@@ -19,7 +19,7 @@
 #pragma hdrstop
 
 //---------------------------------------------------------------------------
-USEFORM("lib\ofpmonitor\Form_Main.cpp", Form1);
+USEFORM("lib\ofpmonitor\Form_Main.cpp", WINDOW_MAIN);
 USEFORM("lib\ofpmonitor\Form_Settings.cpp", WINDOW_SETTINGS);
 USEFORM("lib\ofpmonitor\Form_Localgame.cpp", WINDOW_LOCALGAME);
 USEFORM("lib\ofpmonitor\Form_Info.cpp", WINDOW_INFO);
@@ -152,46 +152,46 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
                 FileVersion *fv = new FileVersion(Application->ExeName);
                 Application->Title = "OFPMonitor " + fv->getFullVersion();
                 delete fv;
-                Application->CreateForm(__classid(TForm1), &Form1);
+                Application->CreateForm(__classid(TWINDOW_MAIN), &WINDOW_MAIN);
                  Application->CreateForm(__classid(TWINDOW_UPDATE), &WINDOW_UPDATE);
                  Application->CreateForm(__classid(TWINDOW_INFO), &WINDOW_INFO);
                  Application->CreateForm(__classid(TWINDOW_LOCALGAME), &WINDOW_LOCALGAME);
                  Application->CreateForm(__classid(TWINDOW_SETTINGS), &WINDOW_SETTINGS);
-                 Form1->setFontSettings(fontSettings);
-                Form1->setWindowSettings(windowSettings);
-                Form1->setChatSettings(chatSettings);
-                Form1->setServerFilter(serverFilter);
-                Form1->setGameControl(gameControl);
-                Form1->setLanguageDB(languageDB);
-                Form1->setModel(ofpm);
-                Form1->enableSavingOfSettings(!loadingOfExistingSettingsFileFailed);
+                 WINDOW_MAIN->setFontSettings(fontSettings);
+                WINDOW_MAIN->setWindowSettings(windowSettings);
+                WINDOW_MAIN->setChatSettings(chatSettings);
+                WINDOW_MAIN->setServerFilter(serverFilter);
+                WINDOW_MAIN->setGameControl(gameControl);
+                WINDOW_MAIN->setLanguageDB(languageDB);
+                WINDOW_MAIN->setModel(ofpm);
+                WINDOW_MAIN->enableSavingOfSettings(!loadingOfExistingSettingsFileFailed);
                 WINDOW_SETTINGS->setLanguageDB(languageDB);
                 WINDOW_LOCALGAME->setLanguageDB(languageDB);
                 WINDOW_INFO->setLanguageDB(languageDB);
                 WINDOW_UPDATE->setLanguageDB(languageDB);
                 languageDB->setModel(ofpm);
-                languageDB->SetObserver(Form1);
+                languageDB->SetObserver(WINDOW_MAIN);
                 languageDB->SetObserver(WINDOW_SETTINGS);
                 languageDB->SetObserver(WINDOW_LOCALGAME);
                 languageDB->SetObserver(WINDOW_INFO);
                 ofpm->SetObserver(languageDB);
                 languageDB->update(ofpm);
-                fontSettings->SetObserver(Form1);
-                gameControl->SetObserver(Form1);
-                ofpm->SetObserver(Form1);
-                Form1->update(fontSettings);
-                Form1->update(gameControl);
-                Form1->update(ofpm);
+                fontSettings->SetObserver(WINDOW_MAIN);
+                gameControl->SetObserver(WINDOW_MAIN);
+                ofpm->SetObserver(WINDOW_MAIN);
+                WINDOW_MAIN->update(fontSettings);
+                WINDOW_MAIN->update(gameControl);
+                WINDOW_MAIN->update(ofpm);
                 WINDOW_SETTINGS->setModel(ofpm);
                 WINDOW_SETTINGS->setChatSettings(chatSettings);
                 WINDOW_LOCALGAME->setModel(ofpm);
-                Form1->applyWindowSettings();
-                Form1->checkIfWindowIsReachable();
+                WINDOW_MAIN->applyWindowSettings();
+                WINDOW_MAIN->checkIfWindowIsReachable();
                 if(!settingsFileExists) {
-                        Form1->saveSettings();
+                        WINDOW_MAIN->saveSettings();
                 }
                 Application->Run();
-                Form1->saveSettings();
+                WINDOW_MAIN->saveSettings();
         } catch (Exception &exception) {
                 Application->ShowException(&exception);
         } catch (...) {

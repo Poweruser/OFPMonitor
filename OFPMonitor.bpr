@@ -113,7 +113,7 @@
       <FILE FILENAME="lib\ofpmonitor\StatusChange.cpp" FORMNAME="" UNITNAME="StatusChange.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\StringSplitter.cpp" FORMNAME="" UNITNAME="StringSplitter.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\UDPNetwork.cpp" FORMNAME="" UNITNAME="UDPNetwork.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="lib\ofpmonitor\Form_Main.cpp" FORMNAME="Form1" UNITNAME="Form_Main" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Form_Main.cpp" FORMNAME="WINDOW_MAIN" UNITNAME="Form_Main" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\Form_Settings.cpp" FORMNAME="WINDOW_SETTINGS" UNITNAME="Form_Settings" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\Form_Localgame.cpp" FORMNAME="WINDOW_LOCALGAME" UNITNAME="Form_Localgame" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\Form_Info.cpp" FORMNAME="WINDOW_INFO" UNITNAME="Form_Info" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>

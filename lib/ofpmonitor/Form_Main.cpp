@@ -26,21 +26,21 @@
 #pragma link "CoolTrayIcon"
 #pragma resource "*.dfm"
 
-TForm1 *Form1;
+TWINDOW_MAIN *WINDOW_MAIN;
 
-void TForm1::ChatNotification(String msg) {
+void TWINDOW_MAIN::ChatNotification(String msg) {
         this->CoolTrayIcon1->HideBalloonHint();
         if(!msg.IsEmpty()) {
                 this->CoolTrayIcon1->ShowBalloonHint(WideString("OFPMonitor " + TABSHEET_CHAT->Caption), WideString(msg + "\n"), bitInfo, 10);
         }
 }
 
-bool TForm1::isInForeground() {
+bool TWINDOW_MAIN::isInForeground() {
         void *handle = GetForegroundWindow();
         return (handle == this->Handle);
 }
 
-void TForm1::update(Observable *o) {
+void TWINDOW_MAIN::update(Observable *o) {
         if(o == this->fontSettings) {
                 TFont *f = this->fontSettings->getFont();
                 this->updateFontOfGui(f);
@@ -106,35 +106,35 @@ void TForm1::update(Observable *o) {
         }
 }
 
-void TForm1::setFontSettings(FontSettings *font) {
+void TWINDOW_MAIN::setFontSettings(FontSettings *font) {
         this->fontSettings = font;
 }
 
-void TForm1::setWindowSettings(WindowSettings *windowSettings) {
+void TWINDOW_MAIN::setWindowSettings(WindowSettings *windowSettings) {
         this->windowSettings = windowSettings;
 }
 
-void TForm1::setChatSettings(ChatSettings *chatSettings) {
+void TWINDOW_MAIN::setChatSettings(ChatSettings *chatSettings) {
         this->chatSettings = chatSettings;
 }
 
-void TForm1::setModel(OFPMonitorModel *model) {
+void TWINDOW_MAIN::setModel(OFPMonitorModel *model) {
         this->ofpm = model;
 }
 
-void TForm1::setServerFilter(ServerFilter *serverFilter) {
+void TWINDOW_MAIN::setServerFilter(ServerFilter *serverFilter) {
         this->serverFilter = serverFilter;
 }
 
-void TForm1::setGameControl(GameControl *gameControl) {
+void TWINDOW_MAIN::setGameControl(GameControl *gameControl) {
         this->gameControl = gameControl;
 }
 
-void TForm1::setLanguageDB(LanguageDB *languageDB) {
+void TWINDOW_MAIN::setLanguageDB(LanguageDB *languageDB) {
         this->languageDB = languageDB;
 }
 
-void TForm1::updateGuiLanguage() {
+void TWINDOW_MAIN::updateGuiLanguage() {
         if(this->languageDB != NULL) {
                 this->StringGrid1->Cells[0][0] = this->languageDB->getGuiString("STRING_ID");
                 this->StringGrid1->Cells[1][0] = this->languageDB->getGuiString("STRING_NAME");
@@ -211,7 +211,7 @@ void TForm1::updateGuiLanguage() {
         }
 }
 
-float TForm1::checkIfTableRatioZero(float in, TStringGrid *grid) {
+float TWINDOW_MAIN::checkIfTableRatioZero(float in, TStringGrid *grid) {
         if(in - 0.001f < 0) {
                 return ((((float)grid->Width / (float)grid->ColCount) - (float)grid->GridLineWidth) / (float)grid->Width);
         }
@@ -224,7 +224,7 @@ float TForm1::checkIfTableRatioZero(float in, TStringGrid *grid) {
 
  */
 
-String TForm1::calcElapsedTime(long a, long b) {
+String TWINDOW_MAIN::calcElapsedTime(long a, long b) {
         String out = "";
         long diff = b - a;
         int sec = diff % 60;
@@ -240,7 +240,7 @@ String TForm1::calcElapsedTime(long a, long b) {
         return out;
 }
 
-void TForm1::updateFontOfGui(TFont *font) {
+void TWINDOW_MAIN::updateFontOfGui(TFont *font) {
         this->StringGrid1->Font->Charset = font->Charset;
         this->StringGrid1->Font->Name = font->Name;
         this->StringGrid1->Font->Size = font->Size;
@@ -263,7 +263,7 @@ void TForm1::updateFontOfGui(TFont *font) {
         WINDOW_UPDATE->Font->Charset = font->Charset;
 }
 
-void TForm1::updateFilterOfGui() {
+void TWINDOW_MAIN::updateFilterOfGui() {
         this->Edit3->Text = IntToStr(this->serverFilter->minPlayers);
         this->UpDown1->Position = this->serverFilter->minPlayers;
         this->Edit2->Text = this->serverFilter->getServerName();
@@ -279,7 +279,7 @@ void TForm1::updateFilterOfGui() {
         this->CHECKBOX_FILTER_WITHOUTPASSWORD->Checked = this->serverFilter->withoutPassword;
 }
 
-void TForm1::writeServerToStringGrid(int rowIndex, int serverID) {
+void TWINDOW_MAIN::writeServerToStringGrid(int rowIndex, int serverID) {
         Server *srv = this->ofpm->getServerByID(serverID);
         if(srv != NULL) {
                 this->StringGrid1->Cells[0][rowIndex] = " " + IntToStr(srv->getServerID());
@@ -315,7 +315,7 @@ void TForm1::writeServerToStringGrid(int rowIndex, int serverID) {
         }
 }
 
-void TForm1::writePlayerToStringGrid(int rowIndex, Player *p) {
+void TWINDOW_MAIN::writePlayerToStringGrid(int rowIndex, Player *p) {
         this->StringGrid2->Cells[0][rowIndex] = p->name;
         this->StringGrid2->Cells[1][rowIndex] = p->score;
         this->StringGrid2->Cells[2][rowIndex] = p->deaths;
@@ -334,7 +334,7 @@ void TForm1::writePlayerToStringGrid(int rowIndex, Player *p) {
    14: Playing
  */
 
-String TForm1::getGameState (int i) {
+String TWINDOW_MAIN::getGameState (int i) {
         String out = IntToStr(i);
         switch (i) {
                 case SERVERSTATE_UNDEFINED:
@@ -369,7 +369,7 @@ String TForm1::getGameState (int i) {
    @return  'true' is c does contain d, otherwise 'false'
  */
 
-bool TForm1::doNameFilter(String c, String d) {
+bool TWINDOW_MAIN::doNameFilter(String c, String d) {
         bool out = false;
         String a = c.LowerCase();
         String b = d.LowerCase();
@@ -386,7 +386,7 @@ bool TForm1::doNameFilter(String c, String d) {
    Empties the Server table
  */
 
-void TForm1::setEmptyServerList() {
+void TWINDOW_MAIN::setEmptyServerList() {
         for(int i = 0; i < this->StringGrid1->ColCount; i++) {
                 this->StringGrid1->Cells[i][1] = "";
         }
@@ -401,7 +401,7 @@ void TForm1::setEmptyServerList() {
    @return  the number with leading zeros as a String
  */
 
-String TForm1::addLeadingZeros(int number, int length) {
+String TWINDOW_MAIN::addLeadingZeros(int number, int length) {
         String a = IntToStr(number);
         while (a.Length() < length) {
                 a = "0" + a;
@@ -413,7 +413,7 @@ String TForm1::addLeadingZeros(int number, int length) {
    Empties the Player table
  */
 
-void TForm1::setEmptyPlayerList() {
+void TWINDOW_MAIN::setEmptyPlayerList() {
         this->StringGrid2->RowCount = 2;
         for(int i = 0; i < this->StringGrid2->ColCount; i++) {
                 this->StringGrid2->Cells[i][1] = "";
@@ -429,7 +429,7 @@ void TForm1::setEmptyPlayerList() {
            couldnt be found   
  */
 
-void TForm1::processPlayerList(int serverID) {
+void TWINDOW_MAIN::processPlayerList(int serverID) {
         TStringList *plist = new TStringList;
         plist->Sorted = true;
         plist->CaseSensitive = true;
@@ -506,7 +506,7 @@ void TForm1::processPlayerList(int serverID) {
    @index  the index of the server
  */
 
-void TForm1::updateServerInfoBox(int serverID) {
+void TWINDOW_MAIN::updateServerInfoBox(int serverID) {
         Server *srv = this->ofpm->getServerByID(serverID);
         if(srv != NULL) {
                 if(srv->isOnline()) {
@@ -546,7 +546,7 @@ void TForm1::updateServerInfoBox(int serverID) {
                by the user (e.g. changing filter rules)
 
  */
-void TForm1::filterChanged(bool userinput) {
+void TWINDOW_MAIN::filterChanged(bool userinput) {
         if(filterChanging) {
                 return;
         }
@@ -654,7 +654,7 @@ void TForm1::filterChanged(bool userinput) {
    Copys a String to the clipboard of the OS
  */
 
-void TForm1::copyToClipBoard (String msg) {
+void TWINDOW_MAIN::copyToClipBoard (String msg) {
 	if (OpenClipboard(NULL) != 0) {
 		EmptyClipboard();
                 HGLOBAL hClipboardData;
@@ -668,7 +668,7 @@ void TForm1::copyToClipBoard (String msg) {
         }
 }
 
-void TForm1::updateGameControlGui() {
+void TWINDOW_MAIN::updateGameControlGui() {
         bool foundProcess = false;
         for(int i = 0; i < this->ComboBox1->Items->Count; i++) {
                 ProcessInfo *proc = (ProcessInfo *) this->ComboBox1->Items->Objects[i];
@@ -754,7 +754,7 @@ void TForm1::updateGameControlGui() {
 }
 
 
-void TForm1::updateWindowSettingsPosition() {
+void TWINDOW_MAIN::updateWindowSettingsPosition() {
         this->windowSettings->setLeft(this->Left);
         this->windowSettings->setTop(this->Top);
         this->windowSettings->setHeight(this->Height);
@@ -762,7 +762,7 @@ void TForm1::updateWindowSettingsPosition() {
         this->windowSettings->setDevider(this->PageControl1->Height);
 }
 
-void TForm1::applyWindowSettings() {
+void TWINDOW_MAIN::applyWindowSettings() {
         this->Position = poDesigned;
         this->Top = this->windowSettings->getTop();
         this->Left = this->windowSettings->getLeft();
@@ -786,7 +786,7 @@ void TForm1::applyWindowSettings() {
         this->setAlwaysOnTop(this->windowSettings->isAlwaysOnTopSet());
 }
 
-void TForm1::applyWindowSettingsRatios() {
+void TWINDOW_MAIN::applyWindowSettingsRatios() {
         for(int i = 0; i < this->StringGrid1->ColCount; i++) {
                 this->StringGrid1->ColWidths[i] = (float)this->StringGrid1->Width *
                         this->windowSettings->checkIfZero(this->windowSettings->getRatioServerTable(i), this->StringGrid1);
@@ -797,7 +797,7 @@ void TForm1::applyWindowSettingsRatios() {
         }
 }
 
-void TForm1::setSelectedServer(int serverID) {
+void TWINDOW_MAIN::setSelectedServer(int serverID) {
         if(this->selectedServerID >= 0) {
                 Server *srv = this->ofpm->getServerByID(this->selectedServerID);
                 if(srv != NULL) {
@@ -813,7 +813,7 @@ void TForm1::setSelectedServer(int serverID) {
         }
 }
 
-bool TForm1::getServerPasswordDialog(String &password) {
+bool TWINDOW_MAIN::getServerPasswordDialog(String &password) {
         String caption = this->languageDB->getGuiString("STRING_PASSWORDDIALOG_TITLE");
         Server *srv = this->ofpm->getServerByID(this->selectedServerID);
         String text = "";
@@ -824,7 +824,7 @@ bool TForm1::getServerPasswordDialog(String &password) {
         return InputQuery(caption, text, password);
 }
 
-void TForm1::setAlwaysOnTop(bool active) {
+void TWINDOW_MAIN::setAlwaysOnTop(bool active) {
         this->windowSettings->setAlwaysOnTop(active);
         if(active) {
                 SetWindowPos(this->Handle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE |SWP_NOOWNERZORDER);
@@ -834,15 +834,15 @@ void TForm1::setAlwaysOnTop(bool active) {
         StatusBar1->Repaint();
 }
 
-void TForm1::toggleAlwaysOnTop() {
+void TWINDOW_MAIN::toggleAlwaysOnTop() {
         this->setAlwaysOnTop(!this->windowSettings->isAlwaysOnTopSet());
 }
 
-void TForm1::enableSavingOfSettings(bool enabled) {
+void TWINDOW_MAIN::enableSavingOfSettings(bool enabled) {
         this->allowSavingOfSettings = enabled;
 }
 
-void TForm1::saveSettings() {
+void TWINDOW_MAIN::saveSettings() {
         if(this->allowSavingOfSettings &&
            this->ofpm != NULL &&
            this->serverFilter != NULL &&
@@ -865,7 +865,7 @@ void TForm1::saveSettings() {
         }
 }
 
-bool TForm1::startUp() {
+bool TWINDOW_MAIN::startUp() {
         if(this->ofpm == NULL) {
                 return false;
         }
@@ -887,20 +887,20 @@ bool TForm1::startUp() {
         return true;
 }
 
-void TForm1::skipTimerWaitInterval() {
+void TWINDOW_MAIN::skipTimerWaitInterval() {
         if(this->ofpm != NULL) {
-                Form1->Timer1->Tag = this->ofpm->getInterval();
+                this->Timer1->Tag = this->ofpm->getInterval();
         }
 }
 
-void TForm1::checkIfWindowIsReachable() {
+void TWINDOW_MAIN::checkIfWindowIsReachable() {
         HMONITOR monitorHandle = MonitorFromWindow(this->Handle, MONITOR_DEFAULTTONULL);
         if(monitorHandle == NULL) {
                 this->Position = poScreenCenter;
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::FormCreate(TObject *Sender)
+void __fastcall TWINDOW_MAIN::FormCreate(TObject *Sender)
 {
         Application->OnMinimize = OnMinimize;
         this->Caption = Application->Title;
@@ -931,12 +931,12 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
         this->lastAutoSave = Now();
 }
 //---------------------------------------------------------------------------
-__fastcall TForm1::TForm1(TComponent* Owner)
+__fastcall TWINDOW_MAIN::TWINDOW_MAIN(TComponent* Owner)
         : TForm(Owner)
 {
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
+void __fastcall TWINDOW_MAIN::StringGrid1SelectCell(TObject *Sender, int ACol,
       int ARow, bool &CanSelect)
 {
         String z = (StringGrid1->Cells[0][ARow]).Trim();
@@ -954,7 +954,7 @@ void __fastcall TForm1::StringGrid1SelectCell(TObject *Sender, int ACol,
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::Timer1Timer(TObject *Sender)
+void __fastcall TWINDOW_MAIN::Timer1Timer(TObject *Sender)
 {
         int i = Timer1->Tag;
         i++;
@@ -978,7 +978,7 @@ void __fastcall TForm1::Timer1Timer(TObject *Sender)
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
+void __fastcall TWINDOW_MAIN::FormClose(TObject *Sender, TCloseAction &Action)
 {
         this->Enabled = false;
         Timer1->Enabled = false;
@@ -992,60 +992,60 @@ void __fastcall TForm1::FormClose(TObject *Sender, TCloseAction &Action)
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::BUTTON_SERVERINFO_COPYADDRESSClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::BUTTON_SERVERINFO_COPYADDRESSClick(TObject *Sender)
 {
         this->copyToClipBoard(LABEL_SERVERINFO_IP_VALUE->Caption + ":" + LABEL_SERVERINFO_PORT_VALUE->Caption);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CHECKBOX_FILTER_PLAYINGClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_FILTER_PLAYINGClick(TObject *Sender)
 {
         this->serverFilter->playing = CHECKBOX_FILTER_PLAYING->Checked;
         this->filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CHECKBOX_FILTER_WAITINGClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_FILTER_WAITINGClick(TObject *Sender)
 {
         this->serverFilter->waiting = CHECKBOX_FILTER_WAITING->Checked;
         this->filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CHECKBOX_FILTER_CREATINGClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_FILTER_CREATINGClick(TObject *Sender)
 {
         this->serverFilter->creating = CHECKBOX_FILTER_CREATING->Checked;
         this->filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CHECKBOX_FILTER_BRIEFINGClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_FILTER_BRIEFINGClick(TObject *Sender)
 {
         this->serverFilter->briefing = CHECKBOX_FILTER_BRIEFING->Checked;
         this->filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CHECKBOX_FILTER_DEBRIEFINGClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_FILTER_DEBRIEFINGClick(TObject *Sender)
 {
         this->serverFilter->debriefing = CHECKBOX_FILTER_DEBRIEFING->Checked;
         this->filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CHECKBOX_FILTER_WITHPASSWORDClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_FILTER_WITHPASSWORDClick(TObject *Sender)
 {
         this->serverFilter->withPassword = CHECKBOX_FILTER_WITHPASSWORD->Checked;
         this->filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CHECKBOX_FILTER_WITHOUTPASSWORDClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_FILTER_WITHOUTPASSWORDClick(TObject *Sender)
 {
         this->serverFilter->withoutPassword = CHECKBOX_FILTER_WITHOUTPASSWORD->Checked;
         this->filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::Edit1Change(TObject *Sender)
+void __fastcall TWINDOW_MAIN::Edit1Change(TObject *Sender)
 {
         this->serverFilter->setMissionName(Edit1->Text);
         this->filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
+void __fastcall TWINDOW_MAIN::StringGrid1MouseDown(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
         if(Button == mbLeft && Y < StringGrid1->DefaultRowHeight) {
@@ -1124,13 +1124,13 @@ void __fastcall TForm1::StringGrid1MouseDown(TObject *Sender,
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::Edit2Change(TObject *Sender)
+void __fastcall TWINDOW_MAIN::Edit2Change(TObject *Sender)
 {
         this->serverFilter->setServerName(Edit2->Text);
         this->filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::StringGrid2MouseDown(TObject *Sender,
+void __fastcall TWINDOW_MAIN::StringGrid2MouseDown(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
         int col0, col1, col2, col3, col4, col5, col6;
@@ -1155,13 +1155,13 @@ void __fastcall TForm1::StringGrid2MouseDown(TObject *Sender,
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::Edit4Change(TObject *Sender)
+void __fastcall TWINDOW_MAIN::Edit4Change(TObject *Sender)
 {
         this->serverFilter->setPlayerName(Edit4->Text);
         this->filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
+void __fastcall TWINDOW_MAIN::PopupMenu1Popup(TObject *Sender)
 {
         int serverID = this->selectedServerIDForPopUp;
         Server *srv = this->ofpm->getServerByID(serverID);
@@ -1252,7 +1252,7 @@ void __fastcall TForm1::PopupMenu1Popup(TObject *Sender)
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::ClickJoinButton(TObject *Sender)
+void __fastcall TWINDOW_MAIN::ClickJoinButton(TObject *Sender)
 {
         this->ofpm->disableAutoJoin();
         Server *srv = this->ofpm->getServerByID(this->selectedServerIDForPopUp);
@@ -1297,7 +1297,7 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
         }
 }
 //---------------------------------------------------------------------------
-  void __fastcall TForm1::ClickAutoJoinConfButton(TObject *Sender)
+  void __fastcall TWINDOW_MAIN::ClickAutoJoinConfButton(TObject *Sender)
 {
         this->ofpm->disableAutoJoin();
         int tag = ((TMenuItem*)Sender)->Tag;
@@ -1335,7 +1335,7 @@ void __fastcall TForm1::ClickJoinButton(TObject *Sender)
         this->filterChanged(false);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::ClickWatchButton(TObject *Sender)
+void __fastcall TWINDOW_MAIN::ClickWatchButton(TObject *Sender)
 {
         Server *srv = this->ofpm->getServerByID(this->selectedServerIDForPopUp);
         if(srv != NULL) {
@@ -1351,13 +1351,13 @@ void __fastcall TForm1::ClickWatchButton(TObject *Sender)
         StringGrid1->Refresh();
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::CHECKBOX_FILTER_SETTINGUPClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_FILTER_SETTINGUPClick(TObject *Sender)
 {
         this->serverFilter->settingup = CHECKBOX_FILTER_SETTINGUP->Checked;
         this->filterChanged(true);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key,
+void __fastcall TWINDOW_MAIN::FormKeyDown(TObject *Sender, WORD &Key,
       TShiftState Shift)
 {
         if(Key == VK_ESCAPE) {
@@ -1373,7 +1373,7 @@ void __fastcall TForm1::FormKeyDown(TObject *Sender, WORD &Key,
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
+void __fastcall TWINDOW_MAIN::StringGrid1DrawCell(TObject *Sender, int ACol,
       int ARow, TRect &Rect, TGridDrawState State)
 {
         if(ACol > 0 && ARow > 0 && !(StringGrid1->Cells[0][ARow]).Trim().IsEmpty()) {
@@ -1407,18 +1407,18 @@ void __fastcall TForm1::StringGrid1DrawCell(TObject *Sender, int ACol,
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::MENUITEM_MAINMENU_SETTINGSClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::MENUITEM_MAINMENU_SETTINGSClick(TObject *Sender)
 {
         WINDOW_SETTINGS->ShowModal();
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::MENUITEM_MAINMENU_EXITClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::MENUITEM_MAINMENU_EXITClick(TObject *Sender)
 {
         this->Close();
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::MENUITEM_MAINMENU_FONTClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::MENUITEM_MAINMENU_FONTClick(TObject *Sender)
 {
         FontDialog1->Font = StringGrid1->Font;
         if(FontDialog1->Execute()) {
@@ -1426,7 +1426,7 @@ void __fastcall TForm1::MENUITEM_MAINMENU_FONTClick(TObject *Sender)
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::FormResize(TObject *Sender)
+void __fastcall TWINDOW_MAIN::FormResize(TObject *Sender)
 {
         StringGrid2->Width = TABSHEET_SERVERINFO->PageControl->Pages[0]->Width - (GROUPBOX_SERVERINFO->Width + 5);
         StringGrid1->Width = this->ClientWidth;
@@ -1435,12 +1435,12 @@ void __fastcall TForm1::FormResize(TObject *Sender)
         StatusBar1->Realign();
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::FontDialog1Apply(TObject *Sender, HWND Wnd)
+void __fastcall TWINDOW_MAIN::FontDialog1Apply(TObject *Sender, HWND Wnd)
 {
         this->fontSettings->setFont(FontDialog1->Font);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::MENUITEM_POPUP_AUTOJOINBClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::MENUITEM_POPUP_AUTOJOINBClick(TObject *Sender)
 {
         if(this->ofpm != NULL) {
                 this->ofpm->disableAutoJoin();
@@ -1449,7 +1449,7 @@ void __fastcall TForm1::MENUITEM_POPUP_AUTOJOINBClick(TObject *Sender)
         filterChanged(false);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::StringGrid1ContextPopup(TObject *Sender,
+void __fastcall TWINDOW_MAIN::StringGrid1ContextPopup(TObject *Sender,
       TPoint &MousePos, bool &Handled)
 {
         int X = StringGrid1->ColWidths[0] + StringGrid1->ColWidths[1];
@@ -1457,14 +1457,14 @@ void __fastcall TForm1::StringGrid1ContextPopup(TObject *Sender,
         this->StringGrid1MouseDown(Sender, mbRight, TShiftState(), X, Y);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::Splitter1Moved(TObject *Sender)
+void __fastcall TWINDOW_MAIN::Splitter1Moved(TObject *Sender)
 {
         Application->ProcessMessages();
         this->windowSettings->setDevider(this->PageControl1->Height);
         this->Refresh();
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::Info1Click(TObject *Sender)
+void __fastcall TWINDOW_MAIN::Info1Click(TObject *Sender)
 {
         WINDOW_INFO->ShowModal();
 }
@@ -1482,7 +1482,7 @@ DWORD WINAPI chatThread (LPVOID lpdwThreadParam__ ) {
         return 0;
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
 {
         MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = false;
         MemoChatInput->Clear();
@@ -1504,7 +1504,7 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
 {
         MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = false;
         if(this->chat != NULL) {
@@ -1513,7 +1513,7 @@ void __fastcall TForm1::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::StringGrid3MouseDown(TObject *Sender,
+void __fastcall TWINDOW_MAIN::StringGrid3MouseDown(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
         if(Shift.Contains(ssAlt) && Button == mbLeft) {
@@ -1531,7 +1531,7 @@ void __fastcall TForm1::StringGrid3MouseDown(TObject *Sender,
         }
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::StringGrid3DrawCell(TObject *Sender, int ACol,
+void __fastcall TWINDOW_MAIN::StringGrid3DrawCell(TObject *Sender, int ACol,
       int ARow, TRect &Rect, TGridDrawState State)
 {
         StringGrid3->Canvas->Font->Color = clBlack;
@@ -1550,22 +1550,22 @@ void __fastcall TForm1::StringGrid3DrawCell(TObject *Sender, int ACol,
                 -1, &Rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::OnMinimize(TObject *Sender)
+void __fastcall TWINDOW_MAIN::OnMinimize(TObject *Sender)
 {
         CoolTrayIcon1->HideMainForm();
 }
-void __fastcall TForm1::CoolTrayIcon1Click(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CoolTrayIcon1Click(TObject *Sender)
 {
         CoolTrayIcon1->ShowMainForm();
         CoolTrayIcon1->HideBalloonHint();
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::TABSHEET_CHATShow(TObject *Sender)
+void __fastcall TWINDOW_MAIN::TABSHEET_CHATShow(TObject *Sender)
 {
         TABSHEET_CHAT->Highlighted = false;
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::MemoChatInputKeyDown(TObject *Sender, WORD &Key,
+void __fastcall TWINDOW_MAIN::MemoChatInputKeyDown(TObject *Sender, WORD &Key,
       TShiftState Shift)
 {
         if(Key == VK_RETURN) {
@@ -1597,13 +1597,13 @@ void __fastcall TForm1::MemoChatInputKeyDown(TObject *Sender, WORD &Key,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::MENUITEM_MAINMENU_LOCALGAMEClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::MENUITEM_MAINMENU_LOCALGAMEClick(TObject *Sender)
 {
         WINDOW_LOCALGAME->ShowModal();
 }
 //---------------------------------------------------------------------------
                           
-void __fastcall TForm1::TabControl1DrawTab(TCustomTabControl *Control,
+void __fastcall TWINDOW_MAIN::TabControl1DrawTab(TCustomTabControl *Control,
       int TabIndex, const TRect &Rect, bool Active)
 {
         TRect r = Rect;
@@ -1623,7 +1623,7 @@ void __fastcall TForm1::TabControl1DrawTab(TCustomTabControl *Control,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::TabControl1Change(TObject *Sender)
+void __fastcall TWINDOW_MAIN::TabControl1Change(TObject *Sender)
 {
         if(TabControl1->Tabs->Count == 1) {
                 TabControl1->TabIndex = 0;
@@ -1638,7 +1638,7 @@ void __fastcall TForm1::TabControl1Change(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::TabControl1Changing(TObject *Sender,
+void __fastcall TWINDOW_MAIN::TabControl1Changing(TObject *Sender,
       bool &AllowChange)
 {
         if(TabControl1->Tabs->Count == 1) {
@@ -1654,7 +1654,7 @@ void __fastcall TForm1::TabControl1Changing(TObject *Sender,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::StringGrid3ContextPopup(TObject *Sender,
+void __fastcall TWINDOW_MAIN::StringGrid3ContextPopup(TObject *Sender,
       TPoint &MousePos, bool &Handled)
 {
         Openchat1->Visible = false;
@@ -1677,7 +1677,7 @@ void __fastcall TForm1::StringGrid3ContextPopup(TObject *Sender,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::Openchat1Click(TObject *Sender)
+void __fastcall TWINDOW_MAIN::Openchat1Click(TObject *Sender)
 {
         String name = Openchat1->Hint;
         if(!name.IsEmpty()) {
@@ -1695,7 +1695,7 @@ void __fastcall TForm1::Openchat1Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::TabControl1ContextPopup(TObject *Sender,
+void __fastcall TWINDOW_MAIN::TabControl1ContextPopup(TObject *Sender,
       TPoint &MousePos, bool &Handled)
 {
         Close1->Visible = false;
@@ -1715,7 +1715,7 @@ void __fastcall TForm1::TabControl1ContextPopup(TObject *Sender,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::Close1Click(TObject *Sender)
+void __fastcall TWINDOW_MAIN::Close1Click(TObject *Sender)
 {
         String name = Close1->Hint;
         if(!name.IsEmpty()) {
@@ -1730,31 +1730,31 @@ void __fastcall TForm1::Close1Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCEClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCEClick(TObject *Sender)
 {
         this->gameControl->setGreenUpRepeat(false);
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEATClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEATClick(TObject *Sender)
 {
         this->gameControl->setGreenUpRepeat(true);
 }
 //---------------------------------------------------------------------------
                    
-void __fastcall TForm1::CHECKBOX_GAMECONTROL_AUTOGREENUPClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_GAMECONTROL_AUTOGREENUPClick(TObject *Sender)
 {
         this->gameControl->enableAutoGreenUp(CHECKBOX_GAMECONTROL_AUTOGREENUP->Checked);
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::CHECKBOX_GAMECONTROL_RESTOREClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_GAMECONTROL_RESTOREClick(TObject *Sender)
 {
         this->gameControl->enableRestoreGame(CHECKBOX_GAMECONTROL_RESTORE->Checked);
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::ComboBox1Change(TObject *Sender)
+void __fastcall TWINDOW_MAIN::ComboBox1Change(TObject *Sender)
 {
         if(ComboBox1->ItemIndex > -1) {
                 ProcessInfo *p = (ProcessInfo*) ComboBox1->Items->Objects[ComboBox1->ItemIndex];
@@ -1766,7 +1766,7 @@ void __fastcall TForm1::ComboBox1Change(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::ComboBox2Change(TObject *Sender)
+void __fastcall TWINDOW_MAIN::ComboBox2Change(TObject *Sender)
 {
         if(ComboBox2->ItemIndex > -1) {
                 Server *srv = this->ofpm->getServerByID((int) (ComboBox2->Items->Objects[ComboBox2->ItemIndex]));
@@ -1777,43 +1777,43 @@ void __fastcall TForm1::ComboBox2Change(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::TABSHEET_GAMECONTROLShow(TObject *Sender)
+void __fastcall TWINDOW_MAIN::TABSHEET_GAMECONTROLShow(TObject *Sender)
 {
         BUTTON_GAMECONTROL_REFRESH->Click();
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::CHECKBOX_GAMECONTROL_RESTORE_CREATINGClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_GAMECONTROL_RESTORE_CREATINGClick(TObject *Sender)
 {
         this->gameControl->restoreOnCreating = CHECKBOX_GAMECONTROL_RESTORE_CREATING->Checked;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::CHECKBOX_GAMECONTROL_RESTORE_WAITINGClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_GAMECONTROL_RESTORE_WAITINGClick(TObject *Sender)
 {
         this->gameControl->restoreOnWaiting = CHECKBOX_GAMECONTROL_RESTORE_WAITING->Checked;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::CHECKBOX_GAMECONTROL_RESTORE_BRIEFINGClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_GAMECONTROL_RESTORE_BRIEFINGClick(TObject *Sender)
 {
         this->gameControl->restoreOnBriefing = CHECKBOX_GAMECONTROL_RESTORE_BRIEFING->Checked;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::CHECKBOX_GAMECONTROL_RESTORE_PLAYINGClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_GAMECONTROL_RESTORE_PLAYINGClick(TObject *Sender)
 {
         this->gameControl->restoreOnPlaying = CHECKBOX_GAMECONTROL_RESTORE_PLAYING->Checked;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFINGClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFINGClick(TObject *Sender)
 {
         this->gameControl->restoreOnDebriefing = CHECKBOX_GAMECONTROL_RESTORE_DEBRIEFING->Checked;
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::UpDown2ChangingEx(TObject *Sender,
+void __fastcall TWINDOW_MAIN::UpDown2ChangingEx(TObject *Sender,
       bool &AllowChange, short NewValue, TUpDownDirection Direction)
 {
         this->gameControl->setGreenUpDelay(NewValue);
@@ -1821,14 +1821,14 @@ void __fastcall TForm1::UpDown2ChangingEx(TObject *Sender,
 //---------------------------------------------------------------------------
 
 
-void __fastcall TForm1::CHECKBOX_GAMECONTROL_AUTODETECTClick(
+void __fastcall TWINDOW_MAIN::CHECKBOX_GAMECONTROL_AUTODETECTClick(
       TObject *Sender)
 {
         this->gameControl->setAutoDetect(CHECKBOX_GAMECONTROL_AUTODETECT->Checked);
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
 {
         for(int i = 0; i < ComboBox1->Items->Count; i++) {
                 ProcessInfo *pi = (ProcessInfo*) ComboBox1->Items->Objects[i];
@@ -1886,16 +1886,16 @@ void __fastcall TForm1::BUTTON_GAMECONTROL_REFRESHClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::FormShow(TObject *Sender)
+void __fastcall TWINDOW_MAIN::FormShow(TObject *Sender)
 {
         if(!this->startUpDone) {
-                this->startUpDone = Form1->startUp();
+                this->startUpDone = this->startUp();
         }
         this->checkIfWindowIsReachable();
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::StringGrid1MouseUp(TObject *Sender,
+void __fastcall TWINDOW_MAIN::StringGrid1MouseUp(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
         for(int i = 0; i < this->StringGrid1->ColCount; i++) {
@@ -1904,7 +1904,7 @@ void __fastcall TForm1::StringGrid1MouseUp(TObject *Sender,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::StringGrid2MouseUp(TObject *Sender,
+void __fastcall TWINDOW_MAIN::StringGrid2MouseUp(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
         for(int i = 0; i < this->StringGrid2->ColCount; i++) {
@@ -1913,14 +1913,14 @@ void __fastcall TForm1::StringGrid2MouseUp(TObject *Sender,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::FormConstrainedResize(TObject *Sender,
+void __fastcall TWINDOW_MAIN::FormConstrainedResize(TObject *Sender,
       int &MinWidth, int &MinHeight, int &MaxWidth, int &MaxHeight)
 {
         this->updateWindowSettingsPosition();        
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::UpDown1ChangingEx(TObject *Sender,
+void __fastcall TWINDOW_MAIN::UpDown1ChangingEx(TObject *Sender,
       bool &AllowChange, short NewValue, TUpDownDirection Direction)
 {
         bool withinRange = (NewValue >= UpDown1->Min) && (NewValue <= UpDown1->Max);
@@ -1932,7 +1932,7 @@ void __fastcall TForm1::UpDown1ChangingEx(TObject *Sender,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::StatusBar1DrawPanel(TStatusBar *StatusBar,
+void __fastcall TWINDOW_MAIN::StatusBar1DrawPanel(TStatusBar *StatusBar,
       TStatusPanel *Panel, const TRect &Rect)
 {
         StatusBar1->Canvas->Brush->Color = StatusBar1->Color;
@@ -1964,7 +1964,7 @@ void __fastcall TForm1::StatusBar1DrawPanel(TStatusBar *StatusBar,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::StatusBar1MouseDown(TObject *Sender,
+void __fastcall TWINDOW_MAIN::StatusBar1MouseDown(TObject *Sender,
       TMouseButton Button, TShiftState Shift, int X, int Y)
 {
         if(Button == mbLeft) {
@@ -1991,7 +1991,7 @@ void __fastcall TForm1::StatusBar1MouseDown(TObject *Sender,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::FormDestroy(TObject *Sender)
+void __fastcall TWINDOW_MAIN::FormDestroy(TObject *Sender)
 {
         delete this->serverTableSorter;
         delete this->playerTableSorter;
@@ -2003,7 +2003,7 @@ void __fastcall TForm1::FormDestroy(TObject *Sender)
 
 
 
-void __fastcall TForm1::PageControl1DrawTab(TCustomTabControl *Control,
+void __fastcall TWINDOW_MAIN::PageControl1DrawTab(TCustomTabControl *Control,
       int TabIndex, const TRect &Rect, bool Active)
 {
         int imageId = PageControl1->Pages[TabIndex]->ImageIndex;
@@ -2035,7 +2035,7 @@ void __fastcall TForm1::PageControl1DrawTab(TCustomTabControl *Control,
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
 {
         if(this->ofpm->isServerListUpdateDone()) {
                 MENUITEM_MAINMENU_GETNEWSERVERLIST->Enabled = false;
@@ -2044,7 +2044,7 @@ void __fastcall TForm1::MENUITEM_MAINMENU_GETNEWSERVERLISTClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::COMBOBOX_OVERWRITE_MASTERSERVERChange(TObject *Sender)
+void __fastcall TWINDOW_MAIN::COMBOBOX_OVERWRITE_MASTERSERVERChange(TObject *Sender)
 {
         int index = COMBOBOX_OVERWRITE_MASTERSERVER->ItemIndex;
         if(index >= 0 && index < COMBOBOX_OVERWRITE_MASTERSERVER->Items->Count) {
@@ -2054,7 +2054,7 @@ void __fastcall TForm1::COMBOBOX_OVERWRITE_MASTERSERVERChange(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::CHECKBOX_GAMECONTROL_OVERWRITE_MASTERSERVERClick(TObject *Sender)
+void __fastcall TWINDOW_MAIN::CHECKBOX_GAMECONTROL_OVERWRITE_MASTERSERVERClick(TObject *Sender)
 {
         this->gameControl->enableMasterServerOverwrite(CHECKBOX_GAMECONTROL_OVERWRITE_MASTERSERVER->Checked);
 }

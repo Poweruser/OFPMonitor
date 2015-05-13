@@ -37,7 +37,7 @@
 //---------------------------------------------------------------------------
 
 
-class TForm1 : public TForm, public Observer
+class TWINDOW_MAIN : public TForm, public Observer
 {
 __published:	// IDE-managed Components
         TStringGrid *StringGrid1;
@@ -293,52 +293,52 @@ private:	// User declarations
         TDateTime lastAutoSave;
         bool startUpDone;
 
-        float TForm1::checkIfTableRatioZero(float in, TStringGrid *grid);
-        void TForm1::updateFilterOfGui();
-        void TForm1::updateGameControlGui();
-        void TForm1::updateFontOfGui(TFont *font);
-        void TForm1::writeServerToStringGrid(int rowIndex, int serverID);
-        void TForm1::processPlayerList(int serverID);
-        void TForm1::writePlayerToStringGrid(int rowIndex, Player *p);
-        void TForm1::updateServerInfoBox(int serverID);
-        void TForm1::filterChanged(bool userinput);
-        void TForm1::setEmptyServerList();
-        void TForm1::setEmptyPlayerList();
-        String TForm1::getGameState (int i);
-        void TForm1::updateWindowSettingsPosition();
-        void TForm1::applyWindowSettingsRatios();
-        bool TForm1::getServerPasswordDialog(String &password);
-        String TForm1::calcElapsedTime(long a, long b);
-        String TForm1::addLeadingZeros(int number, int length);
-        void TForm1::copyToClipBoard (String msg);
-        void TForm1::ChatNotification(String msg);
-        bool TForm1::isInForeground();
-        bool TForm1::startUp();
+        float TWINDOW_MAIN::checkIfTableRatioZero(float in, TStringGrid *grid);
+        void TWINDOW_MAIN::updateFilterOfGui();
+        void TWINDOW_MAIN::updateGameControlGui();
+        void TWINDOW_MAIN::updateFontOfGui(TFont *font);
+        void TWINDOW_MAIN::writeServerToStringGrid(int rowIndex, int serverID);
+        void TWINDOW_MAIN::processPlayerList(int serverID);
+        void TWINDOW_MAIN::writePlayerToStringGrid(int rowIndex, Player *p);
+        void TWINDOW_MAIN::updateServerInfoBox(int serverID);
+        void TWINDOW_MAIN::filterChanged(bool userinput);
+        void TWINDOW_MAIN::setEmptyServerList();
+        void TWINDOW_MAIN::setEmptyPlayerList();
+        String TWINDOW_MAIN::getGameState (int i);
+        void TWINDOW_MAIN::updateWindowSettingsPosition();
+        void TWINDOW_MAIN::applyWindowSettingsRatios();
+        bool TWINDOW_MAIN::getServerPasswordDialog(String &password);
+        String TWINDOW_MAIN::calcElapsedTime(long a, long b);
+        String TWINDOW_MAIN::addLeadingZeros(int number, int length);
+        void TWINDOW_MAIN::copyToClipBoard (String msg);
+        void TWINDOW_MAIN::ChatNotification(String msg);
+        bool TWINDOW_MAIN::isInForeground();
+        bool TWINDOW_MAIN::startUp();
 
 public:		// User declarations
-        void TForm1::readServerList(list<ServerConfigEntry> &in);
-        bool TForm1::doNameFilter(String c, String d);
-        void TForm1::setModel(OFPMonitorModel *model);
-        void TForm1::setGameControl(GameControl *gameControl);
-        void TForm1::setServerFilter(ServerFilter *serverFilter);
-        void TForm1::setFontSettings(FontSettings *fontSettings);
-        void TForm1::setWindowSettings(WindowSettings *windowSettings);
-        void TForm1::setChatSettings(ChatSettings *chatSettings);
-        void TForm1::setLanguageDB(LanguageDB *languageDB);
-        void TForm1::applyWindowSettings();
-        void TForm1::setSelectedServer(int serverID);
-        void TForm1::setAlwaysOnTop(bool active);
-        void TForm1::toggleAlwaysOnTop();
-        __fastcall TForm1(TComponent* Owner);
-        void TForm1::update(Observable *o);
-        void TForm1::updateGuiLanguage();
-        void TForm1::enableSavingOfSettings(bool enabled);
-        void TForm1::saveSettings();
-        void TForm1::skipTimerWaitInterval();
-        void TForm1::checkIfWindowIsReachable();
+        void TWINDOW_MAIN::readServerList(list<ServerConfigEntry> &in);
+        bool TWINDOW_MAIN::doNameFilter(String c, String d);
+        void TWINDOW_MAIN::setModel(OFPMonitorModel *model);
+        void TWINDOW_MAIN::setGameControl(GameControl *gameControl);
+        void TWINDOW_MAIN::setServerFilter(ServerFilter *serverFilter);
+        void TWINDOW_MAIN::setFontSettings(FontSettings *fontSettings);
+        void TWINDOW_MAIN::setWindowSettings(WindowSettings *windowSettings);
+        void TWINDOW_MAIN::setChatSettings(ChatSettings *chatSettings);
+        void TWINDOW_MAIN::setLanguageDB(LanguageDB *languageDB);
+        void TWINDOW_MAIN::applyWindowSettings();
+        void TWINDOW_MAIN::setSelectedServer(int serverID);
+        void TWINDOW_MAIN::setAlwaysOnTop(bool active);
+        void TWINDOW_MAIN::toggleAlwaysOnTop();
+        __fastcall TWINDOW_MAIN(TComponent* Owner);
+        void TWINDOW_MAIN::update(Observable *o);
+        void TWINDOW_MAIN::updateGuiLanguage();
+        void TWINDOW_MAIN::enableSavingOfSettings(bool enabled);
+        void TWINDOW_MAIN::saveSettings();
+        void TWINDOW_MAIN::skipTimerWaitInterval();
+        void TWINDOW_MAIN::checkIfWindowIsReachable();
 
 };
 //---------------------------------------------------------------------------
-extern PACKAGE TForm1 *Form1;
+extern PACKAGE TWINDOW_MAIN *WINDOW_MAIN;
 //---------------------------------------------------------------------------
 #endif
