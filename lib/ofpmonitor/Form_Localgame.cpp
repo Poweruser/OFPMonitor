@@ -2,7 +2,7 @@
 
 #include <vcl.h>
 #pragma hdrstop      
-#include "Unit3.h"
+#include "Form_Localgame.h"
 #include "OFPMonitorDefinitions.h"
 #include "Game.h"
 

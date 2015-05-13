@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 
-#ifndef Unit3H
-#define Unit3H
+#ifndef Form_LocalgameH
+#define Form_LocalgameH
 
 #include "LanguageDB.h"
 #include "Observer.h"

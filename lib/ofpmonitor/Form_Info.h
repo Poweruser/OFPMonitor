@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 
-#ifndef Unit4H
-#define Unit4H
+#ifndef Form_InfoH
+#define Form_InfoH
 
 #include "LanguageDB.h"
 #include "Observer.h"

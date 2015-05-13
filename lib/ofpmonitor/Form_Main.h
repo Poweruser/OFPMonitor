@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 
-#ifndef Unit1H
-#define Unit1H
+#ifndef Form_MainH
+#define Form_MainH
 
 #include "Server.h"
 #include "Player.h"

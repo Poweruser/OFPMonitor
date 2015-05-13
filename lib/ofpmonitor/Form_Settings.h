@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 
-#ifndef Unit2H
-#define Unit2H
+#ifndef Form_SettingsH
+#define Form_SettingsH
 
 #include "OFPMonitorDefinitions.h"
 #include "OFPMonitorModel.h"      

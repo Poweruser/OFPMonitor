@@ -11,19 +11,19 @@
 #include "ProcessFinder.h"
 #include "FontSettings.h"
 #include "LanguageDB.h"
-#include "Unit1.h"
-#include "Unit2.h"
-#include "Unit3.h"
-#include "Unit4.h"
-#include "Unit5.h"
+#include "Form_Main.h"
+#include "Form_Settings.h"
+#include "Form_Localgame.h"
+#include "Form_Info.h"
+#include "Form_Update.h"
 #pragma hdrstop
 
 //---------------------------------------------------------------------------
-USEFORM("lib\ofpmonitor\Unit1.cpp", Form1);
-USEFORM("lib\ofpmonitor\Unit2.cpp", WINDOW_SETTINGS);
-USEFORM("lib\ofpmonitor\Unit3.cpp", WINDOW_LOCALGAME);
-USEFORM("lib\ofpmonitor\Unit4.cpp", WINDOW_INFO);
-USEFORM("lib\ofpmonitor\Unit5.cpp", WINDOW_UPDATE);
+USEFORM("lib\ofpmonitor\Form_Main.cpp", Form1);
+USEFORM("lib\ofpmonitor\Form_Settings.cpp", WINDOW_SETTINGS);
+USEFORM("lib\ofpmonitor\Form_Localgame.cpp", WINDOW_LOCALGAME);
+USEFORM("lib\ofpmonitor\Form_Info.cpp", WINDOW_INFO);
+USEFORM("lib\ofpmonitor\Form_Update.cpp", WINDOW_UPDATE);
 //---------------------------------------------------------------------------
 HANDLE hMutex;
 

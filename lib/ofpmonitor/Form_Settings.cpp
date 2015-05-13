@@ -7,8 +7,8 @@
                                                             
 #pragma hdrstop
 
-#include "Unit2.h"
-#include "Unit5.h"
+#include "Form_Settings.h"
+#include "Form_Update.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"

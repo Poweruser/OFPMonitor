@@ -1633,7 +1633,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         object LABEL_CHATSETTINGS_SELECTEDAUDIOFILE: TLabel
           Left = 16
           Top = 72
-          Width = 457
+          Width = 3
           Height = 13
         end
         object CHECKBOX_CHATSETTINGS_BALLONHINT: TCheckBox

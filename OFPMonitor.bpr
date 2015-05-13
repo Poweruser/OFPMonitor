@@ -21,15 +21,17 @@
       lib\ofpmonitor\ServerFilter.obj lib\ofpmonitor\ServerList.obj 
       lib\ofpmonitor\ServerListLoader.obj lib\ofpmonitor\ServerTableSorter.obj 
       lib\ofpmonitor\StatusChange.obj lib\ofpmonitor\StringSplitter.obj 
-      lib\ofpmonitor\UDPNetwork.obj lib\ofpmonitor\Unit1.obj 
-      lib\ofpmonitor\Unit2.obj lib\ofpmonitor\Unit3.obj lib\ofpmonitor\Unit4.obj 
-      lib\ofpmonitor\Unit5.obj lib\ofpmonitor\WindowSettings.obj"/>
+      lib\ofpmonitor\UDPNetwork.obj lib\ofpmonitor\Form_Main.obj 
+      lib\ofpmonitor\Form_Settings.obj lib\ofpmonitor\Form_Localgame.obj 
+      lib\ofpmonitor\Form_Info.obj lib\ofpmonitor\Form_Update.obj 
+      lib\ofpmonitor\WindowSettings.obj"/>
     <RESFILES value="resources\wavefiles.res resources\DefaultLanguage.res OFPMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
     <DEFFILE value=""/>
-    <RESDEPEN value="$(RESFILES) lib\ofpmonitor\Unit1.dfm lib\ofpmonitor\Unit2.dfm 
-      lib\ofpmonitor\Unit3.dfm lib\ofpmonitor\Unit4.dfm lib\ofpmonitor\Unit5.dfm"/>
+    <RESDEPEN value="$(RESFILES) lib\ofpmonitor\Form_Main.dfm lib\ofpmonitor\Form_Settings.dfm 
+      lib\ofpmonitor\Form_Localgame.dfm lib\ofpmonitor\Form_Info.dfm 
+      lib\ofpmonitor\Form_Update.dfm"/>
     <LIBFILES value="lib\psapi.lib lib\unrar.lib"/>
     <LIBRARIES value="IndyProtocols60.lib IndySystem60.lib IndyCore60.lib CoolTrayIcon.lib 
       bcbsmp.lib vclx.lib rtl.lib vcl.lib"/>
@@ -111,11 +113,11 @@
       <FILE FILENAME="lib\ofpmonitor\StatusChange.cpp" FORMNAME="" UNITNAME="StatusChange.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\StringSplitter.cpp" FORMNAME="" UNITNAME="StringSplitter.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\UDPNetwork.cpp" FORMNAME="" UNITNAME="UDPNetwork.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="lib\ofpmonitor\Unit1.cpp" FORMNAME="Form1" UNITNAME="Unit1" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="lib\ofpmonitor\Unit2.cpp" FORMNAME="WINDOW_SETTINGS" UNITNAME="Unit2" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="lib\ofpmonitor\Unit3.cpp" FORMNAME="WINDOW_LOCALGAME" UNITNAME="Unit3" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="lib\ofpmonitor\Unit4.cpp" FORMNAME="WINDOW_INFO" UNITNAME="Unit4" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="lib\ofpmonitor\Unit5.cpp" FORMNAME="WINDOW_UPDATE" UNITNAME="Unit5" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Form_Main.cpp" FORMNAME="Form1" UNITNAME="Form_Main" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Form_Settings.cpp" FORMNAME="WINDOW_SETTINGS" UNITNAME="Form_Settings" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Form_Localgame.cpp" FORMNAME="WINDOW_LOCALGAME" UNITNAME="Form_Localgame" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Form_Info.cpp" FORMNAME="WINDOW_INFO" UNITNAME="Form_Info" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Form_Update.cpp" FORMNAME="WINDOW_UPDATE" UNITNAME="Form_Update" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\WindowSettings.cpp" FORMNAME="" UNITNAME="WindowSettings.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>

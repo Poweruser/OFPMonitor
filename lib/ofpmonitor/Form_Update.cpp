@@ -8,9 +8,9 @@
 #include <IdHashMessageDigest.hpp>
 #pragma hdrstop
 
-#include "Unit1.h"
-#include "Unit2.h"
-#include "Unit5.h"
+#include "Form_Main.h"
+#include "Form_Settings.h"
+#include "Form_Update.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma link "IdIOHandler"
