@@ -126,6 +126,12 @@ class UpdateTracker {
                 delete this->http;
         }
 
+        void closeOpenConnections() {
+                if(this->http->Connected()) {
+                        this->http->Disconnect();
+                }
+        }
+
         void __fastcall IdHTTPWorkBegin(TObject *ASender,
                 TWorkMode AWorkMode, __int64 AWorkCountMax)
         {
@@ -179,6 +185,14 @@ class UpdateTracker {
 
 UpdateTracker *uT;
 
+void TWINDOW_UPDATE::cleanUp() {
+        this->Timer1->Enabled = false;
+        if(uT != NULL) {
+                delete uT;
+                uT = NULL;
+        }
+}
+
 DWORD WINAPI UpdaterThread_Step1 (LPVOID lpdwThreadParam__ ) {
                 UpdateTracker *uTracker = (UpdateTracker*) lpdwThreadParam__;
                 try {
@@ -187,8 +201,10 @@ DWORD WINAPI UpdaterThread_Step1 (LPVOID lpdwThreadParam__ ) {
                         uTracker->errorHappend(E.Message);
                         uTracker->step++;
                         uTracker->working = false;
+                        uTracker->closeOpenConnections();
                         return 0;
                 }
+                uTracker->closeOpenConnections();
                 uTracker->ms->Position = 0;
                 uTracker->stringList->LoadFromStream(uTracker->ms);
                 int begin = uTracker->stringList->IndexOf(SECTION_HEADER_START);
@@ -242,10 +258,21 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                 if(uTracker->newVersion && uTracker->answer == mrYes &&
                    DirectoryExists(uTracker->getUpdateDir()) &&
                    DirectoryExists(uT->getBackupDir())) {
-                        int begin = uTracker->stringList->IndexOf(SECTION_LOCATION_START);
-                        int end = uTracker->stringList->IndexOf(SECTION_LOCATION_END);
+                        int locationBegin = uTracker->stringList->IndexOf(SECTION_LOCATION_START);
+                        int locationEnd = uTracker->stringList->IndexOf(SECTION_LOCATION_END);
+                        int filesBegin = uTracker->stringList->IndexOf(SECTION_RELEASE_START);
+                        int filesEnd = uTracker->stringList->IndexOf(SECTION_RELEASE_END);
+                        if(locationBegin < 0 || locationEnd < 0 || locationBegin > locationEnd || filesBegin < 0 || filesEnd < 0 || filesBegin > filesEnd) {
+                                String error = "The content of the update information file is invalid. Please report this error.";
+                                uTracker->errorHappend(error);
+                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add(error);
+                                uTracker->updateDone = true;
+                                uTracker->step++;
+                                uTracker->working = false;
+                                return 0;
+                        }
                         String location = "";
-                        for(int i = begin + 1; i < end; i++) {
+                        for(int i = locationBegin + 1; i < locationEnd; i++) {
                                 String line = uT->stringList->Strings[i].Trim();
                                 if(!line.IsEmpty()) {
                                         location = line;
@@ -253,14 +280,12 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                 }
                         }
 
-                        begin = uTracker->stringList->IndexOf(SECTION_RELEASE_START);
-                        end = uTracker->stringList->IndexOf(SECTION_RELEASE_END);
-                        WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Max = end - (begin + 1);
+                        WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Max = filesEnd - (filesBegin + 1);
                         WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Position = 0;
                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Downloading files ...");
 
                         bool failedToDownloadAFile = false;
-                        for(int i = begin + 1; i < end; i++) {
+                        for(int i = filesBegin + 1; i < filesEnd; i++) {
                                 StringSplitter ssp(uT->stringList->Strings[i].Trim());
                                 TStringList *item = ssp.split("#");
                                 bool success = false;
@@ -281,6 +306,7 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                                                 uT->errorHappend(error);
                                                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + error);
                                                         }
+                                                        uT->closeOpenConnections();
                                                         break;
                                                 case 1:
                                                         fileSize = item->Strings[element];
@@ -388,12 +414,6 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                 }
                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("... done.");
                         }
-
-                        try {
-                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->SaveToFile(uT->getMainDir() + "\\updateLog.txt");
-                        } catch(Exception &E) {
-                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Error while saving the update log: " + E.Message);
-                        }
                 }
                 uTracker->updateDone = true;
                 uTracker->step++;
@@ -405,9 +425,7 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
 
 void TWINDOW_UPDATE::checkForNewVersion (bool userTriggered) {
         WINDOW_SETTINGS->BUTTON_UPDATE->Enabled = false;
-        if(uT != NULL) {
-                delete uT;
-        }
+        this->cleanUp();
         uT = new UpdateTracker(userTriggered);
         WINDOW_UPDATE->Timer1->Enabled = true;
 }
@@ -456,6 +474,7 @@ void __fastcall TWINDOW_UPDATE::Timer1Timer(TObject *Sender)
                                         WINDOW_UPDATE->Show();
                                         uT->thread2 = CreateThread(0, 0, UpdaterThread_Step2, uT, 0, 0);
                                 } else {
+                                        this->cleanUp();
                                         WINDOW_SETTINGS->BUTTON_UPDATE->Enabled = true;
                                 }
                         } else {
@@ -467,15 +486,25 @@ void __fastcall TWINDOW_UPDATE::Timer1Timer(TObject *Sender)
                                                 ShowMessage(this->languageDB->getGuiString("STRING_UPDATE_ALREADYLATEST"));
                                         }
                                 }
+                                this->cleanUp();
                                 WINDOW_SETTINGS->BUTTON_UPDATE->Enabled = true;
                         }
                 } else if(uT->step == 3) {
                         if(uT->updateDone) {
-                                Timer1->Enabled = false;
-                                if(uT->didErrorHappen()) {
+                                String errorMsg = uT->errorMsg;
+                                String targetExe = uT->getApplicationExe();
+                                String targetDir = uT->getMainDir();
+                                boolean errorHappened = uT->didErrorHappen();
+                                this->cleanUp();
+                                try {
+                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->SaveToFile(targetDir + "\\updateLog.txt");
+                                } catch(Exception &E) {
+                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Error while saving the update log: " + E.Message);
+                                }
+                                if(errorHappened) {
                                         String message = "Update failed!\n\nFirst error: ";
-                                        message += uT->errorMsg;
-                                        message += "\nCheck the update log file " + uT->getMainDir() + "\\updateLog.txt for other errors as well.";
+                                        message += errorMsg;
+                                        message += "\nCheck the update log file " + targetDir + "\\updateLog.txt for other errors as well.";
                                         ShowMessage(message);
                                         WINDOW_UPDATE->Hide();
                                         Form1->Enabled = true;
@@ -483,10 +512,6 @@ void __fastcall TWINDOW_UPDATE::Timer1Timer(TObject *Sender)
                                         Form1->CoolTrayIcon1->IconVisible = true;
                                         Form1->Show();
                                 } else {
-                                        String targetExe = uT->getApplicationExe();
-                                        String targetDir = uT->getMainDir();
-                                        delete uT;
-                                        uT = NULL;
                                         releaseMutex();
                                         Form1->Close();
                                         ShellExecute(NULL, "open", PChar(targetExe.c_str()), PChar(""), PChar(targetDir.c_str()), SW_NORMAL);
@@ -500,10 +525,7 @@ void __fastcall TWINDOW_UPDATE::Timer1Timer(TObject *Sender)
 void __fastcall TWINDOW_UPDATE::FormClose(TObject *Sender,
       TCloseAction &Action)
 {
-        if(uT != NULL) {
-                delete uT;
-                uT = NULL;
-        }
+        this->cleanUp();
 }
 //---------------------------------------------------------------------------
 

@@ -42,6 +42,7 @@ private:	// User declarations
         LanguageDB *languageDB;
 
         void TWINDOW_UPDATE::updateGuiLanguage();
+        void TWINDOW_UPDATE::cleanUp();
 
 public:		// User declarations
         void TWINDOW_UPDATE::checkForNewVersion(bool userTriggered);
