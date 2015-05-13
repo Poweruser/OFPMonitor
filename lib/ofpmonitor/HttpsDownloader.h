@@ -29,6 +29,7 @@ class HttpsDownloader : public Observable {
                 void start();
                 void getFile(TStringList *file);
                 bool checkError();
+                void closeOpenConnections();
 
 
         private:

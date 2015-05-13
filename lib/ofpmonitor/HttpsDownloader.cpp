@@ -28,7 +28,7 @@ HttpsDownloader::HttpsDownloader(String url) {
 HttpsDownloader::~HttpsDownloader() {
         TerminateThread(this->thread, 0);
         delete this->ms;
-        this->http->Disconnect();
+        this->closeOpenConnections();
         delete this->ssl;
         delete this->http;
         delete this->file;
@@ -41,6 +41,7 @@ DWORD WINAPI DownloadThread (LPVOID lpdwThreadParam__ ) {
         } catch (EIdException &E) {
                 downloader->error = true;
         }
+        downloader->closeOpenConnections();
         downloader->NotifyObserver();
         return 0;
 }
@@ -56,4 +57,10 @@ void HttpsDownloader::getFile(TStringList *file) {
 
 bool HttpsDownloader::checkError() {
         return this->error;
+}
+
+void HttpsDownloader::closeOpenConnections() {
+        if(this->http->Connected()) {
+                this->http->Disconnect();
+        }
 }
