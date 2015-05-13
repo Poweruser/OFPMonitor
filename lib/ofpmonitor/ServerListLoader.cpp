@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include "ServerListLoader.h"
 #include "gamespy/gsmsalg.h"
-#include "Form_Main.h"
 //---------------------------------------------------------------------------
 
 #pragma package(smart_init)
