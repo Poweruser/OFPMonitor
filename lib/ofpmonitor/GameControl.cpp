@@ -373,8 +373,7 @@ String GameControl::getSelectedMasterServer() {
 
 void GameControl::overwriteMasterServer(String masterserver) {
         if(this->verifyProcess()) {
-                HANDLE phandle = NULL;
-                phandle = OpenProcess(PROCESS_ALL_ACCESS, 0, this->proc.pid);
+                HANDLE phandle = OpenProcess(PROCESS_ALL_ACCESS, 0, this->proc.pid);
                 if(phandle != NULL) {
                         FileVersion *fVersion = new FileVersion(this->proc.moduleName);
                         int ofpVersion = fVersion->getOFPVersion();
