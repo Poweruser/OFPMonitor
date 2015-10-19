@@ -19,7 +19,6 @@ class ChatSettings {
         public:
 
                 ChatSettings();
-                ChatSettings(String host, int port, String channel, String userName, bool ac);
                 void setSettings(String host, int port, String channel, String userName, bool ac);
                 String getHost();
                 int getPort();

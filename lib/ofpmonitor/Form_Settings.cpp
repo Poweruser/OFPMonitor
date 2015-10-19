@@ -730,14 +730,11 @@ void __fastcall TWINDOW_SETTINGS::FormClose(TObject *Sender, TCloseAction &Actio
                 STOP->Click();
         }
 
-        int port = StrToIntDef(EDIT_CHAT_IRCSERVER_PORT->Text, -1);
-        if(port > 0 && port < 65536) {
-                this->chatSettings->setSettings(EDIT_CHAT_IRCSERVER_ADDRESS->Text,
-                                                port,
-                                                EDIT_CHAT_IRCSERVER_CHANNEL->Text,
-                                                COMBOBOX_CHAT_USERNAME->Text.TrimRight(),
-                                                CHECKBOX_CHAT_AUTOCONNECT->Checked);
-        }
+        this->chatSettings->setSettings(EDIT_CHAT_IRCSERVER_ADDRESS->Text,
+                                        StrToIntDef(EDIT_CHAT_IRCSERVER_PORT->Text, -1),
+                                        EDIT_CHAT_IRCSERVER_CHANNEL->Text,
+                                        COMBOBOX_CHAT_USERNAME->Text.TrimRight(),
+                                        CHECKBOX_CHAT_AUTOCONNECT->Checked);
 }
 //---------------------------------------------------------------------------
 
@@ -1902,6 +1899,17 @@ void __fastcall TWINDOW_SETTINGS::TABSHEET_CHATSETTINGSShow(
       TObject *Sender)
 {
         updateChatSettings();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::TABSHEET_CHATSETTINGSExit(
+      TObject *Sender)
+{
+        this->chatSettings->setSettings(EDIT_CHAT_IRCSERVER_ADDRESS->Text,
+                                        StrToIntDef(EDIT_CHAT_IRCSERVER_PORT->Text, -1),
+                                        EDIT_CHAT_IRCSERVER_CHANNEL->Text,
+                                        COMBOBOX_CHAT_USERNAME->Text.TrimRight(),
+                                        CHECKBOX_CHAT_AUTOCONNECT->Checked);
 }
 //---------------------------------------------------------------------------
 

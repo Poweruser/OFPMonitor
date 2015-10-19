@@ -304,6 +304,7 @@ __published:	// IDE-managed Components
         void __fastcall CHECKBOX_CHATSETTINGS_AUDIONOTIFICATIONClick(
           TObject *Sender);
         void __fastcall TABSHEET_CHATSETTINGSShow(TObject *Sender);
+        void __fastcall TABSHEET_CHATSETTINGSExit(TObject *Sender);
 private:	// User declarations
 
         OFPMonitorModel *ofpm;

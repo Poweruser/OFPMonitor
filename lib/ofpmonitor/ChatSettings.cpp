@@ -23,20 +23,14 @@ ChatSettings::ChatSettings() {
         this->audioFile = "";
 }
 
-ChatSettings::ChatSettings(String host, int port, String channel, String userName, bool ac) {
-        this->host = host;
-        this->port = port;
-        this->channel = channel;
-        this->userName = userName;
-        this->autoConnect = ac;
-}
-
 void ChatSettings::setSettings(String host, int port, String channel, String userName, bool ac) {
-        this->host = host;
-        this->port = port;
-        this->channel = channel;
-        this->userName = userName;
-        this->autoConnect = ac;
+        if(port > 0 && port < 65536) {
+                this->host = host;
+                this->port = port;
+                this->channel = channel;
+                this->userName = userName;
+                this->autoConnect = ac;
+        }
 }
 
 void ChatSettings::setDefault() {

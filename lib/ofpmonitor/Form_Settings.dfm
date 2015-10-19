@@ -1516,6 +1516,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     object TABSHEET_CHATSETTINGS: TTabSheet
       Caption = 'Chat'
       ImageIndex = 4
+      OnExit = TABSHEET_CHATSETTINGSExit
       OnShow = TABSHEET_CHATSETTINGSShow
       object GROUPBOX_CHATSETTINGS_SERVER: TGroupBox
         Left = 8
