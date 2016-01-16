@@ -255,7 +255,7 @@ void HttpFileDownloader::downloadInSync() {
         String userAgent = Application->Title;
 
         this->openHandle = InternetOpen(userAgent.c_str(),
-                        INTERNET_OPEN_TYPE_DIRECT,
+                        INTERNET_OPEN_TYPE_PRECONFIG,
                         NULL,
                         NULL,
                         0);
