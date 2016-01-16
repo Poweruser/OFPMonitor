@@ -32,11 +32,14 @@ class QueueEntry : public Observable {
                 String getDescription();
 
         private:
+                HINTERNET requestHandle;
                 TMemoryStream *stream;
                 String errorMessage;
                 String resourceURL;
                 String description;
                 int progress;
+
+                void closeRequestHandle();
 };
 
 class HttpFileDownloader : public Observable, Observer {
@@ -67,7 +70,6 @@ class HttpFileDownloader : public Observable, Observer {
 
                 HINTERNET openHandle;
                 HINTERNET connectHandle;
-                HINTERNET requestHandle;
                 TList *queue;
                 bool useSSL;
 
@@ -79,6 +81,7 @@ class HttpFileDownloader : public Observable, Observer {
                 void exitWithError(String message);
                 void cleanUp();
                 QueueEntry* getQueueEntry(int queueIndex);
+                void closeConnection();
 };
 //---------------------------------------------------------------------------
 #endif

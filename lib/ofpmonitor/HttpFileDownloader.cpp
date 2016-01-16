@@ -15,6 +15,7 @@
  */
 
 QueueEntry::QueueEntry(String resourceURL, String description) {
+        this->requestHandle = NULL;
         this->resourceURL = resourceURL;
         this->stream = NULL;
         this->errorMessage = "";
@@ -51,7 +52,7 @@ bool QueueEntry::downloadResource(HINTERNET connectHandle, bool useSSL) {
         if(useSSL) {
                 flags |= INTERNET_FLAG_SECURE;
         }
-        HINTERNET requestHandle = HttpOpenRequest(connectHandle,
+        this->requestHandle = HttpOpenRequest(connectHandle,
                 _T("GET"),
                 _T(this->resourceURL.c_str()),
                 _T("HTTP/1.1"),
@@ -65,17 +66,18 @@ bool QueueEntry::downloadResource(HINTERNET connectHandle, bool useSSL) {
                 return false;
         }
 
-        if(!HttpSendRequest(requestHandle, NULL, 0, NULL, 0)) {
+        if(!HttpSendRequest(this->requestHandle, NULL, 0, NULL, 0)) {
                 this->errorMessage = "HttpSendRequest failed. (Error code: " + String(GetLastError()) + ")";
+                this->closeRequestHandle();
                 return false;
         }
         DWORD dwSize = 0;
         TMemoryStream *stream = new TMemoryStream;
         boolean checkForFileNotFoundError = true;
-        while (InternetQueryDataAvailable(requestHandle, &dwSize, 0, 0) && dwSize > 0) {
+        while (InternetQueryDataAvailable(this->requestHandle, &dwSize, 0, 0) && dwSize > 0) {
                 char *lpszData = new char[dwSize + 1];
                 DWORD  dwDownloaded = 0;
-                if(InternetReadFile(requestHandle, (LPVOID)lpszData, dwSize, &dwDownloaded)) {
+                if(InternetReadFile(this->requestHandle, (LPVOID)lpszData, dwSize, &dwDownloaded)) {
                         lpszData[dwDownloaded] = '\0';
                         if(checkForFileNotFoundError) {
                                 checkForFileNotFoundError = false;
@@ -118,6 +120,7 @@ bool QueueEntry::downloadResource(HINTERNET connectHandle, bool useSSL) {
                 this->progress = stream->Size;
                 this->NotifyObserver();
         }
+        this->closeRequestHandle();
         this->stream = stream;
         if(this->stream != NULL) {
                 this->stream->Position = 0;
@@ -157,6 +160,13 @@ String QueueEntry::getDescription() {
         return this->description;
 }
 
+void QueueEntry::closeRequestHandle() {
+        if(this->requestHandle != NULL) {
+                InternetCloseHandle(this->requestHandle);
+                this->requestHandle = NULL;
+        }
+}
+
 /*
  * Class HttpFileDownloader
  */
@@ -165,7 +175,6 @@ HttpFileDownloader::HttpFileDownloader() {
         this->thread = NULL;
         this->openHandle = NULL;
         this->connectHandle = NULL;
-        this->requestHandle = NULL;
         this->queue = new TList;
         this->useSSL = false;
         this->hostURL = "";
@@ -174,6 +183,7 @@ HttpFileDownloader::HttpFileDownloader() {
 }
 
 HttpFileDownloader::~HttpFileDownloader() {
+        this->closeConnection();
         if(this->thread != NULL) {
                 TerminateThread(this->thread, 0);
                 this->thread = NULL;
@@ -185,15 +195,6 @@ HttpFileDownloader::~HttpFileDownloader() {
                 this->queue->Delete(0);
         }
         delete this->queue;
-        if(this->requestHandle != NULL) {
-                InternetCloseHandle(this->requestHandle);
-        }
-        if(this->connectHandle != NULL) {
-                InternetCloseHandle(this->connectHandle);
-        }
-        if(this->openHandle != NULL) {
-                InternetCloseHandle(this->openHandle);
-        }
 }
 
 bool HttpFileDownloader::setHost(String hostURL) {
@@ -282,8 +283,8 @@ void HttpFileDownloader::downloadInSync() {
                 }
         } else {
                 this->mainErrorMessage = "InternetConnect failed. (Error code: " + String(GetLastError()) + ")";
-                return;
         }
+        this->closeConnection();
 }
 
 QueueEntry* HttpFileDownloader::getQueueEntry(int queueIndex) {
@@ -360,5 +361,16 @@ bool HttpFileDownloader::hasQueueIndex(int queueIndex) {
 
 void HttpFileDownloader::update(Observable *o) {
         this->NotifyObserver();
+}
+
+void HttpFileDownloader::closeConnection() {
+        if(this->connectHandle != NULL) {
+                InternetCloseHandle(this->connectHandle);
+                this->connectHandle = NULL;
+        }
+        if(this->openHandle != NULL) {
+                InternetCloseHandle(this->openHandle);
+                this->openHandle = NULL;
+        }
 }
 
