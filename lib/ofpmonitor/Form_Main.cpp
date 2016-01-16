@@ -93,16 +93,9 @@ void TWINDOW_MAIN::update(Observable *o) {
         } else if(o == this->languageDB) {
                 this->updateGuiLanguage();
         } else if(o == this->downloader && this->downloader != NULL) {
-                if(!this->downloader->checkError()) {
-                        TStringList *list = new TStringList;
-                        this->downloader->getFile(list);
-                        this->ofpm->parseMasterServerFile(list);
-                        delete list;
-                        this->downloader->RemoveObserver(this);
-                        this->ofpm->queryNewServerList(false);
+                if(this->downloader->checkError(0) || this->downloader->isDone(0)) {
+                        this->processMasterServerListUpdate = true;
                 }
-                delete this->downloader;
-                this->downloader = NULL;
         }
 }
 
@@ -875,9 +868,16 @@ bool TWINDOW_MAIN::startUp() {
                 WINDOW_UPDATE->checkForNewVersion(false);
         }
         if(this->ofpm->isUpdateOfMasterServersOnStartSet()) {
-                this->downloader = new HttpsDownloader(this->ofpm->getMasterServerOnlineListURL());
-                this->downloader->SetObserver(this);
-                this->downloader->start();
+                String url = this->ofpm->getMasterServerOnlineListURL();
+                URL_COMPONENTS url_components;
+                if(crackURL(url, url_components)) {
+                        String resource = String(url_components.lpszUrlPath);
+                        this->downloader = new HttpFileDownloader();
+                        this->downloader->setHost(url);
+                        this->downloader->queueResourceForDownload(resource);
+                        this->downloader->SetObserver(this);
+                        this->downloader->startDownloadThread();
+                }
         } else {
                 this->ofpm->queryNewServerList(false);
         }
@@ -961,6 +961,23 @@ void __fastcall TWINDOW_MAIN::Timer1Timer(TObject *Sender)
         Timer1->Tag = i;
         Application->ProcessMessages();
         if(this->ofpm != NULL) {
+
+                if(this->processMasterServerListUpdate) {
+                        this->processMasterServerListUpdate = false;
+                        if(this->downloader != NULL) {
+                                if(this->downloader->isDone(0)) {
+                                        TStringList *list = new TStringList;
+                                        this->downloader->getFileAsList(0, list);
+                                        this->ofpm->parseMasterServerFile(list);
+                                        delete list;
+                                        this->ofpm->queryNewServerList(false);
+                                }
+                                this->downloader->RemoveObserver(this);
+                                delete this->downloader;
+                                this->downloader = NULL;
+                        }
+                }
+
                 this->ofpm->ProcessMessages();
                 if(i >= this->ofpm->getInterval()) {
                         this->ofpm->queryServers();
@@ -1997,11 +2014,6 @@ void __fastcall TWINDOW_MAIN::FormDestroy(TObject *Sender)
         delete this->playerTableSorter;
 }
 //---------------------------------------------------------------------------
-
-
-
-
-
 
 void __fastcall TWINDOW_MAIN::PageControl1DrawTab(TCustomTabControl *Control,
       int TabIndex, const TRect &Rect, bool Active)

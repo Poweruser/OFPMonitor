@@ -15,8 +15,7 @@
 #include "Chat.h"
 #include "Observer.h"
 #include "LanguageDB.h"
-#include "HttpsDownloader.h"
-
+#include "HttpFileDownloader.h"
 #include <list.h>
 
 //---------------------------------------------------------------------------
@@ -288,10 +287,11 @@ private:	// User declarations
         LanguageDB *languageDB;
         bool filterChanging;
         HANDLE chatThreadHandle;
-        HttpsDownloader *downloader;
+        HttpFileDownloader *downloader;
         bool allowSavingOfSettings;
         TDateTime lastAutoSave;
         bool startUpDone;
+        bool processMasterServerListUpdate;
 
         float TWINDOW_MAIN::checkIfTableRatioZero(float in, TStringGrid *grid);
         void TWINDOW_MAIN::updateFilterOfGui();

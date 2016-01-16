@@ -270,7 +270,7 @@ void OFPMonitorModel::readSettings(TStringList *file) {
         delete servers;
 
         if(this->masterServerOnlineList.Trim().IsEmpty()) {
-                this->masterServerOnlineList = "https://raw.githubusercontent.com/wiki/poweruser/ofpmonitor/masterservers.txt";
+                this->masterServerOnlineList = "https://www.github.com/poweruser/ofpmonitor/wiki/masterservers.txt";
         }
 
         while(masterServerList.size() > 0) {

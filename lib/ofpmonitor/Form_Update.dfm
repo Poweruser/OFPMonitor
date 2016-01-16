@@ -31,29 +31,18 @@ object WINDOW_UPDATE: TWINDOW_UPDATE
     Width = 409
     Height = 29
     Min = 0
-    Max = 0
+    Max = 100
     Smooth = True
     Step = 1
     TabOrder = 0
   end
-  object PROGRESSBAR_UPDATE_OVERALL: TProgressBar
-    Left = 0
-    Top = 68
-    Width = 409
-    Height = 29
-    Min = 0
-    Max = 0
-    Smooth = True
-    Step = 1
-    TabOrder = 1
-  end
   object MEMO_UPDATE_LOG: TMemo
     Left = 0
-    Top = 100
+    Top = 64
     Width = 409
-    Height = 197
+    Height = 233
     ReadOnly = True
-    TabOrder = 2
+    TabOrder = 1
   end
   object Timer1: TTimer
     Enabled = False

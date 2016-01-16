@@ -11,20 +11,20 @@
       lib\ofpmonitor\ConfigReader.obj lib\ofpmonitor\Configuration.obj 
       lib\ofpmonitor\CustomNotification.obj lib\ofpmonitor\FileVersion.obj 
       lib\ofpmonitor\FontSettings.obj lib\ofpmonitor\Game.obj 
-      lib\ofpmonitor\GameControl.obj lib\ofpmonitor\HttpsDownloader.obj 
-      lib\ofpmonitor\IRCClient.obj lib\ofpmonitor\LanguageDB.obj 
-      lib\ofpmonitor\Message.obj lib\ofpmonitor\Observer.obj 
-      lib\ofpmonitor\OFPMonitorModel.obj lib\ofpmonitor\Player.obj 
-      lib\ofpmonitor\PlayerTableSorter.obj lib\ofpmonitor\ProcessFinder.obj 
-      lib\ofpmonitor\QueryAnswer.obj lib\ofpmonitor\QueryRequest.obj 
-      lib\ofpmonitor\Server.obj lib\ofpmonitor\ServerEditorTableSorter.obj 
-      lib\ofpmonitor\ServerFilter.obj lib\ofpmonitor\ServerList.obj 
-      lib\ofpmonitor\ServerListLoader.obj lib\ofpmonitor\ServerTableSorter.obj 
-      lib\ofpmonitor\StatusChange.obj lib\ofpmonitor\StringSplitter.obj 
-      lib\ofpmonitor\UDPNetwork.obj lib\ofpmonitor\Form_Main.obj 
-      lib\ofpmonitor\Form_Settings.obj lib\ofpmonitor\Form_Localgame.obj 
-      lib\ofpmonitor\Form_Info.obj lib\ofpmonitor\Form_Update.obj 
-      lib\ofpmonitor\WindowSettings.obj"/>
+      lib\ofpmonitor\GameControl.obj lib\ofpmonitor\IRCClient.obj 
+      lib\ofpmonitor\LanguageDB.obj lib\ofpmonitor\Message.obj 
+      lib\ofpmonitor\Observer.obj lib\ofpmonitor\OFPMonitorModel.obj 
+      lib\ofpmonitor\Player.obj lib\ofpmonitor\PlayerTableSorter.obj 
+      lib\ofpmonitor\ProcessFinder.obj lib\ofpmonitor\QueryAnswer.obj 
+      lib\ofpmonitor\QueryRequest.obj lib\ofpmonitor\Server.obj 
+      lib\ofpmonitor\ServerEditorTableSorter.obj lib\ofpmonitor\ServerFilter.obj 
+      lib\ofpmonitor\ServerList.obj lib\ofpmonitor\ServerListLoader.obj 
+      lib\ofpmonitor\ServerTableSorter.obj lib\ofpmonitor\StatusChange.obj 
+      lib\ofpmonitor\StringSplitter.obj lib\ofpmonitor\UDPNetwork.obj 
+      lib\ofpmonitor\Form_Main.obj lib\ofpmonitor\Form_Settings.obj 
+      lib\ofpmonitor\Form_Localgame.obj lib\ofpmonitor\Form_Info.obj 
+      lib\ofpmonitor\Form_Update.obj lib\ofpmonitor\WindowSettings.obj 
+      lib\ofpmonitor\HttpFileDownloader.obj"/>
     <RESFILES value="resources\wavefiles.res resources\DefaultLanguage.res OFPMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
@@ -32,7 +32,7 @@
     <RESDEPEN value="$(RESFILES) lib\ofpmonitor\Form_Main.dfm lib\ofpmonitor\Form_Settings.dfm 
       lib\ofpmonitor\Form_Localgame.dfm lib\ofpmonitor\Form_Info.dfm 
       lib\ofpmonitor\Form_Update.dfm"/>
-    <LIBFILES value="lib\psapi.lib lib\unrar.lib"/>
+    <LIBFILES value="lib\psapi.lib lib\unrar.lib lib\wininet.lib"/>
     <LIBRARIES value="IndyProtocols60.lib IndySystem60.lib IndyCore60.lib CoolTrayIcon.lib 
       bcbsmp.lib vclx.lib rtl.lib vcl.lib"/>
     <SPARELIBS value="vcl.lib rtl.lib vclx.lib bcbsmp.lib CoolTrayIcon.lib IndyCore60.lib 
@@ -93,7 +93,6 @@
       <FILE FILENAME="lib\ofpmonitor\FontSettings.cpp" FORMNAME="" UNITNAME="FontSettings.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\Game.cpp" FORMNAME="" UNITNAME="Game.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\GameControl.cpp" FORMNAME="" UNITNAME="GameControl.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="lib\ofpmonitor\HttpsDownloader.cpp" FORMNAME="" UNITNAME="HttpsDownloader.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\IRCClient.cpp" FORMNAME="" UNITNAME="IRCClient.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\LanguageDB.cpp" FORMNAME="" UNITNAME="LanguageDB.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\Message.cpp" FORMNAME="" UNITNAME="Message.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
@@ -119,6 +118,8 @@
       <FILE FILENAME="lib\ofpmonitor\Form_Info.cpp" FORMNAME="WINDOW_INFO" UNITNAME="Form_Info" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\Form_Update.cpp" FORMNAME="WINDOW_UPDATE" UNITNAME="Form_Update" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\WindowSettings.cpp" FORMNAME="" UNITNAME="WindowSettings.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\HttpFileDownloader.cpp" FORMNAME="" UNITNAME="HttpFileDownloader" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\wininet.lib" FORMNAME="" UNITNAME="wininet.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>
@@ -152,14 +153,16 @@ ProductVersion=1.0.0.0
 Comments=
 
 [HistoryLists\hlIncludePath]
-Count=2
+Count=3
 Item0=lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl
-Item1=include;..;$(BCB)\include;$(BCB)\include\vcl
+Item1=C:\Program Files (x86)\Borland\CBuilder6\Projects;lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl
+Item2=include;..;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=2
+Count=3
 Item0=lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item1=lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item1=C:\Program Files (x86)\Borland\CBuilder6\Projects;lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item2=lib;..;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1

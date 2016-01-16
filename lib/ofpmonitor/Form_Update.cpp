@@ -6,6 +6,7 @@
 #include "FileVersion.h"
 #include "StringSplitter.h"
 #include <IdHashMessageDigest.hpp>
+#include "HttpFileDownloader.h"
 #pragma hdrstop
 
 #include "Form_Main.h"
@@ -13,10 +14,6 @@
 #include "Form_Update.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
-#pragma link "IdIOHandler"
-#pragma link "IdIOHandlerSocket"
-#pragma link "IdIOHandlerStack"
-#pragma link "IdSSL"
 #pragma resource "*.dfm"
 TWINDOW_UPDATE *WINDOW_UPDATE;
 
@@ -28,12 +25,6 @@ TWINDOW_UPDATE *WINDOW_UPDATE;
 #define SECTION_RELEASE_END "[\\ReleaseMD5]"
 
 void releaseMutex();
-
-void TWINDOW_UPDATE::update(Observable *o) {
-        if(o == this->languageDB) {
-                this->updateGuiLanguage();
-        }
-}
 
 void TWINDOW_UPDATE::setLanguageDB(LanguageDB *languageDB) {
         this->languageDB = languageDB;
@@ -55,8 +46,8 @@ class UpdateTracker {
         bool working;
         bool updateDone;
         bool userTriggered;
-        TIdHTTP *http;
-        TIdSSLIOHandlerSocketOpenSSL *ssl;
+
+        HttpFileDownloader *loader;
         TMemoryStream *ms;
         TMemoryStream *fs;
         TStringList *stringList;
@@ -79,15 +70,6 @@ class UpdateTracker {
                 this->step = 1;
                 this->error = false;
                 this->errorMsg = "";
-                this->http = new TIdHTTP(WINDOW_UPDATE);
-                this->ssl = new TIdSSLIOHandlerSocketOpenSSL(WINDOW_UPDATE);
-                this->http->HandleRedirects = true;
-                this->http->IOHandler = ssl;
-                this->http->ReadTimeout = 3000;
-                this->http->OnWorkBegin = this->IdHTTPWorkBegin;
-                this->http->OnWork = this->IdHTTPWork;
-                this->ms = new TMemoryStream;
-                this->fs = new TMemoryStream;
                 this->stringList = new TStringList;
                 this->filesToInstall = new TStringList;
                 FileVersion *fv = new FileVersion(Application->ExeName);
@@ -113,30 +95,6 @@ class UpdateTracker {
                 this->stringList->Clear();
                 delete this->stringList;
                 delete this->filesToInstall;
-                delete this->ms;
-                delete this->fs;
-                this->http->Disconnect();
-                delete this->ssl;
-                delete this->http;
-        }
-
-        void closeOpenConnections() {
-                if(this->http->Connected()) {
-                        this->http->Disconnect();
-                }
-        }
-
-        void __fastcall IdHTTPWorkBegin(TObject *ASender,
-                TWorkMode AWorkMode, __int64 AWorkCountMax)
-        {
-                WINDOW_UPDATE->PROGRESSBAR_UPDATE_CURRENTFILE->Max = (int)AWorkCountMax;
-                WINDOW_UPDATE->PROGRESSBAR_UPDATE_CURRENTFILE->Position = 0;
-        }
-
-        void __fastcall IdHTTPWork(TObject *ASender,
-                TWorkMode AWorkMode, __int64 AWorkCount)
-        {
-                WINDOW_UPDATE->PROGRESSBAR_UPDATE_CURRENTFILE->Position = (int)AWorkCount;
         }
         
         String getValue(String in) {
@@ -167,10 +125,13 @@ class UpdateTracker {
                 return this->backupDir;
         }
 
-        void errorHappend(String msg) {
+        void errorHappend(String msg, bool log) {
                 this->error = true;
                 if(this->errorMsg.IsEmpty()) {
                         this->errorMsg = msg;
+                }
+                if(log) {
+                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add(msg);
                 }
                 this->newVersion = false;
         }
@@ -178,6 +139,27 @@ class UpdateTracker {
 };
 
 UpdateTracker *uT;
+
+void TWINDOW_UPDATE::update(Observable *o) {
+        if(o == this->languageDB) {
+                this->updateGuiLanguage();
+        }
+
+        if(o == uT->loader && uT->loader != NULL) {
+                int index = 0;
+                while(uT->loader->hasQueueIndex(index + 1) && (uT->loader->isDone(index) || uT->loader->checkError(index))) {
+                        index++;
+                }
+
+                WINDOW_UPDATE->LABEL_UPDATE_CURRENTFILE->Caption = uT->loader->getDescription(index);
+
+                int max = WINDOW_UPDATE->PROGRESSBAR_UPDATE_CURRENTFILE->Tag;
+                if(max > 0) {
+                        int percent = uT->loader->getProgress(0) * 100 / max;
+                        WINDOW_UPDATE->PROGRESSBAR_UPDATE_CURRENTFILE->Position = percent;
+                }
+        }
+}
 
 void TWINDOW_UPDATE::cleanUp() {
         this->Timer1->Enabled = false;
@@ -188,78 +170,151 @@ void TWINDOW_UPDATE::cleanUp() {
 }
 
 DWORD WINAPI UpdaterThread_Step1 (LPVOID lpdwThreadParam__ ) {
-                UpdateTracker *uTracker = (UpdateTracker*) lpdwThreadParam__;
-                try {
-                        uTracker->http->Get("https://raw.github.com/wiki/poweruser/ofpmonitor/update.txt", uTracker->ms);
-                } catch (EIdException &E) {
-                        uTracker->errorHappend(E.Message);
-                        uTracker->step++;
-                        uTracker->working = false;
-                        uTracker->closeOpenConnections();
-                        return 0;
-                }
-                uTracker->closeOpenConnections();
-                uTracker->ms->Position = 0;
-                uTracker->stringList->LoadFromStream(uTracker->ms);
-                int begin = uTracker->stringList->IndexOf(SECTION_HEADER_START);
-                int end = uTracker->stringList->IndexOf(SECTION_HEADER_END);
-                for(int i = begin + 1; i < end; i++) {
-                        if(uTracker->stringList->Strings[i].SubString(1,7) == "Version") {
-                                uTracker->remoteVersion = uTracker->getValue(uTracker->stringList->Strings[i]);
-                        }
-                }
-                StringSplitter sspl(uTracker->localVersion);
-                TStringList *local = sspl.split(".");
-                StringSplitter sspr(uTracker->remoteVersion);
-                TStringList *remote = sspr.split(".");
-                uTracker->newVersion = false;
-                for(int i = 0; i < local->Count && i < remote->Count; i++) {
-                        int l = StrToIntDef(local->Strings[i], -1);
-                        int r = StrToIntDef(remote->Strings[i], -1);
-                        if(l >= 0 && r >= 0) {
-                                uTracker->newVersion = (r > l);
-                                if(uTracker->newVersion || (r < l)) {
-                                break;
-                                }
-                        } else {
-                                uTracker->newVersion = false;
-                                break;
-                        }
-                }
-                delete local;
-                delete remote;
+        UpdateTracker *uTracker = (UpdateTracker*) lpdwThreadParam__;
+        HttpFileDownloader *loader = new HttpFileDownloader();
+        if(!loader->setHost("https://www.github.com")) {
+                uTracker->errorHappend(loader->getMainErrorMessage(), false);
                 uTracker->step++;
                 uTracker->working = false;
+                delete loader;
+                return 0;
+        }
+        int queueIndex = loader->queueResourceForDownload("/Poweruser/OFPMonitor/wiki/update.txt");
+        loader->downloadInSync();
+        if(loader->checkError(queueIndex)) {
+                uTracker->errorHappend(loader->getErrorMessage(queueIndex), false);
+                uTracker->step++;
+                uTracker->working = false;
+                delete loader;
                 return 0;
         }
 
+        loader->getFileAsList(queueIndex, uTracker->stringList);
+        delete loader;
+
+        int begin = uTracker->stringList->IndexOf(SECTION_HEADER_START);
+        int end = uTracker->stringList->IndexOf(SECTION_HEADER_END);
+        for(int i = begin + 1; i < end; i++) {
+                if(uTracker->stringList->Strings[i].SubString(1,7) == "Version") {
+                        uTracker->remoteVersion = uTracker->getValue(uTracker->stringList->Strings[i]);
+                }
+        }
+        StringSplitter sspl(uTracker->localVersion);
+        TStringList *local = sspl.split(".");
+        StringSplitter sspr(uTracker->remoteVersion);
+        TStringList *remote = sspr.split(".");
+        uTracker->newVersion = false;
+        for(int i = 0; i < local->Count && i < remote->Count; i++) {
+                int l = StrToIntDef(local->Strings[i], -1);
+                int r = StrToIntDef(remote->Strings[i], -1);
+                if(l >= 0 && r >= 0) {
+                        uTracker->newVersion = (r > l);
+                        if(uTracker->newVersion || (r < l)) {
+                                break;
+                        }
+                } else {
+                        uTracker->newVersion = false;
+                        break;
+                }
+        }
+        delete local;
+        delete remote;
+        uTracker->step++;
+        uTracker->working = false;
+        return 0;
+}
+
+void checkAndSaveFileToDisk(TMemoryStream *stream, String fileName, String expectedFileSize, String expectedFileHash) {
+        boolean sizeOk = expectedFileSize.IsEmpty() || (String(stream->Size) == expectedFileSize);
+        boolean hashOk = expectedFileHash.IsEmpty();
+        String calculatedHash = "";
+        if(!hashOk) {
+                TIdHashMessageDigest5 *md5 = new TIdHashMessageDigest5();
+                int streamPosition = stream->Position;
+                stream->Position = 0;
+                calculatedHash = md5->HashStreamAsHex(stream);
+                stream->Position = streamPosition;
+                delete md5;
+                hashOk = (calculatedHash.LowerCase() == expectedFileHash.LowerCase());
+        }
+        if(sizeOk && hashOk) {
+                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + fileName);
+                String fileOnDisk = uT->getUpdateDir() + "\\" + fileName;
+                try {
+                        stream->SaveToFile(fileOnDisk);
+                } catch(Exception &E) {
+                        String error = "Error while writing " + fileName + " to disk: " + E.Message;
+                        uT->errorHappend(error, true);
+                }
+                if(FileExists(fileOnDisk)) {
+                        if(fileOnDisk.SubString(fileOnDisk.Length() - 3, 4) == ".rar") {
+                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   Extracting " + fileName + " ...");
+
+                                RAROpenArchiveDataEx rarArchive;
+                                memset(&rarArchive, 0, sizeof(rarArchive));
+                                rarArchive.ArcName = fileOnDisk.c_str();
+                                rarArchive.OpenMode = RAR_OM_EXTRACT;
+                                rarArchive.CmtBuf = NULL;
+                                rarArchive.CmtBufSize = 0;
+                                rarArchive.CmtSize = 0;
+                                rarArchive.Callback = NULL;
+
+                                HANDLE rarHandle = RAROpenArchiveEx(&rarArchive);
+                                RARHeaderDataEx rarHeader;
+                                int retHeader;
+                                while((retHeader = RARReadHeaderEx(rarHandle, &rarHeader)) == 0) {
+                                        RARProcessFile(rarHandle,RAR_EXTRACT,uT->getUpdateDir().c_str(),NULL);
+                                        uT->filesToInstall->Add(rarHeader.FileName);
+                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("      " + String(rarHeader.FileName));
+                                }
+                                if(retHeader == ERAR_BAD_DATA) {
+                                        String error = String(rarHeader.FileName) + " - Archive damaged, extraction aborted";
+                                        uT->errorHappend(error, true);
+                                }
+                                int ret = RARCloseArchive(rarHandle);
+                                if(ret != 0) {
+                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("close error");
+                                }
+                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   ... done.");
+                        } else {
+                                uT->filesToInstall->Add(fileName);
+                        }
+                }
+        }
+        if(!sizeOk) {
+                String error = "Invalid file size for file " + fileName + " (" + String(stream->Size) + String(" Bytes). Expected size: ") + expectedFileSize + " Bytes";
+                uT->errorHappend(error, true);
+        }
+        if(!hashOk) {
+                String error = "The file " + fileName + " is damaged. It's current MD5 hash " + calculatedHash + " does not match the expected hash " + expectedFileHash;
+                uT->errorHappend(error, true);
+        }
+}
+
 DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
         UpdateTracker *uTracker = (UpdateTracker*) lpdwThreadParam__;
-                if(!DirectoryExists(uTracker->getUpdateDir())) {
-                        if(!CreateDir(uTracker->getUpdateDir())) {
-                                String error = "Could not create the update folder " + uTracker->getBackupDir();
-                                uTracker->errorHappend(error);
-                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add(error);
-                        }
+        if(!DirectoryExists(uTracker->getUpdateDir())) {
+                if(!CreateDir(uTracker->getUpdateDir())) {
+                        String error = "Could not create the update folder " + uTracker->getBackupDir();
+                        uTracker->errorHappend(error, true);
                 }
-                if(!DirectoryExists(uT->getBackupDir())) {
-                        if(!CreateDir(uT->getBackupDir())) {
-                                String error = "Could not create the backup folder " + uTracker->getBackupDir();
-                                uTracker->errorHappend(error);
-                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add(error);
-                        }
+        }
+        if(!DirectoryExists(uT->getBackupDir())) {
+                if(!CreateDir(uT->getBackupDir())) {
+                        String error = "Could not create the backup folder " + uTracker->getBackupDir();
+                        uTracker->errorHappend(error, true);
                 }
-                if(uTracker->newVersion && uTracker->answer == mrYes &&
+        }
+        if(uTracker->newVersion && uTracker->answer == mrYes &&
                    DirectoryExists(uTracker->getUpdateDir()) &&
                    DirectoryExists(uT->getBackupDir())) {
                         int locationBegin = uTracker->stringList->IndexOf(SECTION_LOCATION_START);
                         int locationEnd = uTracker->stringList->IndexOf(SECTION_LOCATION_END);
                         int filesBegin = uTracker->stringList->IndexOf(SECTION_RELEASE_START);
                         int filesEnd = uTracker->stringList->IndexOf(SECTION_RELEASE_END);
-                        if(locationBegin < 0 || locationEnd < 0 || locationBegin > locationEnd || filesBegin < 0 || filesEnd < 0 || filesBegin > filesEnd) {
+                        if(locationBegin < 0 || locationEnd < 0 || locationBegin >= locationEnd || filesBegin < 0 || filesEnd < 0 || filesBegin >= filesEnd) {
                                 String error = "The content of the update information file is invalid. Please report this error.";
-                                uTracker->errorHappend(error);
-                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add(error);
+                                uTracker->errorHappend(error, true);
                                 uTracker->updateDone = true;
                                 uTracker->step++;
                                 uTracker->working = false;
@@ -274,122 +329,90 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                 }
                         }
 
-                        WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Max = filesEnd - (filesBegin + 1);
-                        WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Position = 0;
-                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Downloading files ...");
+                        int count = filesEnd - (filesBegin + 1);
+                        int *queueIndexes = new int[count];
+                        String *files = new String[count];
+                        String *fileHashes = new String[count];
+                        String *fileSizes = new String[count];
+                        int totalSize = 0;
+                        HttpFileDownloader *loader = new HttpFileDownloader();
+                        if(!loader->setHost(location)) {
+                                uT->errorHappend(loader->getMainErrorMessage(), true);
+                                uTracker->updateDone = true;
+                                uTracker->step++;
+                                uTracker->working = false;
+                                return 0;
+                        }
 
                         bool failedToDownloadAFile = false;
                         for(int i = filesBegin + 1; i < filesEnd; i++) {
+                                int arrayIndex = i - (filesBegin + 1);
+
+                                queueIndexes[arrayIndex] = -1;
+                                files[arrayIndex] = "";
+                                fileHashes[arrayIndex] = "";
+                                fileSizes[arrayIndex] = "";
                                 StringSplitter ssp(uT->stringList->Strings[i].Trim());
                                 TStringList *item = ssp.split("#");
-                                bool success = false;
-                                String fileSize = "", fileHash = "", file = "";
+                                String file = "";
+                                String target = "";
+                                int size;
                                 for(int element = 0; element < item->Count; element++) {
-                                        String target, error;
                                         switch(element) {
                                                 case 0:
                                                         file = item->Strings[element];
+                                                        files[arrayIndex] = file;
+                                                        URL_COMPONENTS url;
                                                         target = location + file;
-                                                        uT->fs->Clear();
-                                                        WINDOW_UPDATE->LABEL_UPDATE_CURRENTFILE->Caption = file;
-                                                        try {
-                                                                uT->http->Get(target, uT->fs);
-                                                                success = true;
-                                                        } catch (EIdException &E) {
-                                                                error = "Could not download: " + target + " - Reason: " + E.Message;
-                                                                uT->errorHappend(error);
-                                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + error);
+                                                        if(crackURL(target, url)) {
+                                                                String resource = String(url.lpszUrlPath);
+                                                                queueIndexes[arrayIndex] = loader->queueResourceForDownload(resource, file);
                                                         }
-                                                        uT->closeOpenConnections();
                                                         break;
                                                 case 1:
-                                                        fileSize = item->Strings[element];
+                                                        fileSizes[arrayIndex] = item->Strings[element];
+                                                        try {
+                                                                size = StrToInt(fileSizes[arrayIndex]);
+                                                                totalSize += size;
+                                                        } catch (Exception &E) { }
                                                         break;
                                                 case 2:
-                                                        fileHash = item->Strings[element];
+                                                        fileHashes[arrayIndex] = item->Strings[element];
                                                         break;
                                                 default:
                                                         break;
+
                                         }
                                 }
-                                if(success) {
-                                        boolean sizeOk = fileSize.IsEmpty() || (String(uT->fs->Size) == fileSize);
-                                        boolean hashOk = fileHash.IsEmpty();
-                                        String calculatedHash = "";
-                                        if(!hashOk) {
-                                                TIdHashMessageDigest5 *md5 = new TIdHashMessageDigest5();
-                                                int streamPosition = uT->fs->Position;
-                                                uT->fs->Position = 0;
-                                                calculatedHash = md5->HashStreamAsHex(uT->fs);
-                                                uT->fs->Position = streamPosition;
-                                                delete md5;
-                                                hashOk = (calculatedHash.LowerCase() == fileHash.LowerCase());
-                                        }
-                                        if(sizeOk && hashOk) {
-                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + file);
-                                                String fileOnDisk = uT->getUpdateDir() + "\\" + file;
-                                                try {
-                                                        uT->fs->SaveToFile(fileOnDisk);
-                                                } catch(Exception &E) {
-                                                        String error = "Error while writing " + file + " to disk: " + E.Message;
-                                                        uT->errorHappend(error);
-                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + error);
-                                                }
-                                                if(FileExists(fileOnDisk)) {
-                                                        if(fileOnDisk.SubString(fileOnDisk.Length() - 3, 4) == ".rar") {
-                                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   Extracting " + file + " ...");
 
-                                                                RAROpenArchiveDataEx rarArchive;
-                                                                memset(&rarArchive, 0, sizeof(rarArchive));
-                                                                rarArchive.ArcName = fileOnDisk.c_str();
-                                                                rarArchive.OpenMode = RAR_OM_EXTRACT;
-                                                                rarArchive.CmtBuf = NULL;
-                                                                rarArchive.CmtBufSize = 0;
-                                                                rarArchive.CmtSize = 0;
-                                                                rarArchive.Callback = NULL;
-
-                                                                HANDLE rarHandle = RAROpenArchiveEx(&rarArchive);
-                                                                RARHeaderDataEx rarHeader;
-                                                                int retHeader;
-                                                                while((retHeader = RARReadHeaderEx(rarHandle, &rarHeader)) == 0) {
-                                                                        RARProcessFile(rarHandle,RAR_EXTRACT,uT->getUpdateDir().c_str(),NULL);
-                                                                        uT->filesToInstall->Add(rarHeader.FileName);
-                                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("      " + String(rarHeader.FileName));
-                                                                }
-                                                                if(retHeader == ERAR_BAD_DATA) {
-                                                                        String error = String(rarHeader.FileName) + " - Archive damaged, extraction aborted";
-                                                                        uT->errorHappend(error);
-                                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("      " + error);
-                                                                }
-                                                                int ret = RARCloseArchive(rarHandle);
-                                                                if(ret != 0) {
-                                                                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("close error");
-                                                                }
-                                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   ... done.");
-                                                        } else {
-                                                                uT->filesToInstall->Add(file);
-                                                        }
-                                                }
-                                        } else if(!sizeOk) {
-                                                String error = "Invalid file size for file " + file + " (" + String(uT->fs->Size) + " Bytes). Expected size: " + fileSize + " Bytes";
-                                                uT->errorHappend(error);
-                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + error);
-                                        } else if(!hashOk) {
-                                                String error = "The file " + file + " is damaged. It's current MD5 hash " + calculatedHash + " does not match the expected hash " + fileHash;
-                                                uT->errorHappend(error);
-                                                WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + error);
-                                        }
-                                } else {
-                                        failedToDownloadAFile = true;
-                                }
-                                int t = WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Position;
-                                WINDOW_UPDATE->PROGRESSBAR_UPDATE_OVERALL->Position = t + 1;
                         }
+                        WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Downloading files ...");
+                        WINDOW_UPDATE->PROGRESSBAR_UPDATE_CURRENTFILE->Tag = totalSize;
+                        uT->loader = loader;
+                        loader->SetObserver(WINDOW_UPDATE);
+                        loader->downloadInSync();
+                        for(int i = 0; i < count; i++) {
+                                int queueIndex = queueIndexes[i];
+                                String target = location + files[i];
+                                if(queueIndex >= 0) {
+                                        if(loader->isDone(queueIndex)) {
+                                                TMemoryStream *stream = new TMemoryStream;
+                                                loader->getFileAsStream(queueIndex, stream);
+                                                checkAndSaveFileToDisk(stream, files[i], fileSizes[i], fileHashes[i]);
+                                                delete stream;
+                                        } else {
+                                                String error = "Could not download: " + target + " - Reason: " + loader->getErrorMessage(queueIndex);
+                                                failedToDownloadAFile = true;
+                                                uT->errorHappend(error, true);
+                                        }
+                                }
+                        }
+                        delete loader;
+                        uT->loader = NULL;
                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("... done.");
                         if(!failedToDownloadAFile) {
 
                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Installing files ...");
-                                                
                                 for(int i = 0; i < uT->filesToInstall->Count; i++) {
                                         String item = uT->filesToInstall->Strings[i];
                                         if(FileExists(uT->getMainDir() + "\\" + item)) {
@@ -408,6 +431,10 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                 }
                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("... done.");
                         }
+                        delete queueIndexes;
+                        delete files;
+                        delete fileHashes;
+                        delete fileSizes;
                 }
                 uTracker->updateDone = true;
                 uTracker->step++;
@@ -432,24 +459,9 @@ __fastcall TWINDOW_UPDATE::TWINDOW_UPDATE(TComponent* Owner)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TWINDOW_UPDATE::IdHTTPWorkBegin(TObject *ASender,
-      TWorkMode AWorkMode, __int64 AWorkCountMax)
-{
-        WINDOW_UPDATE->PROGRESSBAR_UPDATE_CURRENTFILE->Max = (int)AWorkCountMax;
-        WINDOW_UPDATE->PROGRESSBAR_UPDATE_CURRENTFILE->Position = 0;
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_UPDATE::IdHTTPWork(TObject *ASender,
-      TWorkMode AWorkMode, __int64 AWorkCount)
-{
-        PROGRESSBAR_UPDATE_CURRENTFILE->Position = (int)AWorkCount;
-}
-//---------------------------------------------------------------------------
-
 void __fastcall TWINDOW_UPDATE::Timer1Timer(TObject *Sender)
 {
-        if(!uT->working) {
+        if(uT != NULL && !uT->working) {
                 uT->working = true;
                 if(uT->step == 1) {
                         uT->thread1 = CreateThread(0, 0, UpdaterThread_Step1, uT, 0, 0);
