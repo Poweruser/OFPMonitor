@@ -48,7 +48,7 @@ bool QueueEntry::downloadResource(HINTERNET connectHandle, bool useSSL) {
         String mediaType = "text/";
         mediaType += "*";
         LPCTSTR rgpszAcceptTypes[] = {(mediaType.c_str()), NULL};
-        DWORD flags = INTERNET_FLAG_NO_UI | INTERNET_FLAG_RELOAD;
+        DWORD flags = INTERNET_FLAG_NO_UI | INTERNET_FLAG_RELOAD | INTERNET_FLAG_CACHE_IF_NET_FAIL | INTERNET_FLAG_NO_COOKIES;
         if(useSSL) {
                 flags |= INTERNET_FLAG_SECURE;
         }
