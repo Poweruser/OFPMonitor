@@ -292,6 +292,7 @@ private:	// User declarations
         TDateTime lastAutoSave;
         bool startUpDone;
         bool processMasterServerListUpdate;
+        TStringList *masterServeListUpdate;
 
         float TWINDOW_MAIN::checkIfTableRatioZero(float in, TStringGrid *grid);
         void TWINDOW_MAIN::updateFilterOfGui();

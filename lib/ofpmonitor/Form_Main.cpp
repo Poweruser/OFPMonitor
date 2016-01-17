@@ -94,7 +94,12 @@ void TWINDOW_MAIN::update(Observable *o) {
                 this->updateGuiLanguage();
         } else if(o == this->downloader && this->downloader != NULL) {
                 if(this->downloader->checkError(0) || this->downloader->isDone(0)) {
+                        this->downloader->RemoveObserver(this);
+                        TStringList *list = new TStringList;
+                        this->downloader->getFileAsList(0, list);
+                        this->masterServeListUpdate = list;
                         this->processMasterServerListUpdate = true;
+                        this->downloader = NULL;
                 }
         }
 }
@@ -929,6 +934,7 @@ void __fastcall TWINDOW_MAIN::FormCreate(TObject *Sender)
         this->allowSavingOfSettings = true;
         this->startUpDone = false;
         this->lastAutoSave = Now();
+        this->masterServeListUpdate = NULL;
 }
 //---------------------------------------------------------------------------
 __fastcall TWINDOW_MAIN::TWINDOW_MAIN(TComponent* Owner)
@@ -964,17 +970,11 @@ void __fastcall TWINDOW_MAIN::Timer1Timer(TObject *Sender)
 
                 if(this->processMasterServerListUpdate) {
                         this->processMasterServerListUpdate = false;
-                        if(this->downloader != NULL) {
-                                if(this->downloader->isDone(0)) {
-                                        TStringList *list = new TStringList;
-                                        this->downloader->getFileAsList(0, list);
-                                        this->ofpm->parseMasterServerFile(list);
-                                        delete list;
-                                        this->ofpm->queryNewServerList(false);
-                                }
-                                this->downloader->RemoveObserver(this);
-                                delete this->downloader;
-                                this->downloader = NULL;
+                        if(this->masterServeListUpdate != NULL) {
+                                this->ofpm->parseMasterServerFile(this->masterServeListUpdate);
+                                delete this->masterServeListUpdate;
+                                this->masterServeListUpdate = NULL;
+                                this->ofpm->queryNewServerList(false);
                         }
                 }
 

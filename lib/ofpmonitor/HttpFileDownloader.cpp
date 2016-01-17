@@ -175,7 +175,6 @@ void QueueEntry::closeRequestHandle() {
  */
 
 HttpFileDownloader::HttpFileDownloader() {
-        this->thread = NULL;
         this->openHandle = NULL;
         this->connectHandle = NULL;
         this->queue = new TList;
@@ -187,10 +186,6 @@ HttpFileDownloader::HttpFileDownloader() {
 
 HttpFileDownloader::~HttpFileDownloader() {
         this->closeConnection();
-        if(this->thread != NULL) {
-                TerminateThread(this->thread, 0);
-                this->thread = NULL;
-        }
         while(this->queue->Count > 0) {
                 QueueEntry *entry = (QueueEntry*) this->queue->Items[0];
                 entry->RemoveAllObservers();
@@ -247,11 +242,12 @@ DWORD WINAPI DownloadThread (LPVOID lpdwThreadParam__ ) {
         HttpFileDownloader *downloader = (HttpFileDownloader*) lpdwThreadParam__;
         downloader->downloadInSync();
         downloader->NotifyObserver();
+        delete downloader;
         return 0;
 }
 
 void HttpFileDownloader::startDownloadThread() {
-        this->thread = CreateThread(0, 0, DownloadThread, this, 0, 0);
+        CreateThread(0, 0, DownloadThread, this, 0, 0);
 }
 
 void HttpFileDownloader::downloadInSync() {

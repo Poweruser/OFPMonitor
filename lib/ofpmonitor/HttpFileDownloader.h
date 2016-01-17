@@ -66,8 +66,6 @@ class HttpFileDownloader : public Observable, Observer {
                 void update(Observable *o);
 
         private:
-                HANDLE thread;
-
                 HINTERNET openHandle;
                 HINTERNET connectHandle;
                 TList *queue;
