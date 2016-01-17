@@ -877,7 +877,7 @@ bool TWINDOW_MAIN::startUp() {
                 URL_COMPONENTS url_components;
                 if(crackURL(url, url_components)) {
                         String resource = String(url_components.lpszUrlPath);
-                        this->downloader = new HttpFileDownloader();
+                        this->downloader = new HttpFileDownloader(this->Caption);
                         this->downloader->setHost(url);
                         this->downloader->queueResourceForDownload(resource);
                         this->downloader->SetObserver(this);

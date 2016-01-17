@@ -44,7 +44,7 @@ class QueueEntry : public Observable {
 
 class HttpFileDownloader : public Observable, Observer {
         public:
-                HttpFileDownloader();
+                HttpFileDownloader(String userAgent);
 
                 ~HttpFileDownloader();
                 bool setHost(String hostURL);
@@ -70,6 +70,7 @@ class HttpFileDownloader : public Observable, Observer {
                 HINTERNET connectHandle;
                 TList *queue;
                 bool useSSL;
+                String userAgent;
 
                 String hostURL;
                 unsigned short port;

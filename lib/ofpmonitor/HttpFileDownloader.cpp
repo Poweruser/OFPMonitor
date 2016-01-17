@@ -174,7 +174,8 @@ void QueueEntry::closeRequestHandle() {
  * Class HttpFileDownloader
  */
 
-HttpFileDownloader::HttpFileDownloader() {
+HttpFileDownloader::HttpFileDownloader(String userAgent) {
+        this->userAgent = userAgent;
         this->openHandle = NULL;
         this->connectHandle = NULL;
         this->queue = new TList;
@@ -251,9 +252,7 @@ void HttpFileDownloader::startDownloadThread() {
 }
 
 void HttpFileDownloader::downloadInSync() {
-        String userAgent = Application->Title;
-
-        this->openHandle = InternetOpen(userAgent.c_str(),
+        this->openHandle = InternetOpen(this->userAgent.c_str(),
                         INTERNET_OPEN_TYPE_PRECONFIG,
                         NULL,
                         NULL,

@@ -171,7 +171,7 @@ void TWINDOW_UPDATE::cleanUp() {
 
 DWORD WINAPI UpdaterThread_Step1 (LPVOID lpdwThreadParam__ ) {
         UpdateTracker *uTracker = (UpdateTracker*) lpdwThreadParam__;
-        HttpFileDownloader *loader = new HttpFileDownloader();
+        HttpFileDownloader *loader = new HttpFileDownloader(WINDOW_MAIN->Caption);
         if(!loader->setHost("https://www.github.com")) {
                 uTracker->errorHappend(loader->getMainErrorMessage(), false);
                 uTracker->step++;
@@ -335,7 +335,7 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                         String *fileHashes = new String[count];
                         String *fileSizes = new String[count];
                         int totalSize = 0;
-                        HttpFileDownloader *loader = new HttpFileDownloader();
+                        HttpFileDownloader *loader = new HttpFileDownloader(WINDOW_MAIN->Caption);
                         if(!loader->setHost(location)) {
                                 uTracker->errorHappend(loader->getMainErrorMessage(), true);
                                 uTracker->updateDone = true;
