@@ -66,7 +66,10 @@ bool QueueEntry::downloadResource(HINTERNET connectHandle, bool useSSL) {
                 return false;
         }
 
-        if(!HttpSendRequest(this->requestHandle, NULL, 0, NULL, 0)) {
+        String closeConnection = "Connection: close";
+        const char *header = closeConnection.c_str();
+
+        if(!HttpSendRequest(this->requestHandle, header, strlen(header), NULL, 0)) {
                 this->errorMessage = "HttpSendRequest failed. (Error code: " + String(GetLastError()) + ")";
                 this->closeRequestHandle();
                 return false;
