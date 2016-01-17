@@ -299,15 +299,15 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                         uTracker->errorHappend(error, true);
                 }
         }
-        if(!DirectoryExists(uT->getBackupDir())) {
-                if(!CreateDir(uT->getBackupDir())) {
+        if(!DirectoryExists(uTracker->getBackupDir())) {
+                if(!CreateDir(uTracker->getBackupDir())) {
                         String error = "Could not create the backup folder " + uTracker->getBackupDir();
                         uTracker->errorHappend(error, true);
                 }
         }
         if(uTracker->newVersion && uTracker->answer == mrYes &&
                    DirectoryExists(uTracker->getUpdateDir()) &&
-                   DirectoryExists(uT->getBackupDir())) {
+                   DirectoryExists(uTracker->getBackupDir())) {
                         int locationBegin = uTracker->stringList->IndexOf(SECTION_LOCATION_START);
                         int locationEnd = uTracker->stringList->IndexOf(SECTION_LOCATION_END);
                         int filesBegin = uTracker->stringList->IndexOf(SECTION_RELEASE_START);
@@ -322,7 +322,7 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                         }
                         String location = "";
                         for(int i = locationBegin + 1; i < locationEnd; i++) {
-                                String line = uT->stringList->Strings[i].Trim();
+                                String line = uTracker->stringList->Strings[i].Trim();
                                 if(!line.IsEmpty()) {
                                         location = line;
                                         break;
@@ -337,7 +337,7 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                         int totalSize = 0;
                         HttpFileDownloader *loader = new HttpFileDownloader();
                         if(!loader->setHost(location)) {
-                                uT->errorHappend(loader->getMainErrorMessage(), true);
+                                uTracker->errorHappend(loader->getMainErrorMessage(), true);
                                 uTracker->updateDone = true;
                                 uTracker->step++;
                                 uTracker->working = false;
@@ -352,7 +352,7 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                 files[arrayIndex] = "";
                                 fileHashes[arrayIndex] = "";
                                 fileSizes[arrayIndex] = "";
-                                StringSplitter ssp(uT->stringList->Strings[i].Trim());
+                                StringSplitter ssp(uTracker->stringList->Strings[i].Trim());
                                 TStringList *item = ssp.split("#");
                                 String file = "";
                                 String target = "";
@@ -388,7 +388,7 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                         }
                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Downloading files ...");
                         WINDOW_UPDATE->PROGRESSBAR_UPDATE_CURRENTFILE->Tag = totalSize;
-                        uT->loader = loader;
+                        uTracker->loader = loader;
                         loader->SetObserver(WINDOW_UPDATE);
                         loader->downloadInSync();
                         for(int i = 0; i < count; i++) {
@@ -403,27 +403,27 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                         } else {
                                                 String error = "Could not download: " + target + " - Reason: " + loader->getErrorMessage(queueIndex);
                                                 failedToDownloadAFile = true;
-                                                uT->errorHappend(error, true);
+                                                uTracker->errorHappend(error, true);
                                         }
                                 }
                         }
                         delete loader;
-                        uT->loader = NULL;
+                        uTracker->loader = NULL;
                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("... done.");
                         if(!failedToDownloadAFile) {
 
                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("Installing files ...");
-                                for(int i = 0; i < uT->filesToInstall->Count; i++) {
-                                        String item = uT->filesToInstall->Strings[i];
-                                        if(FileExists(uT->getMainDir() + "\\" + item)) {
-                                                if(FileExists(uT->getBackupDir() + "\\" + item)) {
-                                                        DeleteFile(uT->getBackupDir() + "\\" + item);
+                                for(int i = 0; i < uTracker->filesToInstall->Count; i++) {
+                                        String item = uTracker->filesToInstall->Strings[i];
+                                        if(FileExists(uTracker->getMainDir() + "\\" + item)) {
+                                                if(FileExists(uTracker->getBackupDir() + "\\" + item)) {
+                                                        DeleteFile(uTracker->getBackupDir() + "\\" + item);
                                                 }
-                                                if(!RenameFile(uT->getMainDir() + "\\" + item, uT->getBackupDir() + "\\" + item)) {
+                                                if(!RenameFile(uTracker->getMainDir() + "\\" + item, uTracker->getBackupDir() + "\\" + item)) {
                                                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   Could not backup: " + item);
                                                 }
                                         }
-                                        if(RenameFile(uT->getUpdateDir() + "\\" + item, uT->getMainDir() + "\\" + item)) {
+                                        if(RenameFile(uTracker->getUpdateDir() + "\\" + item, uTracker->getMainDir() + "\\" + item)) {
                                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + item);
                                         } else {
                                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   Could not install: " + item);
