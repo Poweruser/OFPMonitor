@@ -224,7 +224,7 @@ DWORD WINAPI UpdaterThread_Step1 (LPVOID lpdwThreadParam__ ) {
         return 0;
 }
 
-void checkAndSaveFileToDisk(TMemoryStream *stream, String fileName, String expectedFileSize, String expectedFileHash) {
+void checkAndSaveFileToDisk(UpdateTracker *uTracker, TMemoryStream *stream, String fileName, String expectedFileSize, String expectedFileHash) {
         boolean sizeOk = expectedFileSize.IsEmpty() || (String(stream->Size) == expectedFileSize);
         boolean hashOk = expectedFileHash.IsEmpty();
         String calculatedHash = "";
@@ -239,12 +239,12 @@ void checkAndSaveFileToDisk(TMemoryStream *stream, String fileName, String expec
         }
         if(sizeOk && hashOk) {
                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   " + fileName);
-                String fileOnDisk = uT->getUpdateDir() + "\\" + fileName;
+                String fileOnDisk = uTracker->getUpdateDir() + "\\" + fileName;
                 try {
                         stream->SaveToFile(fileOnDisk);
                 } catch(Exception &E) {
                         String error = "Error while writing " + fileName + " to disk: " + E.Message;
-                        uT->errorHappend(error, true);
+                        uTracker->errorHappend(error, true);
                 }
                 if(FileExists(fileOnDisk)) {
                         if(fileOnDisk.SubString(fileOnDisk.Length() - 3, 4) == ".rar") {
@@ -263,13 +263,13 @@ void checkAndSaveFileToDisk(TMemoryStream *stream, String fileName, String expec
                                 RARHeaderDataEx rarHeader;
                                 int retHeader;
                                 while((retHeader = RARReadHeaderEx(rarHandle, &rarHeader)) == 0) {
-                                        RARProcessFile(rarHandle,RAR_EXTRACT,uT->getUpdateDir().c_str(),NULL);
-                                        uT->filesToInstall->Add(rarHeader.FileName);
+                                        RARProcessFile(rarHandle,RAR_EXTRACT, uTracker->getUpdateDir().c_str(),NULL);
+                                        uTracker->filesToInstall->Add(rarHeader.FileName);
                                         WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("      " + String(rarHeader.FileName));
                                 }
                                 if(retHeader == ERAR_BAD_DATA) {
                                         String error = String(rarHeader.FileName) + " - Archive damaged, extraction aborted";
-                                        uT->errorHappend(error, true);
+                                        uTracker->errorHappend(error, true);
                                 }
                                 int ret = RARCloseArchive(rarHandle);
                                 if(ret != 0) {
@@ -277,17 +277,17 @@ void checkAndSaveFileToDisk(TMemoryStream *stream, String fileName, String expec
                                 }
                                 WINDOW_UPDATE->MEMO_UPDATE_LOG->Lines->Add("   ... done.");
                         } else {
-                                uT->filesToInstall->Add(fileName);
+                                uTracker->filesToInstall->Add(fileName);
                         }
                 }
         }
         if(!sizeOk) {
                 String error = "Invalid file size for file " + fileName + " (" + String(stream->Size) + String(" Bytes). Expected size: ") + expectedFileSize + " Bytes";
-                uT->errorHappend(error, true);
+                uTracker->errorHappend(error, true);
         }
         if(!hashOk) {
                 String error = "The file " + fileName + " is damaged. It's current MD5 hash " + calculatedHash + " does not match the expected hash " + expectedFileHash;
-                uT->errorHappend(error, true);
+                uTracker->errorHappend(error, true);
         }
 }
 
@@ -398,7 +398,7 @@ DWORD WINAPI UpdaterThread_Step2 (LPVOID lpdwThreadParam__ ) {
                                         if(loader->isDone(queueIndex)) {
                                                 TMemoryStream *stream = new TMemoryStream;
                                                 loader->getFileAsStream(queueIndex, stream);
-                                                checkAndSaveFileToDisk(stream, files[i], fileSizes[i], fileHashes[i]);
+                                                checkAndSaveFileToDisk(uTracker, stream, files[i], fileSizes[i], fileHashes[i]);
                                                 delete stream;
                                         } else {
                                                 String error = "Could not download: " + target + " - Reason: " + loader->getErrorMessage(queueIndex);
