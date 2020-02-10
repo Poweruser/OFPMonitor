@@ -250,7 +250,7 @@ void TWINDOW_SETTINGS::updateGames() {
         TGroupBox *groupbox;
         for(int i = 0; i < GAMESTOTAL; i++) {
                 Game *g = this->ofpm->getGame((OFPGames)i);
-                if(i == OFPCWC) {
+                if(i == ARMARES) {
                         combobox = this->COMBOBOX_OFPCWC_PROFILE;
                         checkbox = this->CHECKBOX_OFPCWC;
                         edit = this->EDIT_OFPCWC_EXECUTABLE;
@@ -273,7 +273,10 @@ void TWINDOW_SETTINGS::updateGames() {
                 edit->Text = "";
                 label->Caption = "";
                 groupbox->Visible = checkbox->Checked;
-                if(g->isActive()) {
+			//	1.96 game is hided in ArmaMonitor
+			//	if(g->isActive()) {
+				if(i == OFPRES) { groupbox->Visible = false; }
+                if ( (g->isActive()) && (i != OFPRES) ) {
                         edit->Text = g->getGameExe();
                         if(!(g->getGameExe().IsEmpty())) {
                                 label->Caption = this->languageDB->getGuiString("STRING_DETECTEDVERSION") + "  " + IntToStr(g->getFileVersion());
@@ -918,8 +921,8 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_OFPCWC_BROWSEClick(
         if(!EDIT_OFPCWC_EXECUTABLE->Text.IsEmpty()) {
                 OpenDialogGameFile->InitialDir = ExtractFilePath(EDIT_OFPCWC_EXECUTABLE->Text);
         }
-        OpenDialogGameFile->Filter = buildOpenDialogFilter(OFPCWC);
-        OpenDialogGameFile->Tag = OFPCWC;
+        OpenDialogGameFile->Filter = buildOpenDialogFilter(ARMARES);
+        OpenDialogGameFile->Tag = ARMARES;
         OpenDialogGameFile->Execute();
 }
 //---------------------------------------------------------------------------
@@ -974,7 +977,7 @@ void __fastcall TWINDOW_SETTINGS::ComboBox2Change(TObject *Sender)
 void __fastcall TWINDOW_SETTINGS::COMBOBOX_OFPCWC_PROFILEChange(
       TObject *Sender)
 {
-        this->profileChanged(COMBOBOX_OFPCWC_PROFILE, OFPCWC);
+        this->profileChanged(COMBOBOX_OFPCWC_PROFILE, ARMARES);
 }
 //---------------------------------------------------------------------------
 
@@ -994,9 +997,9 @@ void __fastcall TWINDOW_SETTINGS::COMBOBOX_OFPRES_PROFILEChange(TObject *Sender)
 void __fastcall TWINDOW_SETTINGS::CHECKBOX_OFPCWCClick(TObject *Sender)
 {
         if(!CHECKBOX_OFPCWC->Checked) {
-                this->ofpm->removeGame(OFPCWC);
+                this->ofpm->removeGame(ARMARES);
         } else {
-                this->checkForAutoDetection(OFPCWC);
+                this->checkForAutoDetection(ARMARES);
 
         }
         this->updateGames();

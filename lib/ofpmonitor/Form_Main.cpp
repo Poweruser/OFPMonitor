@@ -31,7 +31,7 @@ TWINDOW_MAIN *WINDOW_MAIN;
 void TWINDOW_MAIN::ChatNotification(String msg) {
         this->CoolTrayIcon1->HideBalloonHint();
         if(!msg.IsEmpty()) {
-                this->CoolTrayIcon1->ShowBalloonHint(WideString("OFPMonitor " + TABSHEET_CHAT->Caption), WideString(msg + "\n"), bitInfo, 10);
+                this->CoolTrayIcon1->ShowBalloonHint(WideString("ArmaMonitor " + TABSHEET_CHAT->Caption), WideString(msg + "\n"), bitInfo, 10);
         }
 }
 
@@ -324,7 +324,7 @@ void TWINDOW_MAIN::writePlayerToStringGrid(int rowIndex, Player *p) {
    Returns the localized string of the server state
    2: Creating
    6: Waiting
-   7: ??????? (is ignored by OFPMonitor, happens sometimes before BRIEFING,
+   7: ??????? (is ignored by ArmaMonitor, happens sometimes before BRIEFING,
       sometimes between DEBRIEFING and WAITING/CREATING; 'Loading Files' maybe?
    9: Debriefing
    12: Setting up
@@ -637,7 +637,7 @@ void TWINDOW_MAIN::filterChanged(bool userinput) {
                         updateServerInfoBox(this->selectedServerID);
                         this->CoolTrayIcon1->Hint = srv->getName() + "     " + getGameState(srv->getGameState()) + "     " +  String(srv->getPlayerNum()) + " " + this->languageDB->getGuiString("STRING_PLAYERS");
                 } else {
-                        this->CoolTrayIcon1->Hint = "OFPMonitor";
+                        this->CoolTrayIcon1->Hint = "ArmaMonitor";
                 }
 
         }

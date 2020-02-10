@@ -287,7 +287,10 @@ ServerFilterResult Server::checkFilter(ServerFilter *filter) {
                            ) && (
                             (this->password == 1 && filter->withPassword) ||
                             (this->password == 0 && filter->withoutPassword)
-                           )) {
+                           ) && (
+						   // ArmAMonitor won't display servers whose version less than 199
+							(this->actver >= 199)
+						   )) {
                                 bool missionfilter = filter->testMissionName(this->mission);
                                 if(missionfilter) {
                                         bool namefilter = filter->testServerName(this->name);

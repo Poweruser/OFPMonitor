@@ -16,14 +16,14 @@
 
 #define POWERSERVER_QUERYPORT 28900
 
-enum OFPGames {OFPCWC=0, OFPRES=1, ARMACWA=2, GAMESTOTAL=3, UNKNOWNGAME=4 };
+enum OFPGames {ARMARES=0, OFPRES=1, ARMACWA=2, GAMESTOTAL=3, UNKNOWNGAME=4 };
 
 
 String getGameName(OFPGames gameid) {
 	String out = "UNKNOWNGAME";
 	switch(gameid) {        
-		case OFPCWC:
-			out = "OFP:CWC";
+		case ARMARES:
+			out = "ARMA:RES";
 			break;
 		case OFPRES:
 			out = "OFP:RES";
@@ -35,7 +35,7 @@ String getGameName(OFPGames gameid) {
 }
 
 OFPGames getGameId(String name) {
-        if(name == "OFP:CWC") { return OFPCWC; }
+        if(name == "ARMA:RES") { return ARMARES; }
         if(name == "OFP:RES") { return OFPRES; }
         if(name == "ARMA:CWA") { return ARMACWA; }
         return UNKNOWNGAME;
@@ -49,9 +49,8 @@ bool isValidGameID(OFPGames gameid) {
 list<String> getExesByGameId(OFPGames gameid, bool includeFWatch) {
         list<String> exes;
 	switch(gameid) {
-		case OFPCWC:
-                	exes.push_back("OperationFlashpoint.exe");
-                	exes.push_back("OperationFlashpointbeta.exe");
+		case ARMARES:
+                	exes.push_back("ArmAResistance.exe");
 			break;
 		case OFPRES:
                         if(includeFWatch) {
@@ -78,7 +77,10 @@ bool isFileFWatch(String fileName) {
 String getAppTitleByGameId(OFPGames gameid) {
         String out = "";
 	switch(gameid) {
-		case OFPCWC:
+		case ARMARES:
+		// out is case sensitivitive.
+			out = "ArmA Resistance";
+			break;
 		case OFPRES:
 			out = "Operation Flashpoint";
 			break;
@@ -92,8 +94,8 @@ String getAppTitleByGameId(OFPGames gameid) {
 String getFullGameNameByGameId(OFPGames gameid) {
         String out = "";
 	switch(gameid) {
-		case OFPCWC:
-			out = "Operation Flashpoint: Cold War Crisis";
+		case ARMARES:
+			out = "Arma: Resistance";
 			break;
 		case OFPRES:
 			out = "Operation Flashpoint: Resistance";
@@ -107,7 +109,7 @@ String getFullGameNameByGameId(OFPGames gameid) {
 list<String> getRegistryPathByGameId(OFPGames gameid) {
 	list<String> regFolder;
 	switch(gameid) {
-		case OFPCWC:
+		case ARMARES:
 		case OFPRES:
 			regFolder.push_back("SOFTWARE");
 			regFolder.push_back("Codemasters");
@@ -183,7 +185,7 @@ list<String> getExePathsByGameId(OFPGames gameid, bool includeFWatch) {
 String getGameSpyTokenByGameId(OFPGames gameid) {
 	String out = "";
 	switch(gameid) {
-		case OFPCWC:
+		case ARMARES:
 			out = "opflash";
 			break;
 		case OFPRES:
@@ -197,7 +199,7 @@ String getGameSpyKeyByGameId(OFPGames gameid) {
 	String out = "";
 	switch(gameid) {
 		default:
-		case OFPCWC:
+		case ARMARES:
 			break;
 		case OFPRES:
 		case ARMACWA:

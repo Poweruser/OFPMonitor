@@ -3,7 +3,7 @@
 <PROJECT>
   <MACROS>
     <VERSION value="BCB.06.00"/>
-    <PROJECT value="OFPMonitor.exe"/>
+    <PROJECT value="ArmaMonitor.exe"/>
     <OBJFILES value="OFPMonitor.obj lib\ofpmonitor\Address.obj lib\ofpmonitor\AudioPlayer.obj 
       lib\ofpmonitor\AudioPosition.obj lib\ofpmonitor\AudioTask.obj 
       lib\ofpmonitor\Chat.obj lib\ofpmonitor\ChatLog.obj 
@@ -25,7 +25,7 @@
       lib\ofpmonitor\Form_Localgame.obj lib\ofpmonitor\Form_Info.obj 
       lib\ofpmonitor\Form_Update.obj lib\ofpmonitor\WindowSettings.obj 
       lib\ofpmonitor\HttpFileDownloader.obj"/>
-    <RESFILES value="resources\wavefiles.res resources\DefaultLanguage.res OFPMonitor.res"/>
+    <RESFILES value="resources\wavefiles.res resources\DefaultLanguage.res ArmaMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
     <DEFFILE value=""/>
@@ -39,7 +39,7 @@
       IndySystem60.lib IndyProtocols60.lib"/>
     <PACKAGES value="vcl.bpi rtl.bpi bcbsmp.bpi IndyCore60.bpi IndyProtocols60.bpi 
       IndySystem60.bpi CoolTrayIcon.bpi"/>
-    <PATHCPP value=".;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor"/>
+    <PATHCPP value=".;lib\ofpmonitor"/>
     <PATHPAS value=".;"/>
     <PATHRC value=".;"/>
     <PATHASM value=".;"/>
@@ -48,7 +48,7 @@
     <LINKER value="ilink32"/>
     <USERDEFINES value=""/>
     <SYSDEFINES value="NO_STRICT"/>
-    <MAINSOURCE value="OFPMonitor.cpp"/>
+    <MAINSOURCE value="ArmaMonitor.cpp"/>
     <INCLUDEPATH value="lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl"/>
     <LIBPATH value="lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
@@ -74,8 +74,8 @@
   <FILELIST>
       <FILE FILENAME="resources\wavefiles.res" FORMNAME="" UNITNAME="wavefiles.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="resources\DefaultLanguage.res" FORMNAME="" UNITNAME="DefaultLanguage.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="OFPMonitor.cpp" FORMNAME="" UNITNAME="OFPMonitor" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="OFPMonitor.res" FORMNAME="" UNITNAME="OFPMonitor.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="ArmaMonitor.cpp" FORMNAME="" UNITNAME="ArmaMonitor" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="ArmaMonitor.res" FORMNAME="" UNITNAME="ArmaMonitor.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\psapi.lib" FORMNAME="" UNITNAME="psapi.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\unrar.lib" FORMNAME="" UNITNAME="unrar.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\Address.cpp" FORMNAME="" UNITNAME="Address.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
@@ -131,7 +131,7 @@ AutoIncBuild=0
 MajorVer=1
 MinorVer=7
 Release=4
-Build=0
+Build=1
 Debug=0
 PreRelease=0
 Special=0
@@ -143,14 +143,14 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=by Poweruser
 FileDescription=OFP Server monitoring tool
-FileVersion=1.7.4.0
-InternalName=OFPMonitor
+FileVersion=1.7.4.1
+InternalName=OFPArmaMonitor
 LegalCopyright=(c) Poweruser
 LegalTrademarks=
 OriginalFilename=OFPMonitor.exe
-ProductName=OFPMonitor
+ProductName=OFPArmaMonitor
 ProductVersion=1.0.0.0
-Comments=
+Comments=Modified by IF to fit 2.01 Arma Resistance
 
 [HistoryLists\hlIncludePath]
 Count=3
@@ -196,10 +196,5 @@ LinkCGLIB=0
 AddServerUnit=1
 AddClientUnit=1
 PrecompiledHeaders=1
-
-[Language]
-ActiveLang=
-ProjectLang=
-RootDir=
   </IDEOPTIONS>
 </PROJECT>

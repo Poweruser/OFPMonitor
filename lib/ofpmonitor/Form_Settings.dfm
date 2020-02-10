@@ -454,7 +454,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Top = 8
         Width = 197
         Height = 17
-        Caption = 'Operation Flashpoint: Cold War Crisis'
+        Caption = 'Arma: Resistance'
         TabOrder = 0
         OnClick = CHECKBOX_OFPCWCClick
       end
@@ -465,6 +465,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Height = 17
         Caption = 'Operation Flashpoint: Resistance'
         TabOrder = 2
+		Visible = false
         OnClick = CHECKBOX_OFPRESClick
       end
       object CHECKBOX_ARMACWA: TCheckBox
