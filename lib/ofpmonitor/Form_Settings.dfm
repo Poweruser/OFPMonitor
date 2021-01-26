@@ -294,7 +294,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Caption = 'Executable:'
           end
           object LABEL_OFPCWC_DETECTEDVERSION: TLabel
-            Left = 365
+            Left = 345
             Top = 0
             Width = 84
             Height = 14
@@ -370,7 +370,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Transparent = True
           end
           object LABEL_OFPRES_DETECTEDVERSION: TLabel
-            Left = 365
+            Left = 345
             Top = 0
             Width = 84
             Height = 14
@@ -439,7 +439,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Transparent = True
           end
           object LABEL_ARMACWA_DETECTEDVERSION: TLabel
-            Left = 365
+            Left = 345
             Top = 0
             Width = 84
             Height = 14

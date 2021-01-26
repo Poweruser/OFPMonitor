@@ -1599,7 +1599,8 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_ADDClick(TObject *Sender)
                                         }
                                 }
                                 if(success && add->readAddress(ip + ":" + url->Strings[1], defaultGameport, false)) {
-                                        this->ofpm->addServer(add->getAddress());
+                                        // this->ofpm->addServer(add->getAddress());
+                                        this->ofpm->addServer(add->getAddress(), value, true);
                                 } else {
                                         ShowMessage(this->languageDB->getGuiString("STRING_SERVERS_ADDERROR") + "  " + url->Strings[0]);
                                 }
@@ -1718,6 +1719,9 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_REMOVEClick(TObject *Sender)
                 int serverID = (int)(StringGrid1->Objects[0][sel.Top]);
                 Server *srv = this->ofpm->getServerByID(serverID);
                 if(srv != NULL) {
+					// if(srv->checkDomainName())
+						// this->ofpm->removeServer(srv->getDomainName());
+					// else
                         this->ofpm->removeServer(srv->getGamespyAddress());
                 }
         }

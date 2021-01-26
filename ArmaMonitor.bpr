@@ -4,7 +4,7 @@
   <MACROS>
     <VERSION value="BCB.06.00"/>
     <PROJECT value="ArmaMonitor.exe"/>
-    <OBJFILES value="OFPMonitor.obj lib\ofpmonitor\Address.obj lib\ofpmonitor\AudioPlayer.obj 
+    <OBJFILES value="ArmaMonitor.obj lib\ofpmonitor\Address.obj lib\ofpmonitor\AudioPlayer.obj 
       lib\ofpmonitor\AudioPosition.obj lib\ofpmonitor\AudioTask.obj 
       lib\ofpmonitor\Chat.obj lib\ofpmonitor\ChatLog.obj 
       lib\ofpmonitor\ChatMessage.obj lib\ofpmonitor\ChatSettings.obj 
@@ -49,14 +49,14 @@
     <USERDEFINES value=""/>
     <SYSDEFINES value="NO_STRICT"/>
     <MAINSOURCE value="ArmaMonitor.cpp"/>
-    <INCLUDEPATH value="lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl"/>
-    <LIBPATH value="lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <INCLUDEPATH value="lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\Projects\Indy10\include"/>
+    <LIBPATH value="lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib;$(BCB)\Projects\Indy10\lib"/>
     <WARNINGS value="-w-par -w-8027 -w-8026"/>
     <OTHERFILES value=""/>
   </MACROS>
   <OPTIONS>
     <IDLCFLAGS value="-Ilib\ofpmonitor -Iinclude -I.. -I$(BCB)\include -I$(BCB)\include\vcl 
-      -src_suffix cpp -boa"/>
+      -I$(BCB)\Projects\Indy10\include -src_suffix cpp -boa"/>
     <CFLAG1 value="-O2 -H=$(BCB)\lib\vcl60.csm -Hc -Vx -Ve -X- -a8 -b- -d -k- -vi -O -O1 -c 
       -tW -tWM"/>
     <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
@@ -131,7 +131,7 @@ AutoIncBuild=0
 MajorVer=1
 MinorVer=7
 Release=4
-Build=1
+Build=2
 Debug=0
 PreRelease=0
 Special=0
@@ -141,28 +141,31 @@ Locale=1031
 CodePage=1252
 
 [Version Info Keys]
-CompanyName=by Poweruser
+CompanyName=by Poweruser. Modified by IF for ArmA:R.
 FileDescription=OFP Server monitoring tool
-FileVersion=1.7.4.1
-InternalName=OFPArmaMonitor
+FileVersion=1.7.4.2
+InternalName=ArmaMonitor
 LegalCopyright=(c) Poweruser
 LegalTrademarks=
 OriginalFilename=OFPMonitor.exe
-ProductName=OFPArmaMonitor
-ProductVersion=1.0.0.0
+ProductName=ArmaMonitor
+ProductVersion=1.0.0.1
 Comments=Modified by IF to fit 2.01 Arma Resistance
 
 [HistoryLists\hlIncludePath]
-Count=3
-Item0=lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl
-Item1=C:\Program Files (x86)\Borland\CBuilder6\Projects;lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl
-Item2=include;..;$(BCB)\include;$(BCB)\include\vcl
+Count=4
+Item0=lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\Projects\Indy10\include
+Item1=lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl
+Item2=C:\Program Files (x86)\Borland\CBuilder6\Projects;lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl
+Item3=include;..;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
-Count=3
-Item0=lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item1=C:\Program Files (x86)\Borland\CBuilder6\Projects;lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib
-Item2=lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Count=5
+Item0=lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib;$(BCB)\Projects\Indy10\lib
+Item1=lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib$(BCB)\Projects\Indy10\lib
+Item2=lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item3=C:\Program Files (x86)\Borland\CBuilder6\Projects;lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item4=lib;..;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlDebugSourcePath]
 Count=1
