@@ -3,6 +3,9 @@
 OFPMonitor.exe
 OFPMonitor.ini
 OFPMonitor.tds
+ArmAMonitor.exe
+ArmAMonitor.ini
+ArmAMonitor.tds
 
 *.~cpp
 *.~dfm

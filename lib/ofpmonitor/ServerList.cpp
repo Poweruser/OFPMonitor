@@ -112,6 +112,7 @@ bool ServerList::addServer(String address) {
         return false;
 }
 
+
 bool ServerList::removeServer(String address) {
         int index = -1;
         if(this->list->Find(address, index)) {
