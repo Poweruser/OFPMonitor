@@ -41,6 +41,7 @@ class OFPMonitorModel : public Observable {
                 int getTotalServerCount();
                 int getOnlineServerCount();
                 void addServer(String address);
+                void addServer(String address, String domainName, bool isDomainName);
                 bool removeServer(String address);
                 Server* getServerByID(int serverID);
                 void addServer(ServerConfigEntry entry);

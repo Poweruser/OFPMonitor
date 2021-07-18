@@ -1,5 +1,5 @@
 *.obj
-*.~bpr
+*.bpr
 OFPMonitor.exe
 OFPMonitor.ini
 OFPMonitor.tds
@@ -8,3 +8,6 @@ OFPMonitor.tds
 *.~dfm
 *.~h
 *.~c
+ArmaMonitor.exe
+ArmaMonitor.ini
+ArmaMonitor.tds

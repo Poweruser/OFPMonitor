@@ -294,7 +294,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Caption = 'Executable:'
           end
           object LABEL_OFPCWC_DETECTEDVERSION: TLabel
-            Left = 365
+            Left = 345
             Top = 0
             Width = 84
             Height = 14
@@ -370,7 +370,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Transparent = True
           end
           object LABEL_OFPRES_DETECTEDVERSION: TLabel
-            Left = 365
+            Left = 345
             Top = 0
             Width = 84
             Height = 14
@@ -439,7 +439,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
             Transparent = True
           end
           object LABEL_ARMACWA_DETECTEDVERSION: TLabel
-            Left = 365
+            Left = 345
             Top = 0
             Width = 84
             Height = 14
@@ -623,11 +623,21 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           TabOrder = 3
         end
         object CHECKBOX_NEWCONFIGURATION_NOMAP: TCheckBox
-          Left = 360
+          Left = 345
           Top = 184
           Width = 65
           Height = 17
           Caption = ' -nomap'
+          Checked = True
+          State = cbChecked
+          TabOrder = 4
+        end
+        object CHECKBOX_NEWCONFIGURATION_WINDOW: TCheckBox
+          Left = 410
+          Top = 184
+          Width = 65
+          Height = 17
+          Caption = ' -window'
           Checked = True
           State = cbChecked
           TabOrder = 4

@@ -94,6 +94,7 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->BUTTON_MASTERSERVERS_REMOVE->Caption = this->languageDB->getGuiString(BUTTON_MASTERSERVERS_REMOVE->Name);
                 this->CHECKBOX_NEWCONFIGURATION_NOSPLASH->Caption = this->languageDB->getGuiString(CHECKBOX_NEWCONFIGURATION_NOSPLASH->Name);
                 this->CHECKBOX_NEWCONFIGURATION_NOMAP->Caption = this->languageDB->getGuiString(CHECKBOX_NEWCONFIGURATION_NOMAP->Name);
+                this->CHECKBOX_NEWCONFIGURATION_WINDOW->Caption = String("-window");
                 this->CHECKBOX_REPEAT->Caption = this->languageDB->getGuiString(CHECKBOX_REPEAT->Name);
                 this->CHECKBOX_NOTIFICATIONS_ACTIVE->Caption = this->languageDB->getGuiString(CHECKBOX_NOTIFICATIONS_ACTIVE->Name);
                 this->CHECKBOX_CHAT_AUTOCONNECT->Caption = this->languageDB->getGuiString(CHECKBOX_CHAT_AUTOCONNECT->Name);
@@ -702,9 +703,11 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_ADDClick(TObject *Send
                                 EDIT_NEWCONFIGURATION_PASSWORD->Text,
                                 EDIT_NEWCONFIGURATION_PARAMETERS->Text,
                                 CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked,
-                                CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
+                                CHECKBOX_NEWCONFIGURATION_NOMAP->Checked,
+                                CHECKBOX_NEWCONFIGURATION_WINDOW->Checked);
                         g->addConfiguration(c);
                 } else {
+                        // todo: 增加一个弹窗来提示“输入名字”
                         EDIT_NEWCONFIGURATION_LABEL->SetFocus();
                 }
         }
@@ -724,6 +727,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_NEWCONFIGURATION_CLEARClick(TObject *Se
         EDIT_NEWCONFIGURATION_LABEL->Text = "";
         CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked = true;
         CHECKBOX_NEWCONFIGURATION_NOMAP->Checked = true;
+        CHECKBOX_NEWCONFIGURATION_WINDOW->Checked = false;
 }
 //---------------------------------------------------------------------------
 
@@ -801,6 +805,7 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_EDITClick(TObject *Se
 
                         CHECKBOX_NEWCONFIGURATION_NOMAP->Checked = conf->isNoMapSet();
                         CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked = conf->isNoSplashSet();
+                        CHECKBOX_NEWCONFIGURATION_WINDOW->Checked = conf->isWindowSet();
                         EDIT_NEWCONFIGURATION_PARAMETERS->Text = conf->createParameterLine(false, false, false, false, true, true);
                         break;
                 }
@@ -821,8 +826,9 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_OKClick(TObject *Send
                                 conf->setLabel(EDIT_NEWCONFIGURATION_LABEL->Text);
                                 conf->setMods(newmods);
                                 conf->setPassword(EDIT_NEWCONFIGURATION_PASSWORD->Text);
-                                conf->setNoMap(CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
                                 conf->setNoSplash(CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked);
+                                conf->setNoMap(CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
+                                conf->setWindow(CHECKBOX_NEWCONFIGURATION_WINDOW->Checked);
                                 conf->setAddParameters(EDIT_NEWCONFIGURATION_PARAMETERS->Text);
                                 delete newmods;                                                
                         }
@@ -969,6 +975,7 @@ void __fastcall TWINDOW_SETTINGS::ComboBox2Change(TObject *Sender)
         EDIT_NEWCONFIGURATION_PARAMETERS->Enabled = enable;
         CHECKBOX_NEWCONFIGURATION_NOSPLASH->Enabled = enable;
         CHECKBOX_NEWCONFIGURATION_NOMAP->Enabled = enable;
+        CHECKBOX_NEWCONFIGURATION_WINDOW->Enabled = enable;
         LISTBOX_MODFOLDERS_ALL->Enabled = enable;
         LISTBOX_MODFOLDERS_SELECTED->Enabled = enable;
 }
@@ -1599,7 +1606,8 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_ADDClick(TObject *Sender)
                                         }
                                 }
                                 if(success && add->readAddress(ip + ":" + url->Strings[1], defaultGameport, false)) {
-                                        this->ofpm->addServer(add->getAddress());
+                                        // this->ofpm->addServer(add->getAddress());
+                                        this->ofpm->addServer(add->getAddress(), value, true);
                                 } else {
                                         ShowMessage(this->languageDB->getGuiString("STRING_SERVERS_ADDERROR") + "  " + url->Strings[0]);
                                 }
@@ -1718,6 +1726,9 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_REMOVEClick(TObject *Sender)
                 int serverID = (int)(StringGrid1->Objects[0][sel.Top]);
                 Server *srv = this->ofpm->getServerByID(serverID);
                 if(srv != NULL) {
+					// if(srv->checkDomainName())
+						// this->ofpm->removeServer(srv->getDomainName());
+					// else
                         this->ofpm->removeServer(srv->getGamespyAddress());
                 }
         }

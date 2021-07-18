@@ -508,7 +508,7 @@ void TWINDOW_MAIN::updateServerInfoBox(int serverID) {
         Server *srv = this->ofpm->getServerByID(serverID);
         if(srv != NULL) {
                 if(srv->isOnline()) {
-                        this->LABEL_SERVERINFO_IP_VALUE->Caption = srv->getIP();
+                        this->LABEL_SERVERINFO_IP_VALUE->Caption = (srv->checkDomainName()) ? (srv->getDomainName()).SubString( 0, (srv->getDomainName()).Pos(".") ) + "..." : srv->getIP();
                         this->LABEL_SERVERINFO_PORT_VALUE->Caption = IntToStr(srv->getGamePort());
                         this->LABEL_SERVERINFO_PLATFORM_VALUE->Caption = srv->getPlatform();
                         this->LABEL_SERVERINFO_NAME->Caption = srv->getName();

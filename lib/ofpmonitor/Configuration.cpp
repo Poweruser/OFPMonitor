@@ -18,8 +18,9 @@ Configuration::Configuration(OFPGames gameid, String label, String mods, String 
         this->mods = ssp.split(";");
         this->password = password;
         this->addParameters = NULL;
-        this->nomap = false;
         this->nosplash = false;
+        this->nomap = false;
+        this->window = false;
         this->setAddParameters(parameters);
 }
 
@@ -31,9 +32,24 @@ Configuration::Configuration(OFPGames gameid, String label, TStringList *mods, S
         this->addParameters = NULL;
         this->nomap = false;
         this->nosplash = false;
+        this->window = false;
         this->setAddParameters(parameters);
         this->nosplash = (this->nosplash || nosplash);
         this->nomap = (this->nomap || nomap);
+}
+
+Configuration::Configuration(OFPGames gameid, String label, TStringList *mods, String password, String parameters, bool nosplash, bool nomap, bool window) {
+        this->gameid = gameid;
+        this->label = label;
+        this->mods = mods;
+        this->password = password;
+        this->addParameters = NULL;
+        this->nomap = false;
+        this->nosplash = false;
+        this->setAddParameters(parameters);
+        this->nosplash = (this->nosplash || nosplash);
+        this->nomap = (this->nomap || nomap);
+        this->window = window;
 }
 
 String Configuration::createModLine () {
@@ -87,6 +103,9 @@ String Configuration::createParameterLine(bool forceNoHost, bool forceNoConnect,
         }
         if(this->nosplash && !forceNoNoSplash) {
                 paraline += "-nosplash ";
+        }
+        if(this->window) {
+                paraline += "-window ";
         }
         for(int j = 0; j < this->addParameters->Count; j++) {
                 String item = this->addParameters->Strings[j];
@@ -166,6 +185,11 @@ void Configuration::setAddParameters(String parameters) {
                 this->nomap = true;
                 this->addParameters->Delete(ind);
         }
+        bool hasWindow = (ind = this->addParameters->IndexOf("-window")) > -1;
+        if(hasWindow) {
+                this->window = true;
+                this->addParameters->Delete(ind);
+        }
 }
 
 void Configuration::setNoSplash(bool on) {
@@ -174,6 +198,10 @@ void Configuration::setNoSplash(bool on) {
 
 void Configuration::setNoMap(bool on) {
         this->nomap = on;
+}
+
+void Configuration::setWindow(bool on) {
+        this->window = on;
 }
 
 String Configuration::getLabel() {
@@ -190,6 +218,10 @@ bool Configuration::isNoSplashSet() {
 
 bool Configuration::isNoMapSet() {
         return this->nomap;
+}
+
+bool Configuration::isWindowSet() {
+        return this->window;
 }
 
 OFPGames Configuration::getGameId() {

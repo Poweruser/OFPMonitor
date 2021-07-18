@@ -745,6 +745,10 @@ void OFPMonitorModel::addServer(String address) {
         this->servers->addServer(address);
 }
 
+void OFPMonitorModel::addServer(String address, String domainName, bool isDomainName) {
+        this->servers->addServer(address, domainName, isDomainName);
+}
+
 void OFPMonitorModel::addServer(ServerConfigEntry entry) {
         this->servers->addServer(entry);
 }
