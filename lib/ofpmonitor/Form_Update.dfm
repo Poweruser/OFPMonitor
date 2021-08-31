@@ -3,7 +3,7 @@ object WINDOW_UPDATE: TWINDOW_UPDATE
   Top = 189
   BorderIcons = []
   BorderStyle = bsSingle
-  Caption = 'OFPMonitor Updater'
+  Caption = 'ArmaMonitor Updater'
   ClientHeight = 297
   ClientWidth = 409
   Color = clBtnFace

@@ -31,7 +31,7 @@ TWINDOW_MAIN *WINDOW_MAIN;
 void TWINDOW_MAIN::ChatNotification(String msg) {
         this->CoolTrayIcon1->HideBalloonHint();
         if(!msg.IsEmpty()) {
-                this->CoolTrayIcon1->ShowBalloonHint(WideString("OFPMonitor " + TABSHEET_CHAT->Caption), WideString(msg + "\n"), bitInfo, 10);
+                this->CoolTrayIcon1->ShowBalloonHint(WideString("ArmaMonitor " + TABSHEET_CHAT->Caption), WideString(msg + "\n"), bitInfo, 10);
         }
 }
 
@@ -324,7 +324,7 @@ void TWINDOW_MAIN::writePlayerToStringGrid(int rowIndex, Player *p) {
    Returns the localized string of the server state
    2: Creating
    6: Waiting
-   7: ??????? (is ignored by OFPMonitor, happens sometimes before BRIEFING,
+   7: ??????? (is ignored by ArmaMonitor, happens sometimes before BRIEFING,
       sometimes between DEBRIEFING and WAITING/CREATING; 'Loading Files' maybe?
    9: Debriefing
    12: Setting up
@@ -508,7 +508,7 @@ void TWINDOW_MAIN::updateServerInfoBox(int serverID) {
         Server *srv = this->ofpm->getServerByID(serverID);
         if(srv != NULL) {
                 if(srv->isOnline()) {
-                        this->LABEL_SERVERINFO_IP_VALUE->Caption = srv->getIP();
+                        this->LABEL_SERVERINFO_IP_VALUE->Caption = (srv->checkDomainName()) ? (srv->getDomainName()).SubString( 0, (srv->getDomainName()).Pos(".") ) + "..." : srv->getIP();
                         this->LABEL_SERVERINFO_PORT_VALUE->Caption = IntToStr(srv->getGamePort());
                         this->LABEL_SERVERINFO_PLATFORM_VALUE->Caption = srv->getPlatform();
                         this->LABEL_SERVERINFO_NAME->Caption = srv->getName();
@@ -637,7 +637,7 @@ void TWINDOW_MAIN::filterChanged(bool userinput) {
                         updateServerInfoBox(this->selectedServerID);
                         this->CoolTrayIcon1->Hint = srv->getName() + "     " + getGameState(srv->getGameState()) + "     " +  String(srv->getPlayerNum()) + " " + this->languageDB->getGuiString("STRING_PLAYERS");
                 } else {
-                        this->CoolTrayIcon1->Hint = "OFPMonitor";
+                        this->CoolTrayIcon1->Hint = "ArmaMonitor";
                 }
 
         }

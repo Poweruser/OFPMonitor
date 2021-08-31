@@ -28,7 +28,7 @@ USEFORM("lib\ofpmonitor\Form_Update.cpp", WINDOW_UPDATE);
 HANDLE hMutex;
 
 bool MyAppAlreadyRunning() {
-        hMutex = CreateMutex(NULL,true,"OFPMonitor");
+        hMutex = CreateMutex(NULL,true,"ArmaMonitor");
         if (GetLastError() == ERROR_ALREADY_EXISTS ) {
                 CloseHandle(hMutex);
                 return true; // Already running
@@ -51,7 +51,7 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
         if(MyAppAlreadyRunning()) {
                 ProcessFinder *finder = new ProcessFinder();
                 TStringList *startsWith = new TStringList();
-                startsWith->Add("OFPMonitor");
+                startsWith->Add("ArmaMonitor");
                 TStringList *moduleIncludes = new TStringList();
                 moduleIncludes->Add(ExtractFileName(Application->ExeName));
                 if(finder->enumerate(startsWith, moduleIncludes)) {
@@ -110,7 +110,7 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
                 }
         }
 
-        String settingsFile = ExtractFileDir(Application->ExeName) + "\\OFPMonitor.ini";
+        String settingsFile = ExtractFileDir(Application->ExeName) + "\\ArmaMonitor.ini";
         ServerList *sL = new ServerList();
         OFPMonitorModel *ofpm = new OFPMonitorModel(settingsFile, sL);
         GameControl *gameControl = new GameControl(ofpm);
@@ -150,7 +150,8 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
         try {
                 Application->Initialize();
                 FileVersion *fv = new FileVersion(Application->ExeName);
-                Application->Title = "OFPMonitor " + fv->getFullVersion();
+                Application->Title = "ArmaMonitor ";
+                 Application->Title = "ArmaMonitor " + fv->getFullVersion();
                 delete fv;
                 Application->CreateForm(__classid(TWINDOW_MAIN), &WINDOW_MAIN);
                  Application->CreateForm(__classid(TWINDOW_UPDATE), &WINDOW_UPDATE);

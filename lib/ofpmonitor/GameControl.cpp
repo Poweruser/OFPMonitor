@@ -291,7 +291,7 @@ bool GameControl::detectProcess() {
                 TStringList *startsWith = new TStringList();
                 startsWith->Sorted = true;
                 startsWith->Duplicates = dupIgnore;
-                startsWith->Add(getAppTitleByGameId(OFPCWC));
+                startsWith->Add(getAppTitleByGameId(ARMARES));
                 startsWith->Add(getAppTitleByGameId(OFPRES));
                 startsWith->Add(getAppTitleByGameId(ARMACWA));
                 TStringList *modules = new TStringList();
@@ -379,7 +379,9 @@ void GameControl::overwriteMasterServer(String masterserver) {
                         int ofpVersion = fVersion->getOFPVersion();
                         delete fVersion;
                         int offset1 = 0;
-                        if(this->proc.title == getAppTitleByGameId(ARMACWA) && ofpVersion == 199) {
+                        if(this->proc.title == getAppTitleByGameId(ARMARES) && ofpVersion == 201) {
+                                offset1 = 0x756530;
+						} else if(this->proc.title == getAppTitleByGameId(ARMACWA) && ofpVersion == 199) {
                                 offset1 = 0x756530;
                         } else if(this->proc.title == getAppTitleByGameId(OFPRES) && ofpVersion == 196) {
                                 offset1 = 0x76EBC0;

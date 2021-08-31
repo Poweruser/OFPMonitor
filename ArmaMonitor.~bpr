@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!-- C++Builder XML Project -->
+<PROJECT>
+  <MACROS>
+    <VERSION value="BCB.06.00"/>
+    <PROJECT value="ArmaMonitor.exe"/>
+    <OBJFILES value="ArmaMonitor.obj lib\ofpmonitor\Address.obj lib\ofpmonitor\AudioPlayer.obj 
+      lib\ofpmonitor\AudioPosition.obj lib\ofpmonitor\AudioTask.obj 
+      lib\ofpmonitor\Chat.obj lib\ofpmonitor\ChatLog.obj 
+      lib\ofpmonitor\ChatMessage.obj lib\ofpmonitor\ChatSettings.obj 
+      lib\ofpmonitor\ConfigReader.obj lib\ofpmonitor\Configuration.obj 
+      lib\ofpmonitor\CustomNotification.obj lib\ofpmonitor\FileVersion.obj 
+      lib\ofpmonitor\FontSettings.obj lib\ofpmonitor\Game.obj 
+      lib\ofpmonitor\GameControl.obj lib\ofpmonitor\IRCClient.obj 
+      lib\ofpmonitor\LanguageDB.obj lib\ofpmonitor\Message.obj 
+      lib\ofpmonitor\Observer.obj lib\ofpmonitor\OFPMonitorModel.obj 
+      lib\ofpmonitor\Player.obj lib\ofpmonitor\PlayerTableSorter.obj 
+      lib\ofpmonitor\ProcessFinder.obj lib\ofpmonitor\QueryAnswer.obj 
+      lib\ofpmonitor\QueryRequest.obj lib\ofpmonitor\Server.obj 
+      lib\ofpmonitor\ServerEditorTableSorter.obj lib\ofpmonitor\ServerFilter.obj 
+      lib\ofpmonitor\ServerList.obj lib\ofpmonitor\ServerListLoader.obj 
+      lib\ofpmonitor\ServerTableSorter.obj lib\ofpmonitor\StatusChange.obj 
+      lib\ofpmonitor\StringSplitter.obj lib\ofpmonitor\UDPNetwork.obj 
+      lib\ofpmonitor\Form_Main.obj lib\ofpmonitor\Form_Settings.obj 
+      lib\ofpmonitor\Form_Localgame.obj lib\ofpmonitor\Form_Info.obj 
+      lib\ofpmonitor\Form_Update.obj lib\ofpmonitor\WindowSettings.obj 
+      lib\ofpmonitor\HttpFileDownloader.obj"/>
+    <RESFILES value="resources\wavefiles.res resources\DefaultLanguage.res ArmaMonitor.res"/>
+    <IDLFILES value=""/>
+    <IDLGENFILES value=""/>
+    <DEFFILE value=""/>
+    <RESDEPEN value="$(RESFILES) lib\ofpmonitor\Form_Main.dfm lib\ofpmonitor\Form_Settings.dfm 
+      lib\ofpmonitor\Form_Localgame.dfm lib\ofpmonitor\Form_Info.dfm 
+      lib\ofpmonitor\Form_Update.dfm"/>
+    <LIBFILES value="lib\psapi.lib lib\unrar.lib lib\wininet.lib"/>
+    <LIBRARIES value="IndyProtocols60.lib IndySystem60.lib IndyCore60.lib CoolTrayIcon.lib 
+      bcbsmp.lib vclx.lib rtl.lib vcl.lib"/>
+    <SPARELIBS value="vcl.lib rtl.lib vclx.lib bcbsmp.lib CoolTrayIcon.lib IndyCore60.lib 
+      IndySystem60.lib IndyProtocols60.lib"/>
+    <PACKAGES value="vcl.bpi rtl.bpi bcbsmp.bpi IndyCore60.bpi IndyProtocols60.bpi 
+      IndySystem60.bpi CoolTrayIcon.bpi"/>
+    <PATHCPP value=".;lib\ofpmonitor"/>
+    <PATHPAS value=".;"/>
+    <PATHRC value=".;"/>
+    <PATHASM value=".;"/>
+    <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
+    <RELEASELIBPATH value="$(BCB)\lib\release"/>
+    <LINKER value="ilink32"/>
+    <USERDEFINES value=""/>
+    <SYSDEFINES value="NO_STRICT"/>
+    <MAINSOURCE value="ArmaMonitor.cpp"/>
+    <INCLUDEPATH value="lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\Projects\Indy10\include"/>
+    <LIBPATH value="lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib;$(BCB)\Projects\Indy10\lib"/>
+    <WARNINGS value="-w-par -w-8027 -w-8026"/>
+    <OTHERFILES value=""/>
+  </MACROS>
+  <OPTIONS>
+    <IDLCFLAGS value="-Ilib\ofpmonitor -Iinclude -I.. -I$(BCB)\include -I$(BCB)\include\vcl 
+      -I$(BCB)\Projects\Indy10\include -src_suffix cpp -boa"/>
+    <CFLAG1 value="-O2 -H=$(BCB)\lib\vcl60.csm -Hc -Vx -Ve -X- -a8 -b- -d -k- -vi -O -O1 -c 
+      -tW -tWM"/>
+    <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
+    <RFLAGS value=""/>
+    <AFLAGS value="/mx /w2 /zn"/>
+    <LFLAGS value="-D&quot;&quot; -aa -Tpe -x -Gn"/>
+    <OTHERFILES value=""/>
+  </OPTIONS>
+  <LINKER>
+    <ALLOBJ value="c0w32.obj sysinit.obj $(OBJFILES)"/>
+    <ALLRES value="$(RESFILES)"/>
+    <ALLLIB value="$(LIBFILES) $(LIBRARIES) import32.lib cp32mt.lib"/>
+    <OTHERFILES value=""/>
+  </LINKER>
+  <FILELIST>
+      <FILE FILENAME="resources\wavefiles.res" FORMNAME="" UNITNAME="wavefiles.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="resources\DefaultLanguage.res" FORMNAME="" UNITNAME="DefaultLanguage.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="ArmaMonitor.cpp" FORMNAME="" UNITNAME="ArmaMonitor" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="ArmaMonitor.res" FORMNAME="" UNITNAME="ArmaMonitor.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\psapi.lib" FORMNAME="" UNITNAME="psapi.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\unrar.lib" FORMNAME="" UNITNAME="unrar.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Address.cpp" FORMNAME="" UNITNAME="Address.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\AudioPlayer.cpp" FORMNAME="" UNITNAME="AudioPlayer.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\AudioPosition.cpp" FORMNAME="" UNITNAME="AudioPosition.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\AudioTask.cpp" FORMNAME="" UNITNAME="AudioTask.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Chat.cpp" FORMNAME="" UNITNAME="Chat.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ChatLog.cpp" FORMNAME="" UNITNAME="ChatLog.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ChatMessage.cpp" FORMNAME="" UNITNAME="ChatMessage.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ChatSettings.cpp" FORMNAME="" UNITNAME="ChatSettings.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ConfigReader.cpp" FORMNAME="" UNITNAME="ConfigReader.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Configuration.cpp" FORMNAME="" UNITNAME="Configuration.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\CustomNotification.cpp" FORMNAME="" UNITNAME="CustomNotification.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\FileVersion.cpp" FORMNAME="" UNITNAME="FileVersion.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\FontSettings.cpp" FORMNAME="" UNITNAME="FontSettings.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Game.cpp" FORMNAME="" UNITNAME="Game.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\GameControl.cpp" FORMNAME="" UNITNAME="GameControl.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\IRCClient.cpp" FORMNAME="" UNITNAME="IRCClient.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\LanguageDB.cpp" FORMNAME="" UNITNAME="LanguageDB.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Message.cpp" FORMNAME="" UNITNAME="Message.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Observer.cpp" FORMNAME="" UNITNAME="Observer.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\OFPMonitorModel.cpp" FORMNAME="" UNITNAME="OFPMonitorModel.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Player.cpp" FORMNAME="" UNITNAME="Player.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\PlayerTableSorter.cpp" FORMNAME="" UNITNAME="PlayerTableSorter.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ProcessFinder.cpp" FORMNAME="" UNITNAME="ProcessFinder.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\QueryAnswer.cpp" FORMNAME="" UNITNAME="QueryAnswer.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\QueryRequest.cpp" FORMNAME="" UNITNAME="QueryRequest.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Server.cpp" FORMNAME="" UNITNAME="Server.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ServerEditorTableSorter.cpp" FORMNAME="" UNITNAME="ServerEditorTableSorter.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ServerFilter.cpp" FORMNAME="" UNITNAME="ServerFilter.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ServerList.cpp" FORMNAME="" UNITNAME="ServerList.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ServerListLoader.cpp" FORMNAME="" UNITNAME="ServerListLoader.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\ServerTableSorter.cpp" FORMNAME="" UNITNAME="ServerTableSorter.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\StatusChange.cpp" FORMNAME="" UNITNAME="StatusChange.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\StringSplitter.cpp" FORMNAME="" UNITNAME="StringSplitter.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\UDPNetwork.cpp" FORMNAME="" UNITNAME="UDPNetwork.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Form_Main.cpp" FORMNAME="WINDOW_MAIN" UNITNAME="Form_Main" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Form_Settings.cpp" FORMNAME="WINDOW_SETTINGS" UNITNAME="Form_Settings" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Form_Localgame.cpp" FORMNAME="WINDOW_LOCALGAME" UNITNAME="Form_Localgame" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Form_Info.cpp" FORMNAME="WINDOW_INFO" UNITNAME="Form_Info" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\Form_Update.cpp" FORMNAME="WINDOW_UPDATE" UNITNAME="Form_Update" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\WindowSettings.cpp" FORMNAME="" UNITNAME="WindowSettings.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\ofpmonitor\HttpFileDownloader.cpp" FORMNAME="" UNITNAME="HttpFileDownloader" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="lib\wininet.lib" FORMNAME="" UNITNAME="wininet.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+  </FILELIST>
+  <BUILDTOOLS>
+  </BUILDTOOLS>
+
+  <IDEOPTIONS>
+[Version Info]
+IncludeVerInfo=1
+AutoIncBuild=0
+MajorVer=1
+MinorVer=7
+Release=4
+Build=3
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=0
+Locale=1031
+CodePage=1252
+
+[Version Info Keys]
+CompanyName=by Poweruser. Modified by IF for ArmA:R.
+FileDescription=OFP Server monitoring tool
+FileVersion=1.7.4.3
+InternalName=ArmaMonitor
+LegalCopyright=(c) Poweruser
+LegalTrademarks=
+OriginalFilename=OFPMonitor.exe
+ProductName=ArmaMonitor
+ProductVersion=1.0.0.1
+Comments=Modified by IF to fit 2.01 Arma Resistance
+
+[HistoryLists\hlIncludePath]
+Count=4
+Item0=lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl;$(BCB)\Projects\Indy10\include
+Item1=lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl
+Item2=C:\Program Files (x86)\Borland\CBuilder6\Projects;lib\ofpmonitor;include;..;$(BCB)\include;$(BCB)\include\vcl
+Item3=include;..;$(BCB)\include;$(BCB)\include\vcl
+
+[HistoryLists\hlLibraryPath]
+Count=5
+Item0=lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib;$(BCB)\Projects\Indy10\lib
+Item1=lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib$(BCB)\Projects\Indy10\lib
+Item2=lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item3=C:\Program Files (x86)\Borland\CBuilder6\Projects;lib\ofpmonitor;lib;..;$(BCB)\lib\obj;$(BCB)\lib
+Item4=lib;..;$(BCB)\lib\obj;$(BCB)\lib
+
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=$(BCB)\source\vcl
+
+[HistoryLists\hlConditionals]
+Count=1
+Item0=_DEBUG
+
+[Debugging]
+DebugSourceDirs=$(BCB)\source\vcl
+
+[Parameters]
+RunParams=
+Launcher=
+UseLauncher=0
+DebugCWD=
+HostApplication=
+RemoteHost=
+RemotePath=
+RemoteLauncher=
+RemoteCWD=
+RemoteDebug=0
+
+[Compiler]
+ShowInfoMsgs=0
+LinkDebugVcl=0
+LinkCGLIB=0
+
+[CORBA]
+AddServerUnit=1
+AddClientUnit=1
+PrecompiledHeaders=1
+  </IDEOPTIONS>
+</PROJECT>

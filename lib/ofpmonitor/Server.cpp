@@ -36,7 +36,20 @@ ServerConfigEntry::ServerConfigEntry(String address) {
         this->autojoinConf = "";
 }
 
-__fastcall Server::Server(int serverID, String ip, int port) {
+ServerConfigEntry::ServerConfigEntry(String domainName, bool isDomainName) {
+        this->address = domainName;
+        this->watch = false;
+        this->favorite = false;
+        this->persistent = false;
+        this->blocked = false;
+        this->gamestate = 0;
+        this->gametime = 0;
+        this->autojoin = false;
+        this->autojoinConf = "";
+		this->isDomainName = isDomainName;
+}
+
+__fastcall Server::Server(int serverID, String ip, int port, bool isDomainName, String domainName) {
         this->watch = false;
         this->favorite = false;
         this->persistent = false;
@@ -47,9 +60,25 @@ __fastcall Server::Server(int serverID, String ip, int port) {
         this->timeouts = 0;
         this->ping = 0;
         this->gamespyport = port;
+		this->isDomainName = isDomainName;
+		if(isDomainName) this->domainName = domainName;
 }
 
-__fastcall Server::Server(int serverID, String ip, int port, ServerConfigEntry entry) {
+// __fastcall Server::Server(int serverID, String ip, int port, bool isDomainName) {
+        // this->watch = false;
+        // this->favorite = false;
+        // this->persistent = false;
+        // this->blocked = false;
+        // this->clear();
+        // this->serverID = serverID;
+        // this->ip = ip;
+        // this->timeouts = 0;
+        // this->ping = 0;
+        // this->gamespyport = port;
+		// this->isDomainName = isDomainName;
+// }
+
+__fastcall Server::Server(int serverID, String ip, int port, ServerConfigEntry entry, bool isDomainName, String domainName) {
         this->watch = entry.watch;
         this->favorite = entry.favorite;
         this->persistent = entry.persistent;
@@ -60,6 +89,8 @@ __fastcall Server::Server(int serverID, String ip, int port, ServerConfigEntry e
         this->timeouts = 0;
         this->ping = 0;
         this->gamespyport = port;
+		this->isDomainName = isDomainName;
+		if(isDomainName) this->domainName = domainName;
 }
 
 void Server::clear() {
@@ -287,7 +318,10 @@ ServerFilterResult Server::checkFilter(ServerFilter *filter) {
                            ) && (
                             (this->password == 1 && filter->withPassword) ||
                             (this->password == 0 && filter->withoutPassword)
-                           )) {
+                           ) && (
+						   // ArmAMonitor won't display servers whose version less than 199
+							(this->actver >= 199)
+						   )) {
                                 bool missionfilter = filter->testMissionName(this->mission);
                                 if(missionfilter) {
                                         bool namefilter = filter->testServerName(this->name);
@@ -710,7 +744,7 @@ long Server::getStatusTime() {
 }
 
 String Server::createSettingsFileEntry() {
-        String entry = this->getGamespyAddress();
+        String entry = (this->checkDomainName()) ? "domain|" + this->domainName : this->getGamespyAddress();
         String att = "";
         if(this->isWatched()) { att += "W"; }
         if(this->isFavorite()) { att += "F"; }
@@ -738,7 +772,12 @@ String Server::getAutoJoinConf() {
         return this->autojoinConf;
 }
 
-
+bool Server::checkDomainName() {
+	return this->isDomainName;
+};
+String Server::getDomainName() {
+	return this->domainName;
+};
 
 
 
