@@ -10,7 +10,6 @@ class Configuration {
         public:
                 Configuration(OFPGames gameid, String label, String mods, String password, String parameters);
                 Configuration(OFPGames gameid, String label, TStringList *mods, String password, String parameters, bool nosplash, bool nomap);
-                Configuration(OFPGames gameid, String label, TStringList *mods, String password, String parameters, bool nosplash, bool nomap, bool window);
                 ~Configuration();
                 String createModLine();
                 String createStartLine(String ip, int port, String player, bool passwordRequired, String enteredPassword);
@@ -23,12 +22,10 @@ class Configuration {
                 void setAddParameters(String parameters);
                 void setNoSplash(bool on);
                 void setNoMap(bool on);
-                void setWindow(bool on);
                 String getLabel();
                 String getPassword();
                 bool isNoSplashSet();
                 bool isNoMapSet();
-                bool isWindowSet();
                 OFPGames getGameId();
                 TStringList* getMods();
                 void setMods(TStringList *newmods);
@@ -44,7 +41,6 @@ class Configuration {
                 OFPGames gameid;
                 bool nosplash;
                 bool nomap;
-                bool window;
 };
 
 

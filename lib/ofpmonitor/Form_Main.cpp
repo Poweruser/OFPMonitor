@@ -840,7 +840,7 @@ void TWINDOW_MAIN::enableSavingOfSettings(bool enabled) {
         this->allowSavingOfSettings = enabled;
 }
 
-void TWINDOW_MAIN::saveSettings() {
+void TWINDOW_MAIN::saveSettings(String* path) {
         if(this->allowSavingOfSettings &&
            this->ofpm != NULL &&
            this->serverFilter != NULL &&
@@ -856,7 +856,10 @@ void TWINDOW_MAIN::saveSettings() {
                 this->windowSettings->getSettingsFileEntry(settings);
                 this->chatSettings->getSettingsFileEntry(settings);
                 try {
-                        settings->SaveToFile(ofpm->getSettingsFile());
+                        if (path)
+                                settings->SaveToFile(*path);
+                        else
+                                settings->SaveToFile(ofpm->getSettingsFile());
                 } catch(Exception &E) {}
                 this->lastAutoSave = Now();
                 delete settings;

@@ -111,6 +111,7 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
         }
 
         String settingsFile = ExtractFileDir(Application->ExeName) + "\\ArmaMonitor.ini";
+        String settingsBackupFile = ExtractFileDir(Application->ExeName) + "\\ArmaMonitor.ini.bck";
         ServerList *sL = new ServerList();
         OFPMonitorModel *ofpm = new OFPMonitorModel(settingsFile, sL);
         GameControl *gameControl = new GameControl(ofpm);
@@ -128,10 +129,20 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
         TStringList *file = new TStringList;
         bool loadingOfExistingSettingsFileFailed = false;
-        bool settingsFileExists = FileExists(settingsFile);
+        bool settingsFileExists = FileExists(settingsFile);    
+        bool settingsBackupFileExists = FileExists(settingsBackupFile);
         if(settingsFileExists) {
                 try {
                         file->LoadFromFile(settingsFile);
+                } catch (Exception &E) {
+                        loadingOfExistingSettingsFileFailed = true;
+                        String message = "Unable to load the settings file. Saving of settings is disabled.\nException message: ";
+                        message += E.Message;
+                        ShowMessage(message);
+                }
+        } else if(settingsBackupFileExists) {
+                try {
+                        file->LoadFromFile(settingsBackupFile);
                 } catch (Exception &E) {
                         loadingOfExistingSettingsFileFailed = true;
                         String message = "Unable to load the settings file. Saving of settings is disabled.\nException message: ";
@@ -145,7 +156,7 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
         fontSettings->readSettings(file);
         windowSettings->readSettings(file);
         serverFilter->readSettings(file);
-        chatSettings->readSettings(file);
+        chatSettings->readSettings(file);   
 
         try {
                 Application->Initialize();
@@ -190,9 +201,13 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
                 WINDOW_MAIN->checkIfWindowIsReachable();
                 if(!settingsFileExists) {
                         WINDOW_MAIN->saveSettings();
-                }
+                }                     
+                // save to backup settings file before exec
+                WINDOW_MAIN->saveSettings(&settingsBackupFile);
+
                 Application->Run();
                 WINDOW_MAIN->saveSettings();
+
         } catch (Exception &exception) {
                 Application->ShowException(&exception);
         } catch (...) {

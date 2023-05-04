@@ -334,7 +334,7 @@ public:		// User declarations
         void TWINDOW_MAIN::update(Observable *o);
         void TWINDOW_MAIN::updateGuiLanguage();
         void TWINDOW_MAIN::enableSavingOfSettings(bool enabled);
-        void TWINDOW_MAIN::saveSettings();
+        void TWINDOW_MAIN::saveSettings(String* = NULL);
         void TWINDOW_MAIN::skipTimerWaitInterval();
         void TWINDOW_MAIN::checkIfWindowIsReachable();
 
