@@ -385,6 +385,8 @@ void GameControl::overwriteMasterServer(String masterserver) {
                                 offset1 = 0x756530;
                         } else if(this->proc.title == getAppTitleByGameId(OFPRES) && ofpVersion == 196) {
                                 offset1 = 0x76EBC0;
+                        }else if(this->proc.title == getAppTitleByGameId(OFPRES) && ofpVersion >= 202) {
+                                offset1 = 0x756530;
                         }
                         if(offset1 != 0) {
                                 int lengthLimit = 63;

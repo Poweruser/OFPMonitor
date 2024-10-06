@@ -273,10 +273,8 @@ void TWINDOW_SETTINGS::updateGames() {
                 edit->Text = "";
                 label->Caption = "";
                 groupbox->Visible = checkbox->Checked;
-			//	1.96 game is hided in ArmaMonitor
-			//	if(g->isActive()) {
-				if(i == OFPRES) { groupbox->Visible = false; }
-                if ( (g->isActive()) && (i != OFPRES) ) {
+                // Replace 1.96 with "2.02" by retro
+                if(g->isActive()) {
                         edit->Text = g->getGameExe();
                         if(!(g->getGameExe().IsEmpty())) {
                                 label->Caption = this->languageDB->getGuiString("STRING_DETECTEDVERSION") + "  " + IntToStr(g->getFileVersion());

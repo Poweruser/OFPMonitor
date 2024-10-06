@@ -131,7 +131,7 @@ AutoIncBuild=0
 MajorVer=1
 MinorVer=7
 Release=4
-Build=3
+Build=5
 Debug=0
 PreRelease=0
 Special=0
@@ -143,14 +143,14 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=by Poweruser. Modified by IF for ArmA:R.
 FileDescription=OFP Server monitoring tool
-FileVersion=1.7.4.3
+FileVersion=1.7.4.5
 InternalName=ArmaMonitor
 LegalCopyright=(c) Poweruser
 LegalTrademarks=
 OriginalFilename=OFPMonitor.exe
 ProductName=ArmaMonitor
 ProductVersion=1.0.0.1
-Comments=Modified by IF to fit 2.01 Arma Resistance
+Comments=Modified by IF to fit 2.01 Arma Resistance and CWA-CE project
 
 [HistoryLists\hlIncludePath]
 Count=4

@@ -463,9 +463,8 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Top = 136
         Width = 177
         Height = 17
-        Caption = 'Operation Flashpoint: Resistance'
+        Caption = 'CWA-CE-202'
         TabOrder = 2
-        Visible = False
         OnClick = CHECKBOX_OFPRESClick
       end
       object CHECKBOX_ARMACWA: TCheckBox

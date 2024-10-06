@@ -26,7 +26,7 @@ String getGameName(OFPGames gameid) {
 			out = "ARMA:RES";
 			break;
 		case OFPRES:
-			out = "OFP:RES";
+			out = "ArmA:CWA-CE";
 			break;
 		case ARMACWA:
 			out = "ARMA:CWA";
@@ -36,7 +36,7 @@ String getGameName(OFPGames gameid) {
 
 OFPGames getGameId(String name) {
         if(name == "ARMA:RES") { return ARMARES; }
-        if(name == "OFP:RES") { return OFPRES; }
+        if(name == "ArmA:CWA-CE") { return OFPRES; }
         if(name == "ARMA:CWA") { return ARMACWA; }
         return UNKNOWNGAME;
 }
@@ -53,12 +53,7 @@ list<String> getExesByGameId(OFPGames gameid, bool includeFWatch) {
                 	exes.push_back("ArmAResistance.exe");
 			break;
 		case OFPRES:
-                        if(includeFWatch) {
-                                exes.push_back("fwatch.exe");
-                        }
-			exes.push_back("FLASHPOINTRESISTANCE.EXE");
-                	exes.push_back("OFP.exe");
-                	exes.push_back("FLASHPOINTBETA.EXE");
+                	exes.push_back("CWA-CE-202.exe");
 			break;
 		case ARMACWA:
                         if(includeFWatch) {
@@ -82,7 +77,7 @@ String getAppTitleByGameId(OFPGames gameid) {
 			out = "ArmA Resistance";
 			break;
 		case OFPRES:
-			out = "Operation Flashpoint";
+			out = "CWA-CE";
 			break;
 		case ARMACWA:
 	       		out = "Cold War Assault";
@@ -98,7 +93,7 @@ String getFullGameNameByGameId(OFPGames gameid) {
 			out = "Arma: Resistance";
 			break;
 		case OFPRES:
-			out = "Operation Flashpoint: Resistance";
+			out = "CWA-CE-202";
 			break;
 		case ARMACWA:
 			out = "ArmA: Cold War Assault";
