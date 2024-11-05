@@ -250,7 +250,7 @@ void TWINDOW_SETTINGS::updateGames() {
         TGroupBox *groupbox;
         for(int i = 0; i < GAMESTOTAL; i++) {
                 Game *g = this->ofpm->getGame((OFPGames)i);
-                if(i == OFPCWC) {
+                if(i == ARMARES) {
                         combobox = this->COMBOBOX_OFPCWC_PROFILE;
                         checkbox = this->CHECKBOX_OFPCWC;
                         edit = this->EDIT_OFPCWC_EXECUTABLE;
@@ -273,6 +273,7 @@ void TWINDOW_SETTINGS::updateGames() {
                 edit->Text = "";
                 label->Caption = "";
                 groupbox->Visible = checkbox->Checked;
+                // Replace 1.96 with "2.02" by retro
                 if(g->isActive()) {
                         edit->Text = g->getGameExe();
                         if(!(g->getGameExe().IsEmpty())) {
@@ -818,8 +819,8 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_OKClick(TObject *Send
                                 conf->setLabel(EDIT_NEWCONFIGURATION_LABEL->Text);
                                 conf->setMods(newmods);
                                 conf->setPassword(EDIT_NEWCONFIGURATION_PASSWORD->Text);
-                                conf->setNoMap(CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
                                 conf->setNoSplash(CHECKBOX_NEWCONFIGURATION_NOSPLASH->Checked);
+                                conf->setNoMap(CHECKBOX_NEWCONFIGURATION_NOMAP->Checked);
                                 conf->setAddParameters(EDIT_NEWCONFIGURATION_PARAMETERS->Text);
                                 delete newmods;                                                
                         }
@@ -918,8 +919,8 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_OFPCWC_BROWSEClick(
         if(!EDIT_OFPCWC_EXECUTABLE->Text.IsEmpty()) {
                 OpenDialogGameFile->InitialDir = ExtractFilePath(EDIT_OFPCWC_EXECUTABLE->Text);
         }
-        OpenDialogGameFile->Filter = buildOpenDialogFilter(OFPCWC);
-        OpenDialogGameFile->Tag = OFPCWC;
+        OpenDialogGameFile->Filter = buildOpenDialogFilter(ARMARES);
+        OpenDialogGameFile->Tag = ARMARES;
         OpenDialogGameFile->Execute();
 }
 //---------------------------------------------------------------------------
@@ -974,7 +975,7 @@ void __fastcall TWINDOW_SETTINGS::ComboBox2Change(TObject *Sender)
 void __fastcall TWINDOW_SETTINGS::COMBOBOX_OFPCWC_PROFILEChange(
       TObject *Sender)
 {
-        this->profileChanged(COMBOBOX_OFPCWC_PROFILE, OFPCWC);
+        this->profileChanged(COMBOBOX_OFPCWC_PROFILE, ARMARES);
 }
 //---------------------------------------------------------------------------
 
@@ -994,9 +995,9 @@ void __fastcall TWINDOW_SETTINGS::COMBOBOX_OFPRES_PROFILEChange(TObject *Sender)
 void __fastcall TWINDOW_SETTINGS::CHECKBOX_OFPCWCClick(TObject *Sender)
 {
         if(!CHECKBOX_OFPCWC->Checked) {
-                this->ofpm->removeGame(OFPCWC);
+                this->ofpm->removeGame(ARMARES);
         } else {
-                this->checkForAutoDetection(OFPCWC);
+                this->checkForAutoDetection(ARMARES);
 
         }
         this->updateGames();
@@ -1596,7 +1597,8 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_ADDClick(TObject *Sender)
                                         }
                                 }
                                 if(success && add->readAddress(ip + ":" + url->Strings[1], defaultGameport, false)) {
-                                        this->ofpm->addServer(add->getAddress());
+                                        // this->ofpm->addServer(add->getAddress());
+                                        this->ofpm->addServer(add->getAddress(), value, true);
                                 } else {
                                         ShowMessage(this->languageDB->getGuiString("STRING_SERVERS_ADDERROR") + "  " + url->Strings[0]);
                                 }
@@ -1715,6 +1717,9 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_REMOVEClick(TObject *Sender)
                 int serverID = (int)(StringGrid1->Objects[0][sel.Top]);
                 Server *srv = this->ofpm->getServerByID(serverID);
                 if(srv != NULL) {
+					// if(srv->checkDomainName())
+						// this->ofpm->removeServer(srv->getDomainName());
+					// else
                         this->ofpm->removeServer(srv->getGamespyAddress());
                 }
         }

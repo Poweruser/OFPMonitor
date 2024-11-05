@@ -22,7 +22,7 @@ object WINDOW_INFO: TWINDOW_INFO
     Left = 0
     Top = 0
     Width = 353
-    Height = 217
+    Height = 232
     HideSelection = False
     Lines.Strings = (
       ''
@@ -44,7 +44,11 @@ object WINDOW_INFO: TWINDOW_INFO
       
         'This program is using excerpts from the source code of the progr' +
         'am'
-      #39'gslist'#39' (Author: Luigi Auriemma, http://aluigi.altervista.org)')
+      #39'gslist'#39' (Author: Luigi Auriemma, http://aluigi.altervista.org)'
+	''
+	'ArmAMonitor modified by IF to support 2.01 ArmA:Resistance.'
+	'https://github.com/TZKdeveloperIF/ArmAMonitor'
+	)
     ReadOnly = True
     TabOrder = 0
     WordWrap = False

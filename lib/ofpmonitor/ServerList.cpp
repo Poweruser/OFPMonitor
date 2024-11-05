@@ -3,6 +3,10 @@
 
 #pragma hdrstop
 
+// For in_addr struct.
+#include "Form_Settings.h"
+#include "Form_Update.h"
+
 #include "ServerList.h"
 #include "ConfigReader.h"
 #include "StringSplitter.h"
@@ -11,6 +15,7 @@
 //---------------------------------------------------------------------------
 
 #pragma package(smart_init)
+unsigned long resolv(char *host);
 
 
 ServerList::ServerList() {
@@ -74,6 +79,29 @@ bool ServerList::addServer(ServerConfigEntry entry) {
         return false;
 }
 
+bool ServerList::addServer(ServerConfigEntry entry, String domainName) {
+        Address add = this->checkAddressValid(entry.address);
+        if(add.isValid() && !this->hasServer(add.getAddress())) {
+                int id = this->serverIDCounter++;
+                this->list->AddObject(add.getAddress(), (TObject*)(new Server(id, add.getIP(), add.getPort(), entry, true, domainName)));
+                return true;
+        }
+        return false;
+}
+
+bool ServerList::addServer(String address, String domainName, bool isDomainName) {
+	if(!isDomainName)
+		return ServerList::addServer(address);
+
+	Address add = this->checkAddressValid(address);
+	if(add.isValid() && !this->hasServer(domainName) ) {
+		int id = this->serverIDCounter++;
+		this->list->AddObject(add.getAddress(), (TObject*)(new Server(id, add.getIP(), add.getPort(), true, domainName)));
+		return true;
+	}
+	return false;
+}
+
 bool ServerList::addServer(String address) {
         Address add = this->checkAddressValid(address);
         if(add.isValid() && !this->hasServer(add.getAddress())) {
@@ -83,6 +111,7 @@ bool ServerList::addServer(String address) {
         }
         return false;
 }
+
 
 bool ServerList::removeServer(String address) {
         int index = -1;
@@ -159,16 +188,41 @@ void ServerList::readSettings(TStringList *file) {
                 if(s.Length() > 8) {
                         StringSplitter ssp(s);
                         TStringList *res = ssp.split(";");
-                        ServerConfigEntry sI(res->Strings[0]);
-                        if(res->Count > 1) {
-                                String att = res->Strings[1];
-                                sI.watch = (att.AnsiPos("W") > 0);
-                                sI.favorite = (att.AnsiPos("F") > 0);
-                                sI.persistent = (att.AnsiPos("P") > 0);
-                                sI.blocked = (att.AnsiPos("B") > 0);
-                        }
-                        delete res;
-                        this->addServer(sI);
+						
+						// int char_index = (res->Strings[0]).Pos("|");
+						// if(char_index >= 0) {
+							// String domainName = (res->Strings[0]).SubString(char_index, (res->Strings[0]).Length());
+						
+                        StringSplitter ssp_2(res->Strings[0]);
+                        TStringList *domainNameCheck = ssp_2.split("|");
+						if(domainNameCheck->Count > 1) {
+							
+							
+							ServerConfigEntry sI( this->getIPFromDomainName(domainNameCheck->Strings[1]) );
+							// ServerConfigEntry sI( this->getIPFromDomainName(domainName) );
+							if(res->Count > 1) {
+									String att = res->Strings[1];
+									sI.watch = (att.AnsiPos("W") > 0);
+									sI.favorite = (att.AnsiPos("F") > 0);
+									sI.persistent = (att.AnsiPos("P") > 0);
+									sI.blocked = (att.AnsiPos("B") > 0);
+							}
+							delete res;
+							// this->addServer(sI, domainName);
+							this->addServer(sI, (domainNameCheck->Strings[1]));
+						} else {
+							ServerConfigEntry sI(res->Strings[0]);
+							if(res->Count > 1) {
+									String att = res->Strings[1];
+									sI.watch = (att.AnsiPos("W") > 0);
+									sI.favorite = (att.AnsiPos("F") > 0);
+									sI.persistent = (att.AnsiPos("P") > 0);
+									sI.blocked = (att.AnsiPos("B") > 0);
+							}
+							delete res;
+							this->addServer(sI);
+						}
+						delete domainNameCheck;
                 }
                 serverList.pop_front();
         }
@@ -186,5 +240,28 @@ void ServerList::getSettingsFileEntry(TStringList *settings) {
                 settings->Add("[\\Servers]");
         }
 }
+String ServerList::getIPFromDomainName(String domainName) {
+    int defaultGameport = 2302;
+    Address *add = new Address();
+	int success = false;
+	struct in_addr addr;
+	StringSplitter ssp(domainName);
+	TStringList *url = ssp.split(":");
+	if(url->Count == 1) {
+			url->Add(IntToStr(defaultGameport));
+	}
+	String ip = url->Strings[0];
+	addr.s_addr = resolv(ip.c_str());
+	if(addr.s_addr != INADDR_NONE) {
+		ip = inet_ntoa(addr);
+		if(ip != "62.157.140.133" && ip != "80.156.86.78") {
+				success = true;
+		}
+	}
+	if(success && add->readAddress(ip + ":" + url->Strings[1], defaultGameport, false))
+		return add->getAddress();
+	else
+		return String("12.34.567.890:2302");
+};
 
 

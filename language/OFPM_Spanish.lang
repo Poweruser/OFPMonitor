@@ -152,12 +152,12 @@ LABEL_BANDWIDTH_MODERATE = Moderado
 LABEL_BANDWIDTH_LOW = Bajo
 LABEL_BANDWIDTH_VERYLOW = Muy bajo
 
-WINDOW_UPDATE = Actualizador de OFP Monitor
+WINDOW_UPDATE = Actualizador de ArmaMonitor
 BUTTON_UPDATE =	Buscar actualizacioens 
 CHECKBOX_UPDATE_CHECKATSTART = Actualizarndo
 GROUPBOX_UPDATE = Actualizaciones
 STRING_UPDATE1 = Nueva actualización:
-STRING_UPDATE2 = Quieres actualizar OFP Monitor?
+STRING_UPDATE2 = Quieres actualizar ArmaMonitor?
 STRING_UPDATE_ALREADYLATEST = Ya tienes la ultima versión
 
 TABSHEET_SERVERS = Servidores

@@ -25,9 +25,12 @@ class ServerConfigEntry {
         	bool blocked;
                 bool autojoin;
                 String autojoinConf;
+				
+				bool isDomainName;
 
                 ServerConfigEntry();
         	ServerConfigEntry(String address);
+        	ServerConfigEntry(String domainName, bool isDomainName);
 };
 
 /**
@@ -37,8 +40,8 @@ class ServerConfigEntry {
 
 class Server : public TObject {
         public:
-                __fastcall Server(int serverID, String ip, int port);
-                __fastcall Server(int serverID, String ip, int port, ServerConfigEntry entry);
+                __fastcall Server(int serverID, String ip, int port, bool isDomainName = false, String domainName = "");
+                __fastcall Server(int serverID, String ip, int port, ServerConfigEntry entry, bool isDomainName = false, String domainName = "");
                 __fastcall ~Server();
                 
                 /**
@@ -101,6 +104,8 @@ class Server : public TObject {
                 String createSettingsFileEntry();
                 void setSelectedToDisplay(bool active);
                 String getAutoJoinConf();
+				bool checkDomainName();
+				String getDomainName();
 
         private:
                 int password;
@@ -113,6 +118,7 @@ class Server : public TObject {
                 bool blocked;
                 bool autojoin;
                 bool selectedToDisplay;
+                bool isDomainName;
                 list<StatusChange*> statusChanges;
                 bool areQueriesComplete();
                 void parseQueryAnswers();
@@ -147,6 +153,7 @@ class Server : public TObject {
                 bool dontTrustNumPlayers;
 
                 TStringList* playerArrayToStringList();
+				String domainName;
 };
 
 //---------------------------------------------------------------------------

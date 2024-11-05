@@ -152,12 +152,12 @@ LABEL_BANDWIDTH_MODERATE = Matig
 LABEL_BANDWIDTH_LOW = Laag
 LABEL_BANDWIDTH_VERYLOW = Een zeer laag
 
-WINDOW_UPDATE = OFPMonitor Updater
+WINDOW_UPDATE = ArmaMonitor Updater
 BUTTON_UPDATE = Nu controleren op updates
 CHECKBOX_UPDATE_CHECKATSTART = Controleren op updates bij het opstarten
 GROUPBOX_UPDATE = Update
 STRING_UPDATE1 = Nieuwe versie beschikbaar:
-STRING_UPDATE2 = Wil je updaten OFPMonitor nu?
+STRING_UPDATE2 = Wil je updaten ArmaMonitor nu?
 STRING_UPDATE_ALREADYLATEST = U heeft al de nieuwste versie
 
 TABSHEET_SERVERS = Servers

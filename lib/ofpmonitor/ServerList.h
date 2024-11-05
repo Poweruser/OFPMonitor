@@ -19,7 +19,9 @@ class ServerList {
                 Server* getServer(int index);
                 Server* getServerByID(int serverID);
                 bool addServer(String address);
+                bool addServer(String address, String domainName, bool isDomainName);
                 bool addServer(ServerConfigEntry entry);
+                bool addServer(ServerConfigEntry entry, String domainName);
                 bool removeServer(String address);
                 Server* findPlayerOnServer(String playerName, bool exactMatch);
                 bool incomingMessage(Message *msg);
@@ -28,6 +30,7 @@ class ServerList {
                 void readSettings(TStringList *file);
                 void removeOfflineServers();
                 void getSettingsFileEntry(TStringList *settings);
+                String getIPFromDomainName(String domainName);
 
         private:
                 TStringList *list;

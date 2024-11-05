@@ -3,10 +3,10 @@
 <assemblyIdentity
     version="1.0.0.0"
     processorArchitecture="X86"
-    name="OFPMonitor"
+    name="ArmaMonitor"
     type="win32"
 />
-<description>OFPMonitor</description>
+<description>ArmaMonitor</description>
 <dependency>
     <dependentAssembly>
         <assemblyIdentity

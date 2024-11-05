@@ -18,8 +18,8 @@ Configuration::Configuration(OFPGames gameid, String label, String mods, String 
         this->mods = ssp.split(";");
         this->password = password;
         this->addParameters = NULL;
-        this->nomap = false;
         this->nosplash = false;
+        this->nomap = false;
         this->setAddParameters(parameters);
 }
 
