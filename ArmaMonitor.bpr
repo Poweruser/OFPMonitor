@@ -131,7 +131,7 @@ AutoIncBuild=0
 MajorVer=1
 MinorVer=7
 Release=4
-Build=5
+Build=6
 Debug=0
 PreRelease=0
 Special=0
@@ -143,7 +143,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=by Poweruser. Modified by IF for ArmA:R.
 FileDescription=OFP Server monitoring tool
-FileVersion=1.7.4.5
+FileVersion=1.7.4.6
 InternalName=ArmaMonitor
 LegalCopyright=(c) Poweruser
 LegalTrademarks=

@@ -463,7 +463,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Top = 136
         Width = 177
         Height = 17
-        Caption = 'CWA-CE-202'
+        Caption = 'CWA-CE-203'
         TabOrder = 2
         OnClick = CHECKBOX_OFPRESClick
       end

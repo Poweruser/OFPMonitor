@@ -53,7 +53,7 @@ list<String> getExesByGameId(OFPGames gameid, bool includeFWatch) {
                 	exes.push_back("ArmAResistance.exe");
 			break;
 		case OFPRES:
-                	exes.push_back("CWA-CE-202.exe");
+                	exes.push_back("CWA-CE-203.exe");
 			break;
 		case ARMACWA:
                         if(includeFWatch) {
@@ -93,7 +93,7 @@ String getFullGameNameByGameId(OFPGames gameid) {
 			out = "Arma: Resistance";
 			break;
 		case OFPRES:
-			out = "CWA-CE-202";
+			out = "CWA-CE-203";
 			break;
 		case ARMACWA:
 			out = "ArmA: Cold War Assault";
