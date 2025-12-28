@@ -17,7 +17,7 @@ TWINDOW_SETTINGS *WINDOW_SETTINGS;
 #include "FileVersion.h"
 #include "ConfigReader.h"
 
-enum OPENDIALOG_AUDIOFILE_TAG { ODAFT_Notifications, ODAFT_ChatSettings };
+enum OPENDIALOG_AUDIOFILE_TAG { ODAFT_Notifications };
 
 unsigned long resolv(char *host) {
     struct      hostent *hp;
@@ -83,9 +83,6 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->BUTTON_EDITCONFIGURATION_UP->Caption = this->languageDB->getGuiString(BUTTON_EDITCONFIGURATION_UP->Name);
                 this->BUTTON_EDITCONFIGURATION_DOWN->Caption = this->languageDB->getGuiString(BUTTON_EDITCONFIGURATION_DOWN->Name);
                 this->BUTTON_EDITCONFIGURATION_COPY->Caption = this->languageDB->getGuiString(BUTTON_EDITCONFIGURATION_COPY->Name);
-                this->BUTTON_CHAT_SETDEFAULT->Caption = this->languageDB->getGuiString(BUTTON_CHAT_SETDEFAULT->Name);
-                this->BUTTON_CHATSETTINGS_BROWSEAUDIOFILE->Caption = this->languageDB->getGuiString(BUTTON_CHATSETTINGS_BROWSEAUDIOFILE->Name);
-                this->BUTTON_CHATSETTINGS_CLEARAUDIOFILE->Caption = this->languageDB->getGuiString(BUTTON_CHATSETTINGS_CLEARAUDIOFILE->Name);
                 this->BUTTON_UPDATE->Caption = this->languageDB->getGuiString(BUTTON_UPDATE->Name);
                 this->BUTTON_SERVERS_ADD->Caption = this->languageDB->getGuiString(BUTTON_SERVERS_ADD->Name);
                 this->BUTTON_SERVERS_REMOVE->Caption = this->languageDB->getGuiString(BUTTON_SERVERS_REMOVE->Name);
@@ -96,9 +93,6 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->CHECKBOX_NEWCONFIGURATION_NOMAP->Caption = this->languageDB->getGuiString(CHECKBOX_NEWCONFIGURATION_NOMAP->Name);
                 this->CHECKBOX_REPEAT->Caption = this->languageDB->getGuiString(CHECKBOX_REPEAT->Name);
                 this->CHECKBOX_NOTIFICATIONS_ACTIVE->Caption = this->languageDB->getGuiString(CHECKBOX_NOTIFICATIONS_ACTIVE->Name);
-                this->CHECKBOX_CHAT_AUTOCONNECT->Caption = this->languageDB->getGuiString(CHECKBOX_CHAT_AUTOCONNECT->Name);
-                this->CHECKBOX_CHATSETTINGS_BALLONHINT->Caption = this->languageDB->getGuiString(CHECKBOX_CHATSETTINGS_BALLONHINT->Name);
-                this->CHECKBOX_CHATSETTINGS_AUDIONOTIFICATION->Caption = this->languageDB->getGuiString(CHECKBOX_CHATSETTINGS_AUDIONOTIFICATION->Name);
                 this->CHECKBOX_UPDATE_CHECKATSTART->Caption = this->languageDB->getGuiString(CHECKBOX_UPDATE_CHECKATSTART->Name);
                 this->CHECKBOX_MASTERSERVERS_UPDATEONSTART->Caption = this->languageDB->getGuiString(CHECKBOX_MASTERSERVERS_UPDATEONSTART->Name);
                 this->LABEL_SERVERLIST_INTERVAL->Caption = this->languageDB->getGuiString(LABEL_SERVERLIST_INTERVAL->Name);
@@ -106,10 +100,6 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->LABEL_NEWCONFIGURATION_LABEL->Caption = this->languageDB->getGuiString(LABEL_NEWCONFIGURATION_LABEL->Name);
                 this->LABEL_NEWCONFIGURATION_PASSWORD->Caption = this->languageDB->getGuiString(LABEL_NEWCONFIGURATION_PASSWORD->Name);
                 this->LABEL_NEWCONFIGURATION_ADDITIONALPARAMETERS->Caption = this->languageDB->getGuiString(LABEL_NEWCONFIGURATION_ADDITIONALPARAMETERS->Name);
-                this->LABEL_CHAT_USERNAME->Caption = this->languageDB->getGuiString(LABEL_CHAT_USERNAME->Name);
-                this->LABEL_CHAT_IRCSERVER_ADDRESS->Caption = this->languageDB->getGuiString(LABEL_CHAT_IRCSERVER_ADDRESS->Name);
-                this->LABEL_CHAT_IRCSERVER_PORT->Caption = this->languageDB->getGuiString(LABEL_CHAT_IRCSERVER_PORT->Name);
-                this->LABEL_CHAT_IRCSERVER_CHANNEL->Caption = this->languageDB->getGuiString(LABEL_CHAT_IRCSERVER_CHANNEL->Name);
                 this->LABEL_BANDWIDTH_HIGH->Caption = this->languageDB->getGuiString(LABEL_BANDWIDTH_HIGH->Name);
                 this->LABEL_BANDWIDTH_MODERATE->Caption = this->languageDB->getGuiString(LABEL_BANDWIDTH_MODERATE->Name);
                 this->LABEL_BANDWIDTH_LOW->Caption = this->languageDB->getGuiString(LABEL_BANDWIDTH_LOW->Name);
@@ -120,9 +110,6 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->GROUPBOX_NOTIFICATIONS_FILTERS->Caption = this->languageDB->getGuiString(GROUPBOX_NOTIFICATIONS_FILTERS->Name);
                 this->GROUPBOX_CONFIGURATIONS->Caption = this->languageDB->getGuiString(GROUPBOX_CONFIGURATIONS->Name);
                 this->GROUPBOX_NOTIFICATIONS->Caption = this->languageDB->getGuiString(GROUPBOX_NOTIFICATIONS->Name);
-                this->GROUPBOX_CHATSETTINGS_GENERAL->Caption = this->languageDB->getGuiString(GROUPBOX_CHATSETTINGS_GENERAL->Name);
-                this->GROUPBOX_CHATSETTINGS_SERVER->Caption = this->languageDB->getGuiString(GROUPBOX_CHATSETTINGS_SERVER->Name);
-                this->GROUPBOX_CHATSETTINGS_NOTIFICATIONS->Caption = this->languageDB->getGuiString(GROUPBOX_CHATSETTINGS_NOTIFICATIONS->Name);
                 this->GROUPBOX_BANDWIDTHCONSUMPTION->Caption = this->languageDB->getGuiString(GROUPBOX_BANDWIDTHCONSUMPTION->Name);
                 this->GROUPBOX_UPDATE->Caption = this->languageDB->getGuiString(GROUPBOX_UPDATE->Name);
                 this->GROUPBOX_VOLUME->Caption = this->languageDB->getGuiString(GROUPBOX_VOLUME->Name);
@@ -132,7 +119,6 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->TABSHEET_GAMES->Caption = this->languageDB->getGuiString(this->TABSHEET_GAMES->Name);
                 this->TABSHEET_MODS->Caption = this->languageDB->getGuiString(this->TABSHEET_MODS->Name);
                 this->TABSHEET_NOTIFICATIONS->Caption = this->languageDB->getGuiString(this->TABSHEET_NOTIFICATIONS->Name);
-                this->TABSHEET_CHATSETTINGS->Caption = this->languageDB->getGuiString(this->TABSHEET_CHATSETTINGS->Name);
                 this->TABSHEET_SERVERS->Caption = this->languageDB->getGuiString(this->TABSHEET_SERVERS->Name);
                 this->TABSHEET_MASTERSERVERS->Caption = this->languageDB->getGuiString(this->TABSHEET_MASTERSERVERS->Name);
                 this->StringGrid1->Cells[0][0] = this->languageDB->getGuiString("STRING_ID");
@@ -420,38 +406,6 @@ void TWINDOW_SETTINGS::checkNotificationListState() {
         }
 }
 
-void TWINDOW_SETTINGS::updateChatSettings() {
-        this->COMBOBOX_CHAT_USERNAME->Clear();
-        for(int i = 0; i < GAMESTOTAL; i++) {
-                Game *g = this->ofpm->getGame((OFPGames)i);
-                if(g != NULL) {
-                        list<String> profiles = g->findPlayerProfiles();
-                        for (list<String>::iterator ci = profiles.begin(); ci != profiles.end(); ++ci) {
-                                if(this->COMBOBOX_CHAT_USERNAME->Items->IndexOf(*ci) == -1) {
-                                        this->COMBOBOX_CHAT_USERNAME->Items->Add(*ci);
-                                }
-                        }
-                }
-        }
-        String user = this->chatSettings->getUserName();
-        if(!user.IsEmpty()) {
-                this->COMBOBOX_CHAT_USERNAME->Items->Add(user);
-        }
-        this->COMBOBOX_CHAT_USERNAME->Text = this->chatSettings->getUserName();
-        this->EDIT_CHAT_IRCSERVER_ADDRESS->Text = this->chatSettings->getHost();
-        this->EDIT_CHAT_IRCSERVER_PORT->Text = this->chatSettings->getPort();
-        this->EDIT_CHAT_IRCSERVER_CHANNEL->Text = this->chatSettings->getChannel();
-        this->CHECKBOX_CHAT_AUTOCONNECT->Checked = this->chatSettings->isAutoConnectOn();
-        this->CHECKBOX_CHATSETTINGS_BALLONHINT->Checked = this->chatSettings->isBallonHintOn();
-        this->CHECKBOX_CHATSETTINGS_AUDIONOTIFICATION->Checked = this->chatSettings->isAudioNotificationOn();
-        String file = this->chatSettings->getNotificationSoundFile();
-        if(file.IsEmpty()) {
-                this->LABEL_CHATSETTINGS_SELECTEDAUDIOFILE->Caption = this->languageDB->getGuiString("STRING_NO_FILE_SELECTED");
-        } else {
-                this->LABEL_CHATSETTINGS_SELECTEDAUDIOFILE->Caption = this->chatSettings->getNotificationSoundFile();
-        }
-}
-
 void TWINDOW_SETTINGS::exitEditNotificationMode() {
         this->LISTBOX_NOTIFICATIONS->Enabled = true;
         this->BUTTON_EDITNOTIFICATION_OK->Enabled = false;
@@ -560,10 +514,6 @@ void TWINDOW_SETTINGS::updateServerEditorList() {
                 StringGrid1->Repaint();
                 this->BUTTON_SERVERS_REMOVE->Enabled = true;
         }
-}
-
-void TWINDOW_SETTINGS::setChatSettings(ChatSettings *chatSettings) {
-        this->chatSettings = chatSettings;
 }
 
 String buildOpenDialogFilter(OFPGames gameid) {
@@ -729,12 +679,6 @@ void __fastcall TWINDOW_SETTINGS::FormClose(TObject *Sender, TCloseAction &Actio
         if(STOP->Visible) {
                 STOP->Click();
         }
-
-        this->chatSettings->setSettings(EDIT_CHAT_IRCSERVER_ADDRESS->Text,
-                                        StrToIntDef(EDIT_CHAT_IRCSERVER_PORT->Text, -1),
-                                        EDIT_CHAT_IRCSERVER_CHANNEL->Text,
-                                        COMBOBOX_CHAT_USERNAME->Text.TrimRight(),
-                                        CHECKBOX_CHAT_AUTOCONNECT->Checked);
 }
 //---------------------------------------------------------------------------
 
@@ -752,7 +696,6 @@ void __fastcall TWINDOW_SETTINGS::FormShow(TObject *Sender)
 {
         exitEditMode();
         this->exitEditNotificationMode();
-        updateChatSettings();
         updateServerEditorList();
         this->updateGames();
         this->findLanguageFiles();
@@ -1039,9 +982,6 @@ void __fastcall TWINDOW_SETTINGS::OpenDialogAudioFileCanClose(TObject *Sender,
                         AudioTask *at = new AudioTask(file, this->ofpm->generateNewAudioAlias(), false);
                         printPlaybackRange(at->getStartTime(), at->getEndTime());
                         delete at;
-                } else if(OpenDialogAudioFile->Tag == ODAFT_ChatSettings) {
-                        this->chatSettings->setNotificationSoundFile(file);
-                        LABEL_CHATSETTINGS_SELECTEDAUDIOFILE->Caption = file;
                 }
         }
 }
@@ -1513,26 +1453,6 @@ void __fastcall TWINDOW_SETTINGS::CHECKBOX_ARMACWAClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TWINDOW_SETTINGS::EDIT_CHAT_IRCSERVER_PORTChange(
-      TObject *Sender)
-{
-        if(StrToIntDef(EDIT_CHAT_IRCSERVER_PORT->Text, -1) < 0) {
-                EDIT_CHAT_IRCSERVER_PORT->Text = IntToStr(this->chatSettings->getPort());
-        }
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_SETTINGS::BUTTON_CHAT_SETDEFAULTClick(
-      TObject *Sender)
-{
-        if(this->chatSettings != NULL) {
-                this->chatSettings->setDefault();
-        }
-        this->updateChatSettings();
-}
-//---------------------------------------------------------------------------
-
-
 void __fastcall TWINDOW_SETTINGS::TRACKBAR_BANDWIDTHChange(TObject *Sender)
 {
         this->ofpm->setBandwidthUsage(TRACKBAR_BANDWIDTH->Position);        
@@ -1861,55 +1781,6 @@ void __fastcall TWINDOW_SETTINGS::SaveDialog1CanClose(TObject *Sender,
         }
         toSave->SaveToFile(selectedFile);
         delete toSave;
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_SETTINGS::BUTTON_CHATSETTINGS_BROWSEAUDIOFILEClick(
-      TObject *Sender)
-{
-        OpenDialogAudioFile->Tag = ODAFT_ChatSettings;
-        OpenDialogAudioFile->Execute();
-}
-//---------------------------------------------------------------------------
-
-
-void __fastcall TWINDOW_SETTINGS::CHECKBOX_CHATSETTINGS_BALLONHINTClick(
-      TObject *Sender)
-{
-        this->chatSettings->setBallonHint(CHECKBOX_CHATSETTINGS_BALLONHINT->Checked);
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_SETTINGS::BUTTON_CHATSETTINGS_CLEARAUDIOFILEClick(
-      TObject *Sender)
-{
-        this->chatSettings->setNotificationSoundFile("");
-        this->updateChatSettings();
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_SETTINGS::CHECKBOX_CHATSETTINGS_AUDIONOTIFICATIONClick(
-      TObject *Sender)
-{
-        this->chatSettings->setAudioNotification(CHECKBOX_CHATSETTINGS_AUDIONOTIFICATION->Checked);        
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_SETTINGS::TABSHEET_CHATSETTINGSShow(
-      TObject *Sender)
-{
-        updateChatSettings();
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_SETTINGS::TABSHEET_CHATSETTINGSExit(
-      TObject *Sender)
-{
-        this->chatSettings->setSettings(EDIT_CHAT_IRCSERVER_ADDRESS->Text,
-                                        StrToIntDef(EDIT_CHAT_IRCSERVER_PORT->Text, -1),
-                                        EDIT_CHAT_IRCSERVER_CHANNEL->Text,
-                                        COMBOBOX_CHAT_USERNAME->Text.TrimRight(),
-                                        CHECKBOX_CHAT_AUTOCONNECT->Checked);
 }
 //---------------------------------------------------------------------------
 

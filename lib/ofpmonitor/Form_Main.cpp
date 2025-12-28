@@ -28,13 +28,6 @@
 
 TWINDOW_MAIN *WINDOW_MAIN;
 
-void TWINDOW_MAIN::ChatNotification(String msg) {
-        this->CoolTrayIcon1->HideBalloonHint();
-        if(!msg.IsEmpty()) {
-                this->CoolTrayIcon1->ShowBalloonHint(WideString("OFPMonitor " + TABSHEET_CHAT->Caption), WideString(msg + "\n"), bitInfo, 10);
-        }
-}
-
 bool TWINDOW_MAIN::isInForeground() {
         void *handle = GetForegroundWindow();
         return (handle == this->Handle);
@@ -53,42 +46,6 @@ void TWINDOW_MAIN::update(Observable *o) {
                 StatusBar1->Repaint();
                 if(!this->ofpm->isServerListUpdateDone()) {
                         this->skipTimerWaitInterval();
-                }
-        } else if(o == this->chat && this->chat != NULL) {
-                MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = this->chat->isDisconnected();
-                MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = !this->chat->isDisconnected();
-                MemoChatInput->Enabled = this->chat->isConnected();
-                this->chat->writeUserList(StringGrid3);
-                this->chat->writeConversations(TabControl1);
-                if(this->chat->hasNewMessages()) {
-                        this->TABSHEET_CHAT->ImageIndex = 4;
-                }
-                if(this->chat->hasNotification()) {
-                        String n = this->chat->takeNotification();
-                        if(!this->isInForeground()) {
-                                if(this->chatSettings->isBallonHintOn() && !n.IsEmpty()) {
-                                        this->ChatNotification(n);
-                                }
-                                if(this->chatSettings->isAudioNotificationOn()) {
-                                        String audioFile = this->chatSettings->getNotificationSoundFile();
-                                        if(!audioFile.IsEmpty() && FileExists(audioFile)) {
-                                                AudioPlayer *player = this->ofpm->getAudioPlayer();
-                                                AudioTask *at = new AudioTask(audioFile, "OFPM_CHATNOTIFICATION", false);
-                                                at->setDeleteOnEnd(true);
-                                                player->addAudioTask(at);
-                                        }
-                                }
-                        }
-                }
-                if(TabControl1->TabIndex >= 0) {
-                        String conversation = TabControl1->Tabs->Strings[TabControl1->TabIndex];
-                        this->chat->syncChat(conversation, this->MemoChatOutput);
-                }
-                TabControl1->Repaint();
-                if(this->chat->isDisconnected()) {
-                        TabControl1->TabIndex = 0;
-                        this->chat->loadThisChat(this->chatSettings->getChannel(), MemoChatOutput, MemoChatInput);
-                        MemoChatInput->Clear();
                 }
         } else if(o == this->languageDB) {
                 this->updateGuiLanguage();
@@ -110,10 +67,6 @@ void TWINDOW_MAIN::setFontSettings(FontSettings *font) {
 
 void TWINDOW_MAIN::setWindowSettings(WindowSettings *windowSettings) {
         this->windowSettings = windowSettings;
-}
-
-void TWINDOW_MAIN::setChatSettings(ChatSettings *chatSettings) {
-        this->chatSettings = chatSettings;
 }
 
 void TWINDOW_MAIN::setModel(OFPMonitorModel *model) {
@@ -196,13 +149,9 @@ void TWINDOW_MAIN::updateGuiLanguage() {
                 this->MENUITEM_POPUP_WATCH->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_WATCH->Name);
                 this->MENUITEM_POPUP_AUTOJOIN_NOMODS->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_AUTOJOIN_NOMODS->Name);
                 this->MENUITEM_POPUP_JOIN_SAMEMODS->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_JOIN_SAMEMODS->Name);
-                this->MENUITEM_MAINMENU_CHAT_CONNECT->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_CHAT_CONNECT->Name);
-                this->MENUITEM_MAINMENU_CHAT_DISCONNECT->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_CHAT_DISCONNECT->Name);
-                this->MENUITEM_MAINMENU_CHAT->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_CHAT->Name);
                 this->MENUITEM_POPUP_JOIN_NOMODS->Caption = this->languageDB->getGuiString(MENUITEM_POPUP_JOIN_NOMODS->Name);
                 this->MENUITEM_MAINMENU_LOCALGAME->Caption = this->languageDB->getGuiString(MENUITEM_MAINMENU_LOCALGAME->Name);
                 this->TABSHEET_SERVERINFO->Caption = this->languageDB->getGuiString(TABSHEET_SERVERINFO->Name);
-                this->TABSHEET_CHAT->Caption = this->languageDB->getGuiString(TABSHEET_CHAT->Name);
                 this->TABSHEET_GAMECONTROL->Caption = this->languageDB->getGuiString(TABSHEET_GAMECONTROL->Name);
                 this->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE->Caption = this->languageDB->getGuiString(RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCE->Name);
                 this->RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT->Caption = this->languageDB->getGuiString(RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEAT->Name);
@@ -250,12 +199,6 @@ void TWINDOW_MAIN::updateFontOfGui(TFont *font) {
         this->StringGrid2->Font->Style = font->Style;
         this->StringGrid2->DefaultRowHeight = font->Size * 2.1f;
         this->Font->Charset = font->Charset;
-        this->Panel2->Font->Charset = font->Charset;
-        this->Panel2->Font->Name = font->Name;
-        this->Panel2->Font->Size = font->Size;
-        this->Panel2->Font->Style = font->Style;
-        this->MemoChatInput->Constraints->MaxHeight = 3 * font->Size * 2.0f;
-        this->MemoChatInput->Height = this->MemoChatInput->Constraints->MaxHeight;
         WINDOW_SETTINGS->Font->Charset = font->Charset;
         WINDOW_LOCALGAME->Font->Charset = font->Charset;
         WINDOW_UPDATE->Font->Charset = font->Charset;
@@ -846,15 +789,13 @@ void TWINDOW_MAIN::saveSettings() {
            this->serverFilter != NULL &&
            this->gameControl != NULL &&
            this->fontSettings != NULL &&
-           this->windowSettings != NULL &&
-           this->chatSettings != NULL) {
+           this->windowSettings != NULL) {
                 TStringList *settings = new TStringList;
                 this->ofpm->getSettingsFileEntry(settings);
                 this->serverFilter->getSettingsFileEntry(settings);
                 this->gameControl->getSettingsFileEntry(settings);
                 this->fontSettings->getSettingsFileEntry(settings);
                 this->windowSettings->getSettingsFileEntry(settings);
-                this->chatSettings->getSettingsFileEntry(settings);
                 try {
                         settings->SaveToFile(ofpm->getSettingsFile());
                 } catch(Exception &E) {}
@@ -885,9 +826,6 @@ bool TWINDOW_MAIN::startUp() {
                 }
         } else {
                 this->ofpm->queryNewServerList(false);
-        }
-        if(this->chatSettings != NULL && this->chatSettings->isAutoConnectOn()) {
-                this->MENUITEM_MAINMENU_CHAT_CONNECT->Click();
         }
         return true;
 }
@@ -923,14 +861,11 @@ void __fastcall TWINDOW_MAIN::FormCreate(TObject *Sender)
         this->serverTableSorter = new ServerTableSorter();
         this->playerTableSorter = new PlayerTableSorter();
         this->filterChanging = false;
-        this->chat = NULL;
-        this->chatThreadHandle = NULL;
         this->ofpm = NULL;
         this->serverFilter = NULL;
         this->gameControl = NULL;
         this->fontSettings = NULL;
         this->windowSettings = NULL;
-        this->chatSettings = NULL;
         this->allowSavingOfSettings = true;
         this->startUpDone = false;
         this->lastAutoSave = Now();
@@ -999,14 +934,6 @@ void __fastcall TWINDOW_MAIN::FormClose(TObject *Sender, TCloseAction &Action)
 {
         this->Enabled = false;
         Timer1->Enabled = false;
-        if(this->chatThreadHandle != NULL) {
-                TerminateThread(this->chatThreadHandle, 0);
-        }
-        if(this->chat != NULL) {
-                this->chat->disconnect();
-                delete this->chat;
-                this->chat = NULL;
-        }
 }
 //---------------------------------------------------------------------------
 void __fastcall TWINDOW_MAIN::BUTTON_SERVERINFO_COPYADDRESSClick(TObject *Sender)
@@ -1487,86 +1414,6 @@ void __fastcall TWINDOW_MAIN::Info1Click(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-DWORD WINAPI chatThread (LPVOID lpdwThreadParam__ ) {
-        Chat *chat = (Chat*) lpdwThreadParam__;
-        chat->connect("", true);
-        while(chat->isConnectionLost()) {
-                chat->reconnect();
-        }
-        if(chat->isConnectingFailed()) {
-                chat->disconnect();
-        }
-        return 0;
-}
-//---------------------------------------------------------------------------
-void __fastcall TWINDOW_MAIN::MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender)
-{
-        MENUITEM_MAINMENU_CHAT_CONNECT->Enabled = false;
-        MemoChatInput->Clear();
-        MemoChatOutput->Clear();
-        this->PageControl1->ActivePage = this->TABSHEET_CHAT;
-        if(this->chat != NULL) {
-                if(this->chat->isDisconnected()) {
-                        if(this->chatThreadHandle != NULL) {
-                                TerminateThread(this->chatThreadHandle, 0);
-                        }
-                        delete (this->chat);
-                        this->chat = NULL;
-                }
-        }
-        if(this->chat == NULL) {
-                this->chat = new Chat(this->chatSettings, this->languageDB);
-                this->chat->SetObserver(this);
-                this->chatThreadHandle = CreateThread(0, 0, chatThread, this->chat, 0, 0);
-        }
-}
-//---------------------------------------------------------------------------
-void __fastcall TWINDOW_MAIN::MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender)
-{
-        MENUITEM_MAINMENU_CHAT_DISCONNECT->Enabled = false;
-        if(this->chat != NULL) {
-                this->chat->disconnect();
-        }
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_MAIN::StringGrid3MouseDown(TObject *Sender,
-      TMouseButton Button, TShiftState Shift, int X, int Y)
-{
-        if(Shift.Contains(ssAlt) && Button == mbLeft) {
-                int col = -1, row = -1;
-                StringGrid3->MouseToCell(X, Y, col, row);
-                if(col >= 0 && row >= 0) {
-                        String userToBlock = StringGrid3->Cells[col][row];
-                        if(!userToBlock.IsEmpty()) {
-                                if(this->chat != NULL) {
-                                        this->chat->toggleBlockedClient(userToBlock);
-                                        StringGrid3->Repaint();
-                                }
-                        }
-                }
-        }
-}
-//---------------------------------------------------------------------------
-void __fastcall TWINDOW_MAIN::StringGrid3DrawCell(TObject *Sender, int ACol,
-      int ARow, TRect &Rect, TGridDrawState State)
-{
-        StringGrid3->Canvas->Font->Color = clBlack;
-        StringGrid3->Canvas->Brush->Color = clWindow;
-        String clientName = StringGrid3->Cells[ACol][ARow];
-        if(!clientName.IsEmpty() && this->chat != NULL) {
-                String ownName = this->chat->getUserNameInUse();
-                if(this->chat->isClientBlocked(clientName) && ownName != clientName) {
-                        StringGrid3->Canvas->Font->Color = clWhite;
-                        StringGrid3->Canvas->Brush->Color = clBlack;
-                }
-        }
-        StringGrid3->Canvas->FillRect(Rect);
-        Rect.Left = Rect.Left + 2;
-        DrawText(StringGrid3->Canvas->Handle, StringGrid3->Cells[ACol][ARow].c_str(),
-                -1, &Rect, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
-}
-//---------------------------------------------------------------------------
 void __fastcall TWINDOW_MAIN::OnMinimize(TObject *Sender)
 {
         CoolTrayIcon1->HideMainForm();
@@ -1577,173 +1424,10 @@ void __fastcall TWINDOW_MAIN::CoolTrayIcon1Click(TObject *Sender)
         CoolTrayIcon1->HideBalloonHint();
 }
 //---------------------------------------------------------------------------
-void __fastcall TWINDOW_MAIN::TABSHEET_CHATShow(TObject *Sender)
-{
-        TABSHEET_CHAT->Highlighted = false;
-}
-//---------------------------------------------------------------------------
-void __fastcall TWINDOW_MAIN::MemoChatInputKeyDown(TObject *Sender, WORD &Key,
-      TShiftState Shift)
-{
-        if(Key == VK_RETURN) {
-                String input = "";
-                int characterCount = 0;
-                for(int i = 0; i < this->MemoChatInput->Lines->Count; i++) {
-                        String line = this->MemoChatInput->Lines->Strings[i];
-                        int length = line.Length();
-                        if(characterCount + length <= 450) {
-                                input += line;
-                                characterCount += length;
-                        } else {
-                                break;
-                        }
-                }
-                MemoChatInput->Clear();
-                if(!input.Trim().IsEmpty()) {
-                        String caption;
-                        if(TabControl1->TabIndex == -1) {
-                                caption = this->chatSettings->getChannel();
-                        } else {
-                                caption = TabControl1->Tabs->Strings[TabControl1->TabIndex];
-                        }
-                        if(this->chat->isConnected()) {
-                                this->chat->userSendsMessage(caption, input);
-                        }
-                }
-        }
-}
-//---------------------------------------------------------------------------
 
 void __fastcall TWINDOW_MAIN::MENUITEM_MAINMENU_LOCALGAMEClick(TObject *Sender)
 {
         WINDOW_LOCALGAME->ShowModal();
-}
-//---------------------------------------------------------------------------
-                          
-void __fastcall TWINDOW_MAIN::TabControl1DrawTab(TCustomTabControl *Control,
-      int TabIndex, const TRect &Rect, bool Active)
-{
-        TRect r = Rect;
-        r.Left += 4;
-        String caption = TabControl1->Tabs->Strings[TabIndex];
-        if(this->chat != NULL) {
-                if(TabIndex != TabControl1->TabIndex) {
-                        if(this->chat->hasConversationNewMessages(caption)) {
-                                Control->Canvas->Font->Color = clWhite;
-                                Control->Canvas->Brush->Color = clBlue;
-                                Control->Canvas->FillRect(Rect);
-                        }
-                }
-        }
-        DrawText(Control->Canvas->Handle, caption.c_str(),
-                -1, &r, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOCLIP);
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_MAIN::TabControl1Change(TObject *Sender)
-{
-        if(TabControl1->Tabs->Count == 1) {
-                TabControl1->TabIndex = 0;
-        }
-        int ind = TabControl1->TabIndex;
-        if(ind > -1) {
-                String caption = TabControl1->Tabs->Strings[ind];
-                if(this->chat != NULL) {
-                        this->chat->loadThisChat(caption, this->MemoChatOutput, this->MemoChatInput);
-                }
-        }
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_MAIN::TabControl1Changing(TObject *Sender,
-      bool &AllowChange)
-{
-        if(TabControl1->Tabs->Count == 1) {
-                TabControl1->TabIndex = 0;
-        }
-        int ind = TabControl1->TabIndex;
-        if(ind > -1) {
-                String caption = TabControl1->Tabs->Strings[ind];
-                if(this->chat != NULL) {
-                        this->chat->saveCurrentInput(caption, this->MemoChatInput);
-                }
-        }
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_MAIN::StringGrid3ContextPopup(TObject *Sender,
-      TPoint &MousePos, bool &Handled)
-{
-        Openchat1->Visible = false;
-        Openchat1->Caption = this->languageDB->getGuiString("STRING_CHAT_CHATWITH");
-        Openchat1->Hint = "";
-        if(this->chat != NULL) {
-                if(this->chat->isConnected()) {
-                        String ownName = this->chat->getUserNameInUse();
-                        int col = -1, row = -1;
-                        StringGrid3->MouseToCell(MousePos.x, MousePos.y, col, row);
-                        if(col >= 0 && row >= 0) {
-                                String name = StringGrid3->Cells[0][row];
-                                if(!name.IsEmpty() && name != ownName) {
-                                        Openchat1->Hint = name;
-                                        Openchat1->Visible = true;
-                                }
-                        }
-                }
-        }
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_MAIN::Openchat1Click(TObject *Sender)
-{
-        String name = Openchat1->Hint;
-        if(!name.IsEmpty()) {
-                if(this->chat != NULL) {
-                        this->chat->openConversation(name);
-                }
-                for(int j = 0; j < TabControl1->Tabs->Count; j++) {
-                        if(TabControl1->Tabs->Strings[j] == name) {
-                                TabControl1->TabIndex = j;
-                                TabControl1Change(this);
-                                break;
-                        }
-                }
-        }
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_MAIN::TabControl1ContextPopup(TObject *Sender,
-      TPoint &MousePos, bool &Handled)
-{
-        Close1->Visible = false;
-        int index = TabControl1->IndexOfTabAt(MousePos.x, MousePos.y);
-        if(index >= 0) {
-                String name = TabControl1->Tabs->Strings[index];
-                if(name.Pos("#") == 1) {
-                        Close1->Hint = "";
-                } else {
-                        Close1->Caption = this->languageDB->getGuiString("STRING_CHAT_CLOSE");
-                        Close1->Hint = name;
-                        Close1->Visible = true;
-                        TPoint p = TabControl1->ClientToScreen(MousePos);
-                        PopupMenuChat2->Popup(p.x, p.y);
-                }
-        }
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_MAIN::Close1Click(TObject *Sender)
-{
-        String name = Close1->Hint;
-        if(!name.IsEmpty()) {
-                if(this->chat != NULL) {
-                        this->chat->closeConversation(name);
-                        if(this->TabControl1->Tabs->Count > 0) {
-                                this->TabControl1->TabIndex = 0;
-                                this->TabControl1Change(this);
-                        }
-                }
-        }
 }
 //---------------------------------------------------------------------------
 
@@ -2024,23 +1708,6 @@ void __fastcall TWINDOW_MAIN::PageControl1DrawTab(TCustomTabControl *Control,
         r.Left += 26;
         r.Top += 3;
 
-        bool newMsg = false;
-        if(this->chat != NULL) {
-                if(this->chat->hasNewMessages()) {
-                        newMsg = true;
-                        this->TABSHEET_CHAT->ImageIndex = 4;
-                }
-        }
-        if(!newMsg) {
-                this->TABSHEET_CHAT->ImageIndex = 2;
-        }
-        if(TabIndex == TABSHEET_CHAT->PageIndex && !Active) {
-                if(newMsg) {
-                        Control->Canvas->Font->Color = clWhite;
-                        Control->Canvas->Brush->Color = clBlue;
-                        Control->Canvas->FillRect(Rect);
-                }
-        }
         ImageListTabIcons->Draw(PageControl1->Canvas, Rect.Left + 4, Rect.Top + 3, imageId, true);
         DrawText(Control->Canvas->Handle, caption.c_str(),
                 -1, &r, DT_LEFT | DT_SINGLELINE );

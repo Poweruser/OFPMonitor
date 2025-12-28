@@ -7,7 +7,6 @@
 #include "OFPMonitorModel.h"      
 #include "Server.h"
 #include "ServerEditorTableSorter.h"
-#include "ChatSettings.h"
 #include "Observer.h"
 #include "LanguageDB.h"
 
@@ -96,7 +95,6 @@ __published:	// IDE-managed Components
         TLabel *LABEL_OFPRES_DETECTEDVERSION;
         TPanel *Panel3;
         TLabel *LABEL_ARMACWA_DETECTEDVERSION;
-        TTabSheet *TABSHEET_CHATSETTINGS;
         TComboBox *ComboBox2;
         TOpenDialog *OpenDialogAudioFile;
         TCheckBox *CHECKBOX_REPEAT;
@@ -155,18 +153,6 @@ __published:	// IDE-managed Components
         TLabel *LABEL_AUDIO_FROM;
         TCheckBox *CHECKBOX_NOTIFICATIONS_ACTIVE;
         TGroupBox *GROUPBOX_NOTIFICATIONS;
-        TGroupBox *GROUPBOX_CHATSETTINGS_SERVER;
-        TGroupBox *GROUPBOX_CHATSETTINGS_GENERAL;
-        TEdit *EDIT_CHAT_IRCSERVER_ADDRESS;
-        TLabel *LABEL_CHAT_IRCSERVER_ADDRESS;
-        TLabel *LABEL_CHAT_IRCSERVER_PORT;
-        TEdit *EDIT_CHAT_IRCSERVER_PORT;
-        TLabel *LABEL_CHAT_IRCSERVER_CHANNEL;
-        TEdit *EDIT_CHAT_IRCSERVER_CHANNEL;
-        TButton *BUTTON_CHAT_SETDEFAULT;
-        TComboBox *COMBOBOX_CHAT_USERNAME;
-        TCheckBox *CHECKBOX_CHAT_AUTOCONNECT;
-        TLabel *LABEL_CHAT_USERNAME;
         TTrackBar *TRACKBAR_BANDWIDTH;
         TGroupBox *GROUPBOX_BANDWIDTHCONSUMPTION;
         TLabel *LABEL_BANDWIDTH_VERYLOW;
@@ -197,13 +183,6 @@ __published:	// IDE-managed Components
         TCheckBox *CHECKBOX_MASTERSERVERS_UPDATEONSTART;
         TButton *BUTTON_SERVERS_EXPORT;
         TSaveDialog *SaveDialog1;
-        TGroupBox *GROUPBOX_CHATSETTINGS_NOTIFICATIONS;
-        TCheckBox *CHECKBOX_CHATSETTINGS_BALLONHINT;
-        TBevel *Bevel1;
-        TButton *BUTTON_CHATSETTINGS_BROWSEAUDIOFILE;
-        TLabel *LABEL_CHATSETTINGS_SELECTEDAUDIOFILE;
-        TButton *BUTTON_CHATSETTINGS_CLEARAUDIOFILE;
-        TCheckBox *CHECKBOX_CHATSETTINGS_AUDIONOTIFICATION;
         void __fastcall BUTTON_OFPRES_BROWSEClick(TObject *Sender);
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialogGameFileCanClose(TObject *Sender,
@@ -269,8 +248,6 @@ __published:	// IDE-managed Components
           TShiftState Shift);
         void __fastcall LISTBOX_NOTIFICATIONSClick(TObject *Sender);
         void __fastcall CHECKBOX_NOTIFICATIONS_ACTIVEClick(TObject *Sender);
-        void __fastcall EDIT_CHAT_IRCSERVER_PORTChange(TObject *Sender);
-        void __fastcall BUTTON_CHAT_SETDEFAULTClick(TObject *Sender);
         void __fastcall TRACKBAR_BANDWIDTHChange(TObject *Sender);
         void __fastcall TABSHEET_GENERALShow(TObject *Sender);
         void __fastcall CHECKBOX_UPDATE_CHECKATSTARTClick(TObject *Sender);
@@ -295,20 +272,9 @@ __published:	// IDE-managed Components
         void __fastcall BUTTON_SERVERS_EXPORTClick(TObject *Sender);
         void __fastcall SaveDialog1CanClose(TObject *Sender,
           bool &CanClose);
-        void __fastcall BUTTON_CHATSETTINGS_BROWSEAUDIOFILEClick(
-          TObject *Sender);
-        void __fastcall CHECKBOX_CHATSETTINGS_BALLONHINTClick(
-          TObject *Sender);
-        void __fastcall BUTTON_CHATSETTINGS_CLEARAUDIOFILEClick(
-          TObject *Sender);
-        void __fastcall CHECKBOX_CHATSETTINGS_AUDIONOTIFICATIONClick(
-          TObject *Sender);
-        void __fastcall TABSHEET_CHATSETTINGSShow(TObject *Sender);
-        void __fastcall TABSHEET_CHATSETTINGSExit(TObject *Sender);
 private:	// User declarations
 
         OFPMonitorModel *ofpm;
-        ChatSettings *chatSettings;
         LanguageDB *languageDB;
         ServerEditorTableSorter *serverEditorTableSorter;
 
@@ -321,7 +287,6 @@ private:	// User declarations
         void TWINDOW_SETTINGS::exitEditNotificationMode();
         void TWINDOW_SETTINGS::profileChanged(TComboBox *box, OFPGames gameid);
         void TWINDOW_SETTINGS::updateNotificationsList();
-        void TWINDOW_SETTINGS::updateChatSettings();
         void TWINDOW_SETTINGS::findLanguageFiles();
         String TWINDOW_SETTINGS::getFolder(String in);
         void TWINDOW_SETTINGS::checkConfListState();
@@ -339,7 +304,6 @@ public:		// User declarations
         void TWINDOW_SETTINGS::setModel(OFPMonitorModel *ofpm);
         __fastcall TWINDOW_SETTINGS(TComponent* Owner);
         void TWINDOW_SETTINGS::updateLanguage(String languagefile);
-        void TWINDOW_SETTINGS::setChatSettings(ChatSettings *chatSettings);
         void TWINDOW_SETTINGS::setLanguageDB(LanguageDB *languageDB);
         void TWINDOW_SETTINGS::update(Observable *o);
         void TWINDOW_SETTINGS::updateGuiLanguage();

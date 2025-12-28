@@ -117,7 +117,6 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
         FontSettings *fontSettings = new FontSettings();
         WindowSettings *windowSettings = new WindowSettings();
         ServerFilter *serverFilter = new ServerFilter();
-        ChatSettings *chatSettings = new ChatSettings();
         LanguageDB *languageDB = new LanguageDB();
         if(!languageFileExists) {
                 TResourceStream *rs = createResourceStreamToDefaultLanguageFile(hInstance);
@@ -145,7 +144,6 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
         fontSettings->readSettings(file);
         windowSettings->readSettings(file);
         serverFilter->readSettings(file);
-        chatSettings->readSettings(file);
 
         try {
                 Application->Initialize();
@@ -159,7 +157,6 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
                  Application->CreateForm(__classid(TWINDOW_SETTINGS), &WINDOW_SETTINGS);
                  WINDOW_MAIN->setFontSettings(fontSettings);
                 WINDOW_MAIN->setWindowSettings(windowSettings);
-                WINDOW_MAIN->setChatSettings(chatSettings);
                 WINDOW_MAIN->setServerFilter(serverFilter);
                 WINDOW_MAIN->setGameControl(gameControl);
                 WINDOW_MAIN->setLanguageDB(languageDB);
@@ -183,7 +180,6 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
                 WINDOW_MAIN->update(gameControl);
                 WINDOW_MAIN->update(ofpm);
                 WINDOW_SETTINGS->setModel(ofpm);
-                WINDOW_SETTINGS->setChatSettings(chatSettings);
                 WINDOW_LOCALGAME->setModel(ofpm);
                 WINDOW_MAIN->applyWindowSettings();
                 WINDOW_MAIN->checkIfWindowIsReachable();
@@ -211,7 +207,6 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
         delete fontSettings;
         delete windowSettings;
         delete serverFilter;
-        delete chatSettings;
         delete file;
         delete languageDB;
         return 0;

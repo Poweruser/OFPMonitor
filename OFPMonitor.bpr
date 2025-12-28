@@ -6,25 +6,22 @@
     <PROJECT value="OFPMonitor.exe"/>
     <OBJFILES value="OFPMonitor.obj lib\ofpmonitor\Address.obj lib\ofpmonitor\AudioPlayer.obj 
       lib\ofpmonitor\AudioPosition.obj lib\ofpmonitor\AudioTask.obj 
-      lib\ofpmonitor\Chat.obj lib\ofpmonitor\ChatLog.obj 
-      lib\ofpmonitor\ChatMessage.obj lib\ofpmonitor\ChatSettings.obj 
       lib\ofpmonitor\ConfigReader.obj lib\ofpmonitor\Configuration.obj 
       lib\ofpmonitor\CustomNotification.obj lib\ofpmonitor\FileVersion.obj 
       lib\ofpmonitor\FontSettings.obj lib\ofpmonitor\Game.obj 
-      lib\ofpmonitor\GameControl.obj lib\ofpmonitor\IRCClient.obj 
-      lib\ofpmonitor\LanguageDB.obj lib\ofpmonitor\Message.obj 
-      lib\ofpmonitor\Observer.obj lib\ofpmonitor\OFPMonitorModel.obj 
-      lib\ofpmonitor\Player.obj lib\ofpmonitor\PlayerTableSorter.obj 
-      lib\ofpmonitor\ProcessFinder.obj lib\ofpmonitor\QueryAnswer.obj 
-      lib\ofpmonitor\QueryRequest.obj lib\ofpmonitor\Server.obj 
-      lib\ofpmonitor\ServerEditorTableSorter.obj lib\ofpmonitor\ServerFilter.obj 
-      lib\ofpmonitor\ServerList.obj lib\ofpmonitor\ServerListLoader.obj 
-      lib\ofpmonitor\ServerTableSorter.obj lib\ofpmonitor\StatusChange.obj 
-      lib\ofpmonitor\StringSplitter.obj lib\ofpmonitor\UDPNetwork.obj 
-      lib\ofpmonitor\Form_Main.obj lib\ofpmonitor\Form_Settings.obj 
-      lib\ofpmonitor\Form_Localgame.obj lib\ofpmonitor\Form_Info.obj 
-      lib\ofpmonitor\Form_Update.obj lib\ofpmonitor\WindowSettings.obj 
-      lib\ofpmonitor\HttpFileDownloader.obj"/>
+      lib\ofpmonitor\GameControl.obj lib\ofpmonitor\LanguageDB.obj 
+      lib\ofpmonitor\Message.obj lib\ofpmonitor\Observer.obj 
+      lib\ofpmonitor\OFPMonitorModel.obj lib\ofpmonitor\Player.obj 
+      lib\ofpmonitor\PlayerTableSorter.obj lib\ofpmonitor\ProcessFinder.obj 
+      lib\ofpmonitor\QueryAnswer.obj lib\ofpmonitor\QueryRequest.obj 
+      lib\ofpmonitor\Server.obj lib\ofpmonitor\ServerEditorTableSorter.obj 
+      lib\ofpmonitor\ServerFilter.obj lib\ofpmonitor\ServerList.obj 
+      lib\ofpmonitor\ServerListLoader.obj lib\ofpmonitor\ServerTableSorter.obj 
+      lib\ofpmonitor\StatusChange.obj lib\ofpmonitor\StringSplitter.obj 
+      lib\ofpmonitor\UDPNetwork.obj lib\ofpmonitor\Form_Main.obj 
+      lib\ofpmonitor\Form_Settings.obj lib\ofpmonitor\Form_Localgame.obj 
+      lib\ofpmonitor\Form_Info.obj lib\ofpmonitor\Form_Update.obj 
+      lib\ofpmonitor\WindowSettings.obj lib\ofpmonitor\HttpFileDownloader.obj"/>
     <RESFILES value="resources\wavefiles.res resources\DefaultLanguage.res OFPMonitor.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
@@ -39,7 +36,7 @@
       IndySystem60.lib IndyProtocols60.lib"/>
     <PACKAGES value="vcl.bpi rtl.bpi bcbsmp.bpi IndyCore60.bpi IndyProtocols60.bpi 
       IndySystem60.bpi CoolTrayIcon.bpi"/>
-    <PATHCPP value=".;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor"/>
+    <PATHCPP value=".;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor;lib\ofpmonitor"/>
     <PATHPAS value=".;"/>
     <PATHRC value=".;"/>
     <PATHASM value=".;"/>
@@ -82,10 +79,6 @@
       <FILE FILENAME="lib\ofpmonitor\AudioPlayer.cpp" FORMNAME="" UNITNAME="AudioPlayer.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\AudioPosition.cpp" FORMNAME="" UNITNAME="AudioPosition.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\AudioTask.cpp" FORMNAME="" UNITNAME="AudioTask.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="lib\ofpmonitor\Chat.cpp" FORMNAME="" UNITNAME="Chat.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="lib\ofpmonitor\ChatLog.cpp" FORMNAME="" UNITNAME="ChatLog.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="lib\ofpmonitor\ChatMessage.cpp" FORMNAME="" UNITNAME="ChatMessage.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="lib\ofpmonitor\ChatSettings.cpp" FORMNAME="" UNITNAME="ChatSettings.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\ConfigReader.cpp" FORMNAME="" UNITNAME="ConfigReader.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\Configuration.cpp" FORMNAME="" UNITNAME="Configuration.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\CustomNotification.cpp" FORMNAME="" UNITNAME="CustomNotification.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
@@ -93,7 +86,6 @@
       <FILE FILENAME="lib\ofpmonitor\FontSettings.cpp" FORMNAME="" UNITNAME="FontSettings.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\Game.cpp" FORMNAME="" UNITNAME="Game.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\GameControl.cpp" FORMNAME="" UNITNAME="GameControl.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
-      <FILE FILENAME="lib\ofpmonitor\IRCClient.cpp" FORMNAME="" UNITNAME="IRCClient.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\LanguageDB.cpp" FORMNAME="" UNITNAME="LanguageDB.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\Message.cpp" FORMNAME="" UNITNAME="Message.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="lib\ofpmonitor\Observer.cpp" FORMNAME="" UNITNAME="Observer.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>

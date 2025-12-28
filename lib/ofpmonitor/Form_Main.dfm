@@ -1,7 +1,7 @@
 object WINDOW_MAIN: TWINDOW_MAIN
   Left = 731
   Top = 245
-  Width = 666
+  Width = 674
   Height = 500
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
@@ -459,7 +459,7 @@ object WINDOW_MAIN: TWINDOW_MAIN
           Width = 329
           Height = 24
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 16
           TabOrder = 0
           OnChange = ComboBox1Change
         end
@@ -469,7 +469,7 @@ object WINDOW_MAIN: TWINDOW_MAIN
           Width = 329
           Height = 24
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 16
           Sorted = True
           TabOrder = 1
           OnChange = ComboBox2Change
@@ -644,91 +644,16 @@ object WINDOW_MAIN: TWINDOW_MAIN
           Width = 305
           Height = 24
           Style = csDropDownList
-          ItemHeight = 0
+          ItemHeight = 16
           TabOrder = 1
           OnChange = COMBOBOX_OVERWRITE_MASTERSERVERChange
         end
       end
     end
-    object TABSHEET_CHAT: TTabSheet
-      Caption = 'Chat'
-      ImageIndex = 2
-      OnShow = TABSHEET_CHATShow
-      object Panel2: TPanel
-        Left = 0
-        Top = 0
-        Width = 490
-        Height = 272
-        Align = alClient
-        Alignment = taLeftJustify
-        BevelOuter = bvNone
-        Constraints.MinHeight = 231
-        TabOrder = 0
-        object TabControl1: TTabControl
-          Left = 0
-          Top = 0
-          Width = 490
-          Height = 272
-          Align = alClient
-          MultiLine = True
-          OwnerDraw = True
-          TabOrder = 0
-          OnChange = TabControl1Change
-          OnChanging = TabControl1Changing
-          OnContextPopup = TabControl1ContextPopup
-          OnDrawTab = TabControl1DrawTab
-          object MemoChatInput: TMemo
-            Left = 4
-            Top = 242
-            Width = 482
-            Height = 26
-            Align = alBottom
-            Constraints.MaxHeight = 26
-            Enabled = False
-            MaxLength = 450
-            TabOrder = 0
-            WantReturns = False
-            OnKeyDown = MemoChatInputKeyDown
-          end
-          object MemoChatOutput: TMemo
-            Left = 4
-            Top = 6
-            Width = 482
-            Height = 236
-            Align = alClient
-            ReadOnly = True
-            ScrollBars = ssVertical
-            TabOrder = 1
-          end
-        end
-      end
-      object StringGrid3: TStringGrid
-        Left = 490
-        Top = 0
-        Width = 160
-        Height = 272
-        Hint = 'ALT + LeftMouse mutes the user you click on'
-        Align = alRight
-        ColCount = 1
-        Constraints.MaxWidth = 160
-        Constraints.MinWidth = 160
-        DefaultColWidth = 140
-        FixedCols = 0
-        RowCount = 1
-        FixedRows = 0
-        Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goColSizing, goRowSelect]
-        PopupMenu = PopupMenuChat
-        ScrollBars = ssVertical
-        TabOrder = 1
-        OnContextPopup = StringGrid3ContextPopup
-        OnDrawCell = StringGrid3DrawCell
-        OnMouseDown = StringGrid3MouseDown
-      end
-    end
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 420
+    Top = 407
     Width = 658
     Height = 34
     BorderWidth = 1
@@ -785,7 +710,7 @@ object WINDOW_MAIN: TWINDOW_MAIN
     Left = 0
     Top = 306
     Width = 658
-    Height = 114
+    Height = 101
     Align = alClient
     BiDiMode = bdRightToLeft
     ColCount = 7
@@ -965,18 +890,6 @@ object WINDOW_MAIN: TWINDOW_MAIN
         OnClick = MENUITEM_MAINMENU_GETNEWSERVERLISTClick
       end
     end
-    object MENUITEM_MAINMENU_CHAT: TMenuItem
-      Caption = 'Chat'
-      object MENUITEM_MAINMENU_CHAT_CONNECT: TMenuItem
-        Caption = 'Connect'
-        OnClick = MENUITEM_MAINMENU_CHAT_CONNECTClick
-      end
-      object MENUITEM_MAINMENU_CHAT_DISCONNECT: TMenuItem
-        Caption = 'Disconnect'
-        Enabled = False
-        OnClick = MENUITEM_MAINMENU_CHAT_DISCONNECTClick
-      end
-    end
     object MENUITEM_MAINMENU_FONT: TMenuItem
       Caption = 'Font'
       OnClick = MENUITEM_MAINMENU_FONTClick
@@ -1109,22 +1022,6 @@ object WINDOW_MAIN: TWINDOW_MAIN
     OnClick = CoolTrayIcon1Click
     Left = 600
     Top = 224
-  end
-  object PopupMenuChat: TPopupMenu
-    Left = 536
-    Top = 160
-    object Openchat1: TMenuItem
-      Caption = 'Chat with...'
-      OnClick = Openchat1Click
-    end
-  end
-  object PopupMenuChat2: TPopupMenu
-    Left = 568
-    Top = 160
-    object Close1: TMenuItem
-      Caption = 'Close'
-      OnClick = Close1Click
-    end
   end
   object ImageListTabIcons: TImageList
     Left = 504

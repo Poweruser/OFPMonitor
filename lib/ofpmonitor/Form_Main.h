@@ -12,7 +12,6 @@
 #include "ServerFilter.h"
 #include "ServerTableSorter.h"
 #include "PlayerTableSorter.h"
-#include "Chat.h"
 #include "Observer.h"
 #include "LanguageDB.h"
 #include "HttpFileDownloader.h"
@@ -123,23 +122,10 @@ __published:	// IDE-managed Components
         TMenuItem *Info1;
         TPageControl *PageControl1;
         TTabSheet *TABSHEET_SERVERINFO;
-        TTabSheet *TABSHEET_CHAT;
-        TStringGrid *StringGrid3;
-        TPanel *Panel2;
-        TMenuItem *MENUITEM_MAINMENU_CHAT;
-        TMenuItem *MENUITEM_MAINMENU_CHAT_CONNECT;
-        TMenuItem *MENUITEM_MAINMENU_CHAT_DISCONNECT;
-        TMemo *MemoChatOutput;
-        TMemo *MemoChatInput;
         TLabel *LABEL_SERVERINFO_EQMODREQ;
         TLabel *LABEL_SERVERINFO_EQMODREQ_VALUE;
         TCoolTrayIcon *CoolTrayIcon1;
         TMenuItem *MENUITEM_MAINMENU_LOCALGAME;
-        TTabControl *TabControl1;
-        TPopupMenu *PopupMenuChat;
-        TMenuItem *Openchat1;
-        TPopupMenu *PopupMenuChat2;
-        TMenuItem *Close1;
         TTabSheet *TABSHEET_GAMECONTROL;
         TComboBox *ComboBox1;
         TComboBox *ComboBox2;
@@ -213,28 +199,8 @@ __published:	// IDE-managed Components
           TPoint &MousePos, bool &Handled);
         void __fastcall Splitter1Moved(TObject *Sender);
         void __fastcall Info1Click(TObject *Sender);
-        void __fastcall MENUITEM_MAINMENU_CHAT_CONNECTClick(TObject *Sender);
-        void __fastcall MENUITEM_MAINMENU_CHAT_DISCONNECTClick(TObject *Sender);
-        void __fastcall StringGrid3MouseDown(TObject *Sender,
-          TMouseButton Button, TShiftState Shift, int X, int Y);
-        void __fastcall StringGrid3DrawCell(TObject *Sender, int ACol,
-          int ARow, TRect &Rect, TGridDrawState State);
         void __fastcall CoolTrayIcon1Click(TObject *Sender);
-        void __fastcall TABSHEET_CHATShow(TObject *Sender);
-        void __fastcall MemoChatInputKeyDown(TObject *Sender, WORD &Key,
-          TShiftState Shift);
         void __fastcall MENUITEM_MAINMENU_LOCALGAMEClick(TObject *Sender);
-        void __fastcall TabControl1DrawTab(TCustomTabControl *Control,
-          int TabIndex, const TRect &Rect, bool Active);
-        void __fastcall TabControl1Change(TObject *Sender);
-        void __fastcall TabControl1Changing(TObject *Sender,
-          bool &AllowChange);
-        void __fastcall StringGrid3ContextPopup(TObject *Sender,
-          TPoint &MousePos, bool &Handled);
-        void __fastcall Openchat1Click(TObject *Sender);
-        void __fastcall TabControl1ContextPopup(TObject *Sender,
-          TPoint &MousePos, bool &Handled);
-        void __fastcall Close1Click(TObject *Sender);
         void __fastcall RADIOBUTTON_GAMECONTROL_AUTOGREENUP_ONLYONCEClick(TObject *Sender);
         void __fastcall RADIOBUTTON_GAMECONTROL_AUTOGREENUP_REPEATClick(TObject *Sender);
         void __fastcall CHECKBOX_GAMECONTROL_AUTOGREENUPClick(TObject *Sender);
@@ -282,11 +248,8 @@ private:	// User declarations
         PlayerTableSorter *playerTableSorter;
         int selectedServerID;
         int selectedServerIDForPopUp;
-        ChatSettings *chatSettings;
-        Chat* chat;
         LanguageDB *languageDB;
         bool filterChanging;
-        HANDLE chatThreadHandle;
         HttpFileDownloader *downloader;
         bool allowSavingOfSettings;
         TDateTime lastAutoSave;
@@ -312,7 +275,6 @@ private:	// User declarations
         String TWINDOW_MAIN::calcElapsedTime(long a, long b);
         String TWINDOW_MAIN::addLeadingZeros(int number, int length);
         void TWINDOW_MAIN::copyToClipBoard (String msg);
-        void TWINDOW_MAIN::ChatNotification(String msg);
         bool TWINDOW_MAIN::isInForeground();
         bool TWINDOW_MAIN::startUp();
 
@@ -324,7 +286,6 @@ public:		// User declarations
         void TWINDOW_MAIN::setServerFilter(ServerFilter *serverFilter);
         void TWINDOW_MAIN::setFontSettings(FontSettings *fontSettings);
         void TWINDOW_MAIN::setWindowSettings(WindowSettings *windowSettings);
-        void TWINDOW_MAIN::setChatSettings(ChatSettings *chatSettings);
         void TWINDOW_MAIN::setLanguageDB(LanguageDB *languageDB);
         void TWINDOW_MAIN::applyWindowSettings();
         void TWINDOW_MAIN::setSelectedServer(int serverID);
