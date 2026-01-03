@@ -36,6 +36,7 @@ class Game {
                 String getGamespyKey();
                 String getFullName();
                 int getFileVersion();
+                String getDisplayVersion();
                 list<String> findPlayerProfiles();
                 void getSettingsFileEntry(TStringList *settings);
 
@@ -47,6 +48,7 @@ class Game {
                 String player;
                 String fullName;
                 int version;
+                String displayVersion;
                 TList *startupConfs;
                 String gamespyToken;
                 String gamespyKey;

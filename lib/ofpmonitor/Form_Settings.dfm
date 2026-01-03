@@ -236,14 +236,14 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
     object TABSHEET_GAMES: TTabSheet
       Caption = 'Games'
       ImageIndex = 1
-      object GROUPBOX_OFPCWC: TGroupBox
+      object GROUPBOX_EDITGAME: TGroupBox
         Left = 8
-        Top = 8
+        Top = 112
         Width = 481
         Height = 121
-        TabOrder = 1
+        TabOrder = 0
         Visible = False
-        object LABEL_OFPCWC_PLAYERNAME: TLabel
+        object LABEL_EDITGAME_PLAYERNAME: TLabel
           Left = 16
           Top = 72
           Width = 61
@@ -251,7 +251,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Caption = 'Player name:'
           Transparent = True
         end
-        object EDIT_OFPCWC_EXECUTABLE: TEdit
+        object EDIT_EDITGAME_EXECUTABLE: TEdit
           Left = 16
           Top = 40
           Width = 449
@@ -259,24 +259,24 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           ReadOnly = True
           TabOrder = 2
         end
-        object COMBOBOX_OFPCWC_PROFILE: TComboBox
+        object COMBOBOX_EDITGAME_PROFILE: TComboBox
           Left = 16
           Top = 88
           Width = 313
           Height = 21
           Style = csDropDownList
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 1
-          OnChange = COMBOBOX_OFPCWC_PROFILEChange
+          OnChange = COMBOBOX_EDITGAME_PROFILEChange
         end
-        object BUTTON_OFPCWC_BROWSE: TButton
+        object BUTTON_EDITGAME_BROWSE: TButton
           Left = 356
           Top = 72
           Width = 109
           Height = 37
           Caption = 'Browse ...'
           TabOrder = 0
-          OnClick = BUTTON_OFPCWC_BROWSEClick
+          OnClick = BUTTON_EDITGAME_BROWSEClick
         end
         object Panel1: TPanel
           Left = 16
@@ -285,196 +285,34 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
           Height = 14
           BevelOuter = bvNone
           TabOrder = 3
-          object LABEL_OFPCWC_EXECUTABLE: TLabel
+          object LABEL_EDITGAME_EXECUTABLE: TLabel
             Left = 0
             Top = 0
             Width = 56
-            Height = 14
+            Height = 13
             Align = alLeft
             Caption = 'Executable:'
           end
-          object LABEL_OFPCWC_DETECTEDVERSION: TLabel
+          object LABEL_EDITGAME_DETECTEDVERSION: TLabel
             Left = 365
             Top = 0
             Width = 84
-            Height = 14
+            Height = 13
             Align = alRight
             Caption = 'Detected version:'
             Transparent = True
           end
         end
       end
-      object GROUPBOX_OFPRES: TGroupBox
-        Left = 8
-        Top = 136
-        Width = 481
-        Height = 121
-        TabOrder = 3
-        Visible = False
-        object LABEL_OFPRES_PLAYERNAME: TLabel
-          Left = 16
-          Top = 72
-          Width = 61
-          Height = 13
-          Caption = 'Player name:'
-          Transparent = True
-        end
-        object BUTTON_OFPRES_BROWSE: TButton
-          Left = 356
-          Top = 72
-          Width = 109
-          Height = 37
-          Caption = 'Browse ...'
-          TabOrder = 0
-          OnClick = BUTTON_OFPRES_BROWSEClick
-        end
-        object EDIT_OFPRES_EXECUTABLE: TEdit
-          Left = 16
-          Top = 42
-          Width = 449
-          Height = 21
-          ReadOnly = True
-          TabOrder = 2
-        end
-        object COMBOBOX_OFPRES_PROFILE: TComboBox
-          Left = 16
-          Top = 88
-          Width = 313
-          Height = 21
-          AutoDropDown = True
-          Style = csDropDownList
-          Font.Charset = DEFAULT_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'MS Sans Serif'
-          Font.Style = []
-          ItemHeight = 13
-          ParentFont = False
-          TabOrder = 1
-          OnChange = COMBOBOX_OFPRES_PROFILEChange
-        end
-        object Panel2: TPanel
-          Left = 16
-          Top = 24
-          Width = 449
-          Height = 14
-          BevelOuter = bvNone
-          TabOrder = 3
-          object LABEL_OFPRES_EXECUTABLE: TLabel
-            Left = 0
-            Top = 0
-            Width = 56
-            Height = 14
-            Align = alLeft
-            Caption = 'Executable:'
-            Transparent = True
-          end
-          object LABEL_OFPRES_DETECTEDVERSION: TLabel
-            Left = 365
-            Top = 0
-            Width = 84
-            Height = 14
-            Align = alRight
-            Caption = 'Detected version:'
-            Transparent = True
-          end
-        end
-      end
-      object GROUPBOX_ARMACWA: TGroupBox
-        Left = 8
-        Top = 264
-        Width = 481
-        Height = 121
-        TabOrder = 5
-        Visible = False
-        object LABEL_ARMACWA_PLAYERNAME: TLabel
-          Left = 16
-          Top = 72
-          Width = 61
-          Height = 13
-          Caption = 'Player name:'
-          Transparent = True
-        end
-        object EDIT_ARMACWA_EXECUTABLE: TEdit
-          Left = 16
-          Top = 40
-          Width = 449
-          Height = 21
-          ReadOnly = True
-          TabOrder = 2
-        end
-        object COMBOBOX_ARMACWA_PROFILE: TComboBox
-          Left = 16
-          Top = 88
-          Width = 313
-          Height = 21
-          Style = csDropDownList
-          ItemHeight = 13
-          TabOrder = 1
-          OnChange = COMBOBOX_ARMACWA_PROFILEChange
-        end
-        object BUTTON_ARMACWA_BROWSE: TButton
-          Left = 356
-          Top = 72
-          Width = 109
-          Height = 37
-          Caption = 'Browse ...'
-          TabOrder = 0
-          OnClick = BUTTON_ARMACWA_BROWSEClick
-        end
-        object Panel3: TPanel
-          Left = 16
-          Top = 24
-          Width = 449
-          Height = 14
-          BevelOuter = bvNone
-          TabOrder = 3
-          object LABEL_ARMACWA_EXECUTABLE: TLabel
-            Left = 0
-            Top = 0
-            Width = 56
-            Height = 14
-            Align = alLeft
-            Caption = 'Executable:'
-            Transparent = True
-          end
-          object LABEL_ARMACWA_DETECTEDVERSION: TLabel
-            Left = 365
-            Top = 0
-            Width = 84
-            Height = 14
-            Align = alRight
-            Caption = 'Detected version:'
-            Transparent = True
-          end
-        end
-      end
-      object CHECKBOX_OFPCWC: TCheckBox
+      object CHECKLISTBOX_GAMES: TCheckListBox
         Left = 8
         Top = 8
-        Width = 197
-        Height = 17
-        Caption = 'Operation Flashpoint: Cold War Crisis'
-        TabOrder = 0
-        OnClick = CHECKBOX_OFPCWCClick
-      end
-      object CHECKBOX_OFPRES: TCheckBox
-        Left = 8
-        Top = 136
-        Width = 177
-        Height = 17
-        Caption = 'Operation Flashpoint: Resistance'
-        TabOrder = 2
-        OnClick = CHECKBOX_OFPRESClick
-      end
-      object CHECKBOX_ARMACWA: TCheckBox
-        Left = 8
-        Top = 264
-        Width = 135
-        Height = 17
-        Caption = 'ArmA: Cold War Assault'
-        TabOrder = 4
-        OnClick = CHECKBOX_ARMACWAClick
+        Width = 481
+        Height = 97
+        OnClickCheck = CHECKLISTBOX_GAMESClickCheck
+        ItemHeight = 13
+        TabOrder = 1
+        OnClick = CHECKLISTBOX_GAMESClick
       end
     end
     object TABSHEET_MODS: TTabSheet
@@ -725,7 +563,7 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         Width = 449
         Height = 21
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         OnChange = ComboBox2Change
       end
@@ -1258,8 +1096,8 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         object LabelMinutes: TLabel
           Left = 54
           Top = 13
-          Width = 25
-          Height = 24
+          Width = 28
+          Height = 25
           Caption = '00:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -1271,8 +1109,8 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         object LabelSeconds: TLabel
           Left = 80
           Top = 13
-          Width = 25
-          Height = 24
+          Width = 28
+          Height = 25
           Caption = '00:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -1284,8 +1122,8 @@ object WINDOW_SETTINGS: TWINDOW_SETTINGS
         object LabelMilli: TLabel
           Left = 106
           Top = 13
-          Width = 30
-          Height = 24
+          Width = 33
+          Height = 25
           Caption = '000'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText

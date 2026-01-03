@@ -291,9 +291,9 @@ bool GameControl::detectProcess() {
                 TStringList *startsWith = new TStringList();
                 startsWith->Sorted = true;
                 startsWith->Duplicates = dupIgnore;
-                startsWith->Add(getAppTitleByGameId(OFPCWC));
-                startsWith->Add(getAppTitleByGameId(OFPRES));
-                startsWith->Add(getAppTitleByGameId(ARMACWA));
+                for(int i = 0; i < GAMESTOTAL; i++) {
+                        startsWith->Add(getAppTitleByGameId((OFPGames) i));
+                }
                 TStringList *modules = new TStringList();
                 for(int i = 0; i < GAMESTOTAL; i++) {
                         list<String> exes = getExesByGameId((OFPGames)i, false);
@@ -376,14 +376,8 @@ void GameControl::overwriteMasterServer(String masterserver) {
                 HANDLE phandle = OpenProcess(PROCESS_ALL_ACCESS, 0, this->proc.pid);
                 if(phandle != NULL) {
                         FileVersion *fVersion = new FileVersion(this->proc.moduleName);
-                        int ofpVersion = fVersion->getOFPVersion();
+                        int offset1 = getMemoryOffsetForMasterServerOverwrite(this->proc.title, fVersion->majorVersion(), fVersion->buildVersion());
                         delete fVersion;
-                        int offset1 = 0;
-                        if(this->proc.title == getAppTitleByGameId(ARMACWA) && ofpVersion == 199) {
-                                offset1 = 0x756530;
-                        } else if(this->proc.title == getAppTitleByGameId(OFPRES) && ofpVersion == 196) {
-                                offset1 = 0x76EBC0;
-                        }
                         if(offset1 != 0) {
                                 int lengthLimit = 63;
                                 String master = masterserver;

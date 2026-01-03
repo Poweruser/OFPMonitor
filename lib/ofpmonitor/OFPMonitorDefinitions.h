@@ -16,7 +16,7 @@
 
 #define POWERSERVER_QUERYPORT 28900
 
-enum OFPGames {OFPCWC=0, OFPRES=1, ARMACWA=2, GAMESTOTAL=3, UNKNOWNGAME=4 };
+enum OFPGames {OFPCWC=0, OFPRES=1, ARMACWA=2, ARMARES=3, ARMACWACE=4, GAMESTOTAL=5, UNKNOWNGAME=6 };
 
 
 String getGameName(OFPGames gameid) {
@@ -30,6 +30,12 @@ String getGameName(OFPGames gameid) {
 			break;
 		case ARMACWA:
 			out = "ARMA:CWA";
+			break;
+		case ARMARES:
+			out = "ARMA:RES";
+			break;
+		case ARMACWACE:
+			out = "ARMA:CWA-CE";
 	}
 	return out;
 }
@@ -38,6 +44,8 @@ OFPGames getGameId(String name) {
         if(name == "OFP:CWC") { return OFPCWC; }
         if(name == "OFP:RES") { return OFPRES; }
         if(name == "ARMA:CWA") { return ARMACWA; }
+        if(name == "ARMA:RES") { return ARMARES; }
+        if(name == "ARMA:CWA-CE") { return ARMACWACE; }
         return UNKNOWNGAME;
 }
 
@@ -45,9 +53,10 @@ bool isValidGameID(OFPGames gameid) {
         return (gameid >= 0 && gameid < GAMESTOTAL);
 }
 
-
 list<String> getExesByGameId(OFPGames gameid, bool includeFWatch) {
         list<String> exes;
+        // Newer game files should be listed first,
+        // as the autodetection exits on the first match
 	switch(gameid) {
 		case OFPCWC:
                 	exes.push_back("OperationFlashpoint.exe");
@@ -66,6 +75,13 @@ list<String> getExesByGameId(OFPGames gameid, bool includeFWatch) {
                                 exes.push_back("fwatchCWA.exe");
                         }
                 	exes.push_back("ColdWarAssault.exe");
+			break;
+		case ARMARES:
+			exes.push_back("ArmAResistance.exe");
+			break;
+		case ARMACWACE:
+			exes.push_back("CWA-CE-203.exe");
+			exes.push_back("CWA-CE-202.exe");
 	}
 	return exes;
 }
@@ -84,6 +100,12 @@ String getAppTitleByGameId(OFPGames gameid) {
 			break;
 		case ARMACWA:
 	       		out = "Cold War Assault";
+			break;
+		case ARMARES:
+			out = "ArmA Resistance";
+			break;
+		case ARMACWACE:
+			out = "CWA-CE";
 	}
 	return out;
 }
@@ -100,6 +122,12 @@ String getFullGameNameByGameId(OFPGames gameid) {
 			break;
 		case ARMACWA:
 			out = "ArmA: Cold War Assault";
+			break;
+		case ARMARES:
+			out = "ArmA: Resistance";
+			break;
+		case ARMACWACE:
+			out = "ArmA: Cold War Assault - Community Edition";
 	}
 	return out;
 }
@@ -114,6 +142,8 @@ list<String> getRegistryPathByGameId(OFPGames gameid) {
 			regFolder.push_back("Operation Flashpoint");
 			break;
 		case ARMACWA:
+		case ARMARES:
+		case ARMACWACE:
 			regFolder.push_back("SOFTWARE");
 			regFolder.push_back("Bohemia Interactive Studio");
 			regFolder.push_back("ColdWarAssault");
@@ -188,6 +218,8 @@ String getGameSpyTokenByGameId(OFPGames gameid) {
 			break;
 		case OFPRES:
 		case ARMACWA:
+		case ARMARES:
+		case ARMACWACE:
 			out = "opflashr";
 	}
 	return out;
@@ -201,9 +233,40 @@ String getGameSpyKeyByGameId(OFPGames gameid) {
 			break;
 		case OFPRES:
 		case ARMACWA:
+		case ARMARES:
+		case ARMACWACE:
 			out = "Y3k7x1";
 	}
 	return out;
+}
+
+int buildGameVersion(OFPGames id, int major, int build) {
+        String zero = "";
+        if ((id == ARMARES || id == ARMACWACE) && build < 10) {
+                        zero = "0";
+        }
+        return StrToIntDef(IntToStr(major) + zero + IntToStr(build), 0);
+}
+
+String buildDisplayGameVersion(OFPGames id, int major, int build) {
+        String zero = "";
+        if ((id == ARMARES || id == ARMACWACE) && build < 10) {
+                        zero = "0";
+        }
+        return IntToStr(major) + "." + zero + IntToStr(build);
+}
+
+int getMemoryOffsetForMasterServerOverwrite(String appTitle, int major, int build) {
+        // It is not granted that future ARMACWACE versions will still have the same offset
+        // that's why the version range is limited to confirmed versions
+        if((appTitle == getAppTitleByGameId(ARMACWA)   && major == 1 && build == 99) ||
+           (appTitle == getAppTitleByGameId(ARMARES)   && major == 2 && build ==  1) ||
+           (appTitle == getAppTitleByGameId(ARMACWACE) && major == 2 && build >=  2 && build <= 3)) {
+                                return 0x756530;
+           } else if(appTitle == getAppTitleByGameId(OFPRES) && major == 1 && build == 96) {
+                                return 0x76EBC0;
+           }
+        return 0;
 }
 
 enum BandwidthUsage {High=0, Moderate=1, Low=2, VeryLow=3 };

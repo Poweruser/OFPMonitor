@@ -45,11 +45,6 @@ unsigned short FileVersion::buildVersion () {
 	return (aInfo->dwFileVersionLS);
 }
 
-int FileVersion::getOFPVersion() {
-	if (!this->FixedInfo) { return 0; }
-        return StrToIntDef(IntToStr(this->majorVersion()) + IntToStr(this->buildVersion()), 0);
-}
-
 String FileVersion::getOFPMonitorVersion() {
 	if (!this->FixedInfo) { return "0"; }
         String major = (String)this->majorVersion();

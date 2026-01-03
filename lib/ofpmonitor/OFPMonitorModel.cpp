@@ -852,3 +852,14 @@ void OFPMonitorModel::parseMasterServerFile(TStringList *list) {
 Server* OFPMonitorModel::getServerByID(int serverID) {
         return this->servers->getServerByID(serverID);
 }
+
+void OFPMonitorModel::checkForGameAutoDetection(OFPGames id) {
+        Game *g = this->getGame(id);
+        if(g != NULL) {
+                if(g->isValid()) {
+                        g->setActive(true);
+                } else {
+                        g->autodetect("");
+                }
+        }
+}

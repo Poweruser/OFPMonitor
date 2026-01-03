@@ -18,7 +18,6 @@ class FileVersion {
                 unsigned short releaseVersion ();
                 unsigned short buildVersion ();
 
-                int getOFPVersion();
                 String getOFPMonitorVersion();
                 String FileVersion::getFullVersion();
 };

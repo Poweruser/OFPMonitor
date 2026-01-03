@@ -20,6 +20,7 @@ Game::Game(OFPGames id) {
         this->folder = "";
         this->player = "";
         this->version = 0;
+        this->displayVersion = "0";
         this->startupConfs = new TList;
 }
 
@@ -104,7 +105,8 @@ void Game::queryVersion() {
                         fileToQuery = this->exe;
                 }
                 FileVersion *fv = new FileVersion(fileToQuery);
-                this->version = fv->getOFPVersion();
+                this->version = buildGameVersion(this->game, fv->majorVersion(), fv->buildVersion());
+                this->displayVersion = buildDisplayGameVersion(this->game, fv->majorVersion(), fv->buildVersion());
                 delete fv;
         }
 }
@@ -212,6 +214,10 @@ String Game::getFullName() {
 
 int Game::getFileVersion() {
         return this->version;
+}
+
+String Game::getDisplayVersion() {
+        return this->displayVersion;
 }
 
 list<String> Game::findPlayerProfiles() {

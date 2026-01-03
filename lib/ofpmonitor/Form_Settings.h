@@ -24,14 +24,12 @@
 #include <ImgList.hpp>
 #include <Menus.hpp>
 #include <Grids.hpp>
+#include <CheckLst.hpp>
                      
 //---------------------------------------------------------------------------
-
 class TWINDOW_SETTINGS : public TForm, public Observer
 {
 __published:	// IDE-managed Components
-        TEdit *EDIT_OFPRES_EXECUTABLE;
-        TButton *BUTTON_OFPRES_BROWSE;
         TListBox *LISTBOX_CONFIGURATIONS;
         TButton *BUTTON_CONFIGURATION_REMOVE;
         TButton *BUTTON_NEWCONFIGURATION_ADD;
@@ -61,7 +59,6 @@ __published:	// IDE-managed Components
         TButton *BUTTON_EDITCONFIGURATION_EDIT;
         TButton *BUTTON_EDITCONFIGURATION_OK;
         TButton *BUTTON_EDITCONFIGURATION_CANCEL;
-        TComboBox *COMBOBOX_OFPRES_PROFILE;
         TButton *BUTTON_EDITCONFIGURATION_UP;
         TButton *BUTTON_EDITCONFIGURATION_DOWN;
         TGroupBox *GROUPBOX_CONFIGURATIONS;
@@ -71,30 +68,14 @@ __published:	// IDE-managed Components
         TTabSheet *TABSHEET_GAMES;
         TTabSheet *TABSHEET_MODS;
         TTabSheet *TABSHEET_NOTIFICATIONS;
-        TGroupBox *GROUPBOX_OFPCWC;
-        TGroupBox *GROUPBOX_OFPRES;
-        TGroupBox *GROUPBOX_ARMACWA;
-        TCheckBox *CHECKBOX_OFPCWC;
-        TCheckBox *CHECKBOX_OFPRES;
-        TCheckBox *CHECKBOX_ARMACWA;
-        TLabel *LABEL_OFPRES_EXECUTABLE;
-        TLabel *LABEL_OFPRES_PLAYERNAME;
-        TLabel *LABEL_OFPCWC_EXECUTABLE;
-        TEdit *EDIT_OFPCWC_EXECUTABLE;
-        TEdit *EDIT_ARMACWA_EXECUTABLE;
-        TLabel *LABEL_ARMACWA_EXECUTABLE;
-        TComboBox *COMBOBOX_OFPCWC_PROFILE;
-        TComboBox *COMBOBOX_ARMACWA_PROFILE;
-        TLabel *LABEL_ARMACWA_PLAYERNAME;
-        TLabel *LABEL_OFPCWC_PLAYERNAME;
-        TButton *BUTTON_OFPCWC_BROWSE;
-        TButton *BUTTON_ARMACWA_BROWSE;
+        TGroupBox *GROUPBOX_EDITGAME;
+        TLabel *LABEL_EDITGAME_EXECUTABLE;
+        TEdit *EDIT_EDITGAME_EXECUTABLE;
+        TComboBox *COMBOBOX_EDITGAME_PROFILE;
+        TLabel *LABEL_EDITGAME_PLAYERNAME;
+        TButton *BUTTON_EDITGAME_BROWSE;
         TPanel *Panel1;
-        TLabel *LABEL_OFPCWC_DETECTEDVERSION;
-        TPanel *Panel2;
-        TLabel *LABEL_OFPRES_DETECTEDVERSION;
-        TPanel *Panel3;
-        TLabel *LABEL_ARMACWA_DETECTEDVERSION;
+        TLabel *LABEL_EDITGAME_DETECTEDVERSION;
         TComboBox *ComboBox2;
         TOpenDialog *OpenDialogAudioFile;
         TCheckBox *CHECKBOX_REPEAT;
@@ -183,7 +164,7 @@ __published:	// IDE-managed Components
         TCheckBox *CHECKBOX_MASTERSERVERS_UPDATEONSTART;
         TButton *BUTTON_SERVERS_EXPORT;
         TSaveDialog *SaveDialog1;
-        void __fastcall BUTTON_OFPRES_BROWSEClick(TObject *Sender);
+        TCheckListBox *CHECKLISTBOX_GAMES;
         void __fastcall FormCreate(TObject *Sender);
         void __fastcall OpenDialogGameFileCanClose(TObject *Sender,
           bool &CanClose);
@@ -204,20 +185,14 @@ __published:	// IDE-managed Components
         void __fastcall LISTBOX_CONFIGURATIONSClick(TObject *Sender);
         void __fastcall BUTTON_EDITCONFIGURATION_CANCELClick(
           TObject *Sender);
-        void __fastcall COMBOBOX_OFPRES_PROFILEChange(TObject *Sender);
         void __fastcall BUTTON_EDITCONFIGURATION_UPClick(TObject *Sender);
         void __fastcall BUTTON_EDITCONFIGURATION_DOWNClick(
           TObject *Sender);
         void __fastcall BUTTON_EDITCONFIGURATION_COPYClick(
           TObject *Sender);
-        void __fastcall CHECKBOX_ARMACWAClick(TObject *Sender);
-        void __fastcall BUTTON_OFPCWC_BROWSEClick(TObject *Sender);
-        void __fastcall BUTTON_ARMACWA_BROWSEClick(TObject *Sender);
+        void __fastcall BUTTON_EDITGAME_BROWSEClick(TObject *Sender);
         void __fastcall ComboBox2Change(TObject *Sender);
-        void __fastcall COMBOBOX_OFPCWC_PROFILEChange(TObject *Sender);
-        void __fastcall COMBOBOX_ARMACWA_PROFILEChange(TObject *Sender);
-        void __fastcall CHECKBOX_OFPCWCClick(TObject *Sender);
-        void __fastcall CHECKBOX_OFPRESClick(TObject *Sender);
+        void __fastcall COMBOBOX_EDITGAME_PROFILEChange(TObject *Sender);
         void __fastcall TABSHEET_MODSShow(TObject *Sender);
         void __fastcall BUTTON_BROWSEClick(TObject *Sender);
         void __fastcall OpenDialogAudioFileCanClose(TObject *Sender,
@@ -272,6 +247,8 @@ __published:	// IDE-managed Components
         void __fastcall BUTTON_SERVERS_EXPORTClick(TObject *Sender);
         void __fastcall SaveDialog1CanClose(TObject *Sender,
           bool &CanClose);
+        void __fastcall CHECKLISTBOX_GAMESClickCheck(TObject *Sender);
+        void __fastcall CHECKLISTBOX_GAMESClick(TObject *Sender);
 private:	// User declarations
 
         OFPMonitorModel *ofpm;
@@ -281,8 +258,8 @@ private:	// User declarations
         void TWINDOW_SETTINGS::updateConfList();
         void TWINDOW_SETTINGS::refreshGamesModList();
         void TWINDOW_SETTINGS::updateGames();
+        void TWINDOW_SETTINGS::updateEDITGAMEBox();
         void TWINDOW_SETTINGS::updateMasterServerSettings();
-        void TWINDOW_SETTINGS::checkForAutoDetection(OFPGames id);
         void TWINDOW_SETTINGS::checkNotificationListState();
         void TWINDOW_SETTINGS::exitEditNotificationMode();
         void TWINDOW_SETTINGS::profileChanged(TComboBox *box, OFPGames gameid);

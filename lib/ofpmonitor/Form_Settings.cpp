@@ -71,7 +71,6 @@ void TWINDOW_SETTINGS::updateConfList() {
 
 void TWINDOW_SETTINGS::updateGuiLanguage() {
         if(this->languageDB != NULL) {
-                this->BUTTON_OFPRES_BROWSE->Caption = this->languageDB->getGuiString(BUTTON_OFPRES_BROWSE->Name);
                 this->BUTTON_CONFIGURATION_REMOVE->Caption = this->languageDB->getGuiString(BUTTON_CONFIGURATION_REMOVE->Name);
                 this->BUTTON_NEWCONFIGURATION_UP->Caption = this->languageDB->getGuiString(BUTTON_NEWCONFIGURATION_UP->Name);
                 this->BUTTON_NEWCONFIGURATION_DOWN->Caption = this->languageDB->getGuiString(BUTTON_NEWCONFIGURATION_DOWN->Name);
@@ -124,15 +123,6 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->StringGrid1->Cells[0][0] = this->languageDB->getGuiString("STRING_ID");
                 this->StringGrid1->Cells[1][0] = this->languageDB->getGuiString("STRING_ADDRESS");
                 this->StringGrid1->Cells[2][0] = this->languageDB->getGuiString("STRING_NAME");
-                if(!this->COMBOBOX_OFPRES_PROFILE->Enabled) {
-                        this->COMBOBOX_OFPRES_PROFILE->Text = this->languageDB->getGuiString("STRING_NOPROFILES");
-                }
-                if(!this->COMBOBOX_OFPCWC_PROFILE->Enabled) {
-                        this->COMBOBOX_OFPCWC_PROFILE->Text = this->languageDB->getGuiString("STRING_NOPROFILES");
-                }
-                if(!this->COMBOBOX_ARMACWA_PROFILE->Enabled) {
-                        this->COMBOBOX_ARMACWA_PROFILE->Text = this->languageDB->getGuiString("STRING_NOPROFILES");
-                }
                 this->LABEL_FILTER_MISSIONNAME_BOX->Caption = this->languageDB->getGuiString("LABEL_FILTER_MISSIONNAME");
                 this->LABEL_FILTER_SERVERNAME_BOX->Caption = this->languageDB->getGuiString("LABEL_FILTER_SERVERNAME");
                 this->LABEL_FILTER_PLAYERNAME_BOX->Caption = this->languageDB->getGuiString("LABEL_FILTER_PLAYERNAME");
@@ -151,9 +141,6 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->CHECKBOX_FILTER_MINPLAYERS->Caption = this->languageDB->getGuiString("STRING_MINIMUM");
                 this->CHECKBOX_FILTER_MAXPLAYERS->Caption = this->languageDB->getGuiString("STRING_MAXIMUM");
                 this->BUTTON_BROWSE->Caption = this->languageDB->getGuiString("STRING_BROWSE");
-                this->BUTTON_OFPCWC_BROWSE->Caption = this->languageDB->getGuiString("STRING_BROWSE");
-                this->BUTTON_OFPRES_BROWSE->Caption = this->languageDB->getGuiString("STRING_BROWSE");
-                this->BUTTON_ARMACWA_BROWSE->Caption = this->languageDB->getGuiString("STRING_BROWSE");
                 this->LABEL_FILTER_PASSWORD->Caption = this->languageDB->getGuiString("LABEL_FILTER_PASSWORD");
                 this->LABEL_FILTER_STATUS->Caption = this->languageDB->getGuiString("LABEL_FILTER_STATUS");
                 this->LABEL_NOTIFICATION_NAME->Caption = this->languageDB->getGuiString("STRING_NAME");
@@ -165,12 +152,13 @@ void TWINDOW_SETTINGS::updateGuiLanguage() {
                 this->LABEL_AUDIOFILE->Caption = this->languageDB->getGuiString("STRING_AUDIOFILE");
                 this->LABEL_AUDIO_FROM->Caption = this->languageDB->getGuiString("STRING_FROM");
                 this->LABEL_AUDIO_TO->Caption = this->languageDB->getGuiString("STRING_TO");
-                this->LABEL_OFPCWC_EXECUTABLE->Caption = this->languageDB->getGuiString("STRING_OFPEXECUTABLE");
-                this->LABEL_OFPRES_EXECUTABLE->Caption = this->languageDB->getGuiString("STRING_OFPEXECUTABLE");
-                this->LABEL_ARMACWA_EXECUTABLE->Caption = this->languageDB->getGuiString("STRING_OFPEXECUTABLE");
-                this->LABEL_OFPCWC_PLAYERNAME->Caption = this->languageDB->getGuiString("STRING_PROFILE");
-                this->LABEL_OFPRES_PLAYERNAME->Caption = this->languageDB->getGuiString("STRING_PROFILE");
-                this->LABEL_ARMACWA_PLAYERNAME->Caption = this->languageDB->getGuiString("STRING_PROFILE");
+                this->BUTTON_EDITGAME_BROWSE->Caption = this->languageDB->getGuiString("STRING_BROWSE");
+                this->LABEL_EDITGAME_DETECTEDVERSION->Caption = this->languageDB->getGuiString("STRING_DETECTEDVERSION");
+                this->LABEL_EDITGAME_EXECUTABLE->Caption = this->languageDB->getGuiString("STRING_OFPEXECUTABLE");
+                this->LABEL_EDITGAME_PLAYERNAME->Caption = this->languageDB->getGuiString("STRING_PROFILE");
+                if(!this->COMBOBOX_EDITGAME_PROFILE->Enabled) {
+                        this->COMBOBOX_EDITGAME_PROFILE->Text = ""; //this->languageDB->getGuiString("STRING_NOPROFILES");
+                }
         }
 }
 
@@ -229,67 +217,79 @@ void TWINDOW_SETTINGS::refreshGamesModList() {
 }
 
 void TWINDOW_SETTINGS::updateGames() {
-        TComboBox *combobox;
-        TCheckBox *checkbox;
-        TEdit *edit;
-        TLabel *label;
-        TGroupBox *groupbox;
+        TCheckListBox *box = this->CHECKLISTBOX_GAMES;
+        bool fillBox = (box->Count == 0);
         for(int i = 0; i < GAMESTOTAL; i++) {
-                Game *g = this->ofpm->getGame((OFPGames)i);
-                if(i == OFPCWC) {
-                        combobox = this->COMBOBOX_OFPCWC_PROFILE;
-                        checkbox = this->CHECKBOX_OFPCWC;
-                        edit = this->EDIT_OFPCWC_EXECUTABLE;
-                        label = this->LABEL_OFPCWC_DETECTEDVERSION;
-                        groupbox = this->GROUPBOX_OFPCWC;
-                } else if(i == OFPRES) {
-                        combobox = this->COMBOBOX_OFPRES_PROFILE;
-                        checkbox = this->CHECKBOX_OFPRES;
-                        edit = this->EDIT_OFPRES_EXECUTABLE;
-                        label = this->LABEL_OFPRES_DETECTEDVERSION;
-                        groupbox = this->GROUPBOX_OFPRES;
-                } else if(i == ARMACWA) {
-                        combobox = this->COMBOBOX_ARMACWA_PROFILE;
-                        checkbox = this->CHECKBOX_ARMACWA;
-                        edit = this->EDIT_ARMACWA_EXECUTABLE;
-                        label = this->LABEL_ARMACWA_DETECTEDVERSION;
-                        groupbox = this->GROUPBOX_ARMACWA;
-                }
-                combobox->Items->Clear();
-                edit->Text = "";
-                label->Caption = "";
-                groupbox->Visible = checkbox->Checked;
-                if(g->isActive()) {
-                        edit->Text = g->getGameExe();
-                        if(!(g->getGameExe().IsEmpty())) {
-                                label->Caption = this->languageDB->getGuiString("STRING_DETECTEDVERSION") + "  " + IntToStr(g->getFileVersion());
+                Game *game = this->ofpm->getGame((OFPGames)i);
+                if(game != NULL) {
+                        if(fillBox) {
+                                box->AddItem(game->getFullName(), (TObject*) game);
                         }
-                        list<String> profiles = g->findPlayerProfiles();
+                        box->Checked[i] = game->isActive();
+                        if(game->isActive()) {
+                                box->Items->Strings[i] = game->getFullName() + " (" + game->getDisplayVersion() + ", " + game->getProfileName() + ")";
+                        } else {
+                                box->Items->Strings[i] = game->getFullName();
+                        }
+                }
+        }
+        this->updateEDITGAMEBox();
+        this->refreshGamesModList();
+}
+
+void TWINDOW_SETTINGS::updateEDITGAMEBox() {
+        TCheckListBox *box = this->CHECKLISTBOX_GAMES;
+        int id = -1;
+        for(int i = 0; i < box->Count; i++) {
+                if(box->Selected[i]) {
+                        id = i;
+                        break;
+                }
+        }
+        if(id >= 0) {
+                Game *game = this->ofpm->getGame((OFPGames)id);
+                if(game != NULL){
+                        GROUPBOX_EDITGAME->Caption = "  " + game->getFullName() + "  ";
+                        GROUPBOX_EDITGAME->Tag = (int) game->getGameId();
+                        BUTTON_EDITGAME_BROWSE->Tag = (int) game->getGameId();
+                        LABEL_EDITGAME_DETECTEDVERSION->Caption = this->languageDB->getGuiString("STRING_DETECTEDVERSION") + "  " + game->getDisplayVersion();
+                        EDIT_EDITGAME_EXECUTABLE->Text = game->getGameExe();
+
+                        TComboBox *combobox = this->COMBOBOX_EDITGAME_PROFILE;
+                        combobox->Clear();
+                        combobox->Enabled = false;
+                        list<String> profiles = game->findPlayerProfiles();
                         String textToSet = "";
                         if(profiles.size() > 0) {
-                                combobox->Enabled = true;
                                 bool playerMatching = false;
                                 for (list<String>::iterator ci = profiles.begin(); ci != profiles.end(); ++ci) {
                                         combobox->Items->Add(*ci);
-                                        if((*ci) == g->getProfileName()) {
+                                        if((*ci) == game->getProfileName()) {
                                                 playerMatching = true;
                                         }
                                 }
                                 if(!playerMatching) {
-                                        g->detectPlayer("");
+                                        game->detectPlayer("");
                                 }
-                                textToSet = g->getProfileName();
+                                textToSet = game->getProfileName();
+                                combobox->Enabled = true;
                         } else {
-                                combobox->Enabled = false;
-                                g->setProfileName("");
+                                game->setProfileName("");
                                 textToSet = this->languageDB->getGuiString("STRING_NOPROFILES");
                                 combobox->Items->Add(textToSet);
                         }
                         combobox->ItemIndex = combobox->Items->IndexOf(textToSet);
-                        checkbox->Checked = true;
+                        GROUPBOX_EDITGAME->Visible = true;
                 }
+        } else {
+                GROUPBOX_EDITGAME->Visible = false;
+                LABEL_EDITGAME_DETECTEDVERSION->Caption = this->languageDB->getGuiString("STRING_DETECTEDVERSION");
+                EDIT_EDITGAME_EXECUTABLE->Text = "";
+                GROUPBOX_EDITGAME->Tag = -1;
+                BUTTON_EDITGAME_BROWSE->Tag = -1;
+                this->COMBOBOX_EDITGAME_PROFILE->Clear();
+                this->COMBOBOX_EDITGAME_PROFILE->Enabled = false;
         }
-        this->refreshGamesModList();
 }
 
 /**
@@ -356,17 +356,6 @@ void TWINDOW_SETTINGS::exitEditMode() {
         this->checkConfListState();
 }
 
-void TWINDOW_SETTINGS::checkForAutoDetection(OFPGames id) {
-        Game *g = this->ofpm->getGame(id);
-        if(g != NULL) {
-                if(g->isValid()) {
-                        g->setActive(true);
-                } else {
-                        g->autodetect("");
-                }
-        }
-}
-
 void TWINDOW_SETTINGS::printPlaybackRange(AudioPosition start, AudioPosition end) {
         this->EDIT_SONGSTART_MIN->Text = IntToStr(start.getMinutes());
         this->EDIT_SONGSTART_SEC->Text = IntToStr(start.getSeconds());
@@ -429,6 +418,7 @@ void TWINDOW_SETTINGS::profileChanged(TComboBox *box, OFPGames gameid) {
                         } else {
                                 g->setProfileName(box->Text);
                         }
+                        this->updateGames();
                 }
         }
 }
@@ -553,8 +543,13 @@ void __fastcall TWINDOW_SETTINGS::OpenDialogGameFileCanClose(TObject *Sender,
 {
         if(CanClose) {
                 String exe = OpenDialogGameFile->FileName;
-                this->ofpm->setGame((OFPGames)(OpenDialogGameFile->Tag), exe, "");
+                OFPGames gameid = (OFPGames)(OpenDialogGameFile->Tag);
+                Game *game = this->ofpm->getGame(gameid);
+                if(game != NULL) {
+                        this->ofpm->setGame(gameid, exe, game->getProfileName());
+                }
                 this->updateGames();
+                OpenDialogGameFile->FileName = "";
                 OpenDialogGameFile->InitialDir = "";
                 OpenDialogGameFile->Tag = -1;
         }
@@ -843,39 +838,19 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_EDITCONFIGURATION_COPYClick(
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TWINDOW_SETTINGS::BUTTON_OFPRES_BROWSEClick(TObject *Sender)
-{
-        if(!EDIT_OFPRES_EXECUTABLE->Text.IsEmpty()) {
-                OpenDialogGameFile->InitialDir = ExtractFilePath(EDIT_OFPRES_EXECUTABLE->Text);
-        }
-        OpenDialogGameFile->Filter = buildOpenDialogFilter(OFPRES);
-        OpenDialogGameFile->Tag = OFPRES;
-        OpenDialogGameFile->Execute();
-}
-
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_SETTINGS::BUTTON_OFPCWC_BROWSEClick(
+void __fastcall TWINDOW_SETTINGS::BUTTON_EDITGAME_BROWSEClick(
       TObject *Sender)
 {
-        if(!EDIT_OFPCWC_EXECUTABLE->Text.IsEmpty()) {
-                OpenDialogGameFile->InitialDir = ExtractFilePath(EDIT_OFPCWC_EXECUTABLE->Text);
+        if(!EDIT_EDITGAME_EXECUTABLE->Text.IsEmpty()) {
+                OpenDialogGameFile->InitialDir = ExtractFilePath(EDIT_EDITGAME_EXECUTABLE->Text);
         }
-        OpenDialogGameFile->Filter = buildOpenDialogFilter(OFPCWC);
-        OpenDialogGameFile->Tag = OFPCWC;
-        OpenDialogGameFile->Execute();
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_SETTINGS::BUTTON_ARMACWA_BROWSEClick(
-      TObject *Sender)
-{
-        if(!EDIT_ARMACWA_EXECUTABLE->Text.IsEmpty()) {
-                OpenDialogGameFile->InitialDir = ExtractFilePath(EDIT_ARMACWA_EXECUTABLE->Text);
+        int gameid = this->BUTTON_EDITGAME_BROWSE->Tag;
+        if(isValidGameID((OFPGames) gameid)) {
+                OpenDialogGameFile->FileName = "";
+                OpenDialogGameFile->Filter = buildOpenDialogFilter((OFPGames) gameid);
+                OpenDialogGameFile->Tag = (OFPGames) gameid;
+                OpenDialogGameFile->Execute();
         }
-        OpenDialogGameFile->Filter = buildOpenDialogFilter(ARMACWA);
-        OpenDialogGameFile->Tag = ARMACWA;
-        OpenDialogGameFile->Execute();
 }
 //---------------------------------------------------------------------------
 
@@ -914,47 +889,10 @@ void __fastcall TWINDOW_SETTINGS::ComboBox2Change(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TWINDOW_SETTINGS::COMBOBOX_OFPCWC_PROFILEChange(
+void __fastcall TWINDOW_SETTINGS::COMBOBOX_EDITGAME_PROFILEChange(
       TObject *Sender)
 {
-        this->profileChanged(COMBOBOX_OFPCWC_PROFILE, OFPCWC);
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_SETTINGS::COMBOBOX_ARMACWA_PROFILEChange(
-      TObject *Sender)
-{
-        this->profileChanged(COMBOBOX_ARMACWA_PROFILE, ARMACWA);
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_SETTINGS::COMBOBOX_OFPRES_PROFILEChange(TObject *Sender)
-{
-        this->profileChanged(COMBOBOX_OFPRES_PROFILE, OFPRES);
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_SETTINGS::CHECKBOX_OFPCWCClick(TObject *Sender)
-{
-        if(!CHECKBOX_OFPCWC->Checked) {
-                this->ofpm->removeGame(OFPCWC);
-        } else {
-                this->checkForAutoDetection(OFPCWC);
-
-        }
-        this->updateGames();
-}
-//---------------------------------------------------------------------------
-
-void __fastcall TWINDOW_SETTINGS::CHECKBOX_OFPRESClick(TObject *Sender)
-{
-        if(!CHECKBOX_OFPRES->Checked) {
-                 this->ofpm->removeGame(OFPRES);
-        } else {
-                this->checkForAutoDetection(OFPRES);
-
-        }
-        this->updateGames();
+        this->profileChanged(COMBOBOX_EDITGAME_PROFILE, (OFPGames) GROUPBOX_EDITGAME->Tag);
 }
 //---------------------------------------------------------------------------
 
@@ -1442,17 +1380,6 @@ void __fastcall TWINDOW_SETTINGS::LISTBOX_CONFIGURATIONSClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TWINDOW_SETTINGS::CHECKBOX_ARMACWAClick(TObject *Sender)
-{
-        if(!CHECKBOX_ARMACWA->Checked) {
-                 this->ofpm->removeGame(ARMACWA);
-        } else {
-                this->checkForAutoDetection(ARMACWA);
-        }
-        this->updateGames();
-}
-//---------------------------------------------------------------------------
-
 void __fastcall TWINDOW_SETTINGS::TRACKBAR_BANDWIDTHChange(TObject *Sender)
 {
         this->ofpm->setBandwidthUsage(TRACKBAR_BANDWIDTH->Position);        
@@ -1671,8 +1598,6 @@ void __fastcall TWINDOW_SETTINGS::FormDestroy(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 
-
-
 void __fastcall TWINDOW_SETTINGS::BUTTON_MASTERSERVERS_ADDClick(TObject *Sender)
 {
         String title = this->languageDB->getGuiString("STRING_MASTERSERVERS_DIALOGTITLE");
@@ -1781,6 +1706,30 @@ void __fastcall TWINDOW_SETTINGS::SaveDialog1CanClose(TObject *Sender,
         }
         toSave->SaveToFile(selectedFile);
         delete toSave;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::CHECKLISTBOX_GAMESClickCheck(
+      TObject *Sender)
+{
+        for(int i = 0; i < this->CHECKLISTBOX_GAMES->Count; i++) {
+                Game *game = (Game*) this->CHECKLISTBOX_GAMES->Items->Objects[i];
+                bool newState = this->CHECKLISTBOX_GAMES->Checked[i];
+                if(game != NULL && game->isActive() != newState) {
+                        if(newState) {
+                                this->ofpm->checkForGameAutoDetection(game->getGameId());
+                        } else {
+                                this->ofpm->removeGame(game->getGameId());
+                        }
+                }
+        }
+        this->updateGames();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TWINDOW_SETTINGS::CHECKLISTBOX_GAMESClick(TObject *Sender)
+{
+        this->updateEDITGAMEBox();
 }
 //---------------------------------------------------------------------------
 

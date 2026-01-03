@@ -77,6 +77,7 @@ class OFPMonitorModel : public Observable {
                 void getSettingsFileEntry(TStringList *settings);
                 AudioPlayer* getAudioPlayer();
                 void parseMasterServerFile(TStringList *list);
+                void checkForGameAutoDetection(OFPGames id);
 
         private:
                 bool processing;
