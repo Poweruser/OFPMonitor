@@ -632,7 +632,7 @@ DWORD WINAPI masterServerQuery_ThreadProc (LPVOID lpdwThreadParam__ ) {
                 main->removeOfflineServers();
                 while(updateList->Count > 0) {
                         ServerConfigEntry *p = (ServerConfigEntry*) (updateList->Objects[0]);
-                        main->addServer(*p);
+                        main->addServer(p);
                         updateList->Delete(0);
                         delete p;
                 }
@@ -652,7 +652,7 @@ void OFPMonitorModel::queryNewServerList() {
 void OFPMonitorModel::queryNewServerList(bool dropOfflineServers) {
         if(this->isServerListUpdateDone()) {
                 this->serverListUpdateDone = false;
-                this->dropOfflineServersOnUpdate = dropOfflineServersOnUpdate;
+                this->dropOfflineServersOnUpdate = dropOfflineServers;
                 this->getServerListThread = CreateThread(0, 0, masterServerQuery_ThreadProc, (void*)this, 0, 0);
         }
 }
@@ -741,12 +741,20 @@ int OFPMonitorModel::getVolume() {
         return this->volume;
 }
 
-void OFPMonitorModel::addServer(String address) {
-        this->servers->addServer(address);
+bool OFPMonitorModel::addServer(Address *address) {
+        if(address != NULL && address->isValid()) {
+                return this->servers->addServer(address, NULL);
+        }
+        return false;
 }
 
-void OFPMonitorModel::addServer(ServerConfigEntry entry) {
-        this->servers->addServer(entry);
+void OFPMonitorModel::addServer(ServerConfigEntry *entry) {
+        Address *add = new Address();
+        if(add->readAddress(entry->address, DEFAULT_OFPSERVER_QUERYPORT, true)) {
+                this->servers->addServer(add, entry);
+                return;
+        }
+        delete add;
 }
 
 bool OFPMonitorModel::removeServer(String address) {

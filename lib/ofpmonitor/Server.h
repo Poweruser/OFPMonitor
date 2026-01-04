@@ -11,6 +11,7 @@
 #include "OFPMonitorDefinitions.h"
 #include "ServerFilter.h"
 #include "StatusChange.h"
+#include "Address.h"
 
 #define NULL_SERVERID -1
 
@@ -37,8 +38,8 @@ class ServerConfigEntry {
 
 class Server : public TObject {
         public:
-                __fastcall Server(int serverID, String ip, int port);
-                __fastcall Server(int serverID, String ip, int port, ServerConfigEntry entry);
+                __fastcall Server(int serverID, Address *address);
+                __fastcall Server(int serverID, Address *address, ServerConfigEntry *entry);
                 __fastcall ~Server();
                 
                 /**
@@ -51,9 +52,9 @@ class Server : public TObject {
                 bool equals(String serverAddress);
                 String getIP();
                 int getGamePort();
-                String getAddress();
                 int getGamespyPort();
                 String getGamespyAddress();
+                String getHostAddress();
                 int getCurrentGameState();
                 int getActualVersion();
                 int getRequiredVersion();
@@ -103,6 +104,7 @@ class Server : public TObject {
                 String getAutoJoinConf();
 
         private:
+                Address *address;
                 int password;
                 int actver;
                 int reqver;
@@ -129,12 +131,9 @@ class Server : public TObject {
                 int missedQueryTurns;
                 int emptyServerCounter;
                 int serverID;
-                int gamespyport;
-                int gameport;
                 int ping;
                 DWORD messageSent;
                 int timeouts;
-                String ip;
                 String timeleft;
                 long gametime;
                 int players;

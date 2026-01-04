@@ -64,22 +64,24 @@ Server* ServerList::getServerByID(int serverID) {
         return NULL;
 }
 
-bool ServerList::addServer(ServerConfigEntry entry) {
-        Address add = this->checkAddressValid(entry.address);
-        if(add.isValid() && !this->hasServer(add.getAddress())) {
-                int id = this->serverIDCounter++;
-                this->list->AddObject(add.getAddress(), (TObject*)(new Server(id, add.getIP(), add.getPort(), entry)));
-                return true;
+bool ServerList::addServer(ServerConfigEntry *entry) {
+        Address *add = new Address();
+        if(add->readAddress(entry->address, DEFAULT_OFPSERVER_QUERYPORT, true)) {
+                bool out = this->addServer(add, entry);
+                if(out) { return out; }
         }
+        delete add;
         return false;
 }
 
-bool ServerList::addServer(String address) {
-        Address add = this->checkAddressValid(address);
-        if(add.isValid() && !this->hasServer(add.getAddress())) {
-                int id = this->serverIDCounter++;
-                this->list->AddObject(add.getAddress(), (TObject*)(new Server(id, add.getIP(), add.getPort())));
-                return true;
+bool ServerList::addServer(Address *address, ServerConfigEntry *entry) {
+        if(address != NULL && address->isValid()) {
+                String ipAndGSPort = address->getAddress(false, true);
+                if(!this->hasServer(ipAndGSPort)) {
+                        int id = this->serverIDCounter++;
+                        this->list->AddObject(ipAndGSPort, (TObject*)(new Server(id, address, entry)));
+                        return true;
+                }
         }
         return false;
 }
@@ -107,11 +109,6 @@ void ServerList::removeOfflineServers() {
                         }
                 }
         }
-}
-Address ServerList::checkAddressValid(String address) {
-        Address add;
-        add.readAddress(address, 2303, true);
-        return add;
 }
 
 Server* ServerList::findPlayerOnServer(String playerName, bool exactMatch) {
@@ -159,16 +156,17 @@ void ServerList::readSettings(TStringList *file) {
                 if(s.Length() > 8) {
                         StringSplitter ssp(s);
                         TStringList *res = ssp.split(";");
-                        ServerConfigEntry sI(res->Strings[0]);
+                        ServerConfigEntry *sI = new ServerConfigEntry(res->Strings[0]);
                         if(res->Count > 1) {
                                 String att = res->Strings[1];
-                                sI.watch = (att.AnsiPos("W") > 0);
-                                sI.favorite = (att.AnsiPos("F") > 0);
-                                sI.persistent = (att.AnsiPos("P") > 0);
-                                sI.blocked = (att.AnsiPos("B") > 0);
+                                sI->watch = (att.AnsiPos("W") > 0);
+                                sI->favorite = (att.AnsiPos("F") > 0);
+                                sI->persistent = (att.AnsiPos("P") > 0);
+                                sI->blocked = (att.AnsiPos("B") > 0);
                         }
                         delete res;
                         this->addServer(sI);
+                        delete sI;
                 }
                 serverList.pop_front();
         }

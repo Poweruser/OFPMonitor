@@ -18,8 +18,8 @@ class ServerList {
                 Server* getServer(String address);
                 Server* getServer(int index);
                 Server* getServerByID(int serverID);
-                bool addServer(String address);
-                bool addServer(ServerConfigEntry entry);
+                bool addServer(Address *address, ServerConfigEntry *entry);
+                bool addServer(ServerConfigEntry *entry);
                 bool removeServer(String address);
                 Server* findPlayerOnServer(String playerName, bool exactMatch);
                 bool incomingMessage(Message *msg);
@@ -32,7 +32,7 @@ class ServerList {
         private:
                 TStringList *list;
                 int serverIDCounter;
-                Address checkAddressValid(String address);
+
 };
 
 

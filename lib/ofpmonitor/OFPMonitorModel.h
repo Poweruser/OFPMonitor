@@ -3,6 +3,7 @@
 #ifndef OFPMonitorModelH
 #define OFPMonitorModelH
 
+#include "Address.h"
 #include "ServerList.h"
 #include "UDPNetwork.h"
 #include "QueryRequest.h"
@@ -40,10 +41,10 @@ class OFPMonitorModel : public Observable {
                 list<int> getAllMatchingServers(ServerFilter *filter);
                 int getTotalServerCount();
                 int getOnlineServerCount();
-                void addServer(String address);
+                bool addServer(Address *address);
                 bool removeServer(String address);
                 Server* getServerByID(int serverID);
-                void addServer(ServerConfigEntry entry);
+                void addServer(ServerConfigEntry *entry);
                 void removeOfflineServers();
                 void disableAutoJoin();
                 void playAudioServerStatus(StatusChange *status);

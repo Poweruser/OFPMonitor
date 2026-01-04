@@ -13,7 +13,7 @@
 #pragma package(smart_init)
 
 ServerConfigEntry::ServerConfigEntry() {
-        this->address = "";
+        this->address = NULL;
         this->watch = false;
         this->favorite = false;
         this->persistent = false;
@@ -36,37 +36,40 @@ ServerConfigEntry::ServerConfigEntry(String address) {
         this->autojoinConf = "";
 }
 
-__fastcall Server::Server(int serverID, String ip, int port) {
+__fastcall Server::Server(int serverID, Address *address) {
+        this->address = address;
         this->watch = false;
         this->favorite = false;
         this->persistent = false;
         this->blocked = false;
         this->clear();
         this->serverID = serverID;
-        this->ip = ip;
         this->timeouts = 0;
         this->ping = 0;
-        this->gamespyport = port;
 }
 
-__fastcall Server::Server(int serverID, String ip, int port, ServerConfigEntry entry) {
-        this->watch = entry.watch;
-        this->favorite = entry.favorite;
-        this->persistent = entry.persistent;
-        this->blocked = entry.blocked;
+__fastcall Server::Server(int serverID, Address *address, ServerConfigEntry *entry) {
+        this->address = address;
+        this->watch = false;
+        this->favorite = false;
+        this->persistent = false;
+        this->blocked = false;
         this->clear();
         this->serverID = serverID;
-        this->ip = ip;
         this->timeouts = 0;
         this->ping = 0;
-        this->gamespyport = port;
+        if(entry != NULL) {
+                this->watch = entry->watch;
+                this->favorite = entry->favorite;
+                this->persistent = entry->persistent;
+                this->blocked = entry->blocked;
+        }
 }
 
 void Server::clear() {
         this->online = false;
         this->autojoin = false;
         this->autojoinConf = "";
-        this->gameport = 0;
         this->timeleft = "";
         this->gametime = 0;
         this->players = 0;
@@ -111,30 +114,24 @@ __fastcall Server::~Server() {
                 this->statusChanges.pop_front();
                 delete sc;
         }
+        delete this->address;
 }
 
 String Server::getIP() {
-        return this->ip;
-}
-
-String Server::getAddress() {
-        String out = this->ip + ":";
-        if(this->gameport > 0) {
-                out += IntToStr(this->gameport);
-        } else {
-                out += IntToStr(this->gamespyport - 1);
-        }
-        return out;
+        return this->address->getIP();
 }
 
 String Server::getGamespyAddress() {
-        return (this->ip + ":" + IntToStr(this->gamespyport));
+        return this->address->getAddress(false, true);
 }
 
 int Server::getGamespyPort() {
-        return this->gamespyport;
+        return this->address->getGameSpyPort();
 }
 
+String Server::getHostAddress() {
+        return this->address->getAddress(true, false);
+}
 ServerConfigEntry* Server::createServerConfigEntry() {
         ServerConfigEntry *sI = new ServerConfigEntry(this->getGamespyAddress());
         sI->watch = this->watch;
@@ -162,7 +159,7 @@ bool Server::isPlayerOnServer(String playerName, bool exactMatch) {
 }
 
 bool Server::processUpdate(Message *msg) {
-        if(msg->getIP() != this->ip || msg->getPort() != this->gamespyport) { return false; }
+        if(msg->getIP() != this->address->getIP() || msg->getPort() != this->address->getGameSpyPort()) { return false; }
         if(this->parseMessageToQueryAnswer(msg)) {
                 this->parseQueryAnswers();
                 if(this->messageSent > 1) {
@@ -246,8 +243,8 @@ void Server::queryIsAboutToBeSent(String query, bool sendingSuccess, int timeOut
 
 bool Server::equals(Server *srv) {
         if(srv == NULL) { return false; }
-        return (this->ip == srv->getIP() &&
-                this->gamespyport == srv->getGamespyPort());
+        return (this->getIP() == srv->getIP() &&
+                this->getGamespyPort() == srv->getGamespyPort());
 }
 
 bool Server::equals(String serverAddress) {
@@ -482,7 +479,7 @@ void Server::parseQueryAnswers() {
                                 this->name = value;
                         } else if(ident == "hostport") {
                                 int p = StrToIntDef(value, -1);
-                                if(p > -1) { this->gameport = p; }
+                                if(p > -1 && p < 65535) { this->address->setGamePort(p); }
                         } else if(ident == "mapname") {
                                 this->island = value;
                         } else if(ident == "gametype") {
@@ -625,7 +622,7 @@ Player* Server::getPlayer(int index) {
 }
 
 int Server::getGamePort() {
-        return this->gameport;
+        return this->address->getGamePort();
 }
 
 String Server::getPlatform() {
@@ -710,11 +707,11 @@ long Server::getStatusTime() {
 }
 
 String Server::createSettingsFileEntry() {
-        String entry = this->getGamespyAddress();
+        String entry = this->address->getAddress(true, true);
         String att = "";
         if(this->isWatched()) { att += "W"; }
         if(this->isFavorite()) { att += "F"; }
-        if(this->isPersistent()) { att += "P"; }
+        if(this->isPersistent() || this->address->hasHostname()) { att += "P"; }
         if(this->isBlocked()) { att += "B"; }
         if(!att.IsEmpty()) { entry += ";" + att; }
         return entry;

@@ -14,14 +14,24 @@ class Address {
                 Address();
                 bool readAddress(String address, int defaultPort, bool gamespy);
                 String getIP();
-                int getPort();
+                String getHostname();
+                void setGamePort(int port);
+                int getGamePort();
+                int getGameSpyPort();
                 bool isValid();
-                String getAddress();
+                String getAddress(bool hostname, bool gamespy);
+                bool hasHostname();
 
         private:
                 String ip;
-                int port;
+                String hostname;
+                int gamePort;
+                int gameSpyPort;
                 bool valid;
+
+                int checkPortFormat(String port);
+                bool checkIPFormat(String ip);
+                String resolveHostnameToIP(String domain);
 };
 
 //---------------------------------------------------------------------------

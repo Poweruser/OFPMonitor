@@ -19,20 +19,6 @@ TWINDOW_SETTINGS *WINDOW_SETTINGS;
 
 enum OPENDIALOG_AUDIOFILE_TAG { ODAFT_Notifications };
 
-unsigned long resolv(char *host) {
-    struct      hostent *hp;
-    unsigned long   host_ip;
-
-    host_ip = inet_addr(host);
-    if(host_ip == htonl(INADDR_NONE)) {
-        hp = gethostbyname(host);
-        if(!hp) {
-		return INADDR_NONE;
-        } else host_ip = *(unsigned long *)(hp->h_addr);
-    }
-    return(host_ip);
-}
-
 void TWINDOW_SETTINGS::setModel(OFPMonitorModel *ofpm) {
         this->ofpm = ofpm;
 }
@@ -452,7 +438,7 @@ void TWINDOW_SETTINGS::writeServerToStringGrid(int rowIndex, int serverID) {
         if(srv != NULL) {
                 this->StringGrid1->Cells[0][rowIndex] = " " + IntToStr(srv->getServerID());
                 this->StringGrid1->Objects[0][rowIndex] = (TObject*) srv->getServerID();
-                this->StringGrid1->Cells[1][rowIndex] = srv->getAddress();
+                this->StringGrid1->Cells[1][rowIndex] = srv->getHostAddress();
                 this->StringGrid1->Cells[2][rowIndex] = srv->getName();
         }
 }
@@ -475,7 +461,7 @@ void TWINDOW_SETTINGS::updateServerEditorList() {
                                 if(this->serverEditorTableSorter->isIDSet()) {
                                         sortlist->AddObject(this->addLeadingZeros(srv->getServerID(), 3), (TObject*) srv->getServerID());
                                 } else if(this->serverEditorTableSorter->isIPSet()) {
-                                        sortlist->AddObject(srv->getAddress(), (TObject*) srv->getServerID());
+                                        sortlist->AddObject(srv->getHostAddress(), (TObject*) srv->getServerID());
                                 } else if(this->serverEditorTableSorter->isNameSet()) {
                                         sortlist->AddObject(srv->getName(), (TObject*) srv->getServerID());
                                 } else if(this->serverEditorTableSorter->isFavoritesSet()) {
@@ -1421,34 +1407,14 @@ void __fastcall TWINDOW_SETTINGS::BUTTON_SERVERS_ADDClick(TObject *Sender)
         String value;
         if(InputQuery(this->languageDB->getGuiString("STRING_SERVERS_ADD_TITLE"), this->languageDB->getGuiString("STRING_SERVERS_ADD_PROMPT"), value)) {
                 if(!value.IsEmpty()) {
-                        int defaultGameport = 2302;
+                        int defaultGameport = DEFAULT_OFPSERVER_GAMEPORT;
                         Address *add = new Address();
                         value = value.Trim();
                         if(add->readAddress(value, defaultGameport, false)) {
-                                this->ofpm->addServer(add->getAddress());
+                                this->ofpm->addServer(add);
                         } else {
-                                int success = false;
-                                struct in_addr addr;
-                                StringSplitter ssp(value);
-                                TStringList *url = ssp.split(":");
-                                if(url->Count == 1) {
-                                        url->Add(IntToStr(defaultGameport));
-                                }
-                                String ip = url->Strings[0];
-                                addr.s_addr = resolv(ip.c_str());
-                                if(addr.s_addr != INADDR_NONE) {
-                                        ip = inet_ntoa(addr);
-                                        if(ip != "62.157.140.133" && ip != "80.156.86.78") {
-                                                success = true;
-                                        }
-                                }
-                                if(success && add->readAddress(ip + ":" + url->Strings[1], defaultGameport, false)) {
-                                        this->ofpm->addServer(add->getAddress());
-                                } else {
-                                        ShowMessage(this->languageDB->getGuiString("STRING_SERVERS_ADDERROR") + "  " + url->Strings[0]);
-                                }
+                                delete add;
                         }
-                        delete add;
                         updateServerEditorList();
                 }
         }
@@ -1697,7 +1663,7 @@ void __fastcall TWINDOW_SETTINGS::SaveDialog1CanClose(TObject *Sender,
                 int serverID = *ci;
                 Server *srv = this->ofpm->getServerByID(serverID);
                 if(srv != NULL) {
-                        String address = srv->getAddress();
+                        String address = srv->getHostAddress();
                         int index = toSave->IndexOf(address);
                         if(index < 0) {
                                 toSave->Add(address);
